@@ -1,0 +1,48 @@
+<svg width="540" height="1100" viewBox="0 0 540 1100" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bgm" x1="72" y1="30" x2="470" y2="1060" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FFF0D8"/>
+      <stop offset="0.5" stop-color="#D1EFFF"/>
+      <stop offset="1" stop-color="#FFD7C3"/>
+    </linearGradient>
+    <radialGradient id="sun" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(430 120) rotate(128) scale(120 96)">
+      <stop stop-color="#FFD76E"/>
+      <stop offset="1" stop-color="#FFD76E" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="540" height="1100" fill="url(#bgm)"/>
+  <rect width="540" height="1100" fill="url(#sun)"/>
+
+  <text x="42" y="84" fill="#4B6270" font-family="Arial, sans-serif" font-size="16" letter-spacing="4">ULTIMATE VACATION</text>
+  <text x="42" y="150" fill="#0F172A" font-family="Arial, sans-serif" font-size="44" font-weight="700">Herd the cats.</text>
+  <text x="42" y="198" fill="#0F172A" font-family="Arial, sans-serif" font-size="44" font-weight="700">Save the vacation.</text>
+  <text x="42" y="242" fill="#5B6C79" font-family="Arial, sans-serif" font-size="20">Start your account and run the trip</text>
+  <text x="42" y="270" fill="#5B6C79" font-family="Arial, sans-serif" font-size="20">like somebody finally made you a proper tool.</text>
+
+  <rect x="34" y="328" width="472" height="624" rx="34" fill="#FFF8F0" stroke="#FFFFFF" stroke-opacity="0.82"/>
+  <rect x="66" y="360" width="130" height="34" rx="17" fill="#FFE1D3"/>
+  <text x="89" y="382" fill="#A24A2D" font-family="Arial, sans-serif" font-size="14" font-weight="700">FREE TO START</text>
+
+  <text x="66" y="438" fill="#112131" font-family="Arial, sans-serif" font-size="34" font-weight="700">Make it official.</text>
+  <text x="66" y="476" fill="#112131" font-family="Arial, sans-serif" font-size="34" font-weight="700">Be the trip boss.</text>
+
+  <text x="66" y="548" fill="#596B79" font-family="Arial, sans-serif" font-size="16">Full name</text>
+  <rect x="66" y="564" width="408" height="56" rx="18" fill="white" stroke="#D9E3EA"/>
+
+  <text x="66" y="650" fill="#596B79" font-family="Arial, sans-serif" font-size="16">Email</text>
+  <rect x="66" y="666" width="408" height="56" rx="18" fill="white" stroke="#D9E3EA"/>
+
+  <text x="66" y="752" fill="#596B79" font-family="Arial, sans-serif" font-size="16">Password</text>
+  <rect x="66" y="768" width="408" height="56" rx="18" fill="white" stroke="#D9E3EA"/>
+
+  <rect x="66" y="850" width="408" height="58" rx="20" fill="#FF7B57"/>
+  <text x="190" y="886" fill="white" font-family="Arial, sans-serif" font-size="19" font-weight="700">Create account</text>
+
+  <rect x="66" y="926" width="408" height="56" rx="20" fill="white" stroke="#D9E3EA"/>
+  <text x="207" y="961" fill="#223244" font-family="Arial, sans-serif" font-size="18" font-weight="700">Continue with Google</text>
+
+  <text x="107" y="1024" fill="#5E6F7D" font-family="Arial, sans-serif" font-size="15">Already in the crew? Log in</text>
+
+  <rect x="66" y="1048" width="222" height="34" rx="17" fill="#12324A"/>
+  <text x="89" y="1070" fill="#CBE8F0" font-family="Arial, sans-serif" font-size="13">Travel-day checklists included</text>
+</svg>

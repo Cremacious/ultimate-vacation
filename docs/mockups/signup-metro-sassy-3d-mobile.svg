@@ -1,0 +1,52 @@
+<svg width="540" height="1100" viewBox="0 0 540 1100" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="76" y1="28" x2="472" y2="1060" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#EEF2F6"/>
+      <stop offset="0.5" stop-color="#DCE4ED"/>
+      <stop offset="1" stop-color="#F2F5F8"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="540" height="1100" fill="url(#bg)"/>
+
+  <text x="42" y="84" fill="#5B6977" font-family="Arial, sans-serif" font-size="16" letter-spacing="4">ULTIMATE VACATION</text>
+  <text x="42" y="150" fill="#0F172A" font-family="Arial, sans-serif" font-size="42" font-weight="700">Keep the trip cute.</text>
+  <text x="42" y="196" fill="#0F172A" font-family="Arial, sans-serif" font-size="42" font-weight="700">Keep the chaos employed.</text>
+  <text x="42" y="242" fill="#5D6C7B" font-family="Arial, sans-serif" font-size="20">Cooler, cleaner, and just judgmental</text>
+  <text x="42" y="270" fill="#5D6C7B" font-family="Arial, sans-serif" font-size="20">enough to save the vacation.</text>
+
+  <rect x="34" y="332" width="472" height="614" rx="34" fill="#F8FAFC" stroke="#E1E8EF"/>
+  <rect x="34" y="914" width="472" height="32" fill="#E7EEF4"/>
+  <path d="M34 914H506V914C506 931.673 491.673 946 474 946H66C48.3269 946 34 931.673 34 914V914Z" fill="#E8EEF4"/>
+
+  <rect x="66" y="366" width="126" height="36" rx="18" fill="#E6EDF5" stroke="#D5E0E8"/>
+  <rect x="66" y="392" width="126" height="10" fill="#D6E1E8"/>
+  <text x="98" y="389" fill="#4B6074" font-family="Arial, sans-serif" font-size="14" font-weight="700">START FREE</text>
+
+  <text x="66" y="454" fill="#101826" font-family="Arial, sans-serif" font-size="34" font-weight="700">Sign up and be</text>
+  <text x="66" y="492" fill="#101826" font-family="Arial, sans-serif" font-size="34" font-weight="700">the organized one.</text>
+  <text x="66" y="530" fill="#5E6D7D" font-family="Arial, sans-serif" font-size="18">A glamorous responsibility.</text>
+
+  <text x="66" y="584" fill="#596777" font-family="Arial, sans-serif" font-size="16">Full name</text>
+  <rect x="66" y="600" width="408" height="56" rx="18" fill="white" stroke="#D8E2E9"/>
+  <rect x="66" y="646" width="408" height="10" fill="#EDF2F6"/>
+
+  <text x="66" y="690" fill="#596777" font-family="Arial, sans-serif" font-size="16">Email</text>
+  <rect x="66" y="706" width="408" height="56" rx="18" fill="white" stroke="#D8E2E9"/>
+  <rect x="66" y="752" width="408" height="10" fill="#EDF2F6"/>
+
+  <text x="66" y="796" fill="#596777" font-family="Arial, sans-serif" font-size="16">Password</text>
+  <rect x="66" y="812" width="408" height="56" rx="18" fill="white" stroke="#D8E2E9"/>
+  <rect x="66" y="858" width="408" height="10" fill="#EDF2F6"/>
+
+  <rect x="66" y="888" width="408" height="60" rx="20" fill="#19222D" stroke="#26323D"/>
+  <rect x="66" y="934" width="408" height="14" fill="#101821"/>
+  <path d="M66 934H474V934C474 941.732 467.732 948 460 948H80C72.268 948 66 941.732 66 934V934Z" fill="#111922"/>
+  <text x="190" y="925" fill="white" font-family="Arial, sans-serif" font-size="19" font-weight="700">Create account</text>
+
+  <rect x="66" y="970" width="408" height="56" rx="18" fill="white" stroke="#D8E2E9"/>
+  <rect x="66" y="1016" width="408" height="10" fill="#EDF2F6"/>
+  <text x="207" y="1004" fill="#233244" font-family="Arial, sans-serif" font-size="18" font-weight="700">Continue with Google</text>
+
+  <text x="104" y="1068" fill="#5E6D7D" font-family="Arial, sans-serif" font-size="15">Your friends can stay chaotic. You don’t have to.</text>
+</svg>

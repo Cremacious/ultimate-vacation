@@ -1,0 +1,86 @@
+<svg width="1440" height="1024" viewBox="0 0 1440 1024" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="140" y1="48" x2="1290" y2="942" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FFF0D8"/>
+      <stop offset="0.45" stop-color="#CFEFFF"/>
+      <stop offset="1" stop-color="#FFD7C3"/>
+    </linearGradient>
+    <radialGradient id="blob1" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(252 156) rotate(38) scale(312 192)">
+      <stop stop-color="#FFFFFF" stop-opacity="0.9"/>
+      <stop offset="1" stop-color="#FFFFFF" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="blob2" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(1162 214) rotate(122) scale(250 160)">
+      <stop stop-color="#FF8C66" stop-opacity="0.34"/>
+      <stop offset="1" stop-color="#FF8C66" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="shadow" x="204" y="124" width="1032" height="780" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feFlood flood-opacity="0" result="BackgroundImageFix"/>
+      <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
+      <feOffset dy="30"/>
+      <feGaussianBlur stdDeviation="34"/>
+      <feColorMatrix type="matrix" values="0 0 0 0 0.117647 0 0 0 0 0.180392 0 0 0 0 0.27451 0 0 0 0.16 0"/>
+      <feBlend mode="normal" in2="BackgroundImageFix" result="effect1_dropShadow_0_1"/>
+      <feBlend mode="normal" in="SourceGraphic" in2="effect1_dropShadow_0_1" result="shape"/>
+    </filter>
+  </defs>
+  <rect width="1440" height="1024" fill="url(#bg)"/>
+  <rect width="1440" height="1024" fill="url(#blob1)"/>
+  <rect width="1440" height="1024" fill="url(#blob2)"/>
+
+  <text x="112" y="102" fill="#4A6371" font-family="Arial, sans-serif" font-size="18" letter-spacing="6">ULTIMATE VACATION</text>
+  <text x="1176" y="102" fill="#294050" font-family="Arial, sans-serif" font-size="18">Already in the crew? Log in</text>
+
+  <g filter="url(#shadow)">
+    <rect x="272" y="168" width="896" height="644" rx="40" fill="#FFFFFF" fill-opacity="0.34"/>
+    <rect x="272.5" y="168.5" width="895" height="643" rx="39.5" stroke="#FFFFFF" stroke-opacity="0.74"/>
+  </g>
+
+  <rect x="320" y="214" width="430" height="552" rx="34" fill="#12324A"/>
+  <circle cx="644" cy="284" r="78" fill="#FFD36B"/>
+  <circle cx="670" cy="302" r="60" fill="#FFF3C8"/>
+  <circle cx="404" cy="646" r="96" fill="#6FD6CC" fill-opacity="0.2"/>
+  <circle cx="696" cy="676" r="44" fill="#FF9770" fill-opacity="0.26"/>
+
+  <text x="366" y="278" fill="#9CD9E6" font-family="Arial, sans-serif" font-size="16" letter-spacing="4">GROUP TRIP ENERGY</text>
+  <text x="366" y="338" fill="white" font-family="Arial, sans-serif" font-size="56" font-weight="700">Herd the cats.</text>
+  <text x="366" y="398" fill="white" font-family="Arial, sans-serif" font-size="56" font-weight="700">Save the vacation.</text>
+
+  <text x="366" y="460" fill="#D8EAF1" font-family="Arial, sans-serif" font-size="22">Trips are fun.</text>
+  <text x="366" y="492" fill="#D8EAF1" font-family="Arial, sans-serif" font-size="22">Trip planning is usually nonsense.</text>
+  <text x="366" y="524" fill="#D8EAF1" font-family="Arial, sans-serif" font-size="22">This app fixes that part.</text>
+
+  <rect x="366" y="582" width="330" height="132" rx="28" fill="#FFFFFF" fill-opacity="0.1" stroke="#FFFFFF" stroke-opacity="0.16"/>
+  <text x="394" y="614" fill="#A8DAE8" font-family="Arial, sans-serif" font-size="12" letter-spacing="2.8">WHY PEOPLE KEEP IT OPEN</text>
+  <text x="394" y="650" fill="white" font-family="Arial, sans-serif" font-size="19">• Travel-day checklists that actually save you</text>
+  <text x="394" y="684" fill="white" font-family="Arial, sans-serif" font-size="19">• Group votes without the group-chat spiral</text>
+  <text x="394" y="718" fill="white" font-family="Arial, sans-serif" font-size="19">• Packing help for the gloriously distracted</text>
+
+  <rect x="786" y="214" width="334" height="552" rx="34" fill="#FFF9F2" stroke="#FFFFFF" stroke-opacity="0.84"/>
+  <rect x="822" y="246" width="112" height="34" rx="17" fill="#FFE0CF"/>
+  <text x="845" y="268" fill="#A0492D" font-family="Arial, sans-serif" font-size="14" font-weight="700">FREE TO START</text>
+
+  <text x="822" y="326" fill="#12202F" font-family="Arial, sans-serif" font-size="44" font-weight="700">Make it official.</text>
+  <text x="822" y="366" fill="#12202F" font-family="Arial, sans-serif" font-size="44" font-weight="700">Be the trip boss.</text>
+
+  <text x="822" y="424" fill="#566879" font-family="Arial, sans-serif" font-size="16">Full name</text>
+  <rect x="822" y="440" width="262" height="54" rx="18" fill="white" stroke="#D8E2E9"/>
+  <text x="842" y="473" fill="#B3BEC7" font-family="Arial, sans-serif" font-size="16">Taylor Sunshine</text>
+
+  <text x="822" y="522" fill="#566879" font-family="Arial, sans-serif" font-size="16">Email</text>
+  <rect x="822" y="538" width="262" height="54" rx="18" fill="white" stroke="#D8E2E9"/>
+  <text x="842" y="571" fill="#B3BEC7" font-family="Arial, sans-serif" font-size="16">you@tripboss.com</text>
+
+  <text x="822" y="620" fill="#566879" font-family="Arial, sans-serif" font-size="16">Password</text>
+  <rect x="822" y="636" width="262" height="54" rx="18" fill="white" stroke="#D8E2E9"/>
+  <text x="842" y="669" fill="#B3BEC7" font-family="Arial, sans-serif" font-size="16">••••••••••••</text>
+
+  <rect x="822" y="714" width="262" height="58" rx="20" fill="#FF7B57"/>
+  <text x="897" y="750" fill="white" font-family="Arial, sans-serif" font-size="19" font-weight="700">Create account</text>
+
+  <text x="900" y="808" fill="#7D8B96" font-family="Arial, sans-serif" font-size="14">or continue with</text>
+  <rect x="822" y="830" width="262" height="54" rx="18" fill="#FFFFFF" stroke="#D8E2E9"/>
+  <text x="894" y="864" fill="#213244" font-family="Arial, sans-serif" font-size="18" font-weight="700">Google</text>
+
+  <text x="822" y="924" fill="#5C6C79" font-family="Arial, sans-serif" font-size="14">No weird setup. Start free, upgrade when the</text>
+  <text x="822" y="946" fill="#5C6C79" font-family="Arial, sans-serif" font-size="14">trip starts getting ambitious.</text>
+</svg>

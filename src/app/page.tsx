@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 const phases = [
   {
     name: "Preplanning",
@@ -44,12 +46,12 @@ export default function Home() {
               chat.
             </p>
           </div>
-          <a
+          <Link
             href="/workspace"
             className="rounded-full border border-white/70 bg-white/60 px-4 py-2 text-sm font-medium text-slate-800 shadow-[0_12px_40px_rgba(31,41,55,0.08)] backdrop-blur-xl transition-transform duration-200 hover:-translate-y-0.5"
           >
             Open Workspace
-          </a>
+          </Link>
         </header>
 
         <div className="grid flex-1 items-center gap-12 py-16 lg:grid-cols-[minmax(0,1.15fr)_minmax(340px,0.85fr)] lg:gap-16">
@@ -66,18 +68,18 @@ export default function Home() {
               group expenses without turning the whole trip into admin work.
             </p>
             <div className="mt-8 flex flex-col gap-4 sm:flex-row">
-              <a
-                href="/workspace"
+              <Link
+                href="/signup"
                 className="rounded-full bg-slate-950 px-6 py-3 text-sm font-medium text-white transition-transform duration-200 hover:-translate-y-0.5"
               >
                 Start the product shell
-              </a>
-              <a
-                href="/docs/PROJECT_PLAN.md"
+              </Link>
+              <Link
+                href="/workspace"
                 className="rounded-full border border-slate-300/80 bg-white/65 px-6 py-3 text-sm font-medium text-slate-800 backdrop-blur-xl transition-transform duration-200 hover:-translate-y-0.5"
               >
-                Read the living plan
-              </a>
+                Open workspace preview
+              </Link>
             </div>
 
             <div className="mt-12 grid gap-5 sm:grid-cols-2">

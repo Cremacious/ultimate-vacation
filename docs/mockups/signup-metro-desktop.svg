@@ -1,0 +1,76 @@
+<svg width="1440" height="1024" viewBox="0 0 1440 1024" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="220" y1="40" x2="1220" y2="980" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#EFF3F7"/>
+      <stop offset="0.46" stop-color="#DCE5EE"/>
+      <stop offset="1" stop-color="#F2F5F8"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(1080 180) rotate(130) scale(280 180)">
+      <stop stop-color="#6EA7D4" stop-opacity="0.18"/>
+      <stop offset="1" stop-color="#6EA7D4" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="shadow" x="216" y="124" width="1010" height="792" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feFlood flood-opacity="0" result="BackgroundImageFix"/>
+      <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
+      <feOffset dy="28"/>
+      <feGaussianBlur stdDeviation="34"/>
+      <feColorMatrix type="matrix" values="0 0 0 0 0.0862745 0 0 0 0 0.117647 0 0 0 0 0.168627 0 0 0 0.16 0"/>
+      <feBlend mode="normal" in2="BackgroundImageFix" result="effect1_dropShadow_0_1"/>
+      <feBlend mode="normal" in="SourceGraphic" in2="effect1_dropShadow_0_1" result="shape"/>
+    </filter>
+  </defs>
+
+  <rect width="1440" height="1024" fill="url(#bg)"/>
+  <rect width="1440" height="1024" fill="url(#glow)"/>
+
+  <text x="110" y="100" fill="#5D6B79" font-family="Arial, sans-serif" font-size="17" letter-spacing="6">ULTIMATE VACATION</text>
+  <text x="1168" y="100" fill="#2D3947" font-family="Arial, sans-serif" font-size="17">Already planning something? Log in</text>
+
+  <g filter="url(#shadow)">
+    <rect x="284" y="168" width="872" height="636" rx="36" fill="#FFFFFF" fill-opacity="0.46"/>
+    <rect x="284.5" y="168.5" width="871" height="635" rx="35.5" stroke="#FFFFFF" stroke-opacity="0.86"/>
+  </g>
+
+  <rect x="330" y="214" width="414" height="544" rx="30" fill="#16212C"/>
+  <rect x="778" y="214" width="332" height="544" rx="30" fill="#F8FAFC" stroke="#E3E9EF"/>
+
+  <text x="374" y="274" fill="#95A8BA" font-family="Arial, sans-serif" font-size="15" letter-spacing="4">CITY-SMART TRAVEL</text>
+  <text x="374" y="340" fill="white" font-family="Arial, sans-serif" font-size="54" font-weight="700">Keep the trip</text>
+  <text x="374" y="398" fill="white" font-family="Arial, sans-serif" font-size="54" font-weight="700">moving.</text>
+  <text x="374" y="456" fill="#C6D0D9" font-family="Arial, sans-serif" font-size="23">For itineraries, travel-day checklists,</text>
+  <text x="374" y="490" fill="#C6D0D9" font-family="Arial, sans-serif" font-size="23">group plans, and the little details that</text>
+  <text x="374" y="524" fill="#C6D0D9" font-family="Arial, sans-serif" font-size="23">usually blow up at the last minute.</text>
+
+  <line x1="374" y1="582" x2="700" y2="582" stroke="#2E3A46"/>
+  <text x="374" y="626" fill="#FFFFFF" font-family="Arial, sans-serif" font-size="19">Organize the trip in phases</text>
+  <text x="374" y="664" fill="#FFFFFF" font-family="Arial, sans-serif" font-size="19">Invite people without losing control</text>
+  <text x="374" y="702" fill="#FFFFFF" font-family="Arial, sans-serif" font-size="19">Run travel day like a pro, not a panic attack</text>
+
+  <rect x="374" y="724" width="286" height="86" rx="24" fill="#1F2D3A"/>
+  <text x="400" y="756" fill="#84A9C9" font-family="Arial, sans-serif" font-size="12" letter-spacing="2.6">TRIP SNAPSHOT</text>
+  <text x="400" y="790" fill="white" font-family="Arial, sans-serif" font-size="28" font-weight="700">Chicago long weekend</text>
+  <text x="400" y="816" fill="#C3D0DB" font-family="Arial, sans-serif" font-size="15">Departure checklists  •  Budget still behaving</text>
+
+  <rect x="812" y="248" width="116" height="34" rx="17" fill="#E5EDF5"/>
+  <text x="844" y="270" fill="#4A6076" font-family="Arial, sans-serif" font-size="14" font-weight="700">START FREE</text>
+
+  <text x="812" y="332" fill="#101826" font-family="Arial, sans-serif" font-size="42" font-weight="700">Sign up and run</text>
+  <text x="812" y="374" fill="#101826" font-family="Arial, sans-serif" font-size="42" font-weight="700">the group better.</text>
+
+  <text x="812" y="432" fill="#596877" font-family="Arial, sans-serif" font-size="16">Full name</text>
+  <rect x="812" y="448" width="264" height="54" rx="18" fill="white" stroke="#DAE3EA"/>
+
+  <text x="812" y="528" fill="#596877" font-family="Arial, sans-serif" font-size="16">Email</text>
+  <rect x="812" y="544" width="264" height="54" rx="18" fill="white" stroke="#DAE3EA"/>
+
+  <text x="812" y="624" fill="#596877" font-family="Arial, sans-serif" font-size="16">Password</text>
+  <rect x="812" y="640" width="264" height="54" rx="18" fill="white" stroke="#DAE3EA"/>
+
+  <rect x="812" y="716" width="264" height="58" rx="20" fill="#17212B"/>
+  <text x="888" y="752" fill="white" font-family="Arial, sans-serif" font-size="19" font-weight="700">Create account</text>
+
+  <rect x="812" y="794" width="264" height="54" rx="18" fill="white" stroke="#DAE3EA"/>
+  <text x="885" y="828" fill="#243243" font-family="Arial, sans-serif" font-size="18" font-weight="700">Continue with Google</text>
+
+  <text x="812" y="892" fill="#687786" font-family="Arial, sans-serif" font-size="14">No loud nonsense. Just a better way to organize a trip.</text>
+</svg>

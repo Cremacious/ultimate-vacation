@@ -1,0 +1,88 @@
+<svg width="1440" height="1024" viewBox="0 0 1440 1024" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="178" y1="70" x2="1260" y2="940" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#F8F0E2"/>
+      <stop offset="0.48" stop-color="#D9EAF2"/>
+      <stop offset="1" stop-color="#F4E7D6"/>
+    </linearGradient>
+    <radialGradient id="glow1" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(318 186) rotate(36.74) scale(280.362 198.711)">
+      <stop stop-color="#FFFFFF" stop-opacity="0.95"/>
+      <stop offset="1" stop-color="#FFFFFF" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="glow2" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(1137 162) rotate(129.57) scale(283.406 175.528)">
+      <stop stop-color="#7FB9D6" stop-opacity="0.36"/>
+      <stop offset="1" stop-color="#7FB9D6" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="shadow" x="252" y="148" width="936" height="694" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feFlood flood-opacity="0" result="BackgroundImageFix"/>
+      <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
+      <feOffset dy="32"/>
+      <feGaussianBlur stdDeviation="28"/>
+      <feColorMatrix type="matrix" values="0 0 0 0 0.152941 0 0 0 0 0.203922 0 0 0 0 0.278431 0 0 0 0.12 0"/>
+      <feBlend mode="normal" in2="BackgroundImageFix" result="effect1_dropShadow_0_1"/>
+      <feBlend mode="normal" in="SourceGraphic" in2="effect1_dropShadow_0_1" result="shape"/>
+    </filter>
+  </defs>
+
+  <rect width="1440" height="1024" fill="url(#bg)"/>
+  <rect width="1440" height="1024" fill="url(#glow1)"/>
+  <rect width="1440" height="1024" fill="url(#glow2)"/>
+
+  <text x="120" y="108" fill="#51606E" font-family="Arial, sans-serif" font-size="18" letter-spacing="6">ULTIMATE VACATION</text>
+  <text x="1150" y="108" fill="#334155" font-family="Arial, sans-serif" font-size="18">Already a member? Log in</text>
+
+  <g filter="url(#shadow)">
+    <rect x="308" y="172" width="824" height="582" rx="34" fill="rgba(255,255,255,0.42)" />
+    <rect x="308" y="172" width="824" height="582" rx="34" fill="#FFFFFF" fill-opacity="0.34"/>
+    <rect x="308.5" y="172.5" width="823" height="581" rx="33.5" stroke="#FFFFFF" stroke-opacity="0.72"/>
+  </g>
+
+  <rect x="352" y="216" width="346" height="494" rx="30" fill="#14314B" fill-opacity="0.94"/>
+  <circle cx="620" cy="314" r="96" fill="#F4BF6A" fill-opacity="0.16"/>
+  <circle cx="440" cy="618" r="112" fill="#7EC8C4" fill-opacity="0.12"/>
+
+  <text x="392" y="280" fill="#F7F4EE" font-family="Arial, sans-serif" font-size="18" letter-spacing="4">PLAN BETTER</text>
+  <text x="392" y="336" fill="white" font-family="Arial, sans-serif" font-size="48" font-weight="700">Plan the trip.</text>
+  <text x="392" y="392" fill="white" font-family="Arial, sans-serif" font-size="48" font-weight="700">Skip the drama.</text>
+
+  <text x="392" y="452" fill="#CDE0EB" font-family="Arial, sans-serif" font-size="22">A travel planner for itinerary chaos,</text>
+  <text x="392" y="484" fill="#CDE0EB" font-family="Arial, sans-serif" font-size="22">packing panic, and departure-day nonsense.</text>
+
+  <circle cx="405" cy="545" r="5" fill="#F4BF6A"/>
+  <circle cx="405" cy="588" r="5" fill="#F4BF6A"/>
+  <circle cx="405" cy="631" r="5" fill="#F4BF6A"/>
+  <text x="424" y="552" fill="#F7F4EE" font-family="Arial, sans-serif" font-size="18">Build the trip in phases</text>
+  <text x="424" y="595" fill="#F7F4EE" font-family="Arial, sans-serif" font-size="18">Invite the crew with a code</text>
+  <text x="424" y="638" fill="#F7F4EE" font-family="Arial, sans-serif" font-size="18">Stay on track on travel day</text>
+
+  <rect x="392" y="670" width="264" height="84" rx="22" fill="#FFFFFF" fill-opacity="0.12" stroke="#FFFFFF" stroke-opacity="0.18"/>
+  <text x="418" y="702" fill="#B9D8E7" font-family="Arial, sans-serif" font-size="13" letter-spacing="2.5">TRIP PREVIEW</text>
+  <text x="418" y="733" fill="white" font-family="Arial, sans-serif" font-size="26" font-weight="700">Tulum escape</text>
+  <text x="418" y="758" fill="#D8E7F0" font-family="Arial, sans-serif" font-size="16">12 days out  •  Airport ride still unclaimed</text>
+
+  <rect x="734" y="216" width="354" height="494" rx="30" fill="#FFFFFF" fill-opacity="0.7" stroke="#FFFFFF" stroke-opacity="0.7"/>
+  <text x="780" y="282" fill="#344256" font-family="Arial, sans-serif" font-size="18" letter-spacing="3">CREATE ACCOUNT</text>
+  <text x="780" y="330" fill="#0F172A" font-family="Arial, sans-serif" font-size="42" font-weight="700">The group chaos</text>
+  <text x="780" y="377" fill="#0F172A" font-family="Arial, sans-serif" font-size="42" font-weight="700">ends here.</text>
+
+  <text x="780" y="433" fill="#556274" font-family="Arial, sans-serif" font-size="16">Full name</text>
+  <rect x="780" y="448" width="260" height="52" rx="16" fill="#F8FBFD" stroke="#D8E5EC"/>
+
+  <text x="780" y="533" fill="#556274" font-family="Arial, sans-serif" font-size="16">Email</text>
+  <rect x="780" y="548" width="260" height="52" rx="16" fill="#F8FBFD" stroke="#D8E5EC"/>
+
+  <text x="780" y="633" fill="#556274" font-family="Arial, sans-serif" font-size="16">Password</text>
+  <rect x="780" y="648" width="260" height="52" rx="16" fill="#F8FBFD" stroke="#D8E5EC"/>
+
+  <rect x="780" y="728" width="260" height="54" rx="18" fill="#0F172A"/>
+  <text x="852" y="762" fill="white" font-family="Arial, sans-serif" font-size="18" font-weight="700">Create account</text>
+
+  <line x1="780" y1="816" x2="852" y2="816" stroke="#CFD8DF"/>
+  <line x1="968" y1="816" x2="1040" y2="816" stroke="#CFD8DF"/>
+  <text x="886" y="821" fill="#7A8797" font-family="Arial, sans-serif" font-size="14">or</text>
+
+  <rect x="780" y="842" width="260" height="54" rx="18" fill="#FFFFFF" stroke="#D5E0E7"/>
+  <text x="833" y="876" fill="#223045" font-family="Arial, sans-serif" font-size="18" font-weight="700">Continue with Google</text>
+
+  <text x="780" y="936" fill="#6B7A89" font-family="Arial, sans-serif" font-size="14">By continuing, you agree to Terms and Privacy.</text>
+</svg>

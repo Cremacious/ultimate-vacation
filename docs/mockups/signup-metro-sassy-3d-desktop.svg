@@ -1,0 +1,91 @@
+<svg width="1440" height="1024" viewBox="0 0 1440 1024" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="190" y1="28" x2="1238" y2="980" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#EEF2F6"/>
+      <stop offset="0.5" stop-color="#DCE4ED"/>
+      <stop offset="1" stop-color="#F2F5F8"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(1130 180) rotate(129) scale(290 180)">
+      <stop stop-color="#78A5CB" stop-opacity="0.18"/>
+      <stop offset="1" stop-color="#78A5CB" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="shadow" x="220" y="122" width="1020" height="802" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feFlood flood-opacity="0" result="BackgroundImageFix"/>
+      <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
+      <feOffset dy="30"/>
+      <feGaussianBlur stdDeviation="34"/>
+      <feColorMatrix type="matrix" values="0 0 0 0 0.0901961 0 0 0 0 0.121569 0 0 0 0 0.172549 0 0 0 0.16 0"/>
+      <feBlend mode="normal" in2="BackgroundImageFix" result="effect1_dropShadow_0_1"/>
+      <feBlend mode="normal" in="SourceGraphic" in2="effect1_dropShadow_0_1" result="shape"/>
+    </filter>
+  </defs>
+
+  <rect width="1440" height="1024" fill="url(#bg)"/>
+  <rect width="1440" height="1024" fill="url(#glow)"/>
+
+  <text x="110" y="100" fill="#5B6977" font-family="Arial, sans-serif" font-size="17" letter-spacing="6">ULTIMATE VACATION</text>
+  <text x="1160" y="100" fill="#2A3744" font-family="Arial, sans-serif" font-size="17">Already wrangling a trip? Log in</text>
+
+  <g filter="url(#shadow)">
+    <rect x="286" y="170" width="868" height="636" rx="36" fill="#FFFFFF" fill-opacity="0.42"/>
+    <rect x="286.5" y="170.5" width="867" height="635" rx="35.5" stroke="#FFFFFF" stroke-opacity="0.8"/>
+  </g>
+
+  <rect x="332" y="216" width="416" height="548" rx="30" fill="#17212C"/>
+  <rect x="332" y="216" width="416" height="548" rx="30" stroke="#263341"/>
+  <rect x="332" y="734" width="416" height="30" rx="0" fill="#0F1720"/>
+  <path d="M332 734H748V734C748 750.569 734.569 764 718 764H362C345.431 764 332 750.569 332 734V734Z" fill="#111922"/>
+
+  <rect x="782" y="216" width="332" height="548" rx="30" fill="#F8FAFC" stroke="#E0E7EE"/>
+  <rect x="782" y="734" width="332" height="30" rx="0" fill="#E6EDF3"/>
+  <path d="M782 734H1114V734C1114 750.569 1100.57 764 1084 764H812C795.431 764 782 750.569 782 734V734Z" fill="#E7EEF4"/>
+
+  <text x="376" y="276" fill="#92A7BA" font-family="Arial, sans-serif" font-size="15" letter-spacing="4">METRO MODE</text>
+  <text x="376" y="340" fill="white" font-family="Arial, sans-serif" font-size="52" font-weight="700">Keep the trip cute.</text>
+  <text x="376" y="396" fill="white" font-family="Arial, sans-serif" font-size="52" font-weight="700">Keep the chaos employed.</text>
+
+  <text x="376" y="454" fill="#C9D3DC" font-family="Arial, sans-serif" font-size="22">For itineraries, travel-day checklists,</text>
+  <text x="376" y="486" fill="#C9D3DC" font-family="Arial, sans-serif" font-size="22">group decisions, and all the tiny disasters</text>
+  <text x="376" y="518" fill="#C9D3DC" font-family="Arial, sans-serif" font-size="22">that would love to ruin your departure.</text>
+
+  <rect x="376" y="570" width="296" height="106" rx="24" fill="#1E2B38" stroke="#2A3947"/>
+  <rect x="376" y="654" width="296" height="22" rx="0" fill="#111A23"/>
+  <path d="M376 654H672V654C672 666.15 662.15 676 650 676H398C385.85 676 376 666.15 376 654V654Z" fill="#14202A"/>
+  <text x="402" y="604" fill="#81A6C7" font-family="Arial, sans-serif" font-size="12" letter-spacing="2.4">TRIP SNAPSHOT</text>
+  <text x="402" y="636" fill="white" font-family="Arial, sans-serif" font-size="27" font-weight="700">Chicago long weekend</text>
+  <text x="402" y="662" fill="#C5D2DD" font-family="Arial, sans-serif" font-size="15">Budget behaving  •  Devin still has not packed</text>
+
+  <text x="376" y="724" fill="#FFFFFF" font-family="Arial, sans-serif" font-size="18">You keep the vibe. We keep the wheels on.</text>
+
+  <rect x="816" y="248" width="126" height="36" rx="18" fill="#E6EDF5" stroke="#D5E0E8"/>
+  <rect x="816" y="274" width="126" height="10" rx="0" fill="#D6E1E8"/>
+  <text x="847" y="271" fill="#4B6074" font-family="Arial, sans-serif" font-size="14" font-weight="700">START FREE</text>
+
+  <text x="816" y="334" fill="#101826" font-family="Arial, sans-serif" font-size="40" font-weight="700">Sign up and be</text>
+  <text x="816" y="376" fill="#101826" font-family="Arial, sans-serif" font-size="40" font-weight="700">the organized one.</text>
+  <text x="816" y="412" fill="#5E6D7D" font-family="Arial, sans-serif" font-size="17">A heavy burden. A fabulous burden.</text>
+
+  <text x="816" y="456" fill="#596777" font-family="Arial, sans-serif" font-size="16">Full name</text>
+  <rect x="816" y="472" width="264" height="54" rx="18" fill="white" stroke="#D8E2E9"/>
+  <rect x="816" y="516" width="264" height="10" fill="#EDF2F6"/>
+
+  <text x="816" y="552" fill="#596777" font-family="Arial, sans-serif" font-size="16">Email</text>
+  <rect x="816" y="568" width="264" height="54" rx="18" fill="white" stroke="#D8E2E9"/>
+  <rect x="816" y="612" width="264" height="10" fill="#EDF2F6"/>
+
+  <text x="816" y="648" fill="#596777" font-family="Arial, sans-serif" font-size="16">Password</text>
+  <rect x="816" y="664" width="264" height="54" rx="18" fill="white" stroke="#D8E2E9"/>
+  <rect x="816" y="708" width="264" height="10" fill="#EDF2F6"/>
+
+  <rect x="816" y="736" width="264" height="60" rx="20" fill="#19222D" stroke="#26323D"/>
+  <rect x="816" y="782" width="264" height="14" fill="#101821"/>
+  <path d="M816 782H1080V782C1080 789.732 1073.73 796 1066 796H830C822.268 796 816 789.732 816 782V782Z" fill="#111922"/>
+  <text x="893" y="773" fill="white" font-family="Arial, sans-serif" font-size="19" font-weight="700">Create account</text>
+
+  <rect x="816" y="820" width="264" height="56" rx="18" fill="#FFFFFF" stroke="#D8E2E9"/>
+  <rect x="816" y="866" width="264" height="10" fill="#EDF2F6"/>
+  <text x="887" y="854" fill="#233244" font-family="Arial, sans-serif" font-size="18" font-weight="700">Continue with Google</text>
+
+  <text x="816" y="918" fill="#687787" font-family="Arial, sans-serif" font-size="14">No loud nonsense. Just a prettier way to stop</text>
+  <text x="816" y="940" fill="#687787" font-family="Arial, sans-serif" font-size="14">your friends from missing the flight.</text>
+</svg>

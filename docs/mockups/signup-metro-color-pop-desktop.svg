@@ -1,0 +1,101 @@
+<svg width="1440" height="1024" viewBox="0 0 1440 1024" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="170" y1="32" x2="1254" y2="980" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#EEF2F8"/>
+      <stop offset="0.45" stop-color="#E2E9F3"/>
+      <stop offset="1" stop-color="#F4F6FA"/>
+    </linearGradient>
+    <radialGradient id="pinkGlow" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(1160 156) rotate(129) scale(260 180)">
+      <stop stop-color="#FF5FA2" stop-opacity="0.24"/>
+      <stop offset="1" stop-color="#FF5FA2" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="cyanGlow" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(296 868) rotate(7) scale(320 180)">
+      <stop stop-color="#46C8FF" stop-opacity="0.18"/>
+      <stop offset="1" stop-color="#46C8FF" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="shadow" x="216" y="122" width="1020" height="804" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feFlood flood-opacity="0" result="BackgroundImageFix"/>
+      <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
+      <feOffset dy="30"/>
+      <feGaussianBlur stdDeviation="34"/>
+      <feColorMatrix type="matrix" values="0 0 0 0 0.0901961 0 0 0 0 0.121569 0 0 0 0 0.172549 0 0 0 0.16 0"/>
+      <feBlend mode="normal" in2="BackgroundImageFix" result="effect1_dropShadow_0_1"/>
+      <feBlend mode="normal" in="SourceGraphic" in2="effect1_dropShadow_0_1" result="shape"/>
+    </filter>
+  </defs>
+
+  <rect width="1440" height="1024" fill="url(#bg)"/>
+  <rect width="1440" height="1024" fill="url(#pinkGlow)"/>
+  <rect width="1440" height="1024" fill="url(#cyanGlow)"/>
+
+  <text x="110" y="100" fill="#576676" font-family="Arial, sans-serif" font-size="17" letter-spacing="6">ULTIMATE VACATION</text>
+  <text x="1160" y="100" fill="#2A3744" font-family="Arial, sans-serif" font-size="17">Already running the group? Log in</text>
+
+  <g filter="url(#shadow)">
+    <rect x="286" y="170" width="868" height="638" rx="36" fill="#FFFFFF" fill-opacity="0.42"/>
+    <rect x="286.5" y="170.5" width="867" height="637" rx="35.5" stroke="#FFFFFF" stroke-opacity="0.82"/>
+  </g>
+
+  <rect x="332" y="216" width="418" height="550" rx="30" fill="#1A2130"/>
+  <rect x="332" y="216" width="418" height="550" rx="30" stroke="#2A3344"/>
+  <rect x="332" y="736" width="418" height="30" fill="#0F1520"/>
+  <path d="M332 736H750V736C750 752.569 736.569 766 720 766H362C345.431 766 332 752.569 332 736V736Z" fill="#111825"/>
+
+  <circle cx="652" cy="284" r="74" fill="#FF6FAE"/>
+  <circle cx="616" cy="324" r="48" fill="#4CD0FF"/>
+  <circle cx="690" cy="360" r="24" fill="#FFD65C"/>
+  <circle cx="404" cy="650" r="84" fill="#6C7BFF" fill-opacity="0.2"/>
+
+  <text x="376" y="278" fill="#A2B5C8" font-family="Arial, sans-serif" font-size="15" letter-spacing="4">COLOR POP MODE</text>
+  <text x="376" y="342" fill="white" font-family="Arial, sans-serif" font-size="52" font-weight="700">Look hot.</text>
+  <text x="376" y="398" fill="white" font-family="Arial, sans-serif" font-size="52" font-weight="700">Travel organized.</text>
+
+  <text x="376" y="456" fill="#CCD6E0" font-family="Arial, sans-serif" font-size="22">A smarter planner for the itinerary,</text>
+  <text x="376" y="488" fill="#CCD6E0" font-family="Arial, sans-serif" font-size="22">the packing list, the travel-day scramble,</text>
+  <text x="376" y="520" fill="#CCD6E0" font-family="Arial, sans-serif" font-size="22">and the friend who absolutely forgot something.</text>
+
+  <rect x="376" y="572" width="304" height="108" rx="24" fill="#232B3D" stroke="#313C50"/>
+  <rect x="376" y="658" width="304" height="22" fill="#141C28"/>
+  <path d="M376 658H680V658C680 670.15 670.15 680 658 680H398C385.85 680 376 670.15 376 658V658Z" fill="#16202C"/>
+  <text x="402" y="606" fill="#7CD0FF" font-family="Arial, sans-serif" font-size="12" letter-spacing="2.6">TRIP SNAPSHOT</text>
+  <text x="402" y="638" fill="white" font-family="Arial, sans-serif" font-size="27" font-weight="700">New York long weekend</text>
+  <text x="402" y="664" fill="#C7D4DF" font-family="Arial, sans-serif" font-size="15">Reservations locked  •  Jordan still has not packed</text>
+
+  <text x="376" y="726" fill="#FFFFFF" font-family="Arial, sans-serif" font-size="18">You bring the vibe. We bring the receipts, reminders, and timeline.</text>
+
+  <rect x="784" y="216" width="330" height="550" rx="30" fill="#F8FAFC" stroke="#E0E6EE"/>
+  <rect x="784" y="736" width="330" height="30" fill="#E8EEF4"/>
+  <path d="M784 736H1114V736C1114 752.569 1100.57 766 1084 766H814C797.431 766 784 752.569 784 736V736Z" fill="#E7EEF4"/>
+
+  <rect x="818" y="248" width="150" height="36" rx="18" fill="#FDE3EF" stroke="#F3C6DA"/>
+  <rect x="818" y="274" width="150" height="10" fill="#EFC8D9"/>
+  <text x="847" y="271" fill="#A03E6D" font-family="Arial, sans-serif" font-size="14" font-weight="700">FREE TO START</text>
+
+  <text x="818" y="334" fill="#101826" font-family="Arial, sans-serif" font-size="40" font-weight="700">Sign up and be</text>
+  <text x="818" y="376" fill="#101826" font-family="Arial, sans-serif" font-size="40" font-weight="700">the capable friend.</text>
+  <text x="818" y="412" fill="#5E6D7D" font-family="Arial, sans-serif" font-size="17">A gorgeous burden. Someone has to do it.</text>
+
+  <text x="818" y="456" fill="#596777" font-family="Arial, sans-serif" font-size="16">Full name</text>
+  <rect x="818" y="472" width="264" height="54" rx="18" fill="white" stroke="#D8E2E9"/>
+  <rect x="818" y="516" width="264" height="10" fill="#EDF2F6"/>
+
+  <text x="818" y="552" fill="#596777" font-family="Arial, sans-serif" font-size="16">Email</text>
+  <rect x="818" y="568" width="264" height="54" rx="18" fill="white" stroke="#D8E2E9"/>
+  <rect x="818" y="612" width="264" height="10" fill="#EDF2F6"/>
+
+  <text x="818" y="648" fill="#596777" font-family="Arial, sans-serif" font-size="16">Password</text>
+  <rect x="818" y="664" width="264" height="54" rx="18" fill="white" stroke="#D8E2E9"/>
+  <rect x="818" y="708" width="264" height="10" fill="#EDF2F6"/>
+
+  <rect x="818" y="736" width="264" height="60" rx="20" fill="#4CD0FF" stroke="#34B7E7"/>
+  <rect x="818" y="782" width="264" height="14" fill="#289CC8"/>
+  <path d="M818 782H1082V782C1082 789.732 1075.73 796 1068 796H832C824.268 796 818 789.732 818 782V782Z" fill="#2489AE"/>
+  <text x="896" y="773" fill="white" font-family="Arial, sans-serif" font-size="19" font-weight="700">Create account</text>
+
+  <rect x="818" y="820" width="264" height="56" rx="18" fill="#FFFFFF" stroke="#D8E2E9"/>
+  <rect x="818" y="866" width="264" height="10" fill="#EDF2F6"/>
+  <text x="889" y="854" fill="#233244" font-family="Arial, sans-serif" font-size="18" font-weight="700">Continue with Google</text>
+
+  <text x="818" y="918" fill="#687787" font-family="Arial, sans-serif" font-size="14">Cute interface. Ruthless organization.</text>
+  <text x="818" y="940" fill="#687787" font-family="Arial, sans-serif" font-size="14">Nobody is missing the train on your watch.</text>
+</svg>
