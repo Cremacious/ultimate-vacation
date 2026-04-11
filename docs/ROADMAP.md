@@ -11,6 +11,7 @@ Goal: create a clear product direction, repo structure, and front-end foundation
 - define brand direction and naming candidates
 - create app shell and layout strategy
 - identify MVP and premium boundaries
+- define trip state and next-action model
 
 Status: in progress
 
@@ -40,7 +41,7 @@ Goal: ship the first truly useful planning version.
 - packing list CRUD
 - travel-day checklist CRUD
 - invite code model
-- basic premium placeholders
+- basic premium placeholders and upgrade hooks
 
 Exit criteria:
 
@@ -98,6 +99,7 @@ Goal: increase product depth and monetization without bloating the core.
 - advanced reminders
 - richer collaboration controls
 - premium polish and conversion experiments
+- pricing experiments and retention refinement
 
 ## Open Sequencing Questions
 

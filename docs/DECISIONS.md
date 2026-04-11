@@ -47,3 +47,11 @@ Use this format for new entries:
 - Decision: Create project planning, roadmap, architecture, layout, and design docs before deeper implementation work.
 - Why: This should reduce rework and keep product, UX, and engineering decisions aligned.
 - Follow-up: Keep the docs updated as code lands rather than letting them drift.
+
+### 2026-04-11 - Charge the organizer rather than every participant
+
+- Status: accepted
+- Context: The product is centered around one person acting as the trip organizer and paying user, while other travelers join through invites.
+- Decision: Premium access should be purchased by the organizer and apply to the trip workspace they own.
+- Why: This matches the product mental model, keeps billing simple, and lowers friction for participant adoption.
+- Follow-up: Revisit only if later collaboration complexity or team-style use cases justify a different model.

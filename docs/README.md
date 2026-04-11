@@ -16,11 +16,23 @@ This folder is the operating system for the project. If we keep it current, it w
 - [ARCHITECTURE.md](C:\Code\personal\ultimate-vacation\docs\ARCHITECTURE.md)
   The high-level technical direction, system boundaries, and initial data-domain design.
 
+- [LOGIC_FLOW.md](C:\Code\personal\ultimate-vacation\docs\LOGIC_FLOW.md)
+  The product behavior blueprint for trip states, guidance rules, phase transitions, and collaboration logic.
+
+- [STATE_MODEL.md](C:\Code\personal\ultimate-vacation\docs\STATE_MODEL.md)
+  The concrete trip object, status model, readiness logic, and next-best-action rules.
+
+- [MONETIZATION.md](C:\Code\personal\ultimate-vacation\docs\MONETIZATION.md)
+  The premium strategy, free-to-paid boundaries, conversion points, and profit discipline plan.
+
 - [APP_STRUCTURE.md](C:\Code\personal\ultimate-vacation\docs\APP_STRUCTURE.md)
   The proposed app layout, route map, workspace regions, and user flow structure.
 
 - [DESIGN_SYSTEM.md](C:\Code\personal\ultimate-vacation\docs\DESIGN_SYSTEM.md)
   The visual and UX rules for tone, spacing, surfaces, components, motion, and content style.
+
+- [DESIGN_ROADMAP.md](C:\Code\personal\ultimate-vacation\docs\DESIGN_ROADMAP.md)
+  The step-by-step order for locking design decisions without creating rework.
 
 - [DECISIONS.md](C:\Code\personal\ultimate-vacation\docs\DECISIONS.md)
   The running decision log for important product and engineering choices.
@@ -31,7 +43,7 @@ This folder is the operating system for the project. If we keep it current, it w
 - Update `ROADMAP.md` when priorities or release sequencing change.
 - Add and reprioritize items in `BACKLOG.md` as new work is discovered.
 - Add an entry to `DECISIONS.md` when we make a meaningful choice that future-us will forget the reasoning behind.
-- Update `ARCHITECTURE.md`, `APP_STRUCTURE.md`, and `DESIGN_SYSTEM.md` before or alongside major implementation work.
+- Update `ARCHITECTURE.md`, `LOGIC_FLOW.md`, `STATE_MODEL.md`, `APP_STRUCTURE.md`, and `DESIGN_SYSTEM.md` before or alongside major implementation work.
 
 ## Suggested Habits
 

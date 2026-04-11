@@ -23,6 +23,9 @@ Supporting project docs now live alongside this plan:
 - `docs/ROADMAP.md` for phased delivery
 - `docs/BACKLOG.md` for active and upcoming work
 - `docs/ARCHITECTURE.md` for technical direction
+- `docs/LOGIC_FLOW.md` for product behavior and stage logic
+- `docs/STATE_MODEL.md` for trip states, readiness, and next actions
+- `docs/MONETIZATION.md` for premium and profit planning
 - `docs/APP_STRUCTURE.md` for layout and route planning
 - `docs/DESIGN_SYSTEM.md` for visual and UX rules
 - `docs/DECISIONS.md` for decision history

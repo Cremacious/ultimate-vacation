@@ -8,8 +8,12 @@ This backlog is meant to stay human-readable. It should help us choose the next 
 
 - [x] Create living product plan
 - [x] Create roadmap, backlog, architecture, and design docs
+- [x] Design and document app logic flow
+- [x] Draft state model and monetization strategy docs
 - [ ] Finalize initial product name shortlist
 - [ ] Decide free vs premium boundary for core collaboration
+- [ ] Lock MVP trip lifecycle states and auto-phase rules
+- [ ] Lock first premium tier and paywall boundaries
 
 ### Frontend foundation
 
@@ -23,6 +27,7 @@ This backlog is meant to stay human-readable. It should help us choose the next 
 
 - [ ] Choose ORM: Prisma vs Drizzle
 - [ ] Define initial database schema draft
+- [ ] Model trip status, readiness, and next-action fields
 - [ ] Add environment variable strategy
 - [ ] Decide auth provider direction
 
@@ -32,8 +37,11 @@ This backlog is meant to stay human-readable. It should help us choose the next 
 
 - [ ] Create trip onboarding flow
 - [ ] Model trip phases and stage progress
+- [ ] Model trip lifecycle statuses and readiness logic
+- [ ] Define next best action computation rules
 - [ ] Add trip dashboard overview
 - [ ] Add destination and travel basics capture
+- [ ] Define setup-complete criteria in product and schema terms
 
 ### Itinerary
 
@@ -52,6 +60,7 @@ This backlog is meant to stay human-readable. It should help us choose the next 
 - [ ] Add travel-day schedule model
 - [ ] Create checklist-driven travel day page
 - [ ] Support ordered tasks and completion state
+- [ ] Define active travel-day UI override behavior
 
 ## P2 - Collaboration
 
@@ -65,6 +74,8 @@ This backlog is meant to stay human-readable. It should help us choose the next 
 - [ ] Define subscription tiers
 - [ ] Mark premium-only capabilities in UI
 - [ ] Plan billing architecture with Stripe
+- [ ] Design upgrade prompts for travel day, polls, expenses, and offline mode
+- [ ] Decide whether to offer one-trip premium pass later
 
 ## P3 - Expenses and Advanced Features
 
@@ -80,12 +91,13 @@ This backlog is meant to stay human-readable. It should help us choose the next 
 - [ ] Explore map/place integrations for events
 - [ ] Explore calendar import/export needs
 - [ ] Explore domain and naming availability
+- [ ] Decide lightweight join flow vs full account requirement timing
 
 ## Ready Next
 
 The strongest next implementation items are:
 
-1. app shell layout
-2. route structure for trip phases
-3. data model draft
+1. trip state object and readiness schema draft
+2. app shell layout around recommended phase and next action
+3. route structure for trip phases
 4. auth and trip creation direction

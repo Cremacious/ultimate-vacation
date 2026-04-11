@@ -56,13 +56,15 @@ Purpose:
 Initial phase order:
 
 1. Overview
-2. Preplanning
-3. Itinerary
-4. Packing
-5. Travel Day
-6. Expenses
-7. Group
-8. Settings
+2. Setup
+3. Preplanning
+4. Itinerary
+5. Packing
+6. Travel Day
+7. Vacation Day
+8. Expenses
+9. Group
+10. Settings
 
 ## Key Pages We Expect To Build
 
@@ -82,13 +84,35 @@ Initial phase order:
 
 ### Trip phase pages
 
+- `/app/trips/[tripId]/setup`
 - `/app/trips/[tripId]/preplanning`
 - `/app/trips/[tripId]/itinerary`
 - `/app/trips/[tripId]/packing`
 - `/app/trips/[tripId]/travel-days`
+- `/app/trips/[tripId]/vacation-days`
 - `/app/trips/[tripId]/expenses`
 - `/app/trips/[tripId]/group`
 - `/app/trips/[tripId]/settings`
+
+## Logic-Aware Workspace Behavior
+
+The workspace should not act like a flat folder of pages. It should respond to trip state.
+
+### Workspace priorities by state
+
+- draft trip: push the user into setup completion
+- planning trip: emphasize next best planning action
+- ready trip: emphasize travel-day readiness and unresolved blockers
+- in-progress trip: emphasize today's schedule and live coordination
+- completed trip: emphasize settlement and wrap-up
+
+### Persistent UI elements that should become state-aware
+
+- trip phase rail
+- top summary bar
+- primary action button
+- alert / context panel
+- daily status card
 
 ## UX Rules For Structure
 
