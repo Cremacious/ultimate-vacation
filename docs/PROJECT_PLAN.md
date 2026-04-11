@@ -16,6 +16,17 @@ This document is the living source of truth for:
 
 We will keep updating this file as the project evolves.
 
+## Companion Docs
+
+Supporting project docs now live alongside this plan:
+
+- `docs/ROADMAP.md` for phased delivery
+- `docs/BACKLOG.md` for active and upcoming work
+- `docs/ARCHITECTURE.md` for technical direction
+- `docs/APP_STRUCTURE.md` for layout and route planning
+- `docs/DESIGN_SYSTEM.md` for visual and UX rules
+- `docs/DECISIONS.md` for decision history
+
 ## Working Product Summary
 
 Build the most useful, personality-rich vacation planning app possible:

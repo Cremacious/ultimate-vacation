@@ -1,36 +1,65 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Ultimate Vacation
 
-## Getting Started
+Ultimate Vacation is a Next.js app for planning vacations from first idea to final settle-up. The product is designed to help one organizer guide a group through preplanning, itinerary building, packing, travel days, on-trip coordination, and expense tracking without turning the whole experience into chaos.
 
-First, run the development server:
+The codebase is early, but the project now includes a real documentation system so product, UX, and engineering decisions have a stable home from the start.
+
+## Current Status
+
+- Next.js App Router project scaffolded
+- initial landing page and workspace placeholder created
+- living planning docs established
+- repo ready for backend, auth, and data-model work
+
+## Run Locally
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Production validation:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+npm run lint
+npm run build
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Project Map
 
-## Learn More
+- [Product Plan](C:\Code\personal\ultimate-vacation\docs\PROJECT_PLAN.md)
+- [Docs Index](C:\Code\personal\ultimate-vacation\docs\README.md)
+- [Roadmap](C:\Code\personal\ultimate-vacation\docs\ROADMAP.md)
+- [Backlog](C:\Code\personal\ultimate-vacation\docs\BACKLOG.md)
+- [Architecture](C:\Code\personal\ultimate-vacation\docs\ARCHITECTURE.md)
+- [App Structure](C:\Code\personal\ultimate-vacation\docs\APP_STRUCTURE.md)
+- [Design System](C:\Code\personal\ultimate-vacation\docs\DESIGN_SYSTEM.md)
+- [Decision Log](C:\Code\personal\ultimate-vacation\docs\DECISIONS.md)
 
-To learn more about Next.js, take a look at the following resources:
+## Working Agreements
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- Product and scope decisions go in the planning docs before they become code.
+- New architecture choices should be recorded in the decision log.
+- Big feature ideas should land in the backlog before implementation.
+- UI work should follow the design system and app structure docs.
+- We are optimizing for a stable web product first, then mobile packaging later.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Near-Term Priorities
 
-## Deploy on Vercel
+1. Lock the initial product name and brand direction.
+2. Build the app shell and route structure for the trip workspace.
+3. Define the first database schema for trips, members, itinerary, and checklists.
+4. Add auth, trip creation flow, and phase-based dashboard foundations.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Stack
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- Next.js 16
+- React 19
+- TypeScript
+- Tailwind CSS 4
+- Vercel-first hosting strategy
+- Neon-targeted database strategy
+
+## Notes
+
+This repo intentionally carries more planning than code right now. That is on purpose. The goal is to avoid building a bunch of disconnected features before the product shape, monetization boundaries, and information architecture are clear.
