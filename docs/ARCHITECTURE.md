@@ -17,8 +17,29 @@ This document describes the intended technical shape of the product before the b
 - Tailwind CSS
 - Neon Postgres
 - ORM to be decided: Prisma or Drizzle
-- auth provider to be decided
+- **Better Auth** for authentication
+- **Resend** for transactional email (password reset, invite emails, notifications)
 - Stripe for subscriptions later
+
+## Platform Strategy
+
+### Phase 1 — Web
+
+Build a stable, polished web application first. All architecture decisions should be made with the web experience as the primary target.
+
+### Phase 2 — iOS
+
+After the web product is stable, package for iOS. Android may follow later but is not in scope for the first mobile release.
+
+### iOS-aware design principles
+
+Even during web development, the following constraints should be respected:
+
+- touch targets should be generously sized (minimum 44x44pt equivalent)
+- no hover-only states for critical UI — all interactions must work on touch
+- bottom navigation patterns should be considered alongside top navigation
+- offline-capable reads should be designed early so iOS packaging benefits from them
+- avoid patterns that are difficult to replicate in a native-wrapped web app
 
 ## Application Layers
 
@@ -169,7 +190,8 @@ Early roles under consideration:
 
 ## Open Architecture Questions
 
-- Which ORM better fits our pace and deployment preferences?
+- Which ORM better fits our pace and deployment preferences? (Prisma vs Drizzle — still TBD)
 - Should participant join flow require a full account immediately?
 - How much app state should live server-side vs client-side?
 - When should we introduce background jobs or notifications?
+- How should Better Auth be configured for the invite code join flow — does a participant create a full account or a lightweight session first?

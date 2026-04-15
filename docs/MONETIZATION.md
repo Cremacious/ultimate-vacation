@@ -27,13 +27,17 @@ Primary customer:
 
 Secondary users:
 
-- invited participants who benefit from the trip workspace
+- invited participants who benefit from the trip workspace without paying
 
 ### Recommended commercial rule
 
 Charge the organizer, not every participant.
 
 This is simpler, more understandable, and better aligned with the user’s original intent.
+
+### Multiple trip membership
+
+Users can be participants in multiple trips at once (someone else’s trips, not their own). Whether being an active member in more than one trip simultaneously requires premium on the participant side is an open question — but creating multiple trips as an organizer is clearly a premium trigger.
 
 ## 2. Proposed Pricing Structure
 
@@ -153,22 +157,30 @@ Candidate premium features:
 ### Keep free
 
 - create account
-- create one trip
-- trip setup
+- create one active trip as organizer
+- trip setup (name, dates, invite code)
 - basic itinerary
-- basic packing
-- invite others
+- basic packing list (personal, private)
+- invite others via code
 - basic trip dashboard
+- be a participant in other people's trips
 
 ### Make premium
 
-- unlimited active trips
-- advanced travel-day mode
-- polls and voting
-- expenses and settlement
+- multiple active trips as organizer
+- advanced travel-day flows with transport-aware checklists
+- polls and voting (including polls tied to calendar events)
+- expense tracking and settlement
+- receipt scanning
 - offline mode
-- smart suggestions
+- smart context-aware suggestions (mobility, transport, trip type)
 - premium templates
+- vacation timeline feature (may be free or premium — to decide)
+
+### Confirmed premium-only
+
+- receipt scanning (confirmed — OCR cost and complexity justifies gate)
+- creating more than one active trip as the organizer
 
 ## 5. Conversion Moments
 

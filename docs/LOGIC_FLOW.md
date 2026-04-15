@@ -40,6 +40,31 @@ There are four main layers of app logic:
 
 For MVP, premium status should belong to the trip owner and control feature access for that trip workspace. This is simpler than trying to evaluate premium access per participant immediately.
 
+## 1b. Date Awareness and Auto-Mode Logic
+
+The app should always know what day it is relative to the trip and automatically shift its focus accordingly.
+
+### Date-aware behaviors
+
+- before trip start: show planning and preparation focus
+- on a designated travel day: shift entirely into travel day mode
+- on a non-travel day during the trip: shift into vacation day mode (daily schedule, events, coordination)
+- after trip end date: shift into wrap-up and repack mode
+
+### Auto-mode does not lock the user out
+
+The app shifts emphasis and recommended actions automatically, but users can still navigate freely to any phase. Auto-mode changes what is surfaced first, not what is accessible.
+
+### Repack logic
+
+When the trip end date arrives (or the return travel day is active), the app should:
+
+1. surface the user's personal packing list
+2. prompt them to use it in reverse — check off items as they repack to bring home
+3. remind users of any items that were in the list but are not yet checked off before they leave
+
+This prevents leaving belongings behind and makes the packing list useful in both directions.
+
 ## 2. Trip Lifecycle Logic
 
 Each trip should have a lifecycle status and a current planning phase.
@@ -192,6 +217,29 @@ Example:
 
 - if the trip is tomorrow and there is no travel-day plan, that should outrank polishing the itinerary
 
+## 4b. Packing List Logic
+
+### Private by default
+
+Each user has their own personal packing list for a trip. Packing lists are private — participants do not see each other's lists. This prevents unwanted edits and keeps personal items personal.
+
+### Context-aware suggestions
+
+When a user starts their packing list, the app should offer suggestions based on:
+
+- trip type and destination
+- transport mode (flying requires different prep than driving)
+- trip duration
+- any special needs indicated (limited mobility, traveling with kids, pets, medications, etc.)
+
+### Repack mode
+
+When the return leg of the trip begins, the packing list flips into repack mode:
+
+- same items, same list
+- user checks things off as they pack to go home
+- the app flags anything unchecked before the user confirms they are ready to leave
+
 ## 5. Organizer vs Participant Logic
 
 We should start with a clear default:
@@ -241,17 +289,38 @@ Allow lightweight joining, but require account creation before meaningful edits.
 
 Travel day is one of the strongest differentiators, so it deserves explicit rules.
 
+### Travel day designation
+
+Travel days are manually designated by the organizer (and potentially participants). They are not auto-detected from dates alone. The organizer picks which calendar dates are travel days and what kind each is:
+
+- departure day (leaving home)
+- transit day (moving between destinations)
+- return day (heading home)
+
+A trip can have more than two travel days. A multi-city trip or a road trip with overnight stops may have many travel days.
+
 ### Travel day objects
 
 Each travel day should include:
 
 - target date
+- travel day type (departure, transit, return)
+- transport mode (car, plane, rail, boat, etc.)
 - departure window
 - ordered task groups
 - required items
 - stopover checkpoints
 - travel segments
 - arrival steps
+
+### Transport-aware suggestions
+
+Travel day prompts and checklists should be informed by the transport mode:
+
+- **car** — fuel check, snack planning, stop frequency for kids or pets, route download for offline, load order for luggage
+- **plane** — document checks, liquids and bag rules, airport arrival timing, gate info
+- **rail** — ticket check, platform timing, luggage handling
+- **boat/ferry** — boarding time, motion sickness prep, luggage limits
 
 ### Travel day page priorities
 
@@ -311,19 +380,25 @@ Expense features should stay grounded in real trip behavior.
 
 ## 10. Poll and Decision Logic
 
-Polls should solve decision fatigue, not create extra UI noise.
+Polls should solve decision fatigue and prevent group arguments, not create extra UI noise.
 
 ### Good poll triggers
 
+- choosing between restaurants for a group dinner
 - choosing between activities
-- choosing restaurant options
-- picking meetup times
+- picking meetup times or locations
+- any calendar event where the group has not agreed yet
+
+### Polls tied to calendar events
+
+A poll can be attached to a specific calendar event. For example, if Friday night dinner is on the calendar but the restaurant is not decided, a poll can live inside that event. When the vote closes, the winning option becomes the event detail.
 
 ### Suggested guardrails
 
-- polls should expire
-- organizer can close a poll manually
-- winning poll options should be easy to convert into itinerary items later
+- polls should expire or have a manual close option
+- organizer can close a poll and override the result if needed
+- winning poll options should be easy to promote into the itinerary
+- poll results should be visible to all trip members
 
 ## 11. Notification and Reminder Logic
 
@@ -366,6 +441,23 @@ Premium should feel like unlocking power, not removing the product's usefulness.
 - basic itinerary
 - basic packing support
 - understanding the core value of the app
+
+## 13b. Vacation Timeline Logic
+
+As the trip unfolds, the app should passively build a vacation timeline — a fun, lightweight record of what happened in order.
+
+### What feeds the timeline
+
+- calendar events that occurred
+- notes added by any participant
+- expense entries (optional, can be toggled off for privacy)
+- any milestones or check-ins
+
+### Timeline purpose
+
+- the timeline is not for planning — it is for remembering
+- it should be readable and fun to scroll through after the trip
+- it becomes a light keepsake automatically, without the user having to do extra work
 
 ## 14. Brainstorm Ideas Worth Exploring Later
 

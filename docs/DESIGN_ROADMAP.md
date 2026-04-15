@@ -162,55 +162,99 @@ We should design these in this order:
 
 ## Decision Checklist
 
-Here are the major unresolved choices we still need to answer:
+### Round 1 — Brand and Naming ✅ COMPLETE
 
-- final app name
-- final brand personality balance
-- final font direction
-- iconography style
-- desktop nav model
-- mobile nav model
-- readiness visualization
-- trip overview structure
-- travel day page structure
-- premium lock style
-- upgrade prompt tone
+- [x] Working app name — **TripWave** (prototype name, final name TBD before brand lock-in)
+- [x] Tone — sassy, bubbly, fun, 1980s Go-Gos Vacation energy
+- [x] Font direction — **Fredoka** (600 for large display, 400 for section headings) + **Nunito** (UI and body)
+- [x] Icon style — **Phosphor Icons** fill weight, icons in colored circle containers
+- [x] Visual aesthetic — white base, bold circles motif, cyan-blue / yellow / pink palette, 80s-inspired
+
+### Round 2 — App Shell and Navigation ⬅️ NEXT
+
+- [ ] Desktop nav model (top nav? left rail? hybrid?)
+- [ ] Mobile nav model (bottom tabs? hamburger? collapsible?)
+- [ ] Where premium and account controls live
+- [ ] Whether the right context panel is always visible or conditional
+- [ ] Trip switcher behavior
+
+### Round 3 — Workspace Logic Surfaces
+
+- [ ] How recommended phase is surfaced in the shell
+- [ ] How next best action is displayed
+- [ ] How blockers are shown
+- [ ] How readiness score or tier is visualized
+- [ ] How trip state is communicated
+
+### Round 4 — Phase Screens (in this order)
+
+- [ ] Setup page
+- [ ] Overview / dashboard page
+- [ ] Travel Day page (highest priority — core differentiator)
+- [ ] Itinerary page
+- [ ] Packing page
+- [ ] Vacation Day page
+- [ ] Expenses page
+- [ ] Group page
+- [ ] Settings page
+
+### Round 5 — Monetization and Premium UX
+
+- [ ] Exact free vs premium boundaries (some still open)
+- [ ] Premium lock visual style
+- [ ] Upgrade prompt timing and tone
+- [ ] Pricing page structure
+
+### Round 6 — Motion and Polish
+
+- [ ] Page transition style
+- [ ] Hover and interaction behaviors
+- [ ] Loading and skeleton style
+- [ ] Checklist completion feedback
 
 ## Recommended Working Order For Our Next Chats
 
-### Round 1
+### Round 1 ✅ Done
 
-- name
-- tone
-- font direction
-- icon style
+- [x] name
+- [x] tone
+- [x] font direction
+- [x] icon style
 
-### Round 2
+### Round 2 ⬅️ Start here next session
 
 - shell layout
-- nav behavior
-- readiness / next-action UI
+- desktop nav model
+- mobile nav model
+- context panel behavior
+- trip switcher
 
 ### Round 3
 
-- setup page
-- overview page
-- travel day page
+- readiness visualization
+- next-action UI
+- trip state display
 
 ### Round 4
+
+- setup page
+- overview page
+- travel day page (do this one early — it is the key differentiator)
+
+### Round 5
 
 - itinerary
 - packing
 - vacation day
 - expenses
 
-### Round 5
+### Round 6
 
 - premium UX
 - pricing
 - upsells
 
-### Round 6
+### Round 7
 
 - motion
 - polish
