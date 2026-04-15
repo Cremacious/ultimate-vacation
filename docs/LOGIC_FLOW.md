@@ -811,19 +811,270 @@ The social layer keeps group communication inside the app.
 - in-app notification bell and list only
 - no push, no email alerts for activity
 
-## 25. Brainstorm Ideas Worth Exploring Later
+## 25. Planning Tools Logic
 
-- trip health score visible to users as a readable label or tier
-- chaos radar warnings for high-risk missing items
-- QR code for invite
-- calendar import and export
-- map and place integrations for events
-- restaurant wishlist per destination
-- per-day private journal entries
-- reusable trip templates by trip type
-- family mode with special support for kids, elders, accessibility, and frequent stops
+Tools available during the preplanning and planning phases to help the group prepare.
 
-## 18. Recommended MVP Logic Decisions
+### Weather preview
+
+- uses Open-Meteo (free, no API key required)
+- shows a forecast or historical weather summary for the destination around the trip dates
+- displayed during preplanning to inform packing decisions and activity planning
+- feeds into smart suggestions ("your trip overlaps with rainy season -- pack accordingly")
+- shown as a simple card: expected temperature range, precipitation likelihood, notable conditions
+
+### Document checklist generator
+
+- deterministic rule-based logic, no API required
+- based on destination and trip type, generates a personalized checklist
+- domestic trips: short list (valid ID, insurance card, any required tickets)
+- international trips: full list (passport validity, visa requirements, travel insurance, vaccination records, international driving permit, local currency)
+- items in the checklist can be marked complete and link to the documents section of preplanning
+- integrates with the preplanning completion score
+
+### Jet lag calculator
+
+- pure logic, no API
+- based on origin and destination time zones, shows: hours of time difference, recommended sleep strategy on the flight, suggested first-day arrival schedule to reset the clock
+- shown when an international flight is entered in preplanning
+- displayed again in the departure day brief
+
+### Packing calculator
+
+- given trip length, destination climate (from weather data or destination type), and planned activities (from wishlist and itinerary), generates a suggested packing checklist
+- suggestions are vibe-aware and group-aware (kids traveling adds relevant items, beach trip adds sunscreen and swimwear, etc.)
+- output feeds directly into the packing list feature -- user can accept all, pick individually, or dismiss
+- free for basic suggestions, premium smart suggestions add more depth
+
+### Group availability checker
+
+- each participant marks date ranges they cannot travel
+- organizer sees a simple overlap view highlighting when everyone is free
+- used during preplanning before dates are locked
+- does not require a third-party calendar integration -- manual entry only
+
+### Pre-trip shared shopping list
+
+- a collaborative checklist for shared supplies the group needs to acquire before leaving
+- separate from personal packing lists
+- examples: group sunscreen, road trip snacks, cash from ATM, shared power bank
+- any participant can add items (subject to permission toggles)
+- items can be assigned to a specific person to buy
+- not connected to the expense ledger by default, but can optionally log the cost when checked off
+
+## 26. Destination Reference Tools Logic
+
+Static reference tools available throughout the trip. Most are built from lookup data with no API cost.
+
+### Language phrasebook
+
+- a curated set of essential phrases per destination language
+- categories: greetings, directions, restaurant ordering, emergencies, numbers and money, shopping, transportation
+- includes rough pronunciation guides for each phrase
+- available in-app at all times
+- offline access is a premium feature (phrases downloaded for offline use)
+- no translation API -- static data per language for common destinations
+
+### Allergy and medical card
+
+- user enters allergies or medical conditions in their profile
+- the app generates a card showing this information in the destination language
+- example output: "I am allergic to peanuts and shellfish. Please do not include these in my food."
+- pre-built translations for common languages, no live translation API
+- card is shown during travel day and vacation day for quick access
+- printable from the web version
+
+### Tipping guide
+
+- country-by-country tipping norms
+- covers: restaurants, taxis, hotels, tour guides, spas
+- shows whether tipping is expected, customary, or considered rude
+- shows typical percentage or amount ranges
+- static lookup data per country, no API
+
+### Voltage and adapter guide
+
+- based on destination country, shows: plug adapter type needed, local voltage, whether a voltage converter is required
+- shown during preplanning packing section
+- simple lookup table, no API
+
+### Driving and transit basics
+
+- what side of the road the destination uses
+- speed limit units (mph vs km/h)
+- major local transit options (metro, tuk-tuks, rickshaws, etc.)
+- whether an international driving permit is required
+- short reference card per destination, shown during preplanning
+
+### Emergency contacts card
+
+- auto-generated for each destination
+- includes: local emergency number (not always 911), tourist police line, nearest embassy or consulate details, notes on finding local medical help
+- shown prominently during travel day and vacation day
+- always accessible without internet (even free tier -- this is a safety feature, not a premium lock)
+
+### Unit converter
+
+- multi-mode converter covering the most common travel conversions
+- temperature: Fahrenheit to Celsius
+- distance: miles to kilometers
+- weight: pounds to kilograms
+- liquid: gallons to liters
+- speed: mph to km/h
+- currency: ties into the currency converter (premium)
+- free to use, no API
+
+## 27. During-Trip Coordination Tools Logic
+
+### Quick bill splitter
+
+- a standalone calculator separate from the full expense logging system
+- used at the table or in the moment when someone needs a fast answer
+- inputs: total bill amount, tip percentage, number of people splitting
+- output: per-person amount including tip
+- optionally creates an expense record from the result, or dismisses with no logging
+- free, no API
+
+### Meetup point tool
+
+- each user can manually broadcast a simple location message to the group
+- not GPS tracking -- user types or selects where they are ("I am at the fountain near the main entrance")
+- visible to all group members in a simple list sorted by most recent
+- updates manually -- no background tracking
+- clears at the end of each day
+- useful for the classic group separation problem in busy tourist areas
+- free, no API
+
+### Quick thumbs vote
+
+- a lighter version of the full polls feature
+- single proposition, yes or no response
+- example: "Beach today?" -- group taps yes or no
+- closes when all members vote or the organizer closes it
+- results shown immediately
+- no expiry setup, no option configuration -- pure speed
+- converts to a full poll if the organizer wants to add options
+
+### Departure day brief
+
+- the night before any departure day (travel day), the app surfaces a summary card
+- contents: documents needed for this departure, transport time notes, check-in time reminders, destination weather on arrival day, one-line summary of day 1 plan
+- this is not the travel day checklist itself -- it is a calm pre-departure overview
+- shown as a notification and as a persistent card in the trip overview the night before
+
+## 28. Memory and Documentation Tools Logic
+
+### Confirmation number vault
+
+- a central place to store all booking reference numbers and access codes for the trip
+- covers: hotel confirmation codes, flight booking references, car rental codes, restaurant reservation numbers, activity booking codes, parking reservations
+- text only -- no document scanning or image storage
+- each entry has: label, confirmation number, provider name, date relevant, optional notes
+- available offline for premium users (downloaded when trip enters ready state)
+- separate from the expense system -- this is about access in the moment, not cost tracking
+
+### Trip statistics
+
+- auto-generated at wrap-up alongside the memory vault
+- fun numbers produced from trip data:
+  - total days traveled
+  - total expense amount
+  - highest single expense day
+  - number of itinerary events completed
+  - number of packing items packed
+  - number of group votes run
+  - number of participants
+- light and fun, not analytical -- designed to be a shareable moment
+
+### Post-trip poll
+
+- a fun group vote created at wrap-up
+- organizer creates it, all participants vote
+- suggested categories: best meal, funniest moment, most unexpected thing, destination worth returning to, MVP of the trip
+- results shown in the memory vault and accessible to all participants
+- free, built on the same poll infrastructure already planned
+
+### Scavenger hunt
+
+- organizer creates a list of challenges for the group during the trip
+- examples: try street food you have never heard of, find a local market, get lost on purpose, find the oldest building nearby, make a friend who speaks a different language
+- participants check off items they completed
+- items can have a point value if the organizer wants a competitive version
+- results visible to the group in real time
+- shown in the vacation day section when the trip is in progress
+- free, no API required
+
+## 29. Smart and Proactive Tools Logic
+
+### Seasonal warning system
+
+- during preplanning, checks the destination and trip dates against a lookup of known seasonal hazards
+- covers: hurricane season, monsoon season, extreme heat periods, wildfire risk seasons, jellyfish season, polar night periods, peak tourist congestion
+- if a risk applies, surfaces a clear warning with context: what the risk is, how severe it typically is, what to do about it
+- deterministic rule-based lookup by destination country/region and date range
+- feeds into smart suggestions (premium) for packing and activity adjustments
+- the warning itself is free -- it is safety-relevant
+
+### Local public holiday alerts
+
+- checks trip dates against a lookup of major local public holidays and observances by country
+- surfaces two types of alerts:
+  - closure alert: "National holiday on June 15 -- many shops and restaurants may be closed"
+  - festival alert: "Diwali falls during your trip -- expect celebrations, crowds, and special events"
+- static lookup data, no API
+- shown during preplanning destination info section
+
+### Departure day brief logic (see section 27)
+
+Already defined above. This is the smart pre-departure card the night before any travel day.
+
+### Smart suggestions coordination
+
+All smart suggestion tools feed from the same underlying logic engine:
+
+- trip vibe and type (beach, city, adventure, road trip, family, romantic, etc.)
+- destination country and region
+- group composition (ages, mobility needs, dietary restrictions)
+- trip dates and season
+- weather data (from Open-Meteo)
+- holiday and event data
+- preplanning completeness gaps
+
+The engine produces: packing suggestions, activity ideas, itinerary recommendations, document reminders, seasonal warnings, and accessibility prompts. Premium users get the full output. Free users get the most safety-critical suggestions.
+
+## 30. Accessibility and Comfort Tools Logic
+
+### Accessibility needs planner
+
+- users can flag personal accessibility needs in their profile: wheelchair or mobility aid, dietary restrictions, sensory sensitivities, service animal, hearing or vision considerations
+- these flags appear as planning prompts throughout the app:
+  - preplanning: "Confirm hotel has wheelchair accessible rooms"
+  - itinerary: flag if an activity is likely inaccessible
+  - packing: suggest relevant items (portable ramp, earplugs, etc.)
+  - travel day: surface accessibility-relevant tasks early in the checklist
+- organizer can see group-level accessibility needs (not individual medical detail) for planning purposes
+- no medical advice given -- only practical planning prompts
+
+### Medication reminder
+
+- simple scheduled reminders for medications that need to be taken at specific times during the trip
+- user sets: medication name (optional), time of day, whether to adjust for time zone change
+- adjusts reminder time to local destination time zone when the trip is in progress
+- no medical data stored or processed -- just a reminder schedule
+- push notification on native app; in-app notification on web
+- private to the individual user -- not visible to the group or organizer
+
+### Kids and family mode notes
+
+- during preplanning, if children are flagged in the group composition, relevant prompts appear throughout planning
+- packing suggestions: formula, diapers, snacks, entertainment, car seat considerations
+- itinerary: suggests noting nap schedule windows, kid-friendly activity filters on wishlist
+- travel day: adds child-specific checklist items (entertainment, snacks, documents)
+- accommodation: reminder to confirm crib or rollaway bed availability
+- activity wishlist: can filter by kid-friendly tag when browsing
+- not a separate mode -- just a layer of additional prompts when children are present
+
+## 31. Recommended MVP Logic Decisions
 
 To reduce complexity, the MVP should assume:
 
@@ -835,8 +1086,10 @@ To reduce complexity, the MVP should assume:
 - unresolved expenses can continue after trip completion
 - preplanning completion drives the trip ball fill
 - premium is a one-time unlock, not session-based
+- tools are grouped in a dedicated tools section accessible from the trip sidebar
+- safety-critical tools (emergency contacts, allergy card, weather warning) are always free regardless of premium status
 
-## 19. Open Logic Questions
+## 32. Open Logic Questions
 
 - When should a trip automatically move from planning to ready?
 - Should participants be able to start polls by default, or is that organizer-controlled per trip?
@@ -845,3 +1098,7 @@ To reduce complexity, the MVP should assume:
 - Should expense tracking appear as a persistent tab or only when relevant?
 - Which premium features should be hard-gated first for the cleanest business model?
 - Should smart suggestions be opt-in or shown by default?
+- Should the scavenger hunt be organizer-only to create, or can participants suggest items?
+- Should the meetup point tool update via a live feed or only on page refresh?
+- Should the post-trip poll be organizer-created only or auto-generated with suggested questions?
+- Should medication reminders be visible as a category in the notification list or kept entirely separate?

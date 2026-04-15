@@ -328,15 +328,102 @@ Earlier candidates for reference:
 
 Name should be fast, memorable, slightly sassy, and domain-available.
 
+## Tools and Smart Features
+
+TripWave includes a comprehensive set of built-in tools. Almost all are free. The tools section is accessible from the trip sidebar throughout the trip lifecycle.
+
+### Planning tools (pre-trip)
+
+- **Weather preview** -- Open-Meteo powered forecast and historical summary for destination around trip dates. Feeds packing and activity suggestions.
+- **Document checklist generator** -- destination-aware checklist (passport validity, visa, insurance, vaccinations, IDP). Deterministic rules, no API.
+- **Jet lag calculator** -- time zone difference, flight sleep strategy, first-day reset schedule. Shown when international flight is entered.
+- **Packing calculator** -- trip length, climate, and activities produce a suggested packing list that feeds directly into the packing feature.
+- **Group availability checker** -- participants mark unavailable dates, organizer sees overlap before locking trip dates.
+- **Pre-trip shared shopping list** -- collaborative list of shared supplies to acquire before departure (snacks, group sunscreen, etc.).
+
+### Destination reference tools (available throughout)
+
+- **Language phrasebook** -- curated essential phrases per language (greetings, directions, emergencies, ordering, shopping). Offline access is premium.
+- **Allergy and medical card** -- generates a card in the destination language showing the user's allergies or conditions. Pre-built translations, no API. Always free.
+- **Tipping guide** -- country-by-country tipping norms for restaurants, taxis, hotels, guides. Static lookup.
+- **Voltage and adapter guide** -- plug adapter type, local voltage, converter requirements. Static lookup.
+- **Driving and transit basics** -- road side, speed units, transit options, IDP requirements. Static lookup.
+- **Emergency contacts card** -- local emergency number, tourist police, embassy, medical notes. Always free. Always offline-accessible.
+- **Unit converter** -- temperature, distance, weight, liquid, speed. No API.
+
+### During-trip coordination tools
+
+- **Quick bill splitter** -- total, tip %, number of people. Optional expense log from result.
+- **Meetup point broadcaster** -- manual "I am at X" messages visible to the group. Clears daily.
+- **Quick thumbs vote** -- single yes/no proposition for the group. Lower friction than a full poll.
+- **Departure day brief** -- the night before any travel day, a card summarizing documents, transport timing, destination weather, and day 1 plan.
+
+### Memory and documentation tools
+
+- **Confirmation number vault** -- central store for all booking reference numbers, hotel codes, flight refs, restaurant reservations. Text only. Offline access is premium.
+- **Trip statistics** -- auto-generated at wrap-up: total days, spend, events, participants, highest expense day, and more.
+- **Post-trip poll** -- fun group vote at wrap-up (best meal, funniest moment, MVP of the trip). Results live in the memory vault.
+- **Scavenger hunt** -- organizer creates challenges for the group during the trip. Participants check off. Optional point scoring.
+
+### Smart and proactive tools
+
+- **Seasonal warning system** -- flags known seasonal hazards (hurricane season, monsoon, extreme heat, etc.) when trip dates and destination overlap. Deterministic lookup. Safety-critical warnings are always free.
+- **Local public holiday alerts** -- warns about closures and festivals based on destination country and trip dates. Static lookup.
+- **Smart suggestions engine** -- pulls from vibe, destination, group composition, weather, and season data to generate packing suggestions, activity ideas, itinerary recommendations, and document reminders. Premium for full depth; free for safety-critical outputs.
+
+### Accessibility and comfort tools
+
+- **Accessibility needs planner** -- users flag needs in their profile (mobility, dietary, sensory, service animal, hearing, vision). Prompts surface throughout planning.
+- **Medication reminder** -- private scheduled reminders, time zone aware. Push on native app, in-app on web.
+- **Kids and family mode** -- when children are flagged in the group, relevant prompts appear across packing, itinerary, travel day, and accommodation planning.
+
+### Tool access rules
+
+| Tool | Free | Premium adds |
+|---|---|---|
+| Weather preview | Yes | -- |
+| Document checklist | Yes | -- |
+| Jet lag calculator | Yes | -- |
+| Packing calculator | Yes | Smart suggestions depth |
+| Group availability | Yes | -- |
+| Pre-trip shopping list | Yes | -- |
+| Language phrasebook | Yes (in-app) | Offline access |
+| Allergy card | Yes | -- |
+| Tipping guide | Yes | -- |
+| Voltage guide | Yes | -- |
+| Driving basics | Yes | -- |
+| Emergency contacts | Yes (always) | -- |
+| Unit converter | Yes | Currency conversion |
+| Quick bill splitter | Yes | -- |
+| Meetup point | Yes | -- |
+| Quick thumbs vote | Yes | -- |
+| Departure day brief | Yes | -- |
+| Confirmation vault | Yes (in-app) | Offline access |
+| Trip statistics | Yes | -- |
+| Post-trip poll | Yes | -- |
+| Scavenger hunt | Yes | -- |
+| Seasonal warnings | Yes (safety) | Full smart suggestions |
+| Holiday alerts | Yes | -- |
+| Accessibility planner | Yes | -- |
+| Medication reminder | Yes | -- |
+| Kids mode | Yes | -- |
+| Currency converter | Premium | -- |
+| Receipt scanning | Premium | -- |
+| Smart suggestions (full) | Premium | -- |
+| Offline mode (all) | Premium | -- |
+
 ## UX Opportunities That Feel Special
 
 - The trip ball: a visual character that grows with the trip, rolls between phases, and pulses like a wave
+- Action circles entering the ball for every meaningful user action
 - Travel day mode that acts like a mission checklist
 - Smart suggestions based on destination, vibe, and group composition
-- Polls that convert to itinerary items
+- Polls and quick votes that keep the group coordinating inside the app
 - Expense tracking that starts before the trip and closes at wrap-up
+- The memory vault circle breakdown as a shareable end-of-trip moment
 - Empty states that teach the user exactly what to do next
 - Premium that feels like unlocking power, not removing features
+- A full toolkit that makes every stage of the trip feel covered
 
 ## Risks and Constraints
 

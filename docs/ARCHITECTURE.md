@@ -115,7 +115,18 @@ TripWave shares Vercel and Neon subscriptions with another app, making marginal 
 
 ### Tools domain
 
-- currency_rate_snapshot (for offline-capable currency converter)
+- currency_rate_snapshot (daily snapshot for currency converter, offline-capable)
+- phrasebook_entry (language, category, phrase, translation, pronunciation -- static seed data)
+- destination_reference (country/region lookup: plug type, voltage, road side, tipping norms, transit notes)
+- destination_holiday (country, date, name, type: closure or festival)
+- destination_seasonal_risk (country/region, date range, risk type, severity, description)
+- confirmation_entry (trip-scoped, label, code, provider, date, notes -- text only, no images)
+- scavenger_hunt_item (trip-scoped, description, point value, completed_by, completed_at)
+- meetup_broadcast (trip-scoped, user, message, created_at -- clears daily)
+- medication_reminder (user-scoped, private, label, time, timezone_adjust flag)
+- trip_statistic (auto-generated at wrap-up, key-value pairs of computed trip facts)
+- post_trip_poll (built on existing poll infrastructure, tagged as post_trip type)
+- shopping_list_item (trip-scoped, label, assignee, is_complete, optional expense link)
 
 ## Route Strategy
 
@@ -144,10 +155,29 @@ All app features require authentication. Public routes are limited to marketing 
 - `/app/trips/[tripId]/vacation-days`
 - `/app/trips/[tripId]/expenses`
 - `/app/trips/[tripId]/polls`
+- `/app/trips/[tripId]/wishlist`
+- `/app/trips/[tripId]/notes`
+- `/app/trips/[tripId]/tools`
+- `/app/trips/[tripId]/tools/weather`
+- `/app/trips/[tripId]/tools/phrasebook`
+- `/app/trips/[tripId]/tools/currency`
+- `/app/trips/[tripId]/tools/documents`
+- `/app/trips/[tripId]/tools/emergency`
+- `/app/trips/[tripId]/tools/converter`
+- `/app/trips/[tripId]/tools/tipping`
+- `/app/trips/[tripId]/tools/adapter`
+- `/app/trips/[tripId]/tools/jetlag`
+- `/app/trips/[tripId]/tools/splitter`
+- `/app/trips/[tripId]/tools/meetup`
+- `/app/trips/[tripId]/tools/scavenger`
+- `/app/trips/[tripId]/tools/shopping`
+- `/app/trips/[tripId]/tools/availability`
+- `/app/trips/[tripId]/vault`
+- `/app/trips/[tripId]/memory`
 - `/app/trips/[tripId]/settings`
 - `/app/trips/[tripId]/settings/members`
 - `/app/account`
-- `/app/account/premium` — upgrade prompt and purchase flow
+- `/app/account/premium`
 
 ## Logic Services To Expect
 

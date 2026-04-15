@@ -232,6 +232,67 @@ This backlog is meant to stay human-readable. It should help us choose the next 
 - [ ] Research and evaluate offline sync conflict resolution approaches
 - [ ] Plan offline storage and sync behavior
 
+## P2 - Planning Tools
+
+- [ ] Integrate Open-Meteo weather API (free) for destination weather preview
+- [ ] Build weather preview card in preplanning (temperature range, precipitation, notable conditions)
+- [ ] Feed weather data into smart suggestions engine (packing and activity prompts)
+- [ ] Build document checklist generator (deterministic rules by destination and trip type)
+- [ ] Link document checklist items to preplanning completion score
+- [ ] Build jet lag calculator (time zone difference, sleep strategy, first-day schedule)
+- [ ] Show jet lag calculator when international flight is entered
+- [ ] Build packing calculator (trip length + climate + activities = suggested list)
+- [ ] Feed packing calculator output into packing list (accept all, pick, or dismiss)
+- [ ] Build group availability checker (manual date entry, overlap view for organizer)
+- [ ] Build pre-trip shared shopping list (collaborative, assignable items, optional expense link)
+
+## P2 - Destination Reference Tools
+
+- [ ] Build language phrasebook (curated static phrase sets per language, key categories)
+- [ ] Add offline phrasebook download for premium users
+- [ ] Build allergy and medical card generator (pre-built translations per language, printable)
+- [ ] Surface allergy card during travel day and vacation day for quick access
+- [ ] Build tipping guide (country-by-country norms, static lookup)
+- [ ] Build voltage and adapter guide (plug type, local voltage, converter needed, static lookup)
+- [ ] Build driving and transit basics card (road side, speed units, transit options, IDP requirement)
+- [ ] Build emergency contacts card (auto-generated per destination, always free, always offline-accessible)
+- [ ] Build unit converter (temperature, distance, weight, liquid, speed -- no API)
+
+## P2 - During-Trip Coordination Tools
+
+- [ ] Build quick bill splitter (total, tip %, people -- optional expense log)
+- [ ] Build meetup point broadcaster (manual location message, visible to group, clears daily)
+- [ ] Build quick thumbs vote (single yes/no proposition, closes on full vote or organizer close)
+- [ ] Build departure day brief card (surfaces night before any travel day, summary of docs, weather, day 1 plan)
+
+## P2 - Memory and Documentation Tools
+
+- [ ] Build confirmation number vault (label, code, provider, date, notes -- text only)
+- [ ] Add offline confirmation vault access for premium users
+- [ ] Build trip statistics generator (auto at wrap-up: days, total spend, events, participants, etc.)
+- [ ] Build post-trip poll (organizer creates or auto-generated with suggested categories)
+- [ ] Build scavenger hunt (organizer creates challenges, participants check off, optional points)
+- [ ] Show scavenger hunt in vacation day section when trip is in progress
+
+## P2 - Smart and Proactive Tools
+
+- [ ] Build seasonal warning system (deterministic rules by destination region and date range)
+- [ ] Cover: hurricane, monsoon, extreme heat, wildfires, jellyfish, polar night, peak tourist season
+- [ ] Surface seasonal warnings during preplanning destination info section
+- [ ] Build local public holiday alerts (closure warnings and festival alerts by country and date)
+- [ ] Show holiday alerts during preplanning
+- [ ] Connect all smart tool outputs into single suggestion engine (vibe, destination, group, weather, season)
+- [ ] Safety-critical outputs (emergency contacts, allergy card, seasonal warnings) always free regardless of premium
+
+## P2 - Accessibility and Comfort Tools
+
+- [ ] Add accessibility needs flags to user profile (mobility, dietary, sensory, service animal, hearing, vision)
+- [ ] Surface accessibility prompts throughout planning (preplanning, itinerary, packing, travel day)
+- [ ] Show group-level accessibility summary to organizer (not individual medical detail)
+- [ ] Build medication reminder (time-based, time zone aware, private to user, push on native / in-app on web)
+- [ ] Build kids and family mode prompts (trigger when children flagged in group composition)
+- [ ] Kids prompts cover: packing suggestions, nap schedule in itinerary, travel day items, accommodation reminders, kid-friendly wishlist filter
+
 ## Research Queue
 
 - [ ] Evaluate PWA-first mobile strategy vs Capacitor later
