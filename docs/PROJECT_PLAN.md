@@ -32,7 +32,7 @@ Supporting project docs now live alongside this plan:
 
 ## Working Product Summary
 
-Build the most useful, personality-rich vacation planning app possible:
+Build the most useful, personality-rich shared trip planner possible:
 
 - easy enough for one primary organizer to run
 - collaborative enough for groups to coordinate without chaos
@@ -42,7 +42,7 @@ Build the most useful, personality-rich vacation planning app possible:
 
 ## Core Product Vision
 
-The app helps one paid account owner plan a vacation and invite other participants using a vacation code. The owner manages the trip, itinerary, packing, travel-day checklists, group events, votes, expenses, and settlement.
+The app helps one paid account owner plan a trip and invite other participants using a 5-digit join code. The owner manages the trip, itinerary, packing, travel-day checklists, group events, votes, expenses, and settlement.
 
 The app should guide users through distinct stages:
 
@@ -72,7 +72,7 @@ The app should guide users through distinct stages:
 - Free tier exists
 - Premium features sit behind a paywall
 - Paid user is the trip owner / organizer
-- Other people can join a trip via invite or vacation code
+- Other people can join a trip via invite or 5-digit trip code
 
 ### Assumption For Initial MVP
 
@@ -101,7 +101,7 @@ The organizer creates a trip and enters basics:
 
 ### 2. Invite Group Members
 
-The organizer shares a vacation code or invite link so others can join the trip workspace.
+The organizer shares a 5-digit trip code or invite link so others can join the trip workspace.
 
 ### 3. Preplanning Wizard
 
@@ -424,7 +424,7 @@ We want something fast, memorable, and a little sassy. Early options:
 - TripFox
 - Pack Sass
 
-Current note: keep exploring names before brand lock-in. We should test names for domain and app-store friendliness later.
+Current note: keep exploring names before brand lock-in. We should test names for domain and app-store friendliness later, but the in-product language should increasingly emphasize "shared trip planner" over "vacation-only tool."
 
 ## UX Opportunities That Feel Special
 

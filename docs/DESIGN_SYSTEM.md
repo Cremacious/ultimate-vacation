@@ -12,7 +12,7 @@ This is not a final visual spec. It is the set of early design rules that keep t
 
 ## Visual Thesis
 
-Travel planning should feel like a polished metro control panel with color-pop confidence, playful attitude, and enough structure to keep the whole group moving.
+Trip planning should feel like a polished metro control panel with color-pop confidence, playful attitude, and enough structure to keep the whole group moving.
 
 ## Aesthetic Rules
 
@@ -54,6 +54,7 @@ Avoid:
 - glass effects should be subtle and readable
 - shadows should suggest depth, not fog
 - key panels should feel stacked and tactile, not perfectly flat
+- avoid card mosaics in app views; prefer shell layout with distinct regions
 
 ## 3D Material Rules
 
@@ -98,6 +99,8 @@ Avoid:
 - reduce decision fatigue
 - expose advanced features progressively
 - make collaboration feel guided, not overwhelming
+- keep organizer-owned controls visually separate from collaborative areas
+- keep the 5-digit invite code highly visible in the trip shell
 
 ## Accessibility Principles
 

@@ -28,6 +28,7 @@ Purpose:
 - list trips
 - surface progress and alerts
 - guide the next action
+- expose the create-trip and join-with-code flows
 
 ### 3. Trip Workspace
 
@@ -36,6 +37,7 @@ Purpose:
 - central place to manage one trip
 - switch between planning phases
 - coordinate with participants
+- persist through before, during, and after trip moments
 
 ## Proposed Workspace Layout
 
@@ -49,7 +51,7 @@ Purpose:
 
 - left rail for trip phases
 - main content area for active phase
-- right-side context panel for alerts, reminders, and activity later
+- right-side context panel for alerts, blockers, reminders, and group pulse
 
 ## Trip Phase Navigation
 
@@ -61,10 +63,11 @@ Initial phase order:
 4. Itinerary
 5. Packing
 6. Travel Day
-7. Vacation Day
+7. Today
 8. Expenses
 9. Group
-10. Settings
+10. Wrap-Up
+11. Settings
 
 ## Key Pages We Expect To Build
 
@@ -74,6 +77,7 @@ Initial phase order:
 - `/pricing`
 - `/login`
 - `/signup`
+- `/join`
 
 ### App and trip management
 
@@ -88,10 +92,11 @@ Initial phase order:
 - `/app/trips/[tripId]/preplanning`
 - `/app/trips/[tripId]/itinerary`
 - `/app/trips/[tripId]/packing`
-- `/app/trips/[tripId]/travel-days`
-- `/app/trips/[tripId]/vacation-days`
+- `/app/trips/[tripId]/travel-day`
+- `/app/trips/[tripId]/today`
 - `/app/trips/[tripId]/expenses`
 - `/app/trips/[tripId]/group`
+- `/app/trips/[tripId]/wrap-up`
 - `/app/trips/[tripId]/settings`
 
 ## Logic-Aware Workspace Behavior
@@ -113,6 +118,7 @@ The workspace should not act like a flat folder of pages. It should respond to t
 - primary action button
 - alert / context panel
 - daily status card
+- invite code visibility
 
 ## UX Rules For Structure
 
@@ -121,6 +127,7 @@ The workspace should not act like a flat folder of pages. It should respond to t
 - empty states must teach, not just inform
 - travel day pages should prioritize focus and checklist completion
 - information density should increase inside the app, but remain calm
+- the shell should make organizer ownership and participant collaboration obvious
 
 ## Placeholder Content Strategy
 
