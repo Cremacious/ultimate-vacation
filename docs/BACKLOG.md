@@ -2,6 +2,15 @@
 
 This backlog is meant to stay human-readable. It should help us choose the next best thing to build without needing a separate project tool yet.
 
+## Next session: fix mobile UI
+- MobilePhaseNav component (horizontal scrollable tab bar for the trip phase nav on small screens)
+- TripSideNav hides on mobile, replaced by MobilePhaseNav pinned above the content area
+- Marketing page hero and feature grid reviewed and adjusted for small screens
+- Auth card padding and font sizes checked on mobile
+- Dashboard hero strip layout adjusted for small screens
+
+---
+
 ## P0 - Active Foundation Work
 
 ### Product and planning
@@ -10,17 +19,23 @@ This backlog is meant to stay human-readable. It should help us choose the next 
 - [x] Create roadmap, backlog, architecture, and design docs
 - [x] Design and document app logic flow
 - [x] Draft state model and monetization strategy docs
-- [ ] Finalize initial product name shortlist
-- [ ] Decide free vs premium boundary for core collaboration
+- [x] Decide free vs premium boundary for core collaboration
+- [x] Lock monetization model (one-time $5, ad-supported free tier)
+- [x] Confirm tech stack (Vercel, Neon, Azure, Resend)
+- [x] Lock auth requirement (account required for all app features)
+- [x] Confirm permissions model (per-user toggles set by organizer)
+- [x] Confirm expense tracking starts day 0 (preplanning)
+- [x] Define trip ball concept as core visual identity
+- [ ] Finalize product name (TripWave is working, not locked)
 - [ ] Lock MVP trip lifecycle states and auto-phase rules
-- [ ] Lock first premium tier and paywall boundaries
+- [ ] Lock first premium tier and paywall boundaries (nearly done, finalize during design)
 
 ### Frontend foundation
 
 - [x] Scaffold Next.js project
 - [x] Replace starter landing page
 - [x] Create workspace placeholder route
-- [ ] Build shared app shell layout
+- [ ] Build shared app shell layout (blocked on shell design decisions)
 - [ ] Add reusable section and panel primitives
 
 ### Technical foundation
@@ -28,8 +43,10 @@ This backlog is meant to stay human-readable. It should help us choose the next 
 - [ ] Choose ORM: Prisma vs Drizzle
 - [ ] Define initial database schema draft
 - [ ] Model trip status, readiness, and next-action fields
+- [ ] Model preplanning fields and completion tracking
 - [ ] Add environment variable strategy
-- [ ] Decide auth provider direction
+- [ ] Decide auth provider direction (Better Auth confirmed direction, config TBD)
+- [ ] Set up Resend for transactional email (password reset, invite notifications)
 
 ## P1 - MVP Build
 
@@ -43,17 +60,48 @@ This backlog is meant to stay human-readable. It should help us choose the next 
 - [ ] Add destination and travel basics capture
 - [ ] Define setup-complete criteria in product and schema terms
 
+### Preplanning wizard
+
+- [ ] Build preplanning wizard UI (multi-step or long-form)
+- [ ] Implement group composition fields (travelers, ages, dietary, mobility, medical, emergency contacts)
+- [ ] Implement transportation fields (mode, flight details, drive details, transfers)
+- [ ] Implement accommodation fields (lodging type, confirmation numbers, costs)
+- [ ] Implement budget fields (total, per-person, per-category)
+- [ ] Implement destination info fields (timezone, currency, visa, health entry, adapters)
+- [ ] Implement documents and logistics fields (passport, insurance, loyalty programs, embassy info)
+- [ ] Implement trip character fields (type, vibe, wishlist, must-dos, exclusions)
+- [ ] Implement pre-departure logistics fields (parking, house, pets, school)
+- [ ] Compute preplanning completion percentage (feeds trip ball fill)
+- [ ] Skip inapplicable fields from completion denominator (e.g., visa for domestic trips)
+- [ ] Link preplanning costs (flights, hotels) to expense ledger automatically
+
+### Trip ball
+
+- [ ] Design trip ball SVG/Canvas component
+- [ ] Implement center-outward fill animation driven by preplanning completion %
+- [ ] Implement ocean-wave pulse animation (slow, organic, not mechanical)
+- [ ] Implement rolling animation between phase transitions
+- [ ] Add subtle face micro-expression (shadow or curve asymmetry — not a cartoon)
+- [ ] Add per-trip ball color picker (user personalization)
+- [ ] Define and implement all ball states (empty, filling, full, alert, celebrating, sleeping)
+- [ ] Add alert agitation animation for blocker states
+- [ ] Add milestone celebration burst animation
+
 ### Itinerary
 
 - [ ] Add itinerary item model
 - [ ] Create itinerary list and day view
 - [ ] Support event notes, times, and locations
+- [ ] Allow all participants to submit itinerary items (default, subject to organizer permissions)
+- [ ] Allow organizer to toggle per-user itinerary permissions
 
 ### Packing
 
 - [ ] Add packing list model
-- [ ] Support personal and shared packing lists
-- [ ] Add suggestion placeholders for destination-aware recommendations
+- [ ] Lists are personal by default
+- [ ] Add option for user to make their list visible to the group
+- [ ] Add per-item privacy toggle (hide specific items from all other users)
+- [ ] Add destination-aware packing suggestions (premium — vibe and destination based)
 
 ### Travel day
 
@@ -61,43 +109,87 @@ This backlog is meant to stay human-readable. It should help us choose the next 
 - [ ] Create checklist-driven travel day page
 - [ ] Support ordered tasks and completion state
 - [ ] Define active travel-day UI override behavior
+- [ ] Collapse non-essential planning UI during active travel day
+
+### Expense tracking
+
+- [ ] Add expense model (amount, description, date, category, payer, splits, include_in_report flag)
+- [ ] Allow expense logging from day 0 (during preplanning)
+- [ ] Link preplanning accommodation and transport costs to expense ledger
+- [ ] Allow expense logging from within calendar events
+- [ ] Support per-expense payer assignment
+- [ ] Support split amounts per traveler (even or custom)
+- [ ] Implement settlement tracking (both sides mark settled independently)
+- [ ] Add full expense ledger view per trip
+- [ ] Add budget setting per trip (total and per-category)
+- [ ] Add budget progress tracking with overage warnings
+- [ ] Add end-of-trip expense summary (day 0 through return)
+- [ ] Allow excluding specific expenses from specific reports
+
+### Polls
+
+- [ ] Add poll model (question, options, expiry, status)
+- [ ] Support group voting (all users by default)
+- [ ] Allow organizer to close polls manually
+- [ ] Allow winning option to be converted to an itinerary item
+- [ ] Polls are free for all users
 
 ## P2 - Collaboration
 
 - [ ] Add invite code workflow
-- [ ] Define member roles and permissions
-- [ ] Add polls and voting
-- [ ] Add group event decision UX
+- [ ] Add per-user permission management UI (trip settings → click user → toggle features)
+- [ ] Add simplified permission presets on trip creation form with link to full settings
+- [ ] Add QR code for invite sharing
+
+## P2 - Tools
+
+- [ ] Build time zone info display (home vs destination — no external API)
+- [ ] Build currency converter (premium — free or self-managed exchange rate source)
+- [ ] Research free exchange rate APIs (Frankfurter, Open Exchange Rates free tier, ECB)
 
 ## P2 - Monetization
 
-- [ ] Define subscription tiers
-- [ ] Mark premium-only capabilities in UI
-- [ ] Plan billing architecture with Stripe
-- [ ] Design upgrade prompts for travel day, polls, expenses, and offline mode
-- [ ] Decide whether to offer one-trip premium pass later
+- [ ] Implement premium entitlement (one-time $5 purchase, permanent unlock)
+- [ ] Implement ad slot components with isPremium guard
+- [ ] Define ad placement zones (acceptable and protected locations)
+- [ ] Research ad network options (Google AdSense, Carbon, other)
+- [ ] Design upgrade prompts for offline mode, receipt scanning, currency converter, smart suggestions
+- [ ] Build premium purchase flow (Stripe one-time payment)
+- [ ] Build pricing and upgrade page at /app/account/premium
+
+## P3 - Premium Features
+
+- [ ] Offline mode: cache itinerary, travel-day checklists, packing lists for offline access
+- [ ] Receipt scanning: Azure OCR integration for expense photo capture (premium)
+- [ ] Smart suggestions engine: vibe-aware, destination-aware, season-aware, group-aware
+- [ ] Advanced travel-day templates
+- [ ] Trip export (itinerary as shareable or printable format)
+- [ ] Trip templates (save and reuse a trip structure)
+- [ ] Set up Resend transactional email (password reset, invite notifications)
+- [ ] Set up Azure for receipt OCR (premium receipt scanning)
 
 ## P3 - Expenses and Advanced Features
 
-- [ ] Add budgets
-- [ ] Add expense splitting
-- [ ] Add settle-up summary
-- [ ] Research receipt scanning cost and feasibility
+- [ ] Research and evaluate offline sync conflict resolution approaches
 - [ ] Plan offline storage and sync behavior
 
 ## Research Queue
 
 - [ ] Evaluate PWA-first mobile strategy vs Capacitor later
-- [ ] Explore map/place integrations for events
-- [ ] Explore calendar import/export needs
+- [ ] Explore map and place integrations for events
+- [ ] Explore calendar import and export needs
 - [ ] Explore domain and naming availability
-- [ ] Decide lightweight join flow vs full account requirement timing
+- [ ] Decide payment processor for one-time $5 premium (Stripe likely)
+- [ ] Evaluate free exchange rate data sources for currency converter
+- [ ] Evaluate Azure OCR pricing at expected premium user volume
+- [ ] Explore whether smart suggestions can be built entirely with deterministic rules
 
 ## Ready Next
 
 The strongest next implementation items are:
 
-1. trip state object and readiness schema draft
-2. app shell layout around recommended phase and next action
-3. route structure for trip phases
-4. auth and trip creation direction
+1. shell layout and navigation design decisions
+2. trip ball visual design and animation spec
+3. preplanning wizard field structure and completion model
+4. trip state object and readiness schema draft
+5. auth and trip creation direction

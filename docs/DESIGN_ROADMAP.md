@@ -84,6 +84,7 @@ Each section below lists:
 
 ### Decisions to make
 
+- how the trip ball is rendered in the workspace header
 - how recommended phase is shown
 - how next best action is shown
 - how blockers are shown
@@ -97,6 +98,7 @@ Each section below lists:
 ### Output
 
 - trip workspace header model
+- trip ball spec (states, fill, animations, face expression rules)
 - readiness / blocker / primary action UI rules
 
 ## Phase 5 - Phase-by-Phase Screens
@@ -125,7 +127,7 @@ We should design these in this order:
 
 ### Decisions to make
 
-- exact free vs premium boundaries
+- exact free vs premium boundaries (resolved — see MONETIZATION.md)
 - premium lock style
 - upgrade prompt timing
 - pricing page structure
@@ -150,6 +152,7 @@ We should design these in this order:
 - hover behavior
 - loading and skeleton style
 - checklist completion feedback
+- trip ball animation system (see below)
 
 ### Why this matters
 
@@ -159,6 +162,78 @@ We should design these in this order:
 
 - motion rules
 - interaction behavior guidance
+
+---
+
+## The Trip Ball — Visual Identity System
+
+The trip ball is a core visual element and brand character. It should be designed with care and used consistently.
+
+### Concept
+
+The ball represents the user's trip as a living thing. It is not an abstract progress meter — it is the trip personified. Users should feel like the ball is their trip companion, growing more solid and ready as planning progresses.
+
+### Shape and fill
+
+- The ball appears as a dotted/outlined circle when the trip is new
+- As preplanning fields are completed, the ball fills from the center outward with a solid color
+- Full fill signals preplanning complete and readiness to roll to the next phase
+- The fill is smooth, not stepped — it reflects continuous progress
+
+### Color
+
+- Users can choose a color for their ball — this is trip personalization
+- Default colors should be drawn from the brand palette
+- Color choice should feel meaningful, not arbitrary — consider letting users pick a "trip vibe" color
+
+### Personality
+
+- The ball should feel like a subtle character, not a cartoon mascot
+- Personality is expressed through micro-animations and implied expression
+- A very subtle eye-like element (shadow, gradient asymmetry, or simple arc) can suggest a face without becoming a smiley face
+- Expression changes with trip state:
+  - new / empty trip: calm, expectant
+  - preplanning active: gently pulsing, engaged
+  - planning complete: bouncy, confident
+  - travel day active: alert, focused
+  - on vacation: relaxed, glowing
+  - wrap-up / completed: soft, nostalgic
+
+### Pulse animation
+
+- The pulse should feel like an ocean wave, not an electronic heartbeat
+- Slow, organic, fluid — not tight or mechanical
+- The pulse rhythm should change slightly with urgency:
+  - far from departure: slow and calm
+  - close to departure: slightly faster, more alive
+  - travel day active: attentive, shorter pulse cycle
+
+### Rolling animation
+
+- When the app moves between phases, the ball rolls
+- The rolling motion is the physical metaphor for trip progression
+- Roll direction should feel intentional (forward = left to right or into the next stage)
+- Roll speed should match the significance of the transition
+
+### Ball states to design
+
+- empty (new trip, dotted outline only)
+- filling (preplanning in progress, partial fill)
+- full (preplanning complete)
+- rolling (phase transition animation)
+- pulsing (idle active state)
+- alert (blocker present — subtle agitation)
+- celebrating (milestone hit — brief burst animation)
+- sleeping (archived trip — faded, still)
+
+### Technical notes
+
+- ball should be implemented in SVG or Canvas for smooth animation control
+- CSS animation for pulse is likely sufficient
+- rolling transition may benefit from a JS animation library
+- keep the ball performant — it is always visible in the workspace
+
+---
 
 ## Decision Checklist
 
@@ -170,26 +245,30 @@ Here are the major unresolved choices we still need to answer:
 - iconography style
 - desktop nav model
 - mobile nav model
-- readiness visualization
-- trip overview structure
+- trip ball color picker UX
+- trip ball face expression rules
+- workspace overview structure
 - travel day page structure
 - premium lock style
 - upgrade prompt tone
+- ad placement zones
 
 ## Recommended Working Order For Our Next Chats
 
-### Round 1
+### Round 1 (complete)
 
-- name
-- tone
-- font direction
-- icon style
+- name (TripWave working)
+- tone (sassy, confident, ocean-wave personality)
+- font direction (Fredoka + Nunito — working direction)
+- icon style (Phosphor Icons — working direction)
 
 ### Round 2
 
+- feature set review and planning (in progress)
 - shell layout
 - nav behavior
 - readiness / next-action UI
+- trip ball placement in shell
 
 ### Round 3
 
@@ -209,9 +288,11 @@ Here are the major unresolved choices we still need to answer:
 - premium UX
 - pricing
 - upsells
+- ad placement
 
 ### Round 6
 
 - motion
+- trip ball animation system
 - polish
 - final consistency pass

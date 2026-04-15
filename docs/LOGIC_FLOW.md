@@ -24,21 +24,20 @@ There are four main layers of app logic:
 
 ### User types
 
-- visitor
-- signed-up organizer
-- invited participant
+- visitor (unauthenticated)
+- signed-up user (organizer or participant)
 - premium organizer
 
 ### Basic logic
 
-- a visitor can browse marketing pages
-- a signed-up organizer can create trips
-- an invited participant can join a trip through a code or invite link
-- a premium organizer unlocks premium features for trips they own
+- a visitor can only access marketing pages, login, signup, legal, and contact — no app features
+- a signed-up user can create trips and join trips
+- an invited participant must create an account before accessing any trip features
+- a premium organizer has purchased the one-time $5 upgrade and unlocked premium features
 
-### Early recommended rule
+### Auth rule
 
-For MVP, premium status should belong to the trip owner and control feature access for that trip workspace. This is simpler than trying to evaluate premium access per participant immediately.
+Account creation is required for all app interactions. There is no lightweight guest or anonymous join mode.
 
 ## 2. Trip Lifecycle Logic
 
@@ -165,7 +164,103 @@ The app should determine a recommended active phase using:
 - the trip is complete
 - settlement, recap, and archive actions remain
 
-## 4. Next Best Action Logic
+## 4. Preplanning Logic
+
+Preplanning is a comprehensive wizard that captures everything the app might need to guide the trip. The more fields completed, the higher the preplanning fill on the trip ball.
+
+### Preplanning field categories
+
+#### Group composition
+
+- traveler list (names, roles)
+- ages or generational mix (kids, teens, adults, elderly)
+- dietary restrictions and allergies per traveler
+- mobility or accessibility needs
+- medical considerations relevant to the trip
+- emergency contacts per traveler
+
+#### Transportation
+
+- primary transport mode (flying, driving, train, bus, cruise, mixed)
+- if flying: departure airport, arrival airport, airline, flight numbers, ticket costs, layovers, baggage allowance, seat preferences
+- if driving: cars, drivers, estimated fuel cost, tolls, planned rest stops, preferred route
+- if train or bus: stations, routes, class of service
+- rental cars or local transport at destination
+- airport transfers (how getting from airport to lodging)
+
+#### Accommodations
+
+- lodging type (hotel, Airbnb, camping, hostel, family, cruise ship)
+- name and address
+- check-in and check-out times
+- confirmation numbers and booking references
+- nightly cost (links to expense tracking)
+- multiple stays within the trip if applicable
+
+#### Budget
+
+- total trip budget
+- per-person budget target
+- category budgets (transport, lodging, food, activities, shopping, misc)
+- currency if traveling internationally
+
+#### Destination info
+
+- country, city, region
+- time zone difference from home
+- local currency
+- language or languages spoken
+- visa or entry requirements
+- vaccination or health entry requirements
+- power adapter needed
+- seasonal or weather considerations (hurricane season, monsoon, extreme heat)
+
+#### Documents and logistics
+
+- passport required and expiration dates checked
+- driver's license valid at destination
+- travel insurance (yes or no, provider, policy number, coverage type)
+- loyalty programs or rewards to apply (airline miles, hotel points)
+- local emergency numbers at destination
+- home country embassy or consulate contact for international trips
+
+#### Trip character
+
+- trip type (beach, city, adventure, road trip, family, romantic, group friends, honeymoon, etc.)
+- trip vibe / pace (relaxed, packed schedule, spontaneous, structured)
+- activity interests and wishlist (feeds itinerary suggestions)
+- must-do anchors (non-negotiables for the group)
+- known exclusions (things to avoid)
+
+#### Pre-departure logistics
+
+- parking at airport or departure point
+- house or mail arrangements while away
+- pet boarding or house-sitting arrangements
+- kids' school notification if applicable
+
+### Preplanning completeness rules
+
+Preplanning completion is measured as a percentage and drives the trip ball fill level.
+
+The app should weight fields by importance:
+
+- transport mode: high weight
+- dates and destination: high weight (required for setup)
+- group composition: medium weight
+- accommodation details: medium weight
+- budget: medium weight
+- destination info: medium weight
+- documents checklist: medium weight
+- trip vibe and wishlist: lower weight but feeds suggestions
+
+Fields that are not applicable (e.g., "visa requirements" for a domestic trip) should be excluded from the completion denominator.
+
+### Preplanning expense linking
+
+Pre-trip expenses entered during preplanning (flights, hotels, tickets) are automatically added to the expense ledger with the appropriate payer and amounts. This avoids double-entry.
+
+## 5. Next Best Action Logic
 
 One of the most important product behaviors should be a clear next best action.
 
@@ -192,9 +287,7 @@ Example:
 
 - if the trip is tomorrow and there is no travel-day plan, that should outrank polishing the itinerary
 
-## 5. Organizer vs Participant Logic
-
-We should start with a clear default:
+## 6. Organizer vs Participant Logic
 
 ### Organizer responsibilities
 
@@ -202,23 +295,35 @@ We should start with a clear default:
 - edit trip settings
 - manage invite codes
 - set phase defaults
-- control premium features
-- resolve poll rules if needed
+- control per-user permissions
+- resolve poll ties if needed
 
 ### Participant responsibilities
 
 - join a trip
 - view relevant plans
-- contribute to itinerary, packing, votes, and expenses based on permissions
+- contribute to itinerary, packing, votes, and expenses as permitted
 
-### Suggested MVP permission model
+### Permission model
 
-- organizer: full control
-- participant: can add or edit collaborative content, but cannot change billing or core trip ownership
+Organizer sets per-user permissions at trip creation (simplified presets) and in full trip settings at any time.
 
-This is intentionally simpler than a full roles matrix.
+Trip settings allows the organizer to click any user and toggle individual capabilities:
 
-## 6. Invite and Join Logic
+- can add itinerary items
+- can edit itinerary items
+- can delete itinerary items
+- can view group packing lists
+- can add expenses
+- can start polls
+- can vote on polls
+- can invite others
+
+Default at trip creation: all participants can add and edit itinerary items, log expenses, vote on polls. Organizer can tighten or expand from there.
+
+Trip creation form offers a simplified permission preset with a note pointing users to trip settings for full control.
+
+## 7. Invite and Join Logic
 
 ### Organizer flow
 
@@ -229,15 +334,11 @@ This is intentionally simpler than a full roles matrix.
 ### Participant join flow
 
 1. open invite link or enter code
-2. authenticate or create lightweight account
+2. create account if they do not have one (required — no anonymous joining)
 3. join trip workspace
-4. choose profile details relevant to that trip if needed
+4. choose trip-relevant profile details if needed (dietary needs, emergency contact, etc.)
 
-### Suggested early product decision
-
-Allow lightweight joining, but require account creation before meaningful edits. This avoids too much friction without creating anonymous editing chaos.
-
-## 7. Travel Day Logic
+## 8. Travel Day Logic
 
 Travel day is one of the strongest differentiators, so it deserves explicit rules.
 
@@ -269,7 +370,7 @@ When a travel day is active, the app should reorder itself around:
 - collapse non-essential planning UI during active travel-day mode
 - allow quick checkoff with minimal friction
 
-## 8. Vacation Day Logic
+## 9. Vacation Day Logic
 
 Once the trip is underway, the app should stop behaving like a planner and start behaving like a daily coordination tool.
 
@@ -282,36 +383,57 @@ Once the trip is underway, the app should stop behaving like a planner and start
 5. group vote or group update
 6. expenses from today
 
-### Brainstorm ideas
+### Features during vacation days
 
-- a daily briefing card each morning
+- daily briefing card each morning
 - "what changed today" summary
 - one-tap vote prompts when plans are uncertain
-- weather-aware reminders later
+- quick expense logging from within events
+- weather-aware reminders (later)
 
-## 9. Expense Logic
+## 10. Expense Logic
 
-Expense features should stay grounded in real trip behavior.
+Expense tracking starts at day 0 — the moment users begin entering pre-trip costs during preplanning.
+
+### Expense lifecycle
+
+1. pre-trip: enter flights, hotels, tickets, deposits during preplanning
+2. in-trip: add expenses anytime — freestanding or attached to a calendar event
+3. post-trip: settle balances and close the ledger in wrap-up
 
 ### Core actions
 
-- log expense
-- assign payer
-- split across travelers
-- mark who owes what
-- show settlement summary
+- log expense (amount, description, date, category)
+- assign payer (who paid out of pocket)
+- split across travelers (even split, custom amounts, or exclude certain travelers)
+- mark individual user portions as settled (user marks their side, payee marks receiving)
+- expense closes when all splits are marked settled by both sides
 
-### Suggested logic rules
+### Settlement behavior
 
-- every expense belongs to a trip
-- every expense has a payer
-- split defaults should be easy to change
-- expenses can remain unresolved after the trip ends
-- wrap-up should point users toward settlement completion
+Users settle money outside the app (cash, Venmo, etc.). The app tracks settlement state:
 
-## 10. Poll and Decision Logic
+- user who owes marks their side paid
+- user who is owed marks they received payment
+- when both sides are marked, expense is considered settled and closed
 
-Polls should solve decision fatigue, not create extra UI noise.
+### Expense reports and budgets
+
+- full expense ledger per trip (day 0 through end of trip)
+- budget tracking per category
+- end-of-trip summary showing total from day 0 through return
+- users can mark specific expenses as excluded from specific reports
+- budget overage warnings as costs accumulate
+
+### Receipt scanning (premium)
+
+- premium users can scan receipts to auto-populate expense fields
+- uses Azure OCR
+- free users see the feature with an upgrade prompt
+
+## 11. Poll and Decision Logic
+
+Polls are free for all users.
 
 ### Good poll triggers
 
@@ -325,19 +447,45 @@ Polls should solve decision fatigue, not create extra UI noise.
 - organizer can close a poll manually
 - winning poll options should be easy to convert into itinerary items later
 
-## 11. Notification and Reminder Logic
+## 12. Tools Logic
 
-We should not overbuild notifications early, but the logic should be designed for them.
+### Currency converter (premium)
+
+- built into the expense and budget flows
+- also available as a standalone tool within the trip
+- converts between home currency and destination currency
+- exchange rates updated from a free or self-managed source (daily snapshot)
+- premium users only — free users see upgrade prompt
+
+### Time zone info (free)
+
+- shows home time zone vs destination time zone
+- shown during preplanning and during the trip
+- no external API required — computed from destination data entered during setup
+
+### Smart suggestions engine (premium)
+
+- vibe-aware: beach trips suggest different packing and activities than city or adventure trips
+- destination-aware: international trips trigger document checklists, currency info, language notes
+- season-aware: warns about common seasonal hazards (hurricane season, monsoon, extreme heat)
+- group-aware: kids trigger mobility and stop-frequency considerations, elderly trigger accessibility notes
+- deterministic rule-based logic in v1, no AI inference cost initially
+- feeds packing suggestions, itinerary ideas, preplanning prompts
+
+## 13. Notification and Reminder Logic
+
+We should not overbuild notifications early, but the logic should be designed for them. Resend handles email delivery.
 
 ### Highest-value reminder candidates
 
-- trip basics incomplete
+- trip basics incomplete (email nudge)
 - departure is near and packing is incomplete
 - travel day begins tomorrow
 - active travel day task overdue
 - unresolved post-trip settlement
+- invited participant has not joined yet
 
-## 12. Empty State Logic
+## 14. Empty State Logic
 
 Empty states should behave like guided onboarding for each phase.
 
@@ -348,35 +496,68 @@ Empty states should behave like guided onboarding for each phase.
 - what the first action should be
 - whether this is collaborative or personal
 
-## 13. Premium Logic Ideas
+## 15. Trip Ball Logic
 
-Premium should feel like unlocking power, not removing the product's usefulness.
+The trip ball is a visual character representing the trip's health and progress.
 
-### Candidate premium logic
+### Fill computation
 
-- advanced travel-day templates
-- polls and group decision tools
-- expense splitting and settlement
-- offline mode
+The ball fills from center outward based on preplanning completion percentage.
+
+- 0% fill: dotted outline, empty center — new trip
+- 1–49% fill: partial center fill — preplanning in progress
+- 50–89% fill: mostly filled — good progress
+- 90–100% fill: fully filled — preplanning complete, ready to advance
+
+### Ball states
+
+- new: calm, expectant, dotted outline
+- filling: gently pulsing, ocean wave rhythm
+- full: bouncy, confident, ready to roll
+- travel day active: alert, faster pulse, focused
+- on vacation: relaxed, slow pulse, glowing warmth
+- blocker present: subtle agitation animation
+- milestone hit: brief celebration burst
+- completed: soft, nostalgic fade state
+- archived: dimmed, still
+
+### Color
+
+Users can recolor their trip ball. This is trip personalization and should feel like a meaningful choice.
+
+## 16. Premium Logic
+
+Premium is a one-time $5 purchase per account. It removes ads and unlocks:
+
+- offline mode (high priority)
+- receipt scanning via Azure OCR
+- currency converter
 - smart suggestions
+- advanced travel-day templates
+- trip export
+- trip templates (save and reuse structure)
 
-### Free experience should still allow
+Free users see premium features with tasteful upgrade prompts. The free experience remains genuinely useful.
 
-- creating a trip
-- basic itinerary
-- basic packing support
-- understanding the core value of the app
+## 17. Brainstorm Ideas Worth Exploring Later
 
-## 14. Brainstorm Ideas Worth Exploring Later
-
-- trip health score based on readiness
+- trip health score visible to users as a readable label or tier
 - countdown states that change the interface mood as departure gets close
-- "chaos radar" warnings for high-risk missing items
-- a post-trip memory vault for notes, photos, and recap links
+- chaos radar warnings for high-risk missing items
+- post-trip memory vault for notes, recap links, and favorite moments
 - reusable trip templates by trip type
 - family mode with special support for kids, elders, accessibility, and frequent stops
+- calendar import and export
+- map and place integrations for events
+- activity wishlist that converts to itinerary proposals
+- restaurant wishlist per destination
+- QR code for invite
+- shared trip notes or journal
+- per-day private journal entries
+- itinerary sharing via read-only public link
+- trip duplication for recurring trips
 
-## 15. Recommended MVP Logic Decisions
+## 18. Recommended MVP Logic Decisions
 
 To reduce complexity, the MVP should assume:
 
@@ -386,14 +567,15 @@ To reduce complexity, the MVP should assume:
 - one primary next action at a time
 - travel day overrides normal planning UI when active
 - unresolved expenses can continue after trip completion
+- preplanning completion drives the trip ball fill
+- premium is a one-time unlock, not session-based
 
-These MVP assumptions are further concretized in `docs/STATE_MODEL.md`.
-
-## 16. Open Logic Questions
+## 19. Open Logic Questions
 
 - When should a trip automatically move from planning to ready?
-- Should participants be able to create itinerary items by default?
-- Should packing lists be partly personal and partly shared from day one?
-- How strongly should the app steer users into the current phase versus allowing free navigation?
-- Should expense tracking appear during the trip or mostly after each day?
+- Should participants be able to start polls by default, or is that organizer-controlled per trip?
+- Should the trip ball be visible to all participants or only the organizer?
+- How many unresolved blockers should appear before the UI feels scolding?
+- Should expense tracking appear as a persistent tab or only when relevant?
 - Which premium features should be hard-gated first for the cleanest business model?
+- Should smart suggestions be opt-in or shown by default?

@@ -6,23 +6,47 @@ This roadmap is intentionally phased so we can build a stable, differentiated we
 
 Goal: create a clear product direction, repo structure, and front-end foundation.
 
-- establish planning docs and decision log
-- scaffold Next.js app and initial routes
-- define brand direction and naming candidates
-- create app shell and layout strategy
-- identify MVP and premium boundaries
-- define trip state and next-action model
+- [x] establish planning docs and decision log
+- [x] scaffold Next.js app and initial routes
+- [x] define brand direction and naming candidates (TripWave working)
+- [x] identify MVP and premium boundaries
+- [x] define trip state and next-action model
+- [x] lock monetization model (one-time $5, ad-supported free, confirmed tech stack)
+- [x] lock account requirement (full account required for all app features)
+- [x] define trip ball concept as core visual identity
+- [ ] finalize product name
+- [ ] define shell and navigation layout (next)
+- [ ] lock trip lifecycle state and auto-phase rules (in progress)
 
 Status: in progress
 
-## Phase 1 - Product Skeleton
+## Phase 1 - Design Lock
+
+Goal: finalize all UX and visual decisions before any significant implementation begins.
+
+- shell layout and nav model (desktop and mobile)
+- trip ball design and animation system
+- workspace logic surface layout (health, next action, blockers)
+- phase-by-phase screen designs
+- premium UX and paywall style
+- ad placement zones
+- motion and polish rules
+
+Exit criteria:
+
+- every major screen has a clear design direction
+- no structural decisions remain that would cause rework after build starts
+
+## Phase 2 - Product Skeleton
 
 Goal: create a usable app shell that demonstrates the full trip lifecycle.
 
 - landing page with clear product positioning
+- auth shell (login, signup, password reset via Resend)
 - dashboard shell
 - trip workspace shell
-- stage navigation for preplanning, itinerary, packing, and travel day
+- stage navigation for all phases
+- trip ball component (static, then animated)
 - placeholder states that explain what each area will do
 
 Exit criteria:
@@ -30,79 +54,95 @@ Exit criteria:
 - a user can understand the full app structure from the UI alone
 - routes and layout support future authenticated flows
 
-## Phase 2 - Core Planning MVP
+## Phase 3 - Core Planning MVP
 
 Goal: ship the first truly useful planning version.
 
-- auth and account setup
-- create trip flow
+- full auth and account setup (Better Auth)
+- create trip flow with simplified permission presets
+- preplanning wizard (all field categories)
+- preplanning completion tracking (drives ball fill)
 - trip overview dashboard
-- itinerary CRUD
-- packing list CRUD
+- itinerary CRUD (all users can contribute by default)
+- packing list CRUD (personal by default, optional visibility, per-item privacy)
 - travel-day checklist CRUD
+- expense tracking from day 0 (pre-trip costs, full ledger, splits, settlement)
+- polls (free, all users)
 - invite code model
-- basic premium placeholders and upgrade hooks
+- per-user permission management in trip settings
+- basic premium entitlement check
+- ad slot components with isPremium guard
 
 Exit criteria:
 
-- a trip organizer can create and manage a trip
-- the app supports the core planning loop before departure
+- a trip organizer can create and manage a trip from preplanning through wrap-up
+- the app supports the core planning loop before and during departure
 
-## Phase 3 - Group Coordination
+## Phase 4 - Premium and Monetization
 
-Goal: make the app collaborative enough for real group travel.
+Goal: fully implement the monetization layer.
 
-- trip membership and roles
-- shared schedule improvements
-- group events and meetup coordination
-- polls and voting
-- notifications strategy
+- one-time $5 premium purchase flow (Stripe)
+- premium entitlement permanently unlocks ad removal and premium features
+- offline mode for premium users (itinerary, travel-day, packing lists)
+- receipt scanning via Azure OCR (premium)
+- currency converter (premium, free or self-managed exchange rate source)
+- smart suggestions engine (vibe-aware, destination-aware, group-aware — deterministic rules)
+- advanced travel-day templates (premium)
+- trip export (premium)
+- ad network integration (free tier)
+- upgrade prompts at high-intent moments
+
+Exit criteria:
+
+- premium purchase works end-to-end
+- all premium features are gated correctly
+- free tier is genuinely useful and ad-supported
+- business model is operational
+
+## Phase 5 - Group Coordination Polish
+
+Goal: make collaboration feel smooth and intentional.
+
+- shared schedule refinements
+- group event and meetup coordination improvements
+- richer poll UX
+- notification strategy (Resend email)
+- trip settings member management UI
 
 Exit criteria:
 
 - multiple travelers can coordinate inside one trip workspace
 - group planning feels better than a shared notes doc and group chat
 
-## Phase 4 - Money and Accountability
-
-Goal: reduce the pain of shared travel expenses.
-
-- budget tracking
-- expense entry
-- split logic
-- settle-up summary
-- receipt capture strategy
-
-Exit criteria:
-
-- users can track shared expenses and understand who owes what
-
-## Phase 5 - Reliability and Mobility
+## Phase 6 - Reliability and Mobility
 
 Goal: make the app dependable in real travel conditions.
 
-- offline access for critical trip data
-- sync strategy for reconnect
-- installable web experience
-- evaluate iOS and Android packaging path
+- offline sync conflict resolution
+- installable web experience (PWA)
+- evaluate iOS and Android packaging path (Capacitor or PWA)
 
 Exit criteria:
 
 - trip schedule and checklist data remain useful with spotty connectivity
 
-## Phase 6 - Premium Expansion
+## Phase 7 - Premium Expansion
 
 Goal: increase product depth and monetization without bloating the core.
 
-- smart contextual suggestions
-- travel templates
-- advanced reminders
-- richer collaboration controls
+- trip templates (save and reuse structure)
+- reusable packing templates
+- richer smart suggestions
 - premium polish and conversion experiments
 - pricing experiments and retention refinement
+- explore: post-trip memory vault
+- explore: trip health score as visible label
+- explore: calendar import and export
+- explore: family mode
 
 ## Open Sequencing Questions
 
-- Should expense tracking land before polls, or vice versa?
-- How early should offline support appear in the build plan?
-- Is lightweight participant access needed before full auth complexity?
+- Should offline support appear earlier than Phase 6?
+- Should trip export land in Phase 3 or Phase 4?
+- Is Capacitor packaging viable before a full PWA pass?
