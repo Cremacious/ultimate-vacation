@@ -24,46 +24,20 @@ There are four main layers of app logic:
 
 ### User types
 
-- visitor
-- signed-up organizer
-- invited participant
+- visitor (unauthenticated)
+- signed-up user (organizer or participant)
 - premium organizer
 
 ### Basic logic
 
-- a visitor can browse marketing pages
-- a signed-up organizer can create trips
-- an invited participant can join a trip through a code or invite link
-- a premium organizer unlocks premium features for trips they own
+- a visitor can only access marketing pages, login, signup, legal, and contact — no app features
+- a signed-up user can create trips and join trips
+- an invited participant must create an account before accessing any trip features
+- a premium organizer has purchased the one-time $5 upgrade and unlocked premium features
 
-### Early recommended rule
+### Auth rule
 
-For MVP, premium status should belong to the trip owner and control feature access for that trip workspace. This is simpler than trying to evaluate premium access per participant immediately.
-
-## 1b. Date Awareness and Auto-Mode Logic
-
-The app should always know what day it is relative to the trip and automatically shift its focus accordingly.
-
-### Date-aware behaviors
-
-- before trip start: show planning and preparation focus
-- on a designated travel day: shift entirely into travel day mode
-- on a non-travel day during the trip: shift into vacation day mode (daily schedule, events, coordination)
-- after trip end date: shift into wrap-up and repack mode
-
-### Auto-mode does not lock the user out
-
-The app shifts emphasis and recommended actions automatically, but users can still navigate freely to any phase. Auto-mode changes what is surfaced first, not what is accessible.
-
-### Repack logic
-
-When the trip end date arrives (or the return travel day is active), the app should:
-
-1. surface the user's personal packing list
-2. prompt them to use it in reverse — check off items as they repack to bring home
-3. remind users of any items that were in the list but are not yet checked off before they leave
-
-This prevents leaving belongings behind and makes the packing list useful in both directions.
+Account creation is required for all app interactions. There is no lightweight guest or anonymous join mode.
 
 ## 2. Trip Lifecycle Logic
 
@@ -190,7 +164,103 @@ The app should determine a recommended active phase using:
 - the trip is complete
 - settlement, recap, and archive actions remain
 
-## 4. Next Best Action Logic
+## 4. Preplanning Logic
+
+Preplanning is a comprehensive wizard that captures everything the app might need to guide the trip. The more fields completed, the higher the preplanning fill on the trip ball.
+
+### Preplanning field categories
+
+#### Group composition
+
+- traveler list (names, roles)
+- ages or generational mix (kids, teens, adults, elderly)
+- dietary restrictions and allergies per traveler
+- mobility or accessibility needs
+- medical considerations relevant to the trip
+- emergency contacts per traveler
+
+#### Transportation
+
+- primary transport mode (flying, driving, train, bus, cruise, mixed)
+- if flying: departure airport, arrival airport, airline, flight numbers, ticket costs, layovers, baggage allowance, seat preferences
+- if driving: cars, drivers, estimated fuel cost, tolls, planned rest stops, preferred route
+- if train or bus: stations, routes, class of service
+- rental cars or local transport at destination
+- airport transfers (how getting from airport to lodging)
+
+#### Accommodations
+
+- lodging type (hotel, Airbnb, camping, hostel, family, cruise ship)
+- name and address
+- check-in and check-out times
+- confirmation numbers and booking references
+- nightly cost (links to expense tracking)
+- multiple stays within the trip if applicable
+
+#### Budget
+
+- total trip budget
+- per-person budget target
+- category budgets (transport, lodging, food, activities, shopping, misc)
+- currency if traveling internationally
+
+#### Destination info
+
+- country, city, region
+- time zone difference from home
+- local currency
+- language or languages spoken
+- visa or entry requirements
+- vaccination or health entry requirements
+- power adapter needed
+- seasonal or weather considerations (hurricane season, monsoon, extreme heat)
+
+#### Documents and logistics
+
+- passport required and expiration dates checked
+- driver's license valid at destination
+- travel insurance (yes or no, provider, policy number, coverage type)
+- loyalty programs or rewards to apply (airline miles, hotel points)
+- local emergency numbers at destination
+- home country embassy or consulate contact for international trips
+
+#### Trip character
+
+- trip type (beach, city, adventure, road trip, family, romantic, group friends, honeymoon, etc.)
+- trip vibe / pace (relaxed, packed schedule, spontaneous, structured)
+- activity interests and wishlist (feeds itinerary suggestions)
+- must-do anchors (non-negotiables for the group)
+- known exclusions (things to avoid)
+
+#### Pre-departure logistics
+
+- parking at airport or departure point
+- house or mail arrangements while away
+- pet boarding or house-sitting arrangements
+- kids' school notification if applicable
+
+### Preplanning completeness rules
+
+Preplanning completion is measured as a percentage and drives the trip ball fill level.
+
+The app should weight fields by importance:
+
+- transport mode: high weight
+- dates and destination: high weight (required for setup)
+- group composition: medium weight
+- accommodation details: medium weight
+- budget: medium weight
+- destination info: medium weight
+- documents checklist: medium weight
+- trip vibe and wishlist: lower weight but feeds suggestions
+
+Fields that are not applicable (e.g., "visa requirements" for a domestic trip) should be excluded from the completion denominator.
+
+### Preplanning expense linking
+
+Pre-trip expenses entered during preplanning (flights, hotels, tickets) are automatically added to the expense ledger with the appropriate payer and amounts. This avoids double-entry.
+
+## 5. Next Best Action Logic
 
 One of the most important product behaviors should be a clear next best action.
 
@@ -217,32 +287,7 @@ Example:
 
 - if the trip is tomorrow and there is no travel-day plan, that should outrank polishing the itinerary
 
-## 4b. Packing List Logic
-
-### Private by default
-
-Each user has their own personal packing list for a trip. Packing lists are private — participants do not see each other's lists. This prevents unwanted edits and keeps personal items personal.
-
-### Context-aware suggestions
-
-When a user starts their packing list, the app should offer suggestions based on:
-
-- trip type and destination
-- transport mode (flying requires different prep than driving)
-- trip duration
-- any special needs indicated (limited mobility, traveling with kids, pets, medications, etc.)
-
-### Repack mode
-
-When the return leg of the trip begins, the packing list flips into repack mode:
-
-- same items, same list
-- user checks things off as they pack to go home
-- the app flags anything unchecked before the user confirms they are ready to leave
-
-## 5. Organizer vs Participant Logic
-
-We should start with a clear default:
+## 6. Organizer vs Participant Logic
 
 ### Organizer responsibilities
 
@@ -250,23 +295,35 @@ We should start with a clear default:
 - edit trip settings
 - manage invite codes
 - set phase defaults
-- control premium features
-- resolve poll rules if needed
+- control per-user permissions
+- resolve poll ties if needed
 
 ### Participant responsibilities
 
 - join a trip
 - view relevant plans
-- contribute to itinerary, packing, votes, and expenses based on permissions
+- contribute to itinerary, packing, votes, and expenses as permitted
 
-### Suggested MVP permission model
+### Permission model
 
-- organizer: full control
-- participant: can add or edit collaborative content, but cannot change billing or core trip ownership
+Organizer sets per-user permissions at trip creation (simplified presets) and in full trip settings at any time.
 
-This is intentionally simpler than a full roles matrix.
+Trip settings allows the organizer to click any user and toggle individual capabilities:
 
-## 6. Invite and Join Logic
+- can add itinerary items
+- can edit itinerary items
+- can delete itinerary items
+- can view group packing lists
+- can add expenses
+- can start polls
+- can vote on polls
+- can invite others
+
+Default at trip creation: all participants can add and edit itinerary items, log expenses, vote on polls. Organizer can tighten or expand from there.
+
+Trip creation form offers a simplified permission preset with a note pointing users to trip settings for full control.
+
+## 7. Invite and Join Logic
 
 ### Organizer flow
 
@@ -277,50 +334,25 @@ This is intentionally simpler than a full roles matrix.
 ### Participant join flow
 
 1. open invite link or enter code
-2. authenticate or create lightweight account
+2. create account if they do not have one (required — no anonymous joining)
 3. join trip workspace
-4. choose profile details relevant to that trip if needed
+4. choose trip-relevant profile details if needed (dietary needs, emergency contact, etc.)
 
-### Suggested early product decision
-
-Allow lightweight joining, but require account creation before meaningful edits. This avoids too much friction without creating anonymous editing chaos.
-
-## 7. Travel Day Logic
+## 8. Travel Day Logic
 
 Travel day is one of the strongest differentiators, so it deserves explicit rules.
-
-### Travel day designation
-
-Travel days are manually designated by the organizer (and potentially participants). They are not auto-detected from dates alone. The organizer picks which calendar dates are travel days and what kind each is:
-
-- departure day (leaving home)
-- transit day (moving between destinations)
-- return day (heading home)
-
-A trip can have more than two travel days. A multi-city trip or a road trip with overnight stops may have many travel days.
 
 ### Travel day objects
 
 Each travel day should include:
 
 - target date
-- travel day type (departure, transit, return)
-- transport mode (car, plane, rail, boat, etc.)
 - departure window
 - ordered task groups
 - required items
 - stopover checkpoints
 - travel segments
 - arrival steps
-
-### Transport-aware suggestions
-
-Travel day prompts and checklists should be informed by the transport mode:
-
-- **car** — fuel check, snack planning, stop frequency for kids or pets, route download for offline, load order for luggage
-- **plane** — document checks, liquids and bag rules, airport arrival timing, gate info
-- **rail** — ticket check, platform timing, luggage handling
-- **boat/ferry** — boarding time, motion sickness prep, luggage limits
 
 ### Travel day page priorities
 
@@ -338,7 +370,7 @@ When a travel day is active, the app should reorder itself around:
 - collapse non-essential planning UI during active travel-day mode
 - allow quick checkoff with minimal friction
 
-## 8. Vacation Day Logic
+## 9. Vacation Day Logic
 
 Once the trip is underway, the app should stop behaving like a planner and start behaving like a daily coordination tool.
 
@@ -351,68 +383,109 @@ Once the trip is underway, the app should stop behaving like a planner and start
 5. group vote or group update
 6. expenses from today
 
-### Brainstorm ideas
+### Features during vacation days
 
-- a daily briefing card each morning
+- daily briefing card each morning
 - "what changed today" summary
 - one-tap vote prompts when plans are uncertain
-- weather-aware reminders later
+- quick expense logging from within events
+- weather-aware reminders (later)
 
-## 9. Expense Logic
+## 10. Expense Logic
 
-Expense features should stay grounded in real trip behavior.
+Expense tracking starts at day 0 — the moment users begin entering pre-trip costs during preplanning.
+
+### Expense lifecycle
+
+1. pre-trip: enter flights, hotels, tickets, deposits during preplanning
+2. in-trip: add expenses anytime — freestanding or attached to a calendar event
+3. post-trip: settle balances and close the ledger in wrap-up
 
 ### Core actions
 
-- log expense
-- assign payer
-- split across travelers
-- mark who owes what
-- show settlement summary
+- log expense (amount, description, date, category)
+- assign payer (who paid out of pocket)
+- split across travelers (even split, custom amounts, or exclude certain travelers)
+- mark individual user portions as settled (user marks their side, payee marks receiving)
+- expense closes when all splits are marked settled by both sides
 
-### Suggested logic rules
+### Settlement behavior
 
-- every expense belongs to a trip
-- every expense has a payer
-- split defaults should be easy to change
-- expenses can remain unresolved after the trip ends
-- wrap-up should point users toward settlement completion
+Users settle money outside the app (cash, Venmo, etc.). The app tracks settlement state:
 
-## 10. Poll and Decision Logic
+- user who owes marks their side paid
+- user who is owed marks they received payment
+- when both sides are marked, expense is considered settled and closed
 
-Polls should solve decision fatigue and prevent group arguments, not create extra UI noise.
+### Expense reports and budgets
+
+- full expense ledger per trip (day 0 through end of trip)
+- budget tracking per category
+- end-of-trip summary showing total from day 0 through return
+- users can mark specific expenses as excluded from specific reports
+- budget overage warnings as costs accumulate
+
+### Receipt scanning (premium)
+
+- premium users can scan receipts to auto-populate expense fields
+- uses Azure OCR
+- free users see the feature with an upgrade prompt
+
+## 11. Poll and Decision Logic
+
+Polls are free for all users.
 
 ### Good poll triggers
 
-- choosing between restaurants for a group dinner
 - choosing between activities
-- picking meetup times or locations
-- any calendar event where the group has not agreed yet
-
-### Polls tied to calendar events
-
-A poll can be attached to a specific calendar event. For example, if Friday night dinner is on the calendar but the restaurant is not decided, a poll can live inside that event. When the vote closes, the winning option becomes the event detail.
+- choosing restaurant options
+- picking meetup times
 
 ### Suggested guardrails
 
-- polls should expire or have a manual close option
-- organizer can close a poll and override the result if needed
-- winning poll options should be easy to promote into the itinerary
-- poll results should be visible to all trip members
+- polls should expire
+- organizer can close a poll manually
+- winning poll options should be easy to convert into itinerary items later
 
-## 11. Notification and Reminder Logic
+## 12. Tools Logic
 
-We should not overbuild notifications early, but the logic should be designed for them.
+### Currency converter (premium)
+
+- built into the expense and budget flows
+- also available as a standalone tool within the trip
+- converts between home currency and destination currency
+- exchange rates updated from a free or self-managed source (daily snapshot)
+- premium users only — free users see upgrade prompt
+
+### Time zone info (free)
+
+- shows home time zone vs destination time zone
+- shown during preplanning and during the trip
+- no external API required — computed from destination data entered during setup
+
+### Smart suggestions engine (premium)
+
+- vibe-aware: beach trips suggest different packing and activities than city or adventure trips
+- destination-aware: international trips trigger document checklists, currency info, language notes
+- season-aware: warns about common seasonal hazards (hurricane season, monsoon, extreme heat)
+- group-aware: kids trigger mobility and stop-frequency considerations, elderly trigger accessibility notes
+- deterministic rule-based logic in v1, no AI inference cost initially
+- feeds packing suggestions, itinerary ideas, preplanning prompts
+
+## 13. Notification and Reminder Logic
+
+We should not overbuild notifications early, but the logic should be designed for them. Resend handles email delivery.
 
 ### Highest-value reminder candidates
 
-- trip basics incomplete
+- trip basics incomplete (email nudge)
 - departure is near and packing is incomplete
 - travel day begins tomorrow
 - active travel day task overdue
 - unresolved post-trip settlement
+- invited participant has not joined yet
 
-## 12. Empty State Logic
+## 14. Empty State Logic
 
 Empty states should behave like guided onboarding for each phase.
 
@@ -423,52 +496,334 @@ Empty states should behave like guided onboarding for each phase.
 - what the first action should be
 - whether this is collaborative or personal
 
-## 13. Premium Logic Ideas
+## 15. Trip Ball Logic
 
-Premium should feel like unlocking power, not removing the product's usefulness.
+The trip ball is a visual character representing the trip's health and progress.
 
-### Candidate premium logic
+### Fill computation
 
-- advanced travel-day templates
-- polls and group decision tools
-- expense splitting and settlement
-- offline mode
+The ball fills from center outward based on preplanning completion percentage.
+
+- 0% fill: dotted outline, empty center — new trip
+- 1–49% fill: partial center fill — preplanning in progress
+- 50–89% fill: mostly filled — good progress
+- 90–100% fill: fully filled — preplanning complete, ready to advance
+
+### Ball states
+
+- new: calm, expectant, dotted outline
+- filling: gently pulsing, ocean wave rhythm
+- full: bouncy, confident, ready to roll
+- travel day active: alert, faster pulse, focused
+- on vacation: relaxed, slow pulse, glowing warmth
+- blocker present: subtle agitation animation
+- milestone hit: brief celebration burst
+- completed: soft, nostalgic fade state
+- archived: dimmed, still
+
+### Color
+
+Users can recolor their trip ball. This is trip personalization and should feel like a meaningful choice.
+
+## 16. Premium Logic
+
+Premium is a one-time $5 purchase per account. It removes ads and unlocks:
+
+- offline mode (high priority)
+- receipt scanning via Azure OCR
+- currency converter
 - smart suggestions
+- advanced travel-day templates
+- trip export
+- trip templates (save and reuse structure)
 
-### Free experience should still allow
+Free users see premium features with tasteful upgrade prompts. The free experience remains genuinely useful.
 
-- creating a trip
-- basic itinerary
-- basic packing support
-- understanding the core value of the app
+## 17. Activity Wishlist Logic
 
-## 13b. Vacation Timeline Logic
+The activity wishlist is a running inspiration board. It is not a poll -- no expiry, no forced decision. It is a place for ideas to live until the group acts on them.
 
-As the trip unfolds, the app should passively build a vacation timeline — a fun, lightweight record of what happened in order.
+### Who can add
 
-### What feeds the timeline
+All participants can add wishlist items by default. The organizer can restrict per user via the per-user permission toggle system in trip settings.
 
-- calendar events that occurred
-- notes added by any participant
-- expense entries (optional, can be toggled off for privacy)
-- any milestones or check-ins
+### Wishlist item fields
 
-### Timeline purpose
+- title
+- description (optional)
+- category (activity, restaurant, place, experience, etc.)
+- added by (author)
+- created at
+- reactions (likes)
+- comments
 
-- the timeline is not for planning — it is for remembering
-- it should be readable and fun to scroll through after the trip
-- it becomes a light keepsake automatically, without the user having to do extra work
+### Reactions and social
 
-## 14. Brainstorm Ideas Worth Exploring Later
+- any user can like a wishlist item
+- any user can comment on a wishlist item
+- reaction counts are visible to all group members
+- high reaction counts signal group enthusiasm without requiring a formal poll
 
-- trip health score based on readiness
-- countdown states that change the interface mood as departure gets close
-- "chaos radar" warnings for high-risk missing items
-- a post-trip memory vault for notes, photos, and recap links
+### Promotion to itinerary
+
+- organizer can promote any wishlist item to an itinerary event with one action
+- once promoted, the item is removed from the wishlist
+- an undo action is immediately available after promotion
+- if undone, the item returns to the wishlist in its original state
+
+### Poll escalation
+
+- a wishlist item can be escalated into a poll when the group needs a structured vote
+- "Start a poll from this" is a one-tap action on any wishlist item
+
+### Wishlist and preplanning
+
+- the wishlist is accessible during preplanning and persists throughout the trip
+- items added during preplanning can be promoted to itinerary once dates and planning allow
+
+## 18. Trip Notes Logic
+
+Notes are a lightweight freeform communication layer for the group.
+
+### Two types of notes
+
+**Shared notes posts:** visible to all group members, structured as individual posts
+**Personal notes:** private to the author, never visible to others (not even the organizer)
+
+### Shared notes structure
+
+- each note is its own post, not a shared editable document
+- posts have: author, timestamp, content (plain text), and optional event attachment
+- newest posts appear first in the All tab
+- posts support likes and comments from other group members
+
+### Filtering
+
+- All tab: all shared notes posts, newest first
+- Event notes tab: notes that are attached to specific itinerary events
+
+### Event-attached notes
+
+- a note can be attached to a specific itinerary event at the time of writing
+- event notes appear in both the All tab and the Event notes tab
+- within an event detail view, attached notes appear inline below the event
+
+### Personal notes
+
+- personal notes live in the user account area, not in the shared trip space
+- personal notes cannot accidentally be made public
+- no reactions or comments on personal notes
+
+## 19. Countdown Widget Logic
+
+The countdown widget shows days remaining until the trip starts.
+
+### Display states
+
+- 60 or more days: calm and excited ("Your adventure starts in 61 days")
+- 30 days: friendly nudge ("One month out. Getting real.")
+- 14 days: energized ("Two weeks. Are you ready?")
+- 7 days: urgent copy with a slightly more alive visual state ("One week. Let's go.")
+- 1 day: "Tomorrow. Let's go."
+- departure day: switches to travel-day mode language
+- trip in progress: shows "Day X of Y" instead of a countdown
+- trip complete: shows a nostalgic completed state
+
+### Relationship to the ball
+
+The countdown influences the ball pulse rhythm. Far from departure: slow and calm. Approaching departure: slightly faster and more alive. This is part of the ball state model.
+
+### Multiple travel days
+
+If the trip has multiple travel legs, the countdown shows time to the first departure.
+
+### Placement
+
+The countdown lives in the trip overview header near the ball. It is always visible in the authenticated trip workspace.
+
+## 20. Read-Only Share Link Logic
+
+Organizers can share a public view of the itinerary with people who are not joining the trip.
+
+### Who can generate
+
+Organizer only.
+
+### What is included
+
+- trip name and destination
+- itinerary events (dates, times, names, locations)
+- traveler names (organizer can toggle this off for privacy)
+
+### What is always excluded
+
+- expenses and financial data
+- packing lists
+- private notes
+- internal polls
+- any content marked private
+
+### Public view behavior
+
+- no account required to view
+- read-only -- no interactions
+- TripWave branding is present throughout the public view
+- a subtle "Plan your trip with TripWave" CTA appears at the bottom
+- the link is revocable by the organizer at any time from trip settings
+- revoked links return a not-found state
+
+### Acquisition value
+
+Every shared link exposes TripWave to people who have not used it. The public view is designed to be clean enough to be shareable but clearly branded.
+
+## 21. Memory Vault Logic
+
+The memory vault is the final state of a completed trip. It is generated at wrap-up.
+
+### Contents
+
+- trip name, destination, dates
+- who came (participant list)
+- total expenses from day 0 through return
+- expense breakdown by category
+- trip type and vibe label
+- promoted wishlist items that became real itinerary events
+- free-text recap field (any user can write, shown with author attribution)
+- reactions and comments on the recap
+
+### Circle breakdown
+
+The memory vault features the end-of-trip circle breakdown: the ball opens and all accumulated action circles expand outward into a visual composition showing:
+
+- green cluster: financial summary (total spent, per-category)
+- blue cluster: itinerary coverage (events completed)
+- yellow cluster: packing completion
+- pink cluster: who was part of the trip
+- orange cluster: travel day execution summary
+
+This breakdown is the most shareable visual the app produces. It should be designed to be screenshot-worthy and emotionally resonant.
+
+### Shareable
+
+The organizer can share the memory vault via a public link. Same rules as the itinerary share link: no account required to view, TripWave branded, revocable.
+
+### Read-only after grace period
+
+The memory vault becomes read-only 30 days after trip completion. The recap field and comments remain accessible.
+
+### Access
+
+Available from the past trips list in the user's dashboard. Never deleted. Stored indefinitely.
+
+## 22. Trip Duplication Logic
+
+Trip duplication lets organizers copy the structure of a past trip as a starting point for a new one.
+
+### Who can duplicate
+
+Organizer only. Premium feature.
+
+### What is copied
+
+- trip name (prefixed as "Copy of" -- editable immediately)
+- trip type and vibe
+- preplanning field structure (field categories, not specific values like confirmation numbers)
+- packing list item structure (items without check states)
+- travel day task group structure (task groups and checklist items)
+- permission presets
+
+### What is not copied
+
+- dates (required re-entry for the new trip)
+- participants (must be re-invited)
+- expenses and settlements (start fresh)
+- itinerary events (too specific to original dates)
+- confirmation numbers and booking references
+- preplanning specific values (accommodation names, flight numbers, etc.)
+
+### User expectation
+
+The duplication flow clearly shows what will and will not be copied before confirming. No surprises.
+
+## 23. Social Layer Logic
+
+The social layer keeps group communication inside the app.
+
+### Supported on
+
+- itinerary events (comments, likes, favorites)
+- wishlist items (comments, likes, favorites)
+- shared notes posts (comments, likes)
+- expenses (comments, likes)
+- poll options (likes)
+
+### Comments
+
+- plain text only, no formatting
+- any group member can comment on shared content
+- comment author and timestamp shown
+- comments support a like of their own
+- long threads collapse with a "show more" control
+- newest comments appear first in global views, oldest first in item detail
+
+### Likes
+
+- simple one-tap reaction
+- tapping toggles on and off
+- count always visible
+- brief pop animation on tap
+
+### Favorites
+
+- personal to the user, not shared with the group
+- available on itinerary events, wishlist items, notes posts
+- favorited items are visually marked (filled icon)
+- a favorites list is accessible from the user account area and from within the trip sidebar
+
+## 24. Notification Logic
+
+### In-app notifications (all versions)
+
+- bell icon in the top nav with unread count badge
+- tapping opens a notification list
+- notifications grouped by trip for users with multiple trips
+- unread notifications have a subtle highlight; read ones are plain
+
+### Notification triggers
+
+- someone commented on an item you posted or commented on
+- someone liked your item or comment
+- a new participant joined your trip
+- a poll you voted in was closed
+- an expense split you are part of was marked settled by the other party
+- someone added an itinerary item (optional, may be too noisy -- to decide)
+- travel day reminder the day before departure
+- you were invited to a trip
+
+### Push notifications (native app only)
+
+- same triggers as in-app notifications
+- no email notifications for social or activity events
+- Resend handles transactional email only: password reset and invite delivery
+
+### Web version
+
+- in-app notification bell and list only
+- no push, no email alerts for activity
+
+## 25. Brainstorm Ideas Worth Exploring Later
+
+- trip health score visible to users as a readable label or tier
+- chaos radar warnings for high-risk missing items
+- QR code for invite
+- calendar import and export
+- map and place integrations for events
+- restaurant wishlist per destination
+- per-day private journal entries
 - reusable trip templates by trip type
 - family mode with special support for kids, elders, accessibility, and frequent stops
 
-## 15. Recommended MVP Logic Decisions
+## 18. Recommended MVP Logic Decisions
 
 To reduce complexity, the MVP should assume:
 
@@ -478,14 +833,15 @@ To reduce complexity, the MVP should assume:
 - one primary next action at a time
 - travel day overrides normal planning UI when active
 - unresolved expenses can continue after trip completion
+- preplanning completion drives the trip ball fill
+- premium is a one-time unlock, not session-based
 
-These MVP assumptions are further concretized in `docs/STATE_MODEL.md`.
-
-## 16. Open Logic Questions
+## 19. Open Logic Questions
 
 - When should a trip automatically move from planning to ready?
-- Should participants be able to create itinerary items by default?
-- Should packing lists be partly personal and partly shared from day one?
-- How strongly should the app steer users into the current phase versus allowing free navigation?
-- Should expense tracking appear during the trip or mostly after each day?
+- Should participants be able to start polls by default, or is that organizer-controlled per trip?
+- Should the trip ball be visible to all participants or only the organizer?
+- How many unresolved blockers should appear before the UI feels scolding?
+- Should expense tracking appear as a persistent tab or only when relevant?
 - Which premium features should be hard-gated first for the cleanest business model?
+- Should smart suggestions be opt-in or shown by default?

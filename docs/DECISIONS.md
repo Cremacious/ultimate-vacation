@@ -48,70 +48,6 @@ Use this format for new entries:
 - Why: This should reduce rework and keep product, UX, and engineering decisions aligned.
 - Follow-up: Keep the docs updated as code lands rather than letting them drift.
 
-### 2026-04-15 - Typography system locked: Fredoka + Nunito
-
-- Status: accepted
-- Context: Explored several font pairings including Syne + DM Sans, Bebas Neue + Nunito, Righteous + Poppins. User confirmed Nunito for UI/body and selected Fredoka as the headline font for its bubbly, rounded, 80s-adjacent personality.
-- Decision: Fredoka (weight 600) for app title and large display. Fredoka (weight 400) for smaller section headings. Nunito across all UI labels, button text, and body copy.
-- Why: Both fonts are rounded and geometric — they feel like the same design family. Fredoka brings personality and display presence. Nunito keeps the product UI clean, readable, and friendly. Together they reinforce the circle motif through their rounded letterforms.
-- Follow-up: Set up both fonts via next/font/google during the build foundation phase.
-
-### 2026-04-15 - Working prototype name is TripWave
-
-- Status: accepted (temporary)
-- Context: Exploring names. Jetsetta was recommended but not confirmed. TripWave was chosen as a working prototype name — it can be changed later before brand lock-in.
-- Decision: Use TripWave as the working name throughout design and early build phases.
-- Why: Keeps momentum without forcing a permanent naming decision before it is needed.
-- Follow-up: Revisit final name before the marketing page is built or any domain/app-store registration happens.
-
-### 2026-04-15 - App is a coordination tool, not a booking tool
-
-- Status: accepted
-- Context: There was potential ambiguity about whether the app would integrate with flight/hotel search or booking APIs.
-- Decision: This app does not search for or book travel. It is a shared coordination and execution tool. Users bring their own plans; the app helps them organize, communicate, and execute together.
-- Why: Keeps scope tight, avoids expensive third-party API dependencies, and focuses the product on its real differentiator — the group planning and travel-day execution experience.
-- Follow-up: Make this clear in landing page copy from day one so users have accurate expectations.
-
-### 2026-04-15 - 1980s Go-Gos aesthetic locked as the visual direction
-
-- Status: accepted
-- Context: The user provided a paint splatter reference image and referenced the Go-Gos song Vacation as the aesthetic inspiration.
-- Decision: The app uses a 1980s-inspired visual direction: white base, bold circles as the primary shape motif, and cyan-blue, hot yellow, and electric pink as the three core accent colors. Energy comes from color and shape, not from retro typography or literal period styling.
-- Why: Gives the product a strong, memorable, and differentiated visual identity that matches the fun sassy tone of the product.
-- Follow-up: Lock font direction and finalize color tokens before building the component library.
-
-### 2026-04-15 - Packing lists are private per user with a repack mode on return
-
-- Status: accepted
-- Context: Discussed how packing lists should work in a collaborative trip context.
-- Decision: Each user manages their own private packing list. Lists are not visible to other trip members. On the return leg of the trip, the app surfaces the same packing list in reverse (repack mode) so users can verify they are bringing everything home.
-- Why: Privacy avoids editing conflicts and keeps personal items personal. Repack mode is a genuinely useful feature that other planners do not offer.
-- Follow-up: Design the repack mode UX alongside the initial packing list flow.
-
-### 2026-04-15 - Travel days are manually designated, not auto-detected
-
-- Status: accepted
-- Context: Discussed how the app should know which days are travel days.
-- Decision: Organizers (and participants) manually designate which dates are travel days and what type each is (departure, transit, return). A trip can have more than two travel days. The app does not infer travel days from dates alone.
-- Why: Travel plans vary too much — a road trip with overnight stops has many travel days. Manual designation gives accurate control and avoids false assumptions.
-- Follow-up: Build travel day designation into the trip setup and itinerary flows.
-
-### 2026-04-15 - Use Better Auth for authentication and Resend for email
-
-- Status: accepted
-- Context: Auth provider and email service were previously undecided.
-- Decision: Use Better Auth for authentication and Resend for transactional email (password reset, invites, etc.).
-- Why: Both are modern, developer-friendly, and cost-efficient for an early-stage product.
-- Follow-up: Document setup approach and environment variable strategy when backend work begins.
-
-### 2026-04-15 - Build web-first, then iOS second (not Android first)
-
-- Status: accepted
-- Context: The earlier decision was to build web-first before mobile. The specific mobile target is now confirmed as iOS.
-- Decision: After the web product is stable, the first mobile packaging will target iOS. Android may follow later.
-- Why: iOS-first is a common strategy for early consumer apps due to user quality and willingness to pay. It keeps mobile scope tight for the first release.
-- Follow-up: Ensure the web design uses touch-friendly targets and layout patterns from the beginning to minimize iOS adaptation work.
-
 ### 2026-04-11 - Charge the organizer rather than every participant
 
 - Status: accepted
@@ -119,3 +55,163 @@ Use this format for new entries:
 - Decision: Premium access should be purchased by the organizer and apply to the trip workspace they own.
 - Why: This matches the product mental model, keeps billing simple, and lowers friction for participant adoption.
 - Follow-up: Revisit only if later collaboration complexity or team-style use cases justify a different model.
+
+### 2026-04-15 - One-time $5 premium pricing instead of subscription
+
+- Status: accepted
+- Context: The app targets trip planners who may only use it heavily around one trip. A recurring subscription creates ongoing billing guilt and churn risk.
+- Decision: Premium is a single one-time $5 payment per account. No monthly or annual subscription.
+- Why: Low-friction for the core user, ad revenue covers operating costs, and premium revenue is additive margin. The $5 price point is low enough to be an impulse buy before a trip.
+- Follow-up: Monitor whether a per-trip purchase option makes sense for users who want premium for one trip without committing their account.
+
+### 2026-04-15 - Ad-supported free tier with premium ad removal
+
+- Status: accepted
+- Context: Free users need a sustainable revenue path. Ads are the most direct mechanism without gating core features.
+- Decision: Both web and app versions are ad-supported for free users. Purchasing premium removes ads permanently.
+- Why: Ad revenue is expected to cover Vercel and Neon infrastructure costs. Premium is pure upside. Ads should be placed in low-interruption locations (not during travel-day execution or active expense entry).
+- Follow-up: Evaluate ad network options. Avoid ad placements that degrade core trip actions.
+
+### 2026-04-15 - Expense splitting and polls are free features
+
+- Status: accepted
+- Context: Previously considered as premium candidates.
+- Decision: Expense splitting, settlement, and polls are available to all users at no cost.
+- Why: Fairness tools (splitting expenses) and group coordination (polls) should not be paywalled. They are core to the collaborative value proposition, and gating them would punish the use case the app is built for.
+- Follow-up: Receipt scanning (the expensive part of expense workflows) remains premium.
+
+### 2026-04-15 - Account required for all app features
+
+- Status: accepted
+- Context: Lightweight anonymous joining was previously under consideration.
+- Decision: Users must have an account to access any app feature. Non-authenticated users can only see marketing pages, login, signup, legal, and contact.
+- Why: Keeps data integrity clean, simplifies permission and collaboration modeling, and avoids anonymous editing chaos from day one.
+- Follow-up: Keep signup flow fast and low-friction to compensate for the hard account requirement.
+
+### 2026-04-15 - Tech stack finalized: Vercel, Neon, Azure, Resend
+
+- Status: accepted
+- Context: Multiple provider options were under consideration.
+- Decision: The confirmed infrastructure stack is Vercel (hosting), Neon (Postgres database), Azure (receipt scanning OCR, premium only), and Resend (transactional email for password reset and invite notifications).
+- Why: Vercel and Neon are already on paid plans shared with another app, reducing marginal cost to near zero. Azure is pay-per-use and only activated for premium receipt scanning. Resend is lightweight and developer-friendly for transactional email.
+- Follow-up: TripWave has no image hosting requirement. Stripe or equivalent still needed for processing the one-time $5 premium payment.
+
+### 2026-04-15 - Build features without paid third-party APIs where possible
+
+- Status: accepted
+- Context: The business model requires low operating costs to be profitable on ad revenue alone.
+- Decision: Prefer building features with self-contained logic, free data sources, or open APIs rather than paid API subscriptions.
+- Why: Keeps operating costs predictable and under control. Exceptions are Azure (receipt scanning, premium-gated) and payment processing for premium.
+- Follow-up: Currency converter should use a free or self-managed exchange rate source. Smart suggestions should use deterministic rules before any AI inference costs.
+
+### 2026-04-15 - The Trip Ball as core visual identity
+
+- Status: accepted
+- Context: The product needs a distinctive visual element that represents trip health and reinforces the TripWave brand identity.
+- Decision: A circular ball character serves as the persistent visual representation of each trip. It fills from the center outward as preplanning is completed. It rolls between phases as the trip progresses. Users can recolor it. It has subtle personality through micro-animations rather than a cartoon face.
+- Why: Gives the app a recognizable visual identity, makes trip health tangible and fun to watch grow, and fits the ocean wave personality of the TripWave brand.
+- Follow-up: Design the ball animation states for each lifecycle phase. Define pulse animation rules -- ocean wave rhythm, not electronic bounce.
+
+### 2026-04-15 - Action circle visual language
+
+- Status: accepted
+- Context: The trip ball needed a way to show that user actions are being recorded and the trip is growing.
+- Decision: Meaningful user actions trigger small colored circles that animate into the trip ball. Green for expenses, cyan-blue for itinerary, yellow for packing, pink for participants joined, orange for travel day tasks. At end of trip the ball opens into a circle breakdown of the full trip.
+- Why: Makes every action feel rewarding, extends the circle design language into a dynamic system, and produces a shareable end-of-trip visual that doubles as a marketing asset.
+- Follow-up: Design the end-of-trip circle breakdown for the memory vault. Ensure action circle animations never block user flow.
+
+### 2026-04-15 - Granular per-user permissions within a trip
+
+- Status: accepted
+- Context: Previous model assumed simple organizer vs participant roles.
+- Decision: Organizers can set per-user permissions at trip creation (simple defaults) and adjust them in full trip settings at any time. Trip settings allows clicking a user and toggling individual capabilities on or off.
+- Why: Different trips have different group dynamics. Custom per-user toggles accommodate both tight and open collaboration without inventing a complex role hierarchy.
+- Follow-up: Trip creation form should surface simplified permission presets with a note pointing users to full settings for customization.
+
+### 2026-04-15 - Packing lists are personal by default with optional sharing
+
+- Status: accepted
+- Context: Packing is often personal. Some items are private.
+- Decision: Packing lists are personal by default. Users can optionally make their list visible to the group. Individual items within any list can be marked private, hiding them from all other users including the organizer.
+- Why: Respects personal packing habits. Eliminates awkward moments where users need to pack personal or embarrassing items without announcing them.
+- Follow-up: UI should make the private item toggle quick and non-judgmental.
+
+### 2026-04-15 - Expense tracking begins at day 0 (preplanning)
+
+- Status: accepted
+- Context: Pre-trip costs like flights, hotels, and tickets are real trip expenses.
+- Decision: Expense logging is available starting in the preplanning phase. Preplanning accommodation and transport costs link automatically to the expense ledger.
+- Why: The true cost of a trip starts the moment you book. Tracking from the start gives users a complete financial picture.
+- Follow-up: Ensure preplanning cost fields link to the ledger without requiring double-entry.
+
+### 2026-04-15 - Smart suggestions are vibe-aware
+
+- Status: accepted
+- Context: Trip type and vibe affect what the app should suggest.
+- Decision: Planning suggestions, packing recommendations, and itinerary ideas factor in the trip vibe (beach, city, adventure, road trip, family, romantic, etc.) as well as destination and group composition.
+- Why: Generic suggestions feel unhelpful. Vibe-aware suggestions feel like a smart travel friend who actually understands the trip.
+- Follow-up: Start with deterministic rule-based suggestions tied to vibe and destination type before considering any AI-driven inference.
+
+### 2026-04-15 - Official brand slogan locked
+
+- Status: accepted
+- Context: The product needed a tagline that captures the collaborative core and the TripWave brand personality.
+- Decision: The official slogan is "Get everyone on the same wave." The hero marketing headline is "Plan the trip. Not the group chat."
+- Why: The slogan is brand-aligned (wave metaphor), speaks directly to the group coordination value, and has a confident sassy energy that fits the brand voice. The hero headline creates immediate recognition of the core pain point.
+- Follow-up: Apply consistently across marketing pages, onboarding, and brand assets.
+
+### 2026-04-15 - Em dash prohibited throughout the product
+
+- Status: accepted
+- Context: A style decision to keep copy feeling clean and conversational.
+- Decision: The em dash character is never used anywhere in the app. Not in UI copy, tooltips, notifications, error messages, empty states, button text, marketing copy, or documentation. Use a comma, a period, parentheses, or rewrite the sentence instead.
+- Why: Em dashes can feel formal or editorial. The TripWave voice is casual and direct. Avoiding em dashes keeps the copy feeling human and consistent.
+- Follow-up: Enforce during all copy review. Apply retroactively to existing docs.
+
+### 2026-04-15 - Activity wishlist is free, open to all participants by default
+
+- Status: accepted
+- Context: Users needed a place to collect ideas before they become formal itinerary items.
+- Decision: All participants can add items to the activity wishlist by default. The organizer can restrict per user via the existing per-user toggle system. Wishlist items are removed from the wishlist when promoted to the itinerary, with an immediate undo action available.
+- Why: Group trip inspiration should be collaborative and low-friction. The wishlist is different from polls -- no expiry, no forced decision, just a running idea board.
+- Follow-up: Design the wishlist-to-itinerary promotion flow with a clear undo path.
+
+### 2026-04-15 - Notes are individual posts, not a shared document
+
+- Status: accepted
+- Context: Shared notes needed a structure that works for groups without turning into an edit conflict problem.
+- Decision: Notes are individual posts, not a single collaborative document. All posts are visible to the group in an "All" tab sorted newest first. Event-attached notes appear in a separate tab. Users can filter between views.
+- Why: Individual posts avoid edit conflicts, preserve authorship, and are easier to react to and comment on.
+- Follow-up: Personal notes (private) are a separate concept from shared notes posts.
+
+### 2026-04-15 - Social layer: comments, likes, and favorites throughout the app
+
+- Status: accepted
+- Context: Users need lightweight communication within the app to avoid constantly exiting to a group chat.
+- Decision: Most content items (itinerary events, wishlist items, notes posts, expenses) support comments, likes, and favorites. Favorites are personal. Notifications surface social activity. Web has in-app notifications only; native app has push notifications.
+- Why: Keeps the group coordinating inside TripWave. Reduces the check-the-group-chat behavior that fragments trip communication.
+- Follow-up: Comments support plain text only. Design the social layer to feel lightweight, not like a social feed.
+
+### 2026-04-15 - Native app UI is a direct copy of web layout
+
+- Status: accepted
+- Context: Separate mobile design systems create maintenance burden and inconsistency.
+- Decision: The native app (when built) uses the same UI layout as the web. No separate mobile-only nav or layout deviations.
+- Why: Design once, build twice. Keeps the design system unified and reduces long-term complexity.
+- Follow-up: Ensure all web design decisions account for touch targets and mobile usability from the start.
+
+### 2026-04-15 - Trip duplication is a premium feature
+
+- Status: accepted
+- Context: Duplication is a power-user convenience that appeals most to repeat trip planners.
+- Decision: Trip duplication is premium only. It copies trip structure (packing template, travel day tasks, permission presets, type and vibe) but not dates, participants, expenses, itinerary events, or confirmation numbers.
+- Why: Strong upsell moment when starting a second trip. Free users get a natural prompt to upgrade.
+- Follow-up: Design the duplicate flow to clearly show what is and is not copied.
+
+### 2026-04-15 - Read-only share link is free
+
+- Status: accepted
+- Context: Organizers need a way to share the itinerary with non-members (family, friends checking in on the trip).
+- Decision: Organizers can generate a read-only public link to a clean view of their itinerary. No account required to view. Expenses, packing lists, and private notes are always excluded. The public view carries TripWave branding.
+- Why: Free acquisition tool. Every shared itinerary is a TripWave ad seen by people who have never heard of us.
+- Follow-up: Organizer can revoke the link at any time. Include a subtle "Plan your trip with TripWave" CTA on the public view.

@@ -2,6 +2,21 @@
 
 This document tracks the intended information architecture, route layout, and major workspace regions.
 
+## Access Rules
+
+All app features require an authenticated account. Non-authenticated users may only access:
+
+- `/` — marketing landing page
+- `/login`
+- `/signup`
+- `/forgot-password`
+- `/reset-password`
+- `/legal`
+- `/contact`
+- `/pricing`
+
+There is no anonymous or guest access to any trip feature.
+
 ## Product Surfaces
 
 ### 1. Marketing Site
@@ -10,13 +25,14 @@ Purpose:
 
 - explain the product clearly
 - establish tone and brand
-- convert visitors into trial users
+- convert visitors into signed-up users
 
 Core sections:
 
 - hero
 - product promise
 - phase-based feature preview
+- trip ball visual introduction
 - premium feature preview
 - CTA
 
@@ -28,7 +44,6 @@ Purpose:
 - list trips
 - surface progress and alerts
 - guide the next action
-- expose the create-trip and join-with-code flows
 
 ### 3. Trip Workspace
 
@@ -37,25 +52,65 @@ Purpose:
 - central place to manage one trip
 - switch between planning phases
 - coordinate with participants
-- persist through before, during, and after trip moments
+- surface trip ball, health, and recommended action
+
+## Route Map
+
+### Public routes
+
+- `/`
+- `/pricing`
+- `/login`
+- `/signup`
+- `/forgot-password`
+- `/reset-password`
+- `/legal`
+- `/contact`
+
+### Authenticated app routes
+
+- `/app` — dashboard (trip list and overview)
+- `/app/trips` — all trips
+- `/app/trips/new` — create trip flow
+- `/app/trips/[tripId]` — trip overview
+- `/app/trips/[tripId]/setup`
+- `/app/trips/[tripId]/preplanning`
+- `/app/trips/[tripId]/itinerary`
+- `/app/trips/[tripId]/packing`
+- `/app/trips/[tripId]/travel-days`
+- `/app/trips/[tripId]/vacation-days`
+- `/app/trips/[tripId]/expenses`
+- `/app/trips/[tripId]/polls`
+- `/app/trips/[tripId]/group`
+- `/app/trips/[tripId]/settings`
+- `/app/trips/[tripId]/settings/members`
+- `/app/account`
+- `/app/account/premium` — upgrade prompt and purchase
 
 ## Proposed Workspace Layout
 
+This is a working model — shell design decisions come before implementation.
+
 ### Global app shell
 
-- top navigation
-- workspace title and trip switcher
-- account and billing entry
+- top navigation bar
+- trip switcher
+- account and premium entry point
 
 ### Trip workspace shell
 
-- left rail for trip phases
+- trip ball visible in workspace header (always present)
+- phase navigation (left rail on desktop, bottom tabs or drawer on mobile — TBD)
 - main content area for active phase
-- right-side context panel for alerts, blockers, reminders, and group pulse
+- context panel for recommended action, blockers, and alerts (may be integrated into header or sidebar — TBD)
+
+### Trip Ball in workspace
+
+The trip ball sits prominently in the trip workspace header area. Its fill, animation state, and color reflect the trip's current health and phase. Clicking or tapping the ball opens trip health details. It is always visible during active trip planning.
 
 ## Trip Phase Navigation
 
-Initial phase order:
+Phase order (as shown in nav):
 
 1. Overview
 2. Setup
@@ -63,41 +118,23 @@ Initial phase order:
 4. Itinerary
 5. Packing
 6. Travel Day
-7. Today
+7. Vacation Day
 8. Expenses
-9. Group
-10. Wrap-Up
+9. Polls
+10. Group
 11. Settings
 
-## Key Pages We Expect To Build
+The recommended phase is visually highlighted. All phases remain accessible regardless of current recommendation.
 
-### Marketing and onboarding
+## Trip Workspace Permissions
 
-- `/`
-- `/pricing`
-- `/login`
-- `/signup`
-- `/join`
+The workspace respects per-user permissions set by the organizer. Participants see a view of the workspace shaped by their allowed capabilities:
 
-### App and trip management
+- if a user cannot add itinerary items, the add button is hidden or disabled with an explanation
+- if a user cannot view group packing lists, those are not shown
+- organizer sees full controls at all times
 
-- `/app`
-- `/app/trips`
-- `/app/trips/new`
-- `/app/trips/[tripId]`
-
-### Trip phase pages
-
-- `/app/trips/[tripId]/setup`
-- `/app/trips/[tripId]/preplanning`
-- `/app/trips/[tripId]/itinerary`
-- `/app/trips/[tripId]/packing`
-- `/app/trips/[tripId]/travel-day`
-- `/app/trips/[tripId]/today`
-- `/app/trips/[tripId]/expenses`
-- `/app/trips/[tripId]/group`
-- `/app/trips/[tripId]/wrap-up`
-- `/app/trips/[tripId]/settings`
+Permissions are managed in: `/app/trips/[tripId]/settings/members`
 
 ## Logic-Aware Workspace Behavior
 
@@ -106,19 +143,63 @@ The workspace should not act like a flat folder of pages. It should respond to t
 ### Workspace priorities by state
 
 - draft trip: push the user into setup completion
-- planning trip: emphasize next best planning action
-- ready trip: emphasize travel-day readiness and unresolved blockers
-- in-progress trip: emphasize today's schedule and live coordination
-- completed trip: emphasize settlement and wrap-up
+- planning trip: emphasize next best planning action and preplanning progress (ball filling)
+- ready trip: emphasize travel-day readiness and unresolved blockers (ball full, alert if blockers)
+- in-progress trip: emphasize today's schedule and live coordination (ball in vacation state)
+- completed trip: emphasize settlement and wrap-up (ball in nostalgic fade)
 
 ### Persistent UI elements that should become state-aware
 
-- trip phase rail
-- top summary bar
-- primary action button
-- alert / context panel
-- daily status card
-- invite code visibility
+- trip ball (fill, animation, color)
+- recommended phase highlight in nav
+- primary action button or card
+- blocker list
+- context panel or alert area
+- daily status card (vacation days)
+
+## Trip Creation Flow
+
+### Step 1 — basics
+
+- trip name
+- destination
+- dates
+- transport mode
+
+### Step 2 — group
+
+- invite participants (or skip)
+- simplified permission preset selection
+- note pointing to trip settings for full control
+
+### Step 3 — preplanning start
+
+- begin preplanning wizard or skip to overview
+
+## Expense Surface
+
+Expenses are accessible from multiple entry points:
+
+- primary: `/app/trips/[tripId]/expenses` — full ledger
+- secondary: from within any calendar event in itinerary (attach expense to event)
+- secondary: from preplanning (enter flight costs, hotel deposits, etc.)
+
+All expense entry points write to the same ledger.
+
+## Preplanning Surface
+
+The preplanning wizard is a multi-section form organized by category:
+
+1. Group composition
+2. Transportation
+3. Accommodations
+4. Budget
+5. Destination info
+6. Documents and logistics
+7. Trip character (type, vibe, wishlist, must-dos)
+8. Pre-departure logistics
+
+Progress through the preplanning wizard drives the trip ball fill. Sections can be completed in any order. Skipped or not-applicable sections are handled gracefully.
 
 ## UX Rules For Structure
 
@@ -127,7 +208,9 @@ The workspace should not act like a flat folder of pages. It should respond to t
 - empty states must teach, not just inform
 - travel day pages should prioritize focus and checklist completion
 - information density should increase inside the app, but remain calm
-- the shell should make organizer ownership and participant collaboration obvious
+- trip ball is always visible in the authenticated trip workspace
+- ads are shown in designated slots on free tier only
+- premium locks are visible but not punishing
 
 ## Placeholder Content Strategy
 
@@ -136,10 +219,13 @@ Until backend work lands, placeholder UI should explain:
 - what this page will eventually do
 - who it is for
 - what actions belong here
-- whether the feature is free, premium, or later
+- whether the feature is free, premium, or coming later
 
 ## Open Layout Questions
 
-- Should the trip phase nav be vertical only, or adaptable to mobile tabs?
+- Should the trip phase nav be a left rail on desktop only, or also available in a condensed top-bar mode?
 - Should the workspace overview be a separate page or integrated into the trip home?
 - How visible should premium locks be inside the main trip flow?
+- Should the trip ball click/tap open a health detail modal or expand inline?
+- Should ad placement be above or below the main content area on mobile?
+- Should the context panel (blockers, next action) be always visible or collapsible?

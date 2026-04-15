@@ -10,6 +10,7 @@ The app should know:
 - how ready the trip is
 - what phase deserves attention now
 - what action best reduces risk right now
+- how complete the preplanning is (drives the trip ball fill)
 
 ## 1. Core Trip Object Shape
 
@@ -25,15 +26,33 @@ This is a product-facing model, not a final database schema.
 - `endDate`
 - `status`
 - `recommendedPhase`
-- `tripType`
+- `tripType` (beach, city, adventure, road trip, family, romantic, group friends, honeymoon, etc.)
+- `tripVibe` (relaxed, packed, spontaneous, structured)
 - `transportMode`
 - `lodgingSummary`
 - `travelerCount`
 - `inviteMode`
-- `isPremiumTrip`
+- `isPremiumTrip` (organizer has premium unlock)
 - `readinessScore`
+- `ballColor` (user-selected hex or palette choice)
 - `createdAt`
 - `updatedAt`
+
+### Preplanning completeness fields
+
+These track the preplanning wizard completion and drive the trip ball fill percentage.
+
+- `preplanningGroupCompositionComplete`
+- `preplanningTransportComplete`
+- `preplanningAccommodationComplete`
+- `preplanningBudgetComplete`
+- `preplanningDestinationInfoComplete`
+- `preplanningDocumentsComplete`
+- `preplanningTripCharacterComplete`
+- `preplanningPreDepartureComplete`
+- `preplanningCompletionPct` (computed 0–100)
+
+Inapplicable fields are excluded from the denominator. For example, a domestic trip does not count visa requirements against its completion score.
 
 ### Trip readiness support fields
 
@@ -89,6 +108,7 @@ Optional but useful:
 
 - budget target
 - lodging summary
+- trip type and vibe
 - notes
 
 ## 3. Trip Status Rules
@@ -163,12 +183,46 @@ Total:
 
 The score should not become a vanity number. It should support:
 
+- trip ball fill and animation state
 - health/status cards
 - blocker highlighting
 - smart nudges
 - premium upsell moments later
 
-## 5. Recommended Phase Rules
+## 5. Trip Ball State Model
+
+The trip ball is the visual representation of the trip's health and progress. Its state should be computed from the trip object.
+
+### Ball fill rules
+
+Ball fill (0–100%) is driven by `preplanningCompletionPct` until preplanning is complete, then by overall readiness score.
+
+| Preplanning pct | Ball state |
+|---|---|
+| 0% | Empty — dotted outline only |
+| 1–49% | Partial fill — preplanning in progress |
+| 50–89% | Mostly filled — strong progress |
+| 90–100% | Full — preplanning complete |
+
+### Ball animation state rules
+
+| Trip state | Ball animation |
+|---|---|
+| new trip, no data | Calm, expectant, dotted outline |
+| preplanning in progress | Slow ocean-wave pulse |
+| preplanning complete | Bouncy, confident, full fill |
+| blocker present | Subtle agitation micro-animation |
+| milestone hit | Brief celebration burst |
+| travel day active | Alert, faster pulse rhythm |
+| on vacation | Slow, warm, relaxed pulse |
+| trip completed | Soft nostalgic fade |
+| archived | Dimmed, still |
+
+### Ball color
+
+`ballColor` is user-set per trip. Default colors are drawn from the brand palette. Users can recolor at any time from trip settings.
+
+## 6. Recommended Phase Rules
 
 The app should compute one recommended phase for the workspace header and the main call to action.
 
@@ -226,7 +280,7 @@ When multiple phases could apply, use this priority:
 
 - the trip still lacks meaningful schedule structure
 
-## 6. Next Best Action Model
+## 7. Next Best Action Model
 
 Each trip should surface:
 
@@ -238,6 +292,7 @@ Each trip should surface:
 
 - setup
 - invite
+- preplanning
 - itinerary
 - packing
 - travel_day
@@ -275,7 +330,7 @@ The app should prioritize tasks by consequence.
 - polish actions
 - upsell prompts
 
-## 7. MVP Blocker Rules
+## 8. MVP Blocker Rules
 
 Blockers should be explicit and scary in a helpful way.
 
@@ -287,54 +342,93 @@ Blockers should be explicit and scary in a helpful way.
 - no itinerary anchor for a multi-day trip
 - unresolved settlement after trip
 
-## 8. Example Logic Scenarios
+## 9. Example Logic Scenarios
 
 ### Scenario A: newly created trip
 
 - status: `draft`
 - recommended phase: `setup`
 - primary action: `Add dates and destination`
+- ball: empty dotted outline
 
 ### Scenario B: trip is three weeks away with no travel details
 
 - status: `planning`
 - recommended phase: `preplanning`
 - primary action: `Answer travel planning questions`
+- ball: partial fill, slow pulse
 
 ### Scenario C: trip is five days away, itinerary exists, no packing list
 
 - status: `planning`
 - recommended phase: `packing`
 - primary action: `Create packing list`
+- ball: mostly full, slightly faster pulse
 
 ### Scenario D: departure is tomorrow, no travel-day checklist
 
 - status: `ready`
 - recommended phase: `travel_day`
 - primary action: `Build departure checklist`
+- ball: full, alert state
 
 ### Scenario E: trip is live
 
 - status: `in_progress`
 - recommended phase: `vacation_day` or `travel_day`
 - primary action: `Review today's schedule`
+- ball: warm relaxed pulse
 
 ### Scenario F: trip ended yesterday with unresolved expenses
 
 - status: `completed`
 - recommended phase: `wrap_up`
 - primary action: `Settle shared expenses`
+- ball: soft nostalgic fade
 
-## 9. Suggested MVP Defaults
+## 10. Suggested MVP Defaults
 
 - compute status automatically when possible
 - allow manual navigation across phases
 - visually emphasize only one recommended phase
 - allow organizer override later, not necessarily in v1
+- preplanning completion percentage drives ball fill
+- ball color defaults to brand palette, user can change anytime
 
-## 10. Open State Model Questions
+## 11. Expense State Model
+
+Expenses are tracked from day 0 (preplanning) through trip end and into wrap-up.
+
+### Expense object shape
+
+- `id`
+- `tripId`
+- `description`
+- `amount`
+- `currency`
+- `date`
+- `category`
+- `payerUserId`
+- `relatedEventId` (nullable — links to calendar event if entered from there)
+- `includeInDefaultReport` (default true)
+- `splits` (array of user IDs and amounts)
+- `settlementStatus` per split (pending, payer_marked, payee_marked, settled)
+- `createdAt`
+
+### Settlement status rules
+
+A split is settled when:
+
+- the user who owes has marked their side as paid
+- AND the user who is owed has marked they received payment
+
+Marking is independent — both parties confirm in the app. Settlement happens outside the app.
+
+## 12. Open State Model Questions
 
 - Should `ready` be time-based, completeness-based, or both?
 - Should readiness score be user-visible from day one?
 - Should a trip ever regress from `ready` to `planning` if critical data is removed?
 - How many unresolved blockers should appear before the UI feels scolding?
+- Should the trip ball be visible only to the organizer or all participants?
+- Should preplanning completion be visible as a number, a label, or only through the ball?

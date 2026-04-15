@@ -17,7 +17,7 @@ Free should prove the product.
 
 Premium should save the trip.
 
-That means free users should understand the app quickly and get real utility, but the features that reduce chaos the most should push toward paid.
+That means free users should understand the app quickly and get real utility, but the features that reduce chaos the most — and the ads that would otherwise interrupt them — sit behind the upgrade.
 
 ## 1. Customer Model
 
@@ -27,160 +27,145 @@ Primary customer:
 
 Secondary users:
 
-- invited participants who benefit from the trip workspace without paying
+- invited participants who benefit from the trip workspace
 
 ### Recommended commercial rule
 
 Charge the organizer, not every participant.
 
-This is simpler, more understandable, and better aligned with the user’s original intent.
+This is simpler, more understandable, and better aligned with the user's original intent.
 
-### Multiple trip membership
+## 2. Pricing Model
 
-Users can be participants in multiple trips at once (someone else’s trips, not their own). Whether being an active member in more than one trip simultaneously requires premium on the participant side is an open question — but creating multiple trips as an organizer is clearly a premium trigger.
+### One-time $5 premium unlock
 
-## 2. Proposed Pricing Structure
+Premium is a single one-time purchase per account — not a subscription.
 
-### Free
+Why this model:
 
-Purpose:
+- low friction for the core audience (people planning a single important trip)
+- no recurring billing guilt
+- strong perceived value relative to the price
+- ad revenue covers operating costs; premium is additive margin
 
-- let users experience the planning system
-- create habit and trust
-- show the value of guided planning
+### Ad-supported free tier
+
+The free experience is ad-supported on both web and app.
+
+- ads are placed thoughtfully and do not interfere with core trip actions
+- premium removes all ads permanently
+- ad revenue is expected to cover infrastructure overhead even at low user volumes
+
+### Revenue expectation model
+
+Infrastructure costs (shared across two apps on the same accounts):
+
+- Vercel: $25/month shared
+- Neon: $25/month shared
+- Azure: pay-per-use for receipt scanning (premium only, cost passed to premium users)
+- Resend: usage-based for password reset and transactional email
+
+TripWave requires no image hosting. User data is primarily text, keeping storage costs low.
+
+Ad revenue should cover Vercel + Neon costs. Azure receipt scanning costs are absorbed by premium volume.
+
+## 3. Free vs Premium Boundary
+
+### Keep free
+
+- create account
+- create trips (unlimited — no artificial trip limit)
+- full trip setup and preplanning wizard
+- itinerary building (full CRUD, all users can contribute)
+- packing lists (personal and shared visibility)
+- invite participants via code or link
+- polls and group voting
+- expense tracking, splitting, and settlement
+- budget setting and end-of-trip summary
+- trip health ball and phase guidance
+- basic tools (time zone info, basic planning prompts)
+
+### Make premium (one-time $5)
+
+- **Ad removal** — permanent ad-free experience
+- **Offline mode** — itinerary, packing, travel-day access without internet (high priority premium)
+- **Receipt scanning** — Azure-powered OCR to log expenses from photos
+- **Currency converter** — live conversion tool built into expense and budget flows
+- **Smart suggestions** — destination-aware and vibe-aware planning recommendations
+- **Advanced travel-day templates** — pre-built departure day structures
+- **Trip export** — export itinerary as shareable or printable format
+- **Trip templates** — save and reuse a trip structure for future trips
+
+### Intentionally kept free
+
+These were previously considered premium candidates but are now free:
+
+- polls and voting (group coordination should not be paywalled)
+- expense splitting and settlement (basic financial fairness is a core feature)
+
+## 4. Strongest Premium Features
+
+### A. Offline Confidence (highest priority)
+
+Why it converts:
+
+- credible travel-specific value — planes, remote areas, bad signal
+- solves a real fear users have before a trip
 
 Includes:
 
-- one active trip
-- basic trip setup
-- basic itinerary building
-- basic packing lists
-- invite participants
-- limited collaborator features
+- offline itinerary read access
+- offline travel-day checklist
+- offline packing lists
+- offline addresses and reservation notes
 
-### Premium
-
-Purpose:
-
-- unlock the features that most reduce risk, stress, and group friction
-
-Candidate price point to test later:
-
-- monthly subscription for active planners
-- possibly annual option later
-
-Premium includes:
-
-- unlimited active trips
-- advanced travel-day flows
-- group polls and voting
-- expense splitting and settlement
-- offline access
-- smart suggestions
-- premium templates
-- richer planning insights and readiness guidance
-
-### Possible later add-on ideas
-
-- trip templates packs
-- family or accessibility planning toolkit
-- concierge-style planning suggestions
-
-## 3. Strongest Premium Features
-
-These feel like real upgrade levers:
-
-### A. Travel Day Pro
+### B. Ad Removal
 
 Why it converts:
 
-- this is the signature differentiator
-- it solves a painful and immediate problem
+- instant and visible benefit
+- low-cost to deliver, high perceived value
+- natural motivation before departure when users are in the app daily
 
-Candidate premium features:
-
-- advanced travel-day templates
-- grouped responsibilities
-- richer checklist logic
-- trip-day timing nudges
-
-### B. Group Harmony Tools
+### C. Receipt Scanning
 
 Why it converts:
 
-- group conflict is a major pain point
+- adds real convenience during the trip
+- justifies the premium tier on its own during expense-heavy group trips
 
-Candidate premium features:
+Implementation:
 
-- polls and voting
-- organizer override tools
-- richer coordination summaries
+- uses Azure Computer Vision or Azure Form Recognizer
+- premium-only feature — cost is absorbed by premium revenue
+- free users see the feature UI with an upgrade prompt
 
-### C. Money Tools
-
-Why it converts:
-
-- shared expenses are universally annoying
-
-Candidate premium features:
-
-- expense splitting
-- settle-up summary
-- budget tracking
-
-### D. Offline Confidence
+### D. Currency Converter
 
 Why it converts:
 
-- very credible travel-specific value
+- immediately useful for international trips
+- a tool users will reach for repeatedly
 
-Candidate premium features:
+Implementation:
 
-- offline itinerary access
-- offline travel-day access
-- offline packing access
+- uses a free or self-managed currency rate source where possible
+- updated on a reasonable schedule (daily or on-demand)
+- built into expense entry and budget views
 
 ### E. Smart Suggestions
 
 Why it converts:
 
-- feels premium and personalized
+- feels personalized and elevated
+- vibe-aware planning helps users feel understood
 
-Candidate premium features:
+Includes:
 
-- destination-aware suggestions
-- transport-aware planning prompts
-- special-needs and family-aware prompts
-
-## 4. Free vs Premium Boundary Draft
-
-### Keep free
-
-- create account
-- create one active trip as organizer
-- trip setup (name, dates, invite code)
-- basic itinerary
-- basic packing list (personal, private)
-- invite others via code
-- basic trip dashboard
-- be a participant in other people's trips
-
-### Make premium
-
-- multiple active trips as organizer
-- advanced travel-day flows with transport-aware checklists
-- polls and voting (including polls tied to calendar events)
-- expense tracking and settlement
-- receipt scanning
-- offline mode
-- smart context-aware suggestions (mobility, transport, trip type)
-- premium templates
-- vacation timeline feature (may be free or premium — to decide)
-
-### Confirmed premium-only
-
-- receipt scanning (confirmed — OCR cost and complexity justifies gate)
-- creating more than one active trip as the organizer
+- packing suggestions based on destination climate and trip type
+- itinerary ideas based on trip vibe (beach, city, adventure, family, etc.)
+- seasonal warnings (hurricane season, monsoon, extreme heat)
+- document checklists based on destination (visa, passport expiry, vaccinations)
 
 ## 5. Conversion Moments
 
@@ -188,12 +173,12 @@ Premium prompts should show up where the user already feels the need.
 
 ### High-intent upgrade moments
 
-- user tries to create a second active trip
-- user enters travel-day mode and wants advanced checklist power
-- user tries to start a poll
-- user tries to split an expense
-- user wants offline access before departure
-- readiness is weak and smart suggestions would help
+- user is on a plane or heading to a low-signal area and wants offline access
+- user tries to scan a receipt
+- user is planning an international trip and wants currency conversion
+- user wants smart packing suggestions tuned to their destination
+- user wants to export the itinerary before departure
+- user sees an ad during active trip planning
 
 ### Good paywall style
 
@@ -205,6 +190,7 @@ Premium prompts should show up where the user already feels the need.
 Example tone:
 
 - "You can absolutely wing this. Or you can unlock the tools that save the trip."
+- "$5 once. No subscriptions. No guilt."
 
 ## 6. Profit Strategy
 
@@ -212,16 +198,18 @@ Profit comes from disciplined scope as much as revenue.
 
 ### Low-cost product strategy
 
-- keep hosting on Vercel
-- keep primary data in Neon
-- avoid costly third-party AI dependencies at first
-- delay receipt OCR until economics are proven
-- avoid real-time infra unless collaboration truly demands it
+- keep hosting on Vercel (shared with existing subscription)
+- keep primary data in Neon (shared with existing subscription)
+- no image hosting — TripWave is text-first
+- use Azure only for receipt scanning (premium-gated)
+- use Resend only for transactional email (password reset, invite notifications)
+- build tools without paid APIs wherever possible
+- avoid speculative AI infrastructure early
 
 ### Margin protection rules
 
 - favor deterministic product logic before AI features
-- use premium to fund expensive features later
+- use premium to fund the one expensive external service (Azure OCR)
 - avoid giving away the most support-heavy features for free
 
 ## 7. Feature Cost Awareness
@@ -233,45 +221,32 @@ Profit comes from disciplined scope as much as revenue.
 - travel-day checklist logic
 - packing workflows
 - invite code flows
+- polls and voting
+- expense tracking and settlement
 
 ### Medium-cost features
 
 - collaborative editing polish
 - offline sync
-- advanced notifications
+- advanced notifications via Resend
 
-### High-cost features to gate carefully
+### High-cost features to gate behind premium
 
-- OCR receipt scanning
-- AI-heavy personalized planning
-- complex background processing
+- receipt OCR via Azure
+- currency conversion (rate data source TBD — prefer free/self-managed)
+- smart suggestions (deterministic rules first, no AI cost initially)
 
-## 8. Potential Pricing Experiments Later
+## 8. Ad Integration Notes
 
-- monthly only at first
-- monthly + annual after retention is clearer
-- limited-time trip pass for one premium trip
-- premium trial starting near departure date
+- ads are shown in the free tier on web and app
+- ad placement should not interrupt core trip actions (itinerary editing, travel-day mode, expense entry)
+- good ad placements: dashboard idle states, between sections, transition screens
+- bad ad placements: during travel-day execution, mid-checklist, mid-expense entry
+- premium permanently removes all ads
 
-## 9. Brainstorm Ideas For Revenue Expansion
+## 9. Open Monetization Questions
 
-- premium trip templates
-- honeymoon or family travel packs
-- destination planning guides
-- partner affiliate revenue later for travel services, only if tasteful
-
-## 10. Recommended Monetization Decisions For MVP
-
-- one organizer pays
-- free tier proves the value
-- premium gates chaos-reducing features
-- no per-seat pricing at launch
-- no complex enterprise-style billing
-- no expensive AI-first promise in the first version
-
-## 11. Open Monetization Questions
-
-- Should expenses be fully premium or partially free?
-- Should polls be fully premium or limited-use free?
-- Should there be a one-time trip pass in addition to subscription?
-- Should offline mode be fully premium or partially available?
+- Which ad network to use (Google AdSense, Carbon, other)?
+- Should there be a per-trip premium option for organizers who only travel once?
+- Should currency converter use a free rate API (Open Exchange Rates free tier, Frankfurter) or a self-managed daily snapshot?
+- Should receipt scanning have a usage cap even for premium users, or unlimited?

@@ -1,4 +1,4 @@
-# Ultimate Vacation - Product Plan
+# TripWave - Product Plan
 
 ## Purpose
 
@@ -18,7 +18,7 @@ We will keep updating this file as the project evolves.
 
 ## Companion Docs
 
-Supporting project docs now live alongside this plan:
+Supporting project docs live alongside this plan:
 
 - `docs/ROADMAP.md` for phased delivery
 - `docs/BACKLOG.md` for active and upcoming work
@@ -28,11 +28,12 @@ Supporting project docs now live alongside this plan:
 - `docs/MONETIZATION.md` for premium and profit planning
 - `docs/APP_STRUCTURE.md` for layout and route planning
 - `docs/DESIGN_SYSTEM.md` for visual and UX rules
+- `docs/DESIGN_ROADMAP.md` for design decision ordering
 - `docs/DECISIONS.md` for decision history
 
 ## Working Product Summary
 
-Build the most useful, personality-rich shared trip planner possible:
+Build the most useful, personality-rich vacation planning app possible:
 
 - easy enough for one primary organizer to run
 - collaborative enough for groups to coordinate without chaos
@@ -40,25 +41,22 @@ Build the most useful, personality-rich shared trip planner possible:
 - playful and sassy in tone without becoming confusing
 - designed web-first, with mobile packaging later
 
-### What This App Is NOT
-
-This app does not search for flights, hotels, or travel services. It does not book anything. It is a shared coordination and execution tool — a place where everyone going on a trip can plan together, stay aligned, and actually get through the trip without chaos. Think of it as the group's shared brain, not a travel agent.
-
 ## Core Product Vision
 
-The app helps one organizer create a trip (vacation, road trip, group outing, or any shared travel experience — not just traditional vacations) and invite participants using a 5 or 6-digit join code. The organizer is the admin and has the most control over trip details. All details including dates, name, and settings remain editable after creation because real trips change.
+TripWave helps one organizer plan a vacation and invite other participants using a join code. The organizer manages the trip, itinerary, packing, travel-day checklists, group events, votes, expenses, and settlement.
 
-The app should guide users through distinct stages:
+The app guides users through distinct stages:
 
-1. Preplanning
-2. Itinerary building
-3. Packing
-4. Day-of-travel execution
-5. On-trip coordination
-6. Expense tracking and settlement
-7. Post-trip wrap-up and repacking
+1. Setup
+2. Preplanning
+3. Itinerary building
+4. Packing
+5. Travel Day execution
+6. On-trip coordination (Vacation Day)
+7. Expense tracking and settlement
+8. Post-trip wrap-up
 
-The app is date-aware. It knows what day it is, and it automatically adjusts its focus to match the current day of the trip — whether that's a planning day, a travel day, or a vacation day in progress.
+At every stage, the app knows what phase the trip is in, what the most important next action is, and how ready the trip is. This intelligence is surfaced through the workspace header and the trip ball — the app's core visual identity.
 
 ## Product Principles
 
@@ -68,218 +66,214 @@ The app is date-aware. It knows what day it is, and it automatically adjusts its
 - Keep the UI minimal, premium, and fun.
 - Write copy with personality, but never at the expense of clarity.
 - Build the web app first with a strong foundation for mobile packaging and offline support.
-- Keep infrastructure costs low.
+- Keep infrastructure costs low — build without paid APIs wherever possible.
+- Free should prove the product. Premium should save the trip.
 
 ## Primary User Model
 
 ### Account Structure
 
 - One account per user
-- Free tier exists with limits on active trips created
-- Premium features sit behind a paywall
-- The user who creates a trip is the admin/organizer and has the most control
-- Other people can join a trip via invite link or 5 or 6-digit trip code
-- Users can be members of multiple trips simultaneously (may require premium for more than one active trip)
+- All app features require an account — no anonymous or guest access
+- Free tier is ad-supported
+- Premium is a one-time $5 purchase per account
+- The paid user is the trip owner and organizer
+- Other people join a trip via invite code or link and must create an account
 
-### Assumption For Initial MVP
+### Organizer vs Participant
 
-For the first version, we will treat invited users as trip participants inside a shared trip workspace, with the organizer acting as the primary admin.
+- Organizer: full control over the trip — creates, owns, manages settings, manages permissions
+- Participants: join a trip, contribute based on permissions the organizer has set
 
-We may later expand permissions into roles such as:
+### Permission Model
 
-- owner
-- co-planner
-- participant
-- viewer
+Organizer sets per-user permissions at trip creation (simple presets) and in trip settings (full toggle control per user). Granular features can be toggled on or off per user:
 
-## Key User Flows
+- add / edit / delete itinerary items
+- view group packing lists
+- add expenses
+- start or vote on polls
+- invite others
 
-### 1. Start a Trip
+## The Trip Ball
 
-The organizer creates a trip and enters basics:
+The trip ball is the app's visual character and a core UX element. It represents the trip as a living thing.
 
-- destination
-- dates
-- travelers
-- transport method
-- lodging
-- planning style
-- budget target
+- It appears as a dotted outline when a trip is new
+- It fills from the center outward as preplanning is completed
+- Users can choose its color (trip personalization)
+- It has subtle implied personality through micro-animations — not a cartoon face
+- It pulses with an ocean wave rhythm, not an electronic bounce
+- It rolls between phases as the trip progresses
+- It changes animation state to reflect trip health and urgency
 
-### 2. Invite Group Members
+The ball is always visible in the trip workspace.
 
-The organizer shares a 5-digit trip code or invite link so others can join the trip workspace.
+## Key Features
 
-### 3. Preplanning Wizard
+### Preplanning Wizard
 
-The app asks smart questions and suggests needs based on context:
+A comprehensive multi-section wizard capturing everything the app needs to guide the trip:
 
-- destination type
-- climate
-- travel method
-- mobility needs
-- bathroom-stop needs
-- kids / grandparents / pets
-- long-drive stop planning
-- likely essentials such as sunscreen, chargers, meds, documents
+- group composition (travelers, ages, dietary, mobility, medical, emergency contacts)
+- transportation (flying, driving, train — all relevant details, links to expense tracking)
+- accommodations (lodging type, confirmation numbers, costs — links to expense tracking)
+- budget (total, per-person, per-category)
+- destination info (time zone, currency, visa, health entry, seasonal warnings)
+- documents and logistics (passport, insurance, loyalty programs, embassy info)
+- trip character (type, vibe, wishlist, must-dos, exclusions)
+- pre-departure logistics (parking, house/pet arrangements)
 
-### 4. Build the Itinerary
+Completion percentage drives the trip ball fill. Inapplicable fields are excluded from the denominator.
 
-Users add:
+### Itinerary
 
-- events
-- reservations
-- travel segments
-- meet-up times
-- notes
-- calendar entries
+- all participants can add itinerary items by default (organizer can restrict per user)
+- supports events, reservations, notes, times, locations
+- calendar event view and agenda view
+- expenses can be logged from within events
+- winning poll options can be promoted to itinerary items
 
-### 5. Build Packing Lists
+### Packing
 
-Each user creates their own private packing list. Lists are personal by default so people are not editing each other's packing. Context-aware suggestions are offered based on destination type, transport method, trip length, and any special needs noted (such as limited mobility).
+- personal by default
+- users can optionally make their list visible to the group
+- individual items can be marked private (hidden from all other users)
+- destination-aware packing suggestions (premium — vibe and climate based)
 
-When the trip is over and users are heading home, the app reuses the same packing list and prompts users to repack everything they originally brought. This is the repack flow — it helps prevent leaving things behind.
+### Travel Day
 
-### 6. Set Travel Days
+- checklist-driven execution mode
+- ordered task groups with departure window, stopovers, and arrival steps
+- when a travel day is active, the UI reorders around: what's next, what's overdue, required before departure
+- non-essential planning UI collapses during active travel day
 
-The organizer and participants designate which days are travel days. There can be more than two travel days — for example a departure day, a transit stop day, and a return day. Users manually choose which dates are travel days and what kind each one is.
+### Vacation Day
 
-### 7. Travel Day Mode
+- daily briefing card
+- today's schedule, next meetup, active reservations
+- quick-add event and one-tap expense logging
+- group vote prompts
 
-When a designated travel day arrives, the app shifts its focus entirely to that day's execution:
+### Expenses
 
-- wake up tasks
-- get ready tasks
-- load luggage
-- document checks
-- item checks
-- departure checkpoints
-- stopovers
-- arrival steps
+- starts at day 0 — pre-trip costs logged during preplanning
+- accommodations and transport costs from preplanning link automatically to the ledger
+- add expenses anytime, including from within calendar events
+- assign payer, split amounts per traveler (even or custom)
+- settlement tracking: both parties mark independently; expense closes when both confirm
+- full expense ledger with budget tracking and overage warnings
+- end-of-trip summary from day 0 through return
+- users can exclude specific expenses from specific reports
+- receipt scanning via Azure OCR (premium)
 
-Travel day suggestions are informed by how the group is traveling (car, plane, boat, rail, etc.). A car trip gets different prompts than a flight. This is one of the strongest differentiators and should feel extremely polished.
+### Polls
 
-### 8. On-Trip Coordination
+- free for all users
+- polls expire, organizer can close manually
+- winning options can become itinerary items
 
-During the trip, users can:
+### Tools
 
-- view each day's calendar and schedule
-- add or edit events (dinners, meetups, activities, etc.) with title, time, date, and notes
-- vote on group decisions such as which restaurant to go to
-- see meeting times and locations
-- stay aligned even with spotty internet
-- add notes at any point in the trip
+- time zone info: home vs destination (free, no external API)
+- currency converter: built into expense and budget flows (premium, free or self-managed rate source)
 
-### 9. Expense Tracking
+### Smart Suggestions (premium)
 
-Users can:
+- vibe-aware: beach, city, adventure, family, etc. shape what is suggested
+- destination-aware: international trips trigger document checklists, currency notes
+- season-aware: warns about hurricane season, monsoon, extreme heat
+- group-aware: kids and elderly trigger mobility and accessibility prompts
+- deterministic rule-based logic in v1
 
-- record expenses
-- scan receipts (premium only)
-- track budgets
-- split costs
-- settle balances at the end
+## Monetization
 
-### 10. Vacation Timeline
+### Free tier (ad-supported)
 
-After the trip, users can view a fun visual recap of the trip as a timeline — events, notes, and memories in order. This becomes a lightweight keepsake of the trip experience.
+- full access to all core planning features
+- ads shown on web and app
+- polls, expense splitting, and settlement free for all users
 
-## Major Feature Areas
+### Premium — one-time $5
 
-### Phase Guidance Engine
-
-The app should always make clear what stage the trip is in:
-
-- preplanning
-- itinerary
-- packing
-- travel day
-- vacation day
-- wrap-up
-
-Each stage should unlock relevant tools, prompts, and reminders.
-
-### Calendar + Event System
-
-Robust shared calendar features are core:
-
-- single-day and multi-day events
-- restaurant plans
-- meeting locations
-- ticketed activities
-- reminders
-- calendar views by day / agenda / trip
-
-### Polls and Voting
-
-To reduce group friction:
-
-- propose options
-- vote quickly
-- see winner
-- optionally allow organizer override
-
-### Offline Access
-
-Critical data should be available offline:
-
-- itinerary
-- key schedule
-- travel-day checklist
-- packing lists
-- addresses
-- reservation notes
-
-### Expense and Settlement
-
-Splitwise-like collaboration:
-
-- who paid
-- who owes
-- budget progress
-- settle up summary
-
-## Monetization Direction
-
-### Free Tier Ideas
-
-- limited number of trips
-- basic itinerary
-- basic packing list
-- limited collaborators
-
-### Premium Tier Ideas
-
-- unlimited trips
-- advanced travel-day flows
+- removes all ads permanently
+- offline mode (itinerary, travel-day, packing lists — high priority)
+- receipt scanning (Azure OCR)
+- currency converter
 - smart suggestions
-- polls and voting
-- expense splitting
-- receipt scanning
-- offline mode
-- premium templates
-- export / share features
+- advanced travel-day templates
+- trip export
+- trip templates (save and reuse structure)
 
-### Revenue Principle
+### Infrastructure
 
-Optimize for low overhead and high margin:
+- Vercel: hosting (shared $25/month plan)
+- Neon: database (shared $25/month plan)
+- Azure: receipt OCR (premium-gated, pay-per-use)
+- Resend: transactional email (password reset, invite notifications)
+- Payment processor: Stripe or equivalent for one-time $5 purchase
 
-- Vercel for app hosting
-- Neon for database
-- avoid unnecessary paid services early
-- defer expensive AI or OCR flows until carefully scoped
+TripWave has no image hosting requirement. Data is primarily text, keeping storage costs minimal. Ad revenue is expected to cover Vercel and Neon costs.
+
+## Marketing
+
+### Slogan
+
+**"Get everyone on the same wave."**
+
+This is the official tagline. It speaks to the collaborative core of the product and ties directly to the TripWave name and ocean wave personality.
+
+### Hero headline
+
+**"Plan the trip. Not the group chat."**
+
+Creates instant recognition of the core pain point. Used in the landing page hero section.
+
+### Landing page structure
+
+1. Hero -- trip ball animating. Short punchy headline. One CTA.
+2. The problem -- group trip chaos. Relatable. Short.
+3. The journey -- full trip lifecycle shown as a visual arc with the ball rolling through it.
+4. Feature highlights -- travel day mode, expense tracking, wishlist, countdown. Each with a short visual.
+5. The memory vault moment -- emotional close. "Every trip tells a story."
+6. Pricing -- simple. Free gets you going. Five dollars and you are set for life.
+7. Final CTA.
+
+### Per-feature marketing angles
+
+- **The Trip Ball** -- "Meet your trip." This is the marketing hero. Show it empty, filling, rolling, celebrating.
+- **Travel Day Mode** -- "Game day has a playbook. So does your departure."
+- **Activity Wishlist** -- "All those 'we should go here' ideas? They live here now."
+- **Expense Tracking** -- "Every dollar tracked. Every debt settled. No awkward texts."
+- **Countdown Widget** -- "The whole team can feel it coming."
+- **Memory Vault** -- "Every trip tells a story. TripWave keeps it."
+- **Read-Only Share Link** -- "Share the plan. Not the chaos."
+- **Polls** -- "Stop the group chat spiral."
+- **Offline Mode** -- "Your plan works even when the wifi does not."
+- **Trip Duplication** -- "Your annual lake house trip. Pre-packed."
+
+### Acquisition strategy
+
+- The read-only share link is a free acquisition tool -- every shared itinerary is a TripWave ad.
+- The memory vault public share is a free acquisition tool -- the circle breakdown is designed to be screenshot-worthy.
+- TripWave branding appears on all public-facing views.
+- A subtle "Plan your trip with TripWave" CTA lives on all public pages.
 
 ## Brand and Tone
+
+### Name
+
+TripWave (working -- not locked)
 
 ### Desired Personality
 
 - sassy
 - clever
-- fun
 - confident
 - useful
+- ocean-wave playful (not electronic, not corporate)
 
-Tone should feel like that one friend in the group who already has the itinerary printed, a snack bag packed, and a comeback ready for anyone who shows up late.
+Tone should feel like a smart travel-savvy friend who keeps everyone on track.
 
 ### Tone Guardrails
 
@@ -287,232 +281,79 @@ Tone should feel like that one friend in the group who already has the itinerary
 - playful, not chaotic
 - direct, not cold
 - stylish, not cluttered
-- fun throughout, including labels, empty states, tooltips, and button copy
 
 ## Visual Direction
 
-The app has a distinct 1980s energy, inspired by the Go-Gos song Vacation. It should feel retro-pop and a little electric — like a vacation postcard that got put in a blender with a neon sign.
-
-### Core aesthetic
-
-- white or near-white base (the image reference is paint splatters on white — the white is just as important as the color)
-- bold circles as a recurring motif: in backgrounds, accents, avatars, indicators, and decorative elements
-- bright cyan-blue, hot yellow, and electric pink as the three primary colors — used confidently and often
-- orange as an allowed accent but not a primary
-- the color should feel energetic, not muddy — stay vivid and clean
-- 1980s inspired without being a costume — no literal retro borders or pixelated fonts, but the color energy, the shapes, and the attitude should all feel era-adjacent
-
-### Design rules
-
-- circles and rounded forms everywhere: pill buttons, round avatars, circular decorative splashes, dot patterns
-- bold typography with personality — headlines should have presence
-- clean layouts that let the color do the work, not clutter
-- keep app surfaces calmer and more operational than the marketing energy
-- 3D ledged buttons and cards for tactile depth
-- subtle glass where it helps, not everywhere
-- intentional motion
-
-We should avoid overdesigned travel cliches and generic SaaS purple.
+- minimal, polished, slightly glassy
+- slightly 3D, card-forward, modern
+- layered cards, soft depth, clean whitespace
+- intentional motion — the trip ball is the primary motion anchor
+- strong typography (Fredoka + Nunito — working direction)
+- Phosphor Icons (working direction)
+- ocean wave rhythm for all pulse and transition animations
 
 ## Platform Strategy
 
 ### Initial Platform
 
-- Next.js web app first
+- Next.js web app
 
 ### Later Platform Expansion
 
 - package for iOS and Android after web product is stable
-- likely use PWA-first thinking and evaluate Capacitor later
+- PWA-first thinking, evaluate Capacitor later
 
-## Technical Direction
-
-### Proposed Stack
+## Technical Stack
 
 - Next.js App Router
 - TypeScript
 - Tailwind CSS
-- shadcn/ui selectively, not blindly
-- Vercel hosting
-- Neon Postgres
-- Prisma or Drizzle for database access
-- NextAuth or Clerk-style auth alternative later
-- Stripe for subscriptions later
+- Neon Postgres (shared plan)
+- Vercel hosting (shared plan)
+- Resend for transactional email
+- Azure for receipt OCR (premium)
+- ORM: Prisma or Drizzle (decision pending)
+- Auth: Better Auth (configuration pending)
+- Payment: Stripe or equivalent (for one-time $5 premium purchase)
 
-### Initial Recommendation
-
-Start simple with:
-
-- Next.js
-- TypeScript
-- Tailwind
-- ESLint
-- app directory
-
-Then add:
-
-- database layer
-- auth
-- subscriptions
-- offline support
-
-in controlled phases.
-
-### Recommended Data Domains
-
-- users
-- trips
-- trip_members
-- destinations
-- itinerary_items
-- travel_days
-- checklists
-- checklist_items
-- packing_lists
-- packing_items
-- polls
-- poll_options
-- votes
-- expenses
-- expense_splits
-- settlements
-
-## Architecture Priorities
-
-### MVP Priorities
-
-The first build should emphasize:
-
-1. clean app architecture
-2. strong design foundation
-3. trip creation flow
-4. stage-based dashboard
-5. itinerary basics
-6. packing list basics
-7. travel-day checklist basics
-
-### Features To Delay Slightly
-
-- receipt OCR
-- advanced offline sync conflict handling
-- native mobile packaging
-- real-time collaboration polish
-- complex permissions matrix
-
-## Suggested Initial MVP Scope
-
-### MVP v1
-
-- landing page
-- auth shell
-- create trip flow
-- trip dashboard
-- phase-based navigation
-- itinerary CRUD
-- packing list CRUD
-- travel-day checklist CRUD
-- invite code model placeholder
-- premium feature placeholders
-
-### MVP v1.5
-
-- shared calendar improvements
-- polls / voting
-- basic budgeting
-- simple expense tracking
-
-### MVP v2
-
-- settle up flow
-- offline support
-- smarter suggestions
-- receipt scanning
-- mobile packaging
+Build without paid third-party APIs wherever possible. Smart suggestions use deterministic rules. Currency converter uses a free or self-managed rate source. Time zone info is computed from user data.
 
 ## Naming Ideas
 
-We want something fast, memorable, and a little sassy. Early options:
+Current working name: TripWave
 
-- TripSnap
-- VacayBoss
-- Jetsetta
-- PackUp
-- TripSauce
-- GoSnappy
-- Plan the Damn Trip
-- Vacay IQ
-- TripFlex
-- Bestie Trip
-- TripFox
-- Pack Sass
+Earlier candidates for reference:
 
-Current note: keep exploring names before brand lock-in. We should test names for domain and app-store friendliness later, but the in-product language should increasingly emphasize "shared trip planner" over "vacation-only tool."
+- TripSnap, VacayBoss, Jetsetta, PackUp, TripSauce, GoSnappy, Plan the Damn Trip, Vacay IQ, TripFlex, Bestie Trip, TripFox, Pack Sass
+
+Name should be fast, memorable, slightly sassy, and domain-available.
 
 ## UX Opportunities That Feel Special
 
-- A "travel day mode" that acts like a mission checklist — different per transport type.
-- Smart suggestions based on destination, traveler needs, and special considerations like limited mobility.
-- Group votes tied directly to calendar events to resolve disputes before they start.
-- Private packing lists that flip into a repack checklist on the way home.
-- A date-aware interface that shifts automatically to match where in the trip you are right now.
-- A fun vacation timeline that becomes a passive keepsake as the trip unfolds.
-- Empty states that teach the user exactly what to do next.
-- A phase timeline that shows progress toward departure.
+- The trip ball: a visual character that grows with the trip, rolls between phases, and pulses like a wave
+- Travel day mode that acts like a mission checklist
+- Smart suggestions based on destination, vibe, and group composition
+- Polls that convert to itinerary items
+- Expense tracking that starts before the trip and closes at wrap-up
+- Empty states that teach the user exactly what to do next
+- Premium that feels like unlocking power, not removing features
 
 ## Risks and Constraints
 
-- Collaboration can become complex quickly.
-- Offline support is valuable but technically non-trivial.
-- Receipt scanning can introduce third-party cost.
-- Multi-user trip permissions need careful product design.
-- Premium gating must feel enticing, not hostile.
+- Collaboration complexity grows fast — keep permission model clear and simple
+- Offline support is valuable but technically non-trivial — design for it early
+- Azure OCR cost must be covered by premium volume — gate aggressively
+- Per-user permission granularity needs careful UX so it doesn't feel like configuration hell
+- Premium gating must feel enticing, not hostile
 
 ## Open Product Decisions
 
-- Should invited users create full accounts immediately or join lightly first?
-- Should one trip support multiple lodging locations?
-- How opinionated should the planning wizard be?
-- Is expense splitting free or premium?
-- Will group members edit everything or only selected areas?
-- Should travel-day mode support notifications in early versions?
-- Should polls be tied to itinerary suggestions automatically?
-
-## Immediate Build Plan
-
-### Step 1
-
-Create a beautiful but simple Next.js foundation with:
-
-- app router
-- TypeScript
-- Tailwind
-- initial landing page
-- product direction baked into content and placeholder UI
-
-### Step 2
-
-Create a basic information architecture:
-
-- marketing landing page
-- app dashboard shell
-- trip workspace shell
-- placeholder cards for each trip stage
-
-### Step 3
-
-Prepare the app for backend integration:
-
-- environment structure
-- database folder
-- future auth and billing placeholders
-
-## Decisions We Are Making Right Now
-
-- Build web-first in Next.js
-- Keep infrastructure lean around Vercel + Neon
-- Prioritize stable UX before mobile packaging
-- Capture planning in-repo from day one
-- Start with a strong product skeleton instead of rushing into backend complexity
+- Should one trip support multiple lodging locations? (multi-hotel itineraries)
+- Should polls be organizer-creatable only, or can any participant start one?
+- Should the trip ball be visible to all participants or only the organizer?
+- Should smart suggestions be opt-in or shown by default?
+- Should currency converter pull live rates or use daily snapshots?
+- Should there be a per-trip premium option (one trip, not full account)?
 
 ## Session Notes
 
@@ -532,44 +373,23 @@ Initial user vision captured:
 
 ### 2026-04-15
 
-Major vision and design session. Full product rant captured and written into docs. Key decisions made:
+Major product decisions locked:
 
-**Product clarifications:**
-- App is a coordination and execution tool — it does NOT search or book travel
-- Supports trips of all kinds, not just vacations
-- Invite code is 5 or 6 digits
-- All trip details editable after creation
-- Multiple travel days supported, manually designated by organizer
-- App is date-aware and auto-shifts focus to match current day of trip
-- Packing lists are private per user with a repack mode on the return leg
-- Calendar events support optional group voting to resolve disputes
-- Notes and a passive vacation timeline are features
-- Transport mode (car, plane, rail, boat) drives travel day suggestions
-- Accessibility and mobility-aware suggestions planned
-- Receipt scanning confirmed as premium only
-
-**Tech stack additions:**
-- Better Auth confirmed for authentication
-- Resend confirmed for transactional email
-- iOS confirmed as Phase 2 mobile target (not Android first)
-
-**Design locked:**
-- Working name: **TripWave** (prototype — final name TBD)
-- Aesthetic: 1980s Go-Gos Vacation energy, paint-pop color on white base
-- Shape motif: circles everywhere — backgrounds, containers, avatars, icons
-- Palette: cyan-blue (primary), hot yellow (energy), electric pink (accent), white (base)
-- Display font: **Fredoka** — weight 600 for large display, weight 400 for section headings
-- UI and body font: **Nunito**
-- Icons: **Phosphor Icons** fill weight, icons inside colored circle containers
-- Background circles: three tiers (large atmospheric, medium accent, small dots)
-
-**Design roadmap status:**
-- Round 1 (brand, name, tone, fonts, icons) — COMPLETE
-- Round 2 (shell layout, nav) — NEXT
+- monetization: one-time $5 premium, ad-supported free tier
+- tech stack confirmed: Vercel, Neon, Azure (OCR), Resend (email)
+- account required for all app features — no anonymous access
+- expense splitting and polls moved to free
+- receipt scanning, offline mode, currency converter, smart suggestions confirmed as premium
+- trip ball adopted as core visual identity and brand character
+- preplanning wizard scope expanded to comprehensive field set
+- per-user granular permissions model confirmed
+- packing lists personal by default with optional visibility and per-item privacy
+- expense tracking starts day 0 and links to preplanning entries
+- build features without paid APIs wherever possible
+- smart suggestions are vibe-aware and destination-aware (deterministic rules first)
 
 ## Next Recommended Actions
 
-1. Resume on desktop with Round 2 of the design roadmap — app shell layout, desktop nav model, mobile nav model, context panel behavior, trip switcher.
-2. After shell is decided, move to Round 3 — readiness visualization and next-action UI.
-3. Do not begin building until at least Round 2 is resolved so the shell structure does not need to be rebuilt.
-4. When ready to code: install Fredoka and Nunito via next/font/google, install @phosphor-icons/react, install Better Auth, configure Resend.
+1. Discuss and finalize app shell layout and navigation model (desktop + mobile)
+2. Confirm trip ball placement in the shell
+3. Lock remaining design decisions before implementation begins

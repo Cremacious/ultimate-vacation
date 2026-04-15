@@ -9,69 +9,68 @@ This document describes the intended technical shape of the product before the b
 - support collaboration without overengineering too early
 - leave room for offline-capable reads later
 - keep premium gating easy to reason about
+- build features without paid third-party APIs wherever possible
 
-## Proposed Stack
+## Confirmed Stack
 
-- Next.js App Router
-- React + TypeScript
-- Tailwind CSS
-- Neon Postgres
-- ORM to be decided: Prisma or Drizzle
-- **Better Auth** for authentication
-- **Resend** for transactional email (password reset, invite emails, notifications)
-- Stripe for subscriptions later
+- **Next.js App Router** — web framework
+- **React + TypeScript** — UI layer
+- **Tailwind CSS** — styling
+- **Neon Postgres** — primary database (shared $25/month plan)
+- **Vercel** — hosting and deployment (shared $25/month plan)
+- **Resend** — transactional email (password reset, invite notifications)
+- **Azure** — receipt scanning OCR (premium feature only, pay-per-use)
+- **ORM to be decided** — Prisma or Drizzle
+- **Auth provider to be decided** — Better Auth confirmed direction, configuration TBD
+- **Payment processor to be decided** — needed for one-time $5 premium purchase (Stripe likely)
 
-## Platform Strategy
+### What we are NOT using
 
-### Phase 1 — Web
+- Image hosting — TripWave is a text-first product with no photo uploads
+- Subscription billing infrastructure — premium is a one-time payment, not recurring
+- Paid planning or suggestion APIs — smart suggestions are deterministic rule-based logic initially
+- Real-time infrastructure — not needed at MVP, collaboration through standard request-response
 
-Build a stable, polished web application first. All architecture decisions should be made with the web experience as the primary target.
+### Cost model
 
-### Phase 2 — iOS
-
-After the web product is stable, package for iOS. Android may follow later but is not in scope for the first mobile release.
-
-### iOS-aware design principles
-
-Even during web development, the following constraints should be respected:
-
-- touch targets should be generously sized (minimum 44x44pt equivalent)
-- no hover-only states for critical UI — all interactions must work on touch
-- bottom navigation patterns should be considered alongside top navigation
-- offline-capable reads should be designed early so iOS packaging benefits from them
-- avoid patterns that are difficult to replicate in a native-wrapped web app
+TripWave shares Vercel and Neon subscriptions with another app, making marginal infrastructure cost low. Azure receipt scanning is pay-per-use and only triggered for premium users. Resend is usage-based and low-volume initially.
 
 ## Application Layers
 
 ### Presentation Layer
 
-- marketing routes
+- marketing routes (public)
+- auth routes (login, signup, password reset)
 - authenticated app shell
-- trip workspace routes
+- trip workspace routes (phase-based)
 - reusable UI components
+- ad slots (free tier only)
 
 ### Product Logic Layer
 
 - next best action engine
 - trip lifecycle state rules
-- trip stage rules
-- planning suggestion logic
+- trip phase recommendation rules
+- planning suggestion logic (vibe-aware, destination-aware)
 - checklist progression
-- permission checks
+- permission checks (per-user, per-trip)
 - premium entitlement checks
+- trip health / readiness score computation
+- trip ball fill computation (preplanning completeness → fill percentage)
 
 ### Data Layer
 
 - users
 - trips
-- trip members
+- trip members and per-user permission toggles
 - itinerary items
 - travel days
 - checklists
-- packing lists
-- polls
-- expenses
-- subscriptions
+- packing lists and items (with visibility and privacy flags)
+- polls and votes
+- expenses and splits
+- settlements
+- premium entitlements
 
 ## Initial Data Domains
 
@@ -79,15 +78,15 @@ Even during web development, the following constraints should be respected:
 
 - user
 - profile
-- subscription
+- premium_entitlement (one-time purchase record, not subscription)
 
 ### Trip domain
 
 - trip
-- trip_member
+- trip_member (with per-feature permission flags)
 - invite_code
 - destination
-- trip_status_history later if useful
+- trip_status_history (later if useful)
 
 ### Planning domain
 
@@ -96,31 +95,47 @@ Even during web development, the following constraints should be respected:
 - travel_day_plan
 - checklist
 - checklist_item
-- packing_list
-- packing_item
+- packing_list (with is_visible_to_group flag)
+- packing_item (with is_private flag)
+- preplanning_field (structured fields for the preplanning wizard)
 
 ### Collaboration domain
 
 - poll
 - poll_option
 - vote
-- comment or note later if needed
+- note (later if needed)
 
 ### Finance domain
 
-- expense
+- expense (with include_in_report flag per report context)
 - expense_split
 - settlement
+- budget (per trip, with optional per-category budgets)
+
+### Tools domain
+
+- currency_rate_snapshot (for offline-capable currency converter)
 
 ## Route Strategy
 
-High-level direction:
+All app features require authentication. Public routes are limited to marketing and auth.
 
-- `/` marketing landing page
-- `/workspace` temporary shell
-- `/app` authenticated entry later
-- `/app/trips`
-- `/app/trips/[tripId]`
+### Public routes
+
+- `/` — marketing landing page
+- `/login`
+- `/signup`
+- `/forgot-password`
+- `/reset-password`
+- `/legal`
+- `/contact`
+
+### Authenticated routes
+
+- `/app` — authenticated entry / dashboard
+- `/app/trips` — trip list
+- `/app/trips/[tripId]` — trip overview
 - `/app/trips/[tripId]/setup`
 - `/app/trips/[tripId]/preplanning`
 - `/app/trips/[tripId]/itinerary`
@@ -128,6 +143,11 @@ High-level direction:
 - `/app/trips/[tripId]/travel-days`
 - `/app/trips/[tripId]/vacation-days`
 - `/app/trips/[tripId]/expenses`
+- `/app/trips/[tripId]/polls`
+- `/app/trips/[tripId]/settings`
+- `/app/trips/[tripId]/settings/members`
+- `/app/account`
+- `/app/account/premium` — upgrade prompt and purchase flow
 
 ## Logic Services To Expect
 
@@ -136,62 +156,70 @@ These do not need to exist immediately as separate code modules, but the app sho
 - trip status calculation
 - recommended phase calculation
 - next best action calculation
-- permission checks
+- preplanning completeness calculation (feeds trip ball fill %)
+- readiness score computation (6 dimensions)
+- permission checks (per user, per feature, per trip)
 - premium entitlement checks
-- readiness / blocker evaluation
-
-## State-Driven Product Logic
-
-The docs now assume the app will compute and expose:
-
-- trip status
-- readiness score or readiness tier
-- recommended phase
-- primary next action
-- blockers
-
-This should influence both backend modeling and app-shell UI.
+- vibe-aware suggestion engine (deterministic rules)
+- currency rate management (fetch, store, serve)
 
 ## Offline Strategy
 
-Not for immediate implementation, but we should design with it in mind:
+Offline access is a premium feature. Design with it in mind from the start.
 
 - critical trip data should be cacheable
 - read-heavy surfaces should degrade gracefully
 - offline writes may need queueing later
 
-Initial offline target:
+Initial offline target (premium only):
 
 - itinerary read access
-- travel-day checklist visibility
+- travel-day checklist visibility and completion state
 - packing list visibility
+- addresses and reservation notes
+
+Non-premium users gracefully see an offline-unavailable state.
 
 ## Security and Permissions
 
-Current assumption:
+Current model:
 
 - one paid organizer owns the trip
-- invited members participate within a trip
-- permissions begin simple and expand later
+- organizer sets per-user permission toggles at trip creation (simplified) and in trip settings (full control)
+- invited members participate within a trip subject to their permissions
+- account required for all app features — no anonymous or guest access
 
-Early roles under consideration:
+Per-user toggleable capabilities (examples):
 
-- owner
-- co-planner
-- participant
-- viewer
+- can add itinerary items
+- can edit itinerary items
+- can delete itinerary items
+- can view packing lists
+- can add expenses
+- can start polls
+- can invite others
+
+## Ad Integration
+
+- ads are rendered in the free tier on web and app
+- premium entitlement check hides all ad slots
+- ad placements are defined at the component level with a isPremium guard
+- good placements: dashboard idle states, between sections, transition screens
+- protected from ads: travel-day execution, mid-checklist, expense entry, active forms
 
 ## Cost Principles
 
 - prefer Vercel-native-friendly patterns
 - avoid expensive background systems early
 - avoid premature real-time infrastructure
-- defer OCR and heavy AI features until ROI is clear
+- defer OCR and AI features until ROI is clear
+- no image hosting — text-first product
+- build tools (currency converter, timezone info) without paid API subscriptions where possible
 
 ## Open Architecture Questions
 
-- Which ORM better fits our pace and deployment preferences? (Prisma vs Drizzle — still TBD)
-- Should participant join flow require a full account immediately?
+- Which ORM better fits our pace and deployment preferences (Prisma vs Drizzle)?
 - How much app state should live server-side vs client-side?
-- When should we introduce background jobs or notifications?
-- How should Better Auth be configured for the invite code join flow — does a participant create a full account or a lightweight session first?
+- When should we introduce background jobs (departure reminders, expense nudges)?
+- Should currency rates be fetched server-side on a schedule or on-demand client-side?
+- How should offline sync conflicts be resolved when a user edits offline and reconnects?
