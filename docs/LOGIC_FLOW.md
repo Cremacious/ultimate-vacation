@@ -342,33 +342,83 @@ Trip creation form offers a simplified permission preset with a note pointing us
 
 Travel day is one of the strongest differentiators, so it deserves explicit rules.
 
+### Core UI: vertical timeline
+
+The travel day page is a single vertical timeline. Tasks run top to bottom in the order they should be done. The user works through the list by tapping to check off each item. As each task is completed, the view auto-scrolls with a smooth animation to bring the next incomplete task near the top of the screen.
+
+This is a mobile-first interface. Users will be on their phones while physically moving through the day. The design must prioritize large tap targets, a clean single-column layout, and no unnecessary chrome.
+
+### Default task structure (flight example)
+
+A first travel day with a flight departure would default to something like:
+
+1. Wake up
+2. Eat breakfast
+3. Double check you have your tickets and ID
+4. Double check you have your chargers and essentials
+5. Turn off all appliances and electronics
+6. Lock up and leave the house
+7. Arrive at the airport
+8. Check in and get through security
+9. Find your gate
+10. Board the plane
+
+The exact defaults depend on the transport mode entered during preplanning. A drive day has different defaults than a flight day or a train day.
+
+### Task customization
+
+Users can customize the task list for any travel day. Customization is available:
+
+- during the planning phase, when building out the trip
+- on the day itself, if something needs to be added or removed in the moment
+
+Customization actions:
+
+- add a new task at any position
+- remove a task
+- reorder tasks by dragging
+- rename a task
+
+Task edits on the day do not affect the planning-phase template. Future travel days on the same trip keep their own separate lists.
+
+### Auto-scroll behavior
+
+When a task is checked off:
+
+1. The task animates into a completed visual state (subtle strike-through or dim)
+2. The view smoothly scrolls down to bring the next incomplete task near the top of the viewport
+3. The scroll uses an eased animation -- not instant, not slow -- just enough to feel intentional
+4. If the user is mid-scroll when they tap a task, the auto-scroll waits until their scroll settles before running
+
+Completed tasks remain visible below the current position so users can reference or undo them. They do not disappear.
+
 ### Travel day objects
 
 Each travel day should include:
 
 - target date
+- transport mode (flight, drive, train, cruise, etc.)
 - departure window
-- ordered task groups
-- required items
-- stopover checkpoints
-- travel segments
+- ordered task list (customizable)
+- required items (linked from packing)
+- stopover checkpoints if applicable
 - arrival steps
 
-### Travel day page priorities
+### Travel day page behavior
 
-When a travel day is active, the app should reorder itself around:
+When a travel day is active, the app:
 
-1. what happens next
-2. what is overdue
-3. what is required before departure
-4. what each person is responsible for
+- shows the vertical timeline as the primary view
+- collapses non-essential planning UI and phase nav
+- highlights overdue tasks prominently if the user is behind schedule
+- keeps the most immediate next task visually in focus at all times
+- allows one-tap check-off with no confirmation required
 
-### Smart behaviors to consider
+### Smart behaviors to build later
 
-- surface "leave in X minutes" guidance later
-- emphasize must-bring items
-- collapse non-essential planning UI during active travel-day mode
-- allow quick checkoff with minimal friction
+- surface a "you should leave in X minutes" prompt based on departure time
+- emphasize must-bring items before the "leave the house" step
+- connect departure day brief (the night-before card) to the first task in the timeline
 
 ## 9. Vacation Day Logic
 

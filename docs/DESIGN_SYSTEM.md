@@ -339,6 +339,20 @@ The app will be built web-first and packaged for native app second. The native a
 - the circle and pill motif works well on mobile without adaptation
 - avoid hover-only states for critical information -- everything must work on touch
 
+### Travel day mobile UI
+
+Travel day is the most mobile-centric surface in the app. It gets special treatment:
+
+- full-screen single-column vertical timeline layout
+- standard workspace nav collapses when a travel day is active
+- each task row has a minimum tap height of 48px with generous horizontal padding
+- the check-off tap target spans the full row width, not just a small checkbox
+- auto-scroll after check-off uses a smooth ease -- motion should feel purposeful, not jarring
+- the trip ball stays visible but shrinks to a compact indicator in the top bar
+- background circle decoration is minimal during travel day -- the list is the focus
+- completed tasks use a dimmed state and subtle strike-through, staying visible below current position
+- task reordering on mobile uses a drag handle on the right side of each row
+
 ## Marketing Visual Rules
 
 The marketing surfaces (landing page, pricing page) can lean into the full energy of the brand. The product surfaces are calmer but clearly the same system.

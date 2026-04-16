@@ -201,14 +201,47 @@ The preplanning wizard is a multi-section form organized by category:
 
 Progress through the preplanning wizard drives the trip ball fill. Sections can be completed in any order. Skipped or not-applicable sections are handled gracefully.
 
+## Travel Day UI
+
+Travel day and vacation day pages use a dedicated full-screen vertical timeline layout that overrides the standard trip workspace shell when active.
+
+### Timeline layout
+
+- single column, full viewport height
+- tasks listed top to bottom in chronological order
+- current (next incomplete) task is visually prominent near the top
+- completed tasks remain visible below, dimmed and struck through
+- phase nav and non-essential planning UI collapse to maximize timeline space
+- the trip ball remains visible but reduced -- it is not the focus during execution
+
+### Mobile behavior
+
+Travel day is the most mobile-centric view in the app. Design and build it for phone-first from the start:
+
+- large tap targets on every task row (minimum 48px height, generous horizontal padding)
+- one-tap check-off with no confirmation dialog
+- no hover states -- everything works on touch
+- auto-scroll animation after check-off brings the next task near the top of the viewport
+- smooth eased scroll, not instant
+- the entire viewport is dedicated to the timeline -- no side panels, no drawers
+
+### Task customization surface
+
+Users can edit the task list from two entry points:
+
+- during planning: via the travel day setup screen in the trip workspace
+- on the day: via an edit mode toggled from the active timeline view
+
+Edits on the day do not overwrite the planning template.
+
 ## UX Rules For Structure
 
 - every page should make the current trip and current phase obvious
 - every phase page should show the next recommended action
 - empty states must teach, not just inform
-- travel day pages should prioritize focus and checklist completion
+- travel day pages use the dedicated timeline layout, not the standard workspace shell
 - information density should increase inside the app, but remain calm
-- trip ball is always visible in the authenticated trip workspace
+- trip ball is always visible in the authenticated trip workspace (reduced during travel day active mode)
 - ads are shown in designated slots on free tier only
 - premium locks are visible but not punishing
 

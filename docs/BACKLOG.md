@@ -105,11 +105,16 @@ This backlog is meant to stay human-readable. It should help us choose the next 
 
 ### Travel day
 
-- [ ] Add travel-day schedule model
-- [ ] Create checklist-driven travel day page
-- [ ] Support ordered tasks and completion state
-- [ ] Define active travel-day UI override behavior
-- [ ] Collapse non-essential planning UI during active travel day
+- [ ] Add travel-day data model (date, transport mode, ordered task list, departure window, stopover checkpoints)
+- [ ] Build vertical timeline UI component for travel day
+- [ ] Implement task check-off with completed visual state (dim and strike-through)
+- [ ] Implement auto-scroll animation to next incomplete task on check-off
+- [ ] Build default task preset system per transport mode (flight, drive, train, cruise)
+- [ ] Allow task customization: add, remove, reorder (drag), rename
+- [ ] Support task editing during planning phase and on the day itself
+- [ ] Keep completed tasks visible below current position (do not remove on check-off)
+- [ ] Collapse non-essential planning UI and phase nav when travel day is active
+- [ ] Build mobile-optimized travel day view (full-screen timeline, large tap targets, single column)
 
 ### Expense tracking
 

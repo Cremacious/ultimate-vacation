@@ -2,6 +2,12 @@
 
 This roadmap is intentionally phased so we can build a stable, differentiated web product before chasing every advanced feature at once.
 
+## Branching Strategy
+
+All work happens directly on master until the foundation is complete. Foundation means: app shell, navigation, auth scaffold, trip workspace skeleton, and core component primitives. Once the foundation is stable, each feature gets its own branch.
+
+Branch-per-feature workflow begins after foundation is done. Each feature branch maps to a discrete backlog item. This keeps early structural changes from causing conflicts in feature branches that diverge from moving ground.
+
 ## Phase 0 - Foundation
 
 Goal: create a clear product direction, repo structure, and front-end foundation.
@@ -14,6 +20,7 @@ Goal: create a clear product direction, repo structure, and front-end foundation
 - [x] lock monetization model (one-time $5, ad-supported free, confirmed tech stack)
 - [x] lock account requirement (full account required for all app features)
 - [x] define trip ball concept as core visual identity
+- [x] lock travel day UI as vertical timeline with auto-scroll (mobile-first)
 - [ ] finalize product name
 - [ ] define shell and navigation layout (next)
 - [ ] lock trip lifecycle state and auto-phase rules (in progress)

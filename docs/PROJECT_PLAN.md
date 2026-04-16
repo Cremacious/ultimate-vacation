@@ -143,10 +143,14 @@ Completion percentage drives the trip ball fill. Inapplicable fields are exclude
 
 ### Travel Day
 
-- checklist-driven execution mode
-- ordered task groups with departure window, stopovers, and arrival steps
-- when a travel day is active, the UI reorders around: what's next, what's overdue, required before departure
-- non-essential planning UI collapses during active travel day
+- vertical timeline UI showing tasks in chronological order from top to bottom
+- default task presets per transport mode (flight, drive, train, cruise) -- for example a flight day starts with: wake up, eat breakfast, check tickets, turn off appliances, leave the house, arrive at airport, check in, board
+- users tap to check off each task as they go; completed tasks dim and stay visible below
+- auto-scroll animation moves the next incomplete task into focus after each check-off
+- task list is fully customizable: add, remove, reorder, rename -- during planning or on the day itself
+- mobile-first design: full-screen timeline, large tap targets, single column, no unnecessary chrome
+- when a travel day is active, normal planning UI and phase nav collapse to keep focus on the timeline
+- applies to both travel days (getting somewhere) and vacation days (daily coordination)
 
 ### Vacation Day
 
