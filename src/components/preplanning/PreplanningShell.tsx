@@ -9,6 +9,7 @@ import {
   IdentificationCard, Stamp, Umbrella, Globe, Syringe,
   CaretDown, CaretUp,
   Mountains, Waves, BookOpen, Leaf, Moon, Heart, Camera, Compass, Sun,
+  FirstAidKit, DeviceMobile, Briefcase,
 } from "@phosphor-icons/react";
 
 // ─── types ────────────────────────────────────────────────────────────────────
@@ -133,7 +134,7 @@ const ALL_SECTIONS: SectionDef[] = [
 const MOCK_STATUSES: Record<string, SectionStatus> = {
   group: "done", travel: "partial", lodging: "partial",
   budget: "partial", destinations: "partial", documents: "partial",
-  vibe: "partial", predeparture: "empty",
+  vibe: "partial", predeparture: "partial",
 };
 
 const MOCK_STATUS_TEXT: Record<string, string> = {
@@ -144,7 +145,7 @@ const MOCK_STATUS_TEXT: Record<string, string> = {
   destinations: "3 stops · 12 days planned",
   documents:    "6 of 8 confirmed",
   vibe:         "2 vibes · Balanced pace",
-  predeparture: "Not started",
+  predeparture: "0 of 18 tasks done",
 };
 
 // ─── mock travel data ─────────────────────────────────────────────────────────
@@ -1985,6 +1986,297 @@ function VibeSection() {
   );
 }
 
+// ─── PRE-DEPARTURE section ────────────────────────────────────────────────────
+
+const PREDEP_COLOR = "#00C96B";
+
+interface PreDepartureTask {
+  id: string;
+  category: string;
+  text: string;
+  done: boolean;
+}
+
+const PREDEP_CATEGORIES: { key: string; label: string; Icon: React.ElementType; color: string }[] = [
+  { key: "travel",  label: "Travel",  Icon: Airplane,       color: "#FF2D8B" },
+  { key: "finance", label: "Finance", Icon: CurrencyDollar, color: "#00C96B" },
+  { key: "home",    label: "Home",    Icon: House,          color: "#A855F7" },
+  { key: "health",  label: "Health",  Icon: FirstAidKit,    color: "#00A8CC" },
+  { key: "tech",    label: "Tech",    Icon: DeviceMobile,   color: "#FFD600" },
+  { key: "work",    label: "Work",    Icon: Briefcase,      color: "#9CA3AF" },
+];
+
+const INITIAL_PREDEP_TASKS: PreDepartureTask[] = [
+  { id: "t1", category: "travel",  text: "Check in for all flights",             done: false },
+  { id: "t2", category: "travel",  text: "Download boarding passes",              done: false },
+  { id: "t3", category: "travel",  text: "Confirm hotel & lodging bookings",      done: false },
+  { id: "t4", category: "travel",  text: "Save all confirmation codes offline",   done: false },
+  { id: "f1", category: "finance", text: "Notify bank of travel dates",           done: false },
+  { id: "f2", category: "finance", text: "Exchange currency if needed",           done: false },
+  { id: "f3", category: "finance", text: "Enable international card use",         done: false },
+  { id: "h1", category: "home",    text: "Hold mail or ask a neighbor",           done: false },
+  { id: "h2", category: "home",    text: "Arrange pet / plant sitter",            done: false },
+  { id: "h3", category: "home",    text: "Lock all windows and doors",            done: false },
+  { id: "h4", category: "home",    text: "Take out trash before leaving",         done: false },
+  { id: "x1", category: "health",  text: "Pack all medications",                  done: false },
+  { id: "x2", category: "health",  text: "Travel insurance card in wallet",       done: false },
+  { id: "c1", category: "tech",    text: "Charge all devices + power bank",       done: false },
+  { id: "c2", category: "tech",    text: "Download offline maps for each city",   done: false },
+  { id: "c3", category: "tech",    text: "Back up phone photos to cloud",         done: false },
+  { id: "w1", category: "work",    text: "Set out-of-office reply",               done: false },
+  { id: "w2", category: "work",    text: "Delegate or clear urgent tasks",        done: false },
+];
+
+type AirportTransport = "drive" | "taxi" | "rideshare" | "transit" | "shuttle";
+const AIRPORT_TRANSPORT: { key: AirportTransport; label: string }[] = [
+  { key: "drive",     label: "Drive"     },
+  { key: "taxi",      label: "Taxi"      },
+  { key: "rideshare", label: "Rideshare" },
+  { key: "transit",   label: "Transit"   },
+  { key: "shuttle",   label: "Shuttle"   },
+];
+
+function AddTaskInputSmall({ category, color, onAdd }: {
+  category: string;
+  color: string;
+  onAdd: (category: string, text: string) => void;
+}) {
+  const [text, setText] = useState("");
+  function commit() {
+    if (text.trim()) { onAdd(category, text.trim()); setText(""); }
+  }
+  return (
+    <div className="flex items-center gap-2 mt-2 pt-2"
+         style={{ borderTop: "1px solid rgba(255,255,255,0.07)" }}>
+      <button type="button" onClick={commit}
+        className="w-4 h-4 rounded-full border flex items-center justify-center flex-shrink-0 transition-colors hover:opacity-80"
+        style={{ borderColor: `${color}60`, backgroundColor: "transparent" }}>
+        <Plus size={8} weight="bold" style={{ color: `${color}90` }} />
+      </button>
+      <input
+        type="text" value={text}
+        onChange={(e) => setText(e.target.value)}
+        onKeyDown={(e) => { if (e.key === "Enter") commit(); }}
+        placeholder="Add task…"
+        className="flex-1 bg-transparent text-xs font-semibold text-white outline-none border-b border-transparent focus:border-white/20 transition-colors placeholder-white/20 pb-0.5"
+      />
+    </div>
+  );
+}
+
+function PreDepartureSection() {
+  const [tasks,      setTasks]      = useState<PreDepartureTask[]>(INITIAL_PREDEP_TASKS);
+  const [departDate, setDepartDate] = useState("");
+  const [departTime, setDepartTime] = useState("");
+  const [leavingFrom, setLeavingFrom] = useState("");
+  const [transport,  setTransport]  = useState<AirportTransport | "">("");
+  const [pickupTime, setPickupTime] = useState("");
+  const [notes,      setNotes]      = useState("");
+
+  function toggleTask(id: string) {
+    setTasks((prev) => prev.map((t) => t.id === id ? { ...t, done: !t.done } : t));
+  }
+  function removeTask(id: string) {
+    setTasks((prev) => prev.filter((t) => t.id !== id));
+  }
+  function addTask(category: string, text: string) {
+    setTasks((prev) => [...prev, { id: Date.now().toString(), category, text, done: false }]);
+  }
+
+  const total     = tasks.length;
+  const doneCount = tasks.filter((t) => t.done).length;
+  const pct       = total > 0 ? Math.round((doneCount / total) * 100) : 0;
+
+  return (
+    <>
+      <style>{`
+        .pdb          { display: grid; grid-template-columns: 1fr; gap: 10px; }
+        @media (min-width: 768px) {
+          .pdb          { grid-template-columns: 1fr 1fr 1fr; }
+          .pdb-progress { grid-column: 1 / 4; }
+          .pdb-tasks    { grid-column: 1 / 3; }
+          .pdb-depart   { grid-column: 3; }
+        }
+      `}</style>
+      <div className="pdb">
+
+        {/* ── Progress summary ── */}
+        <DarkCard className="pdb-progress p-4 md:p-5">
+          <div className="flex flex-col gap-2">
+            <div className="flex items-center justify-between">
+              <div className="text-[10px] font-black uppercase tracking-widest text-white/30">
+                Pre-Departure Checklist
+              </div>
+              <div className="font-semibold leading-none"
+                   style={{ fontFamily: "var(--font-fredoka)", fontSize: "20px", color: pct === 100 ? PREDEP_COLOR : "#FF8C00" }}>
+                {doneCount}<span className="text-white/25" style={{ fontSize: "14px" }}>/{total}</span>
+              </div>
+            </div>
+            <div className="h-2 rounded-full overflow-hidden" style={{ backgroundColor: "#3a3a3a" }}>
+              <div className="h-full rounded-full transition-all duration-500"
+                   style={{ width: `${pct}%`, backgroundColor: pct === 100 ? PREDEP_COLOR : "#FF8C00" }} />
+            </div>
+            <div className="flex items-start justify-between gap-3 flex-wrap">
+              <div className="text-[10px] font-black text-white/25">
+                {pct === 100
+                  ? "All done — bon voyage! ✈"
+                  : `${pct}% complete · ${total - doneCount} task${total - doneCount !== 1 ? "s" : ""} remaining`}
+              </div>
+              {/* Category breakdown pills */}
+              <div className="flex gap-1 flex-wrap justify-end">
+                {PREDEP_CATEGORIES.map(({ key, label, color }) => {
+                  const catTasks = tasks.filter((t) => t.category === key);
+                  const catDone  = catTasks.filter((t) => t.done).length;
+                  if (catTasks.length === 0) return null;
+                  const complete = catDone === catTasks.length;
+                  return (
+                    <span key={key}
+                      className="rounded-full text-[9px] font-black uppercase tracking-wide px-2 py-0.5"
+                      style={{
+                        backgroundColor: complete ? `${color}22` : "rgba(255,255,255,0.05)",
+                        color:           complete ? color         : "rgba(255,255,255,0.25)",
+                        border: `1px solid ${complete ? color + "44" : "rgba(255,255,255,0.08)"}`,
+                      }}>
+                      {label} {catDone}/{catTasks.length}
+                    </span>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+        </DarkCard>
+
+        {/* ── Task list ── */}
+        <DarkCard className="pdb-tasks p-4 md:p-5">
+          <CardLabel>Tasks</CardLabel>
+          <div className="flex flex-col gap-5">
+            {PREDEP_CATEGORIES.map(({ key, label, Icon, color }) => {
+              const catTasks = tasks.filter((t) => t.category === key);
+              return (
+                <div key={key}>
+                  {/* Category header */}
+                  <div className="flex items-center gap-2 mb-2">
+                    <div className="w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0"
+                         style={{ backgroundColor: `${color}22` }}>
+                      <Icon size={10} weight="fill" style={{ color }} />
+                    </div>
+                    <span className="text-[11px] font-black uppercase tracking-widest"
+                          style={{ color: "rgba(255,255,255,0.4)" }}>
+                      {label}
+                    </span>
+                    {catTasks.length > 0 && (
+                      <span className="ml-auto text-[10px] font-black"
+                            style={{ color: catTasks.every((t) => t.done) ? color : "rgba(255,255,255,0.2)" }}>
+                        {catTasks.filter((t) => t.done).length}/{catTasks.length}
+                      </span>
+                    )}
+                  </div>
+                  {/* Task rows */}
+                  <div className="flex flex-col gap-2">
+                    {catTasks.map((task) => (
+                      <div key={task.id} className="flex items-center gap-2.5 group">
+                        <button type="button" onClick={() => toggleTask(task.id)}
+                          className="w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 border-2 transition-all"
+                          style={{
+                            backgroundColor: task.done ? color      : "transparent",
+                            borderColor:     task.done ? color      : "rgba(255,255,255,0.2)",
+                          }}>
+                          {task.done && <Check size={9} weight="bold" color="#fff" />}
+                        </button>
+                        <span className="flex-1 text-sm font-semibold leading-snug transition-colors"
+                              style={{
+                                color:          task.done ? "rgba(255,255,255,0.3)" : "rgba(255,255,255,0.8)",
+                                textDecoration: task.done ? "line-through"          : "none",
+                              }}>
+                          {task.text}
+                        </span>
+                        <button type="button" onClick={() => removeTask(task.id)}
+                          className="opacity-0 group-hover:opacity-100 text-white/25 hover:text-[#FF2D8B] transition-all flex-shrink-0">
+                          <X size={11} weight="bold" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                  <AddTaskInputSmall category={key} color={color} onAdd={addTask} />
+                </div>
+              );
+            })}
+          </div>
+        </DarkCard>
+
+        {/* ── Departure Day ── */}
+        <DarkCard className="pdb-depart p-4 md:p-5 flex flex-col gap-4">
+          {/* Date + time + leaving from */}
+          <div>
+            <CardLabel>Departure Day</CardLabel>
+            <div className="flex flex-col gap-3">
+              <div>
+                <div className="text-[10px] font-black uppercase tracking-widest text-white/25 mb-1.5">Date</div>
+                <FieldInput type="date" value={departDate} className="text-white/70 text-xs"
+                  onChange={(e) => setDepartDate(e.target.value)} />
+              </div>
+              <div>
+                <div className="text-[10px] font-black uppercase tracking-widest text-white/25 mb-1.5">Departure Time</div>
+                <FieldInput type="time" value={departTime} className="text-white/70 text-xs"
+                  onChange={(e) => setDepartTime(e.target.value)} />
+              </div>
+              <div>
+                <div className="text-[10px] font-black uppercase tracking-widest text-white/25 mb-1.5">Leaving From</div>
+                <FieldInput placeholder="Home address or city" value={leavingFrom}
+                  onChange={(e) => setLeavingFrom(e.target.value)} />
+              </div>
+            </div>
+          </div>
+
+          {/* Transport to airport */}
+          <div style={{ borderTop: "1px solid rgba(255,255,255,0.07)", paddingTop: "14px" }}>
+            <div className="text-[10px] font-black uppercase tracking-widest text-white/25 mb-2">
+              Getting to Airport
+            </div>
+            <div className="flex flex-wrap gap-1.5">
+              {AIRPORT_TRANSPORT.map(({ key, label }) => (
+                <button key={key} type="button"
+                  onClick={() => setTransport(transport === key ? "" : key)}
+                  className="rounded-full font-black border text-[11px] transition-all"
+                  style={{
+                    padding: "5px 11px",
+                    backgroundColor: transport === key ? PREDEP_COLOR : "rgba(255,255,255,0.05)",
+                    borderColor:     transport === key ? PREDEP_COLOR : "rgba(255,255,255,0.10)",
+                    color:           transport === key ? "#fff"       : "#9CA3AF",
+                  }}>
+                  {label}
+                </button>
+              ))}
+            </div>
+            {transport && (
+              <div className="mt-3">
+                <div className="text-[10px] font-black uppercase tracking-widest text-white/25 mb-1.5">
+                  Pickup / Leave Time
+                </div>
+                <FieldInput type="time" value={pickupTime} className="text-white/70 text-xs"
+                  onChange={(e) => setPickupTime(e.target.value)} />
+              </div>
+            )}
+          </div>
+
+          {/* Notes */}
+          <div style={{ borderTop: "1px solid rgba(255,255,255,0.07)", paddingTop: "14px" }}>
+            <div className="text-[10px] font-black uppercase tracking-widest text-white/25 mb-2">Notes</div>
+            <textarea
+              placeholder="Who's driving, where to park, early check-in tips…"
+              value={notes}
+              onChange={(e) => setNotes(e.target.value)}
+              className="w-full rounded-[10px] px-3 py-2.5 text-sm font-semibold text-white outline-none border resize-none transition-colors focus:border-[#00C96B] placeholder-white/20"
+              style={{ backgroundColor: "#1e1e1e", borderColor: "#3a3a3a", minHeight: "90px" }}
+            />
+          </div>
+        </DarkCard>
+
+      </div>
+    </>
+  );
+}
+
 // ─── placeholder section ──────────────────────────────────────────────────────
 
 function PlaceholderSection({ section }: { section: SectionDef }) {
@@ -2427,6 +2719,8 @@ export default function PreplanningShell({ transportModes }: PreplanningShellPro
       }
       case "vibe":
         return <VibeSection />;
+      case "predeparture":
+        return <PreDepartureSection />;
       default:
         return <PlaceholderSection section={currentSection} />;
     }
