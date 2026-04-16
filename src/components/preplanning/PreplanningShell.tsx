@@ -6,6 +6,8 @@ import {
   CurrencyDollar, MapPin, Files, Sparkle, CheckSquare,
   Plus, X, PlusCircle, Warning, Check,
   ForkKnife, Ticket, ShoppingBag, Bus, Tag,
+  IdentificationCard, Stamp, Umbrella, Globe, Syringe,
+  CaretDown, CaretUp,
 } from "@phosphor-icons/react";
 
 // ─── types ────────────────────────────────────────────────────────────────────
@@ -64,6 +66,23 @@ interface LodgingStay {
   notes: string;
 }
 
+type DocumentType =
+  | "passport" | "visa" | "insurance" | "flight" | "hotel"
+  | "drivers-license" | "esta" | "vaccination" | "other";
+
+type DocumentStatus = "confirmed" | "expiring" | "expired" | "missing" | "waived";
+
+interface TripDocument {
+  id: string;
+  type: DocumentType;
+  holder: string;
+  title: string;
+  number: string;
+  expiryDate: string;
+  notes: string;
+  status: DocumentStatus;   // manual override; auto-computed from expiry when possible
+}
+
 type DestinationType =
   | "city" | "beach" | "mountain" | "countryside"
   | "island" | "national-park" | "ski" | "other";
@@ -112,7 +131,7 @@ const ALL_SECTIONS: SectionDef[] = [
 
 const MOCK_STATUSES: Record<string, SectionStatus> = {
   group: "done", travel: "partial", lodging: "partial",
-  budget: "partial", destinations: "partial", documents: "empty",
+  budget: "partial", destinations: "partial", documents: "partial",
   vibe: "empty", predeparture: "empty",
 };
 
@@ -122,7 +141,7 @@ const MOCK_STATUS_TEXT: Record<string, string> = {
   lodging:      "1 of 2 stays confirmed",
   budget:       "Budget set · 8 categories",
   destinations: "3 stops · 12 days planned",
-  documents:    "Not started",
+  documents:    "6 of 8 confirmed",
   vibe:         "Not started",
   predeparture: "Not started",
 };
@@ -225,6 +244,69 @@ const DEST_TYPES: { key: DestinationType; label: string }[] = [
 ];
 
 const DEST_COLOR_OPTIONS = ["#FF2D8B", "#00A8CC", "#FFD600", "#00C96B", "#FF8C00", "#A855F7"];
+
+const DOC_TYPE_META: Record<DocumentType, { label: string; Icon: React.ElementType; color: string }> = {
+  passport:          { label: "Passport",           Icon: IdentificationCard, color: "#00A8CC" },
+  visa:              { label: "Visa",               Icon: Stamp,              color: "#A855F7" },
+  insurance:         { label: "Insurance",          Icon: Umbrella,           color: "#00C96B" },
+  flight:            { label: "Flight",             Icon: Airplane,           color: "#FF2D8B" },
+  hotel:             { label: "Hotel",              Icon: House,              color: "#A855F7" },
+  "drivers-license": { label: "Driver's License",  Icon: Car,                color: "#FF8C00" },
+  esta:              { label: "ESTA / Auth",        Icon: Globe,              color: "#00A8CC" },
+  vaccination:       { label: "Vaccination",        Icon: Syringe,            color: "#00C96B" },
+  other:             { label: "Other",              Icon: Files,              color: "#9CA3AF" },
+};
+
+const DOC_STATUS_META: Record<DocumentStatus, { label: string; color: string }> = {
+  confirmed: { label: "Confirmed",   color: "#00C96B"              },
+  expiring:  { label: "Expiring",    color: "#FF8C00"              },
+  expired:   { label: "Expired",     color: "#FF2D8B"              },
+  missing:   { label: "Missing",     color: "rgba(255,255,255,0.3)"},
+  waived:    { label: "Not Needed",  color: "rgba(255,255,255,0.25)"},
+};
+
+const INITIAL_DOCUMENTS: TripDocument[] = [
+  {
+    id: "doc1", type: "passport",   holder: "Chris M.",       title: "US Passport",
+    number: "B12345678",  expiryDate: "2028-03-15", notes: "",
+    status: "confirmed",
+  },
+  {
+    id: "doc2", type: "passport",   holder: "Sarah M.",       title: "US Passport",
+    number: "C87654321",  expiryDate: "2026-11-20", notes: "",
+    status: "confirmed",
+  },
+  {
+    id: "doc3", type: "passport",   holder: "Tom K.",         title: "US Passport",
+    number: "D44412300",  expiryDate: "2027-07-04", notes: "",
+    status: "confirmed",
+  },
+  {
+    id: "doc4", type: "visa",       holder: "All travelers",  title: "Japan — No Visa Required",
+    number: "",           expiryDate: "",           notes: "US citizens get 90-day stamp-free entry.",
+    status: "waived",
+  },
+  {
+    id: "doc5", type: "insurance",  holder: "All travelers",  title: "World Nomads — Japan",
+    number: "TI-2025-JP", expiryDate: "2025-04-15", notes: "Medical + trip cancellation included.",
+    status: "confirmed",
+  },
+  {
+    id: "doc6", type: "flight",     holder: "All travelers",  title: "Outbound: SRQ → JFK → NRT",
+    number: "XK92MN",     expiryDate: "2025-04-01", notes: "AA2847 + JL005. Check-in 24h prior.",
+    status: "confirmed",
+  },
+  {
+    id: "doc7", type: "vaccination",holder: "Chris M.",       title: "COVID Vaccination",
+    number: "",           expiryDate: "",           notes: "",
+    status: "confirmed",
+  },
+  {
+    id: "doc8", type: "esta",       holder: "All travelers",  title: "ESTA — Not required",
+    number: "",           expiryDate: "",           notes: "ESTA is for Visa Waiver Program countries. Japan does not require it for US citizens.",
+    status: "waived",
+  },
+];
 
 const INITIAL_DESTINATIONS: Destination[] = [
   {
@@ -1198,6 +1280,244 @@ function BudgetSection({ linkedLodging, linkedCarRental }: BudgetSectionProps) {
   );
 }
 
+// ─── DOCUMENTS section ────────────────────────────────────────────────────────
+
+function maskDocNumber(num: string): string {
+  if (!num) return "—";
+  if (num.length <= 4) return num;
+  return "···" + num.slice(-4);
+}
+
+function expiryInfo(dateStr: string): { text: string; color: string } | null {
+  if (!dateStr) return null;
+  const days  = Math.round((new Date(dateStr).getTime() - Date.now()) / 86_400_000);
+  const label = new Date(dateStr + "T00:00:00").toLocaleDateString("en-US", { month: "short", year: "numeric" });
+  if (days < 0)   return { text: `Expired`,          color: "#FF2D8B" };
+  if (days < 90)  return { text: `Exp ${label} ⚠`,   color: "#FF2D8B" };
+  if (days < 180) return { text: `Exp ${label}`,      color: "#FF8C00" };
+  return           { text: `Exp ${label}`,            color: "rgba(255,255,255,0.35)" };
+}
+
+function resolvedStatus(doc: TripDocument): DocumentStatus {
+  if (doc.status === "waived" || doc.status === "missing") return doc.status;
+  if (!doc.expiryDate) return doc.status;
+  const days = Math.round((new Date(doc.expiryDate).getTime() - Date.now()) / 86_400_000);
+  if (days < 0)   return "expired";
+  if (days < 180) return "expiring";
+  return "confirmed";
+}
+
+interface DocumentCardProps {
+  doc: TripDocument;
+  updateDoc: (id: string, field: keyof TripDocument, value: string) => void;
+  removeDoc: (id: string) => void;
+}
+
+function DocumentCard({ doc, updateDoc, removeDoc }: DocumentCardProps) {
+  const [expanded, setExpanded] = useState(false);
+  const meta   = DOC_TYPE_META[doc.type];
+  const status = resolvedStatus(doc);
+  const statusMeta = DOC_STATUS_META[status];
+  const expiry = expiryInfo(doc.expiryDate);
+
+  return (
+    <DarkCard className="flex flex-col overflow-hidden">
+      {/* ── Compact header ── */}
+      <div className="p-3.5 flex flex-col gap-2">
+
+        {/* Row 1: type badge + status + expand toggle */}
+        <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1.5 rounded-full px-2 py-0.5"
+               style={{ backgroundColor: meta.color + "22" }}>
+            <meta.Icon size={11} weight="fill" style={{ color: meta.color }} />
+            <span className="text-[10px] font-black uppercase tracking-wide" style={{ color: meta.color }}>
+              {meta.label}
+            </span>
+          </div>
+          <span className="rounded-full text-[10px] font-black uppercase tracking-wide px-2 py-0.5"
+                style={{ backgroundColor: statusMeta.color + "22", color: statusMeta.color }}>
+            {statusMeta.label}
+          </span>
+          <button type="button" onClick={() => setExpanded((v) => !v)}
+            className="ml-auto text-white/30 hover:text-white/70 transition-colors flex-shrink-0">
+            {expanded ? <CaretUp size={13} weight="bold" /> : <CaretDown size={13} weight="bold" />}
+          </button>
+        </div>
+
+        {/* Row 2: holder name */}
+        <div className="font-black text-[13px] text-white leading-tight truncate">
+          {doc.holder || "—"}
+        </div>
+
+        {/* Row 3: title */}
+        <div className="text-[11px] font-bold text-white/50 truncate">
+          {doc.title || "Untitled document"}
+        </div>
+
+        {/* Row 4: number + expiry */}
+        <div className="flex items-center justify-between gap-2">
+          <span className="text-[11px] font-black text-white/30 font-mono tracking-widest">
+            {maskDocNumber(doc.number)}
+          </span>
+          {expiry && (
+            <span className="text-[10px] font-black" style={{ color: expiry.color }}>
+              {expiry.text}
+            </span>
+          )}
+        </div>
+      </div>
+
+      {/* ── Expanded edit form ── */}
+      {expanded && (
+        <div className="px-3.5 pb-3.5 pt-0 flex flex-col gap-2"
+             style={{ borderTop: "1px solid rgba(255,255,255,0.07)" }}>
+          <div className="pt-3">
+
+            {/* Document type selector */}
+            <div className="text-[10px] font-black uppercase tracking-widest text-white/25 mb-1.5">Type</div>
+            <div className="flex flex-wrap gap-1 mb-2">
+              {(Object.keys(DOC_TYPE_META) as DocumentType[]).map((t) => {
+                const m = DOC_TYPE_META[t];
+                return (
+                  <button key={t} type="button"
+                    onClick={() => updateDoc(doc.id, "type", t)}
+                    className="flex items-center gap-1 rounded-full font-black border text-[11px] transition-all"
+                    style={{
+                      padding: "3px 9px",
+                      backgroundColor: doc.type === t ? m.color : "#3a3a3a",
+                      borderColor:     doc.type === t ? m.color : "#484848",
+                      color:           doc.type === t ? "#fff"  : "#9CA3AF",
+                    }}>
+                    <m.Icon size={10} weight="fill" />
+                    {m.label}
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Holder + title */}
+            <div className="grid grid-cols-2 gap-2 mb-2">
+              <div>
+                <div className="text-[10px] font-black uppercase tracking-widest text-white/25 mb-1">Holder</div>
+                <FieldInput placeholder="Chris M." value={doc.holder}
+                  onChange={(e) => updateDoc(doc.id, "holder", e.target.value)} />
+              </div>
+              <div>
+                <div className="text-[10px] font-black uppercase tracking-widest text-white/25 mb-1">Title</div>
+                <FieldInput placeholder="US Passport" value={doc.title}
+                  onChange={(e) => updateDoc(doc.id, "title", e.target.value)} />
+              </div>
+            </div>
+
+            {/* Number + expiry */}
+            <div className="grid grid-cols-2 gap-2 mb-2">
+              <div>
+                <div className="text-[10px] font-black uppercase tracking-widest text-white/25 mb-1">Number</div>
+                <FieldInput placeholder="B12345678" value={doc.number}
+                  onChange={(e) => updateDoc(doc.id, "number", e.target.value)}
+                  style={{ fontFamily: "monospace", letterSpacing: "1px" }} />
+              </div>
+              <div>
+                <div className="text-[10px] font-black uppercase tracking-widest text-white/25 mb-1">Expiry</div>
+                <FieldInput type="date" value={doc.expiryDate} className="text-white/70 text-xs"
+                  onChange={(e) => updateDoc(doc.id, "expiryDate", e.target.value)} />
+              </div>
+            </div>
+
+            {/* Status override */}
+            <div className="mb-2">
+              <div className="text-[10px] font-black uppercase tracking-widest text-white/25 mb-1">Status</div>
+              <div className="flex flex-wrap gap-1.5">
+                {(Object.keys(DOC_STATUS_META) as DocumentStatus[]).map((s) => {
+                  const m = DOC_STATUS_META[s];
+                  return (
+                    <button key={s} type="button"
+                      onClick={() => updateDoc(doc.id, "status", s)}
+                      className="rounded-full font-black border text-[11px] transition-all"
+                      style={{
+                        padding: "4px 10px",
+                        backgroundColor: doc.status === s ? m.color : "#3a3a3a",
+                        borderColor:     doc.status === s ? m.color : "#484848",
+                        color:           doc.status === s ? (s === "missing" || s === "waived" ? "#fff" : "#fff") : "#9CA3AF",
+                      }}>
+                      {m.label}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Notes */}
+            <div className="mb-3">
+              <div className="text-[10px] font-black uppercase tracking-widest text-white/25 mb-1">Notes</div>
+              <textarea placeholder="Visa requirements, renewal info…"
+                value={doc.notes}
+                onChange={(e) => updateDoc(doc.id, "notes", e.target.value)}
+                className="w-full rounded-[10px] px-3 py-2 text-sm font-semibold text-white outline-none border resize-none transition-colors focus:border-[#00A8CC] placeholder-white/20"
+                style={{ backgroundColor: "#1e1e1e", borderColor: "#3a3a3a", minHeight: "60px" }}
+              />
+            </div>
+
+            {/* Remove */}
+            <button type="button" onClick={() => removeDoc(doc.id)}
+              className="flex items-center gap-1.5 text-[11px] font-black text-white/25 hover:text-[#FF2D8B] transition-colors">
+              <X size={11} weight="bold" />
+              Remove document
+            </button>
+          </div>
+        </div>
+      )}
+    </DarkCard>
+  );
+}
+
+interface DocumentsSectionProps {
+  documents: TripDocument[];
+  updateDoc: (id: string, field: keyof TripDocument, value: string) => void;
+  removeDoc: (id: string) => void;
+}
+
+function DocumentsSection({ documents, updateDoc, removeDoc }: DocumentsSectionProps) {
+  const confirmedCount = documents.filter(
+    (d) => resolvedStatus(d) === "confirmed" || resolvedStatus(d) === "waived"
+  ).length;
+  const warningCount = documents.filter(
+    (d) => resolvedStatus(d) === "expiring" || resolvedStatus(d) === "expired" || resolvedStatus(d) === "missing"
+  ).length;
+
+  return (
+    <div className="flex flex-col gap-[10px]">
+      {/* Summary row */}
+      <DarkCard className="p-4 flex items-center gap-4">
+        <div className="flex-1">
+          <div className="text-[10px] font-black uppercase tracking-widest text-white/30 mb-1">Document Status</div>
+          <div className="h-2 rounded-full overflow-hidden" style={{ backgroundColor: "#3a3a3a" }}>
+            <div className="h-full rounded-full transition-all duration-500"
+                 style={{
+                   width: `${documents.length > 0 ? (confirmedCount / documents.length) * 100 : 0}%`,
+                   backgroundColor: warningCount > 0 ? "#FF8C00" : "#00C96B",
+                 }} />
+          </div>
+        </div>
+        <div className="flex-shrink-0 text-right">
+          <div className="font-semibold leading-none"
+               style={{ fontFamily: "var(--font-fredoka)", fontSize: "22px", color: warningCount > 0 ? "#FF8C00" : "#00C96B" }}>
+            {confirmedCount}<span className="text-white/25" style={{ fontSize: "16px" }}>/{documents.length}</span>
+          </div>
+          <div className="text-[9px] font-black uppercase tracking-widest text-white/25 mt-0.5">in order</div>
+        </div>
+      </DarkCard>
+
+      {/* Cards grid */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-[10px]">
+        {documents.map((doc) => (
+          <DocumentCard key={doc.id} doc={doc} updateDoc={updateDoc} removeDoc={removeDoc} />
+        ))}
+      </div>
+    </div>
+  );
+}
+
 // ─── DESTINATIONS section ────────────────────────────────────────────────────
 
 function AddMustDoInputSmall({
@@ -1451,6 +1771,9 @@ export default function PreplanningShell({ transportModes }: PreplanningShellPro
   const [lodgingStays,     setLodgingStays]     = useState<LodgingStay[]>(INITIAL_LODGING_STAYS);
   const [activeLodgingStay, setActiveLodgingStay] = useState(0);
 
+  // Documents state
+  const [documents, setDocuments] = useState<TripDocument[]>(INITIAL_DOCUMENTS);
+
   // Destinations state
   const [destinations,         setDestinations]         = useState<Destination[]>(INITIAL_DESTINATIONS);
   const [activeDestinationIdx, setActiveDestinationIdx] = useState(0);
@@ -1531,6 +1854,21 @@ export default function PreplanningShell({ transportModes }: PreplanningShellPro
     setLodgingStays((stays) => stays.filter((s) => s.id !== id));
   }
 
+  // ── Document handlers ────────────────────────────────────────────────────
+  function updateDocument(id: string, field: keyof TripDocument, value: string) {
+    setDocuments((prev) => prev.map((d) => d.id === id ? { ...d, [field]: value } : d));
+  }
+  function addDocument() {
+    const newDoc: TripDocument = {
+      id: Date.now().toString(), type: "passport", holder: "", title: "",
+      number: "", expiryDate: "", notes: "", status: "missing",
+    };
+    setDocuments((prev) => [...prev, newDoc]);
+  }
+  function removeDocument(id: string) {
+    setDocuments((prev) => prev.filter((d) => d.id !== id));
+  }
+
   // ── Destination handlers ──────────────────────────────────────────────────
   function updateDestination(id: string, field: keyof Destination, value: string) {
     setDestinations((prev) => prev.map((d) => d.id === id ? { ...d, [field]: value } : d));
@@ -1600,6 +1938,33 @@ export default function PreplanningShell({ transportModes }: PreplanningShellPro
 
   // ── Sub-nav (travel + lodging) ─────────────────────────────────────────────
   function renderSubNav(): React.ReactNode {
+    // ── Documents add button ──
+    if (activeSection === "documents") {
+      const inOrder = documents.filter(
+        (d) => resolvedStatus(d) === "confirmed" || resolvedStatus(d) === "waived"
+      ).length;
+      return (
+        <div className="mt-4 pt-4 flex items-center justify-between"
+             style={{ borderTop: "1px solid rgba(255,255,255,0.08)" }}>
+          <span className="text-[11px] font-black text-white/30">
+            {inOrder} of {documents.length} in order
+          </span>
+          <button type="button" onClick={addDocument}
+            className="flex items-center gap-1.5 rounded-full font-black border text-sm transition-all"
+            style={{
+              padding: "6px 14px",
+              borderStyle: "dashed",
+              borderColor: "#00A8CC55",
+              color: "#00A8CC",
+              backgroundColor: "transparent",
+            }}>
+            <Plus size={11} weight="bold" />
+            Add document
+          </button>
+        </div>
+      );
+    }
+
     // ── Destination stop tabs ──
     if (activeSection === "destinations") {
       return (
@@ -1782,6 +2147,14 @@ export default function PreplanningShell({ transportModes }: PreplanningShellPro
         return <GroupSection />;
       case "budget":
         return <BudgetSection linkedLodging={linkedLodging} linkedCarRental={linkedCarRental} />;
+      case "documents":
+        return (
+          <DocumentsSection
+            documents={documents}
+            updateDoc={updateDocument}
+            removeDoc={removeDocument}
+          />
+        );
       case "destinations": {
         const dest = destinations[activeDestinationIdx] ?? destinations[0];
         return dest ? (
