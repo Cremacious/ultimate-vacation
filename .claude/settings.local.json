@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(cp \"/c/Code/personal/ultimate-vacation/.claude/worktrees/nifty-gagarin/docs/MONETIZATION.md\" \"/c/Code/personal/ultimate-vacation/docs/MONETIZATION.md\")",
+      "Bash(cp \"/c/Code/personal/ultimate-vacation/.claude/worktrees/nifty-gagarin/docs/DECISIONS.md\" \"/c/Code/personal/ultimate-vacation/docs/DECISIONS.md\")",
+      "Bash(cp \"/c/Code/personal/ultimate-vacation/.claude/worktrees/nifty-gagarin/docs/ARCHITECTURE.md\" \"/c/Code/personal/ultimate-vacation/docs/ARCHITECTURE.md\")",
+      "Bash(cp \"/c/Code/personal/ultimate-vacation/.claude/worktrees/nifty-gagarin/docs/DESIGN_ROADMAP.md\" \"/c/Code/personal/ultimate-vacation/docs/DESIGN_ROADMAP.md\")",
+      "Bash(cp \"/c/Code/personal/ultimate-vacation/.claude/worktrees/nifty-gagarin/docs/LOGIC_FLOW.md\" \"/c/Code/personal/ultimate-vacation/docs/LOGIC_FLOW.md\")",
+      "Bash(npm install:*)",
+      "Bash(rm -rf src/app/signup src/app/workspace src/app/page.tsx)",
+      "Bash(mkdir -p src/app/\\\\\\(marketing\\\\\\) src/app/\\\\\\(auth\\\\\\)/login src/app/\\\\\\(auth\\\\\\)/signup src/app/\\\\\\(auth\\\\\\)/forgot-password src/app/\\\\\\(auth\\\\\\)/reset-password src/app/app/trips/new \"src/app/app/trips/[tripId]/setup\" \"src/app/app/trips/[tripId]/preplanning\" \"src/app/app/trips/[tripId]/itinerary\" \"src/app/app/trips/[tripId]/packing\" \"src/app/app/trips/[tripId]/travel-days\" \"src/app/app/trips/[tripId]/vacation-days\" \"src/app/app/trips/[tripId]/expenses\" \"src/app/app/trips/[tripId]/polls\" \"src/app/app/trips/[tripId]/wishlist\" \"src/app/app/trips/[tripId]/notes\" \"src/app/app/trips/[tripId]/vault\" \"src/app/app/trips/[tripId]/memory\" \"src/app/app/trips/[tripId]/tools\" \"src/app/app/trips/[tripId]/settings/members\" src/app/app/account/premium src/components)"
+    ]
+  }
+}

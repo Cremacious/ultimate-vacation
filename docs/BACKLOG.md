@@ -2,6 +2,15 @@
 
 This backlog is meant to stay human-readable. It should help us choose the next best thing to build without needing a separate project tool yet.
 
+## Next session: fix mobile UI
+- MobilePhaseNav component (horizontal scrollable tab bar for the trip phase nav on small screens)
+- TripSideNav hides on mobile, replaced by MobilePhaseNav pinned above the content area
+- Marketing page hero and feature grid reviewed and adjusted for small screens
+- Auth card padding and font sizes checked on mobile
+- Dashboard hero strip layout adjusted for small screens
+
+---
+
 ## P0 - Active Foundation Work
 
 ### Product and planning
@@ -199,6 +208,7 @@ This backlog is meant to stay human-readable. It should help us choose the next 
 - [ ] Exclude: dates, participants, expenses, itinerary events, confirmation numbers
 - [ ] Show clear pre-confirmation screen of what will and will not be copied
 - [ ] Prompt upgrade for free users attempting to duplicate
+
 
 ## P2 - Tools
 
