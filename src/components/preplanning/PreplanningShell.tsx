@@ -5,6 +5,7 @@ import {
   Users, Airplane, Car, Train, Boat, House,
   CurrencyDollar, MapPin, Files, Sparkle, CheckSquare,
   Plus, X, PlusCircle, Warning,
+  ForkKnife, Ticket, ShoppingBag, Bus, Tag,
 } from "@phosphor-icons/react";
 
 // ─── types ────────────────────────────────────────────────────────────────────
@@ -89,7 +90,7 @@ const ALL_SECTIONS: SectionDef[] = [
 
 const MOCK_STATUSES: Record<string, SectionStatus> = {
   group: "done", travel: "partial", lodging: "partial",
-  budget: "empty", destinations: "empty", documents: "empty",
+  budget: "partial", destinations: "empty", documents: "empty",
   vibe: "empty", predeparture: "empty",
 };
 
@@ -97,7 +98,7 @@ const MOCK_STATUS_TEXT: Record<string, string> = {
   group:        "4 travelers added",
   travel:       "2 flights entered",
   lodging:      "1 of 2 stays confirmed",
-  budget:       "Not started",
+  budget:       "Budget set · 8 categories",
   destinations: "Not started",
   documents:    "Not started",
   vibe:         "Not started",
@@ -905,6 +906,227 @@ function LodgingBento({ stay, updateStay }: LodgingBentoProps) {
   );
 }
 
+// ─── BUDGET section ───────────────────────────────────────────────────────────
+
+const BUDGET_COLOR = "#00C96B";
+
+interface BudgetItem {
+  key: string;
+  label: string;
+  Icon: React.ElementType;
+  color: string;
+  amount: string;
+  isAuto: boolean;
+  autoLabel?: string;
+}
+
+interface BudgetSectionProps {
+  linkedLodging: number;
+  linkedCarRental: number;
+}
+
+function BudgetSection({ linkedLodging, linkedCarRental }: BudgetSectionProps) {
+  const [targetBudget, setTargetBudget] = useState("5000");
+  const [items, setItems] = useState<BudgetItem[]>([
+    { key: "flights",    label: "Flights",       Icon: Airplane,    color: "#FF2D8B", amount: "1200",                                   isAuto: false },
+    { key: "lodging",    label: "Lodging",        Icon: House,       color: "#A855F7", amount: String(linkedLodging  || 2000),            isAuto: linkedLodging > 0,   autoLabel: "from lodging"  },
+    { key: "car",        label: "Car Rental",     Icon: Car,         color: "#FF8C00", amount: String(linkedCarRental || 180),            isAuto: linkedCarRental > 0, autoLabel: "from driving"  },
+    { key: "food",       label: "Food & Dining",  Icon: ForkKnife,   color: "#FFD600", amount: "600",  isAuto: false },
+    { key: "activities", label: "Activities",     Icon: Ticket,      color: "#00A8CC", amount: "400",  isAuto: false },
+    { key: "shopping",   label: "Shopping",       Icon: ShoppingBag, color: "#FF2D8B", amount: "300",  isAuto: false },
+    { key: "transit",    label: "Local Transit",  Icon: Bus,         color: "#00C96B", amount: "150",  isAuto: false },
+    { key: "misc",       label: "Misc / Other",   Icon: Tag,         color: "#9CA3AF", amount: "200",  isAuto: false },
+  ]);
+
+  function updateAmount(key: string, value: string) {
+    setItems((prev) => prev.map((it) => it.key === key ? { ...it, amount: value } : it));
+  }
+
+  const target      = Number(targetBudget) || 0;
+  const autoTotal   = items.filter((it) =>  it.isAuto).reduce((sum, it) => sum + (Number(it.amount) || 0), 0);
+  const manualTotal = items.filter((it) => !it.isAuto).reduce((sum, it) => sum + (Number(it.amount) || 0), 0);
+  const grandTotal  = autoTotal + manualTotal;
+  const remaining   = target - grandTotal;
+  const autoPct     = target > 0 ? Math.min((autoTotal  / target) * 100, 100) : 0;
+  const manualPct   = target > 0 ? Math.min((manualTotal / target) * 100, 100 - autoPct) : 0;
+  const isOver      = remaining < 0;
+
+  return (
+    <>
+      <style>{`
+        .bb { display: grid; grid-template-columns: 1fr; gap: 10px; }
+        .bc { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        @media (min-width: 768px) {
+          .bb           { grid-template-columns: 1fr 1fr 1fr; }
+          .bb-hero      { grid-column: 1 / 3; }
+          .bb-stats     { grid-column: 3; grid-row: 1; }
+          .bb-cats      { grid-column: 1 / 4; }
+          .bc           { grid-template-columns: repeat(4, 1fr); }
+        }
+      `}</style>
+      <div className="bb">
+
+        {/* ── Hero: target + progress bar ── */}
+        <DarkCard className="bb-hero p-4 md:p-5">
+          <CardLabel>Total Trip Budget</CardLabel>
+
+          {/* Big number */}
+          <div className="flex items-end gap-3 mb-4">
+            <div className="font-semibold leading-none"
+                 style={{ fontFamily: "var(--font-fredoka)", fontSize: "clamp(38px, 5vw, 54px)", color: BUDGET_COLOR }}>
+              {target > 0 ? `$${target.toLocaleString()}` : "—"}
+            </div>
+            {target > 0 && grandTotal > 0 && (
+              <div className="text-[13px] font-black mb-1.5" style={{ color: isOver ? "#FF2D8B" : "#9CA3AF" }}>
+                {isOver
+                  ? `$${Math.abs(remaining).toLocaleString()} over budget`
+                  : `$${remaining.toLocaleString()} remaining`}
+              </div>
+            )}
+          </div>
+
+          {/* Target input */}
+          <div className="relative mb-5">
+            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm font-black text-white/30 pointer-events-none">$</span>
+            <FieldInput
+              type="number" min="0" placeholder="Set your total budget"
+              value={targetBudget}
+              onChange={(e) => setTargetBudget(e.target.value)}
+              className="pl-6"
+            />
+          </div>
+
+          {/* Segmented bar */}
+          {target > 0 && (
+            <>
+              <div className="h-3 rounded-full overflow-hidden flex" style={{ backgroundColor: "#1a1a1a" }}>
+                <div className="h-full transition-all duration-500 rounded-l-full"
+                     style={{ width: `${autoPct}%`, backgroundColor: BUDGET_COLOR }} />
+                <div className="h-full transition-all duration-500"
+                     style={{ width: `${manualPct}%`, backgroundColor: "#00A8CC",
+                              borderRadius: autoPct === 0 ? "9999px 0 0 9999px" : undefined }} />
+              </div>
+              <div className="flex items-center gap-4 mt-2.5 flex-wrap">
+                {[
+                  { dot: BUDGET_COLOR, label: `Auto-linked  $${autoTotal.toLocaleString()}` },
+                  { dot: "#00A8CC",    label: `Manual est.  $${manualTotal.toLocaleString()}` },
+                  { dot: "#3a3a3a",    label: `Unallocated  $${Math.max(0, remaining).toLocaleString()}` },
+                ].map(({ dot, label }) => (
+                  <div key={label} className="flex items-center gap-1.5">
+                    <div className="w-2 h-2 rounded-full flex-shrink-0" style={{ backgroundColor: dot }} />
+                    <span className="text-[10px] font-black text-white/35">{label}</span>
+                  </div>
+                ))}
+              </div>
+            </>
+          )}
+        </DarkCard>
+
+        {/* ── Stats sidebar ── */}
+        <DarkCard className="bb-stats p-4 md:p-5 flex flex-col justify-center gap-0">
+          <CardLabel>Summary</CardLabel>
+          {[
+            { label: "Auto-linked",                             value: autoTotal,           color: BUDGET_COLOR },
+            { label: "Manual est.",                             value: manualTotal,          color: "#00A8CC"    },
+            { label: "Grand total",                             value: grandTotal,           color: "#fff"       },
+            { label: isOver ? "Over budget" : "Remaining",     value: Math.abs(remaining),  color: isOver ? "#FF2D8B" : "#9CA3AF" },
+          ].map(({ label, value, color }, i, arr) => (
+            <div key={label}
+              className="flex items-center justify-between py-3"
+              style={{ borderBottom: i < arr.length - 1 ? "1px solid rgba(255,255,255,0.06)" : undefined }}>
+              <span className="text-[11px] font-black uppercase tracking-widest text-white/35">{label}</span>
+              <span className="font-semibold" style={{ fontFamily: "var(--font-fredoka)", fontSize: "22px", color }}>
+                ${value.toLocaleString()}
+              </span>
+            </div>
+          ))}
+
+          {/* % used mini-bar */}
+          {target > 0 && grandTotal > 0 && (
+            <div className="mt-3 pt-3" style={{ borderTop: "1px solid rgba(255,255,255,0.06)" }}>
+              <div className="flex items-center justify-between mb-1.5">
+                <span className="text-[10px] font-black uppercase tracking-widest text-white/30">Budget used</span>
+                <span className="text-[14px] font-black" style={{ color: isOver ? "#FF2D8B" : BUDGET_COLOR }}>
+                  {Math.round((grandTotal / target) * 100)}%
+                </span>
+              </div>
+              <div className="h-1.5 rounded-full overflow-hidden" style={{ backgroundColor: "#3a3a3a" }}>
+                <div className="h-full rounded-full transition-all duration-500"
+                     style={{
+                       width: `${Math.min((grandTotal / target) * 100, 100)}%`,
+                       backgroundColor: isOver ? "#FF2D8B" : BUDGET_COLOR,
+                     }} />
+              </div>
+            </div>
+          )}
+        </DarkCard>
+
+        {/* ── Category grid ── */}
+        <DarkCard className="bb-cats p-4 md:p-5">
+          <CardLabel>By Category</CardLabel>
+          <div className="bc">
+            {items.map((item) => {
+              const pct = grandTotal > 0 && Number(item.amount) > 0
+                ? (Number(item.amount) / grandTotal) * 100
+                : 0;
+              return (
+                <div key={item.key}
+                  className="flex flex-col gap-2.5 rounded-[14px] p-3"
+                  style={{ backgroundColor: "#252525", border: "1px solid #333333" }}>
+
+                  {/* Icon + label row */}
+                  <div className="flex items-center gap-2">
+                    <div className="w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0"
+                         style={{ backgroundColor: item.color + "22" }}>
+                      <item.Icon size={13} weight="fill" style={{ color: item.color }} />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="text-[11px] font-black text-white/65 truncate leading-tight">{item.label}</div>
+                      {item.isAuto && item.autoLabel && (
+                        <div className="text-[9px] font-black uppercase tracking-wider leading-tight mt-0.5"
+                             style={{ color: item.color }}>
+                          ↑ {item.autoLabel}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Amount input */}
+                  <div className="relative">
+                    <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-xs font-black text-white/25 pointer-events-none">$</span>
+                    <input
+                      type="number" min="0" placeholder="0"
+                      value={item.amount}
+                      onChange={(e) => updateAmount(item.key, e.target.value)}
+                      className="w-full rounded-[8px] pl-5 pr-2 py-2 text-sm font-black text-white outline-none border transition-colors focus:border-[#00A8CC] text-right"
+                      style={{ backgroundColor: "#1e1e1e", borderColor: item.isAuto ? item.color + "55" : "#3a3a3a" }}
+                    />
+                  </div>
+
+                  {/* Share-of-total bar */}
+                  <div className="h-1 rounded-full overflow-hidden" style={{ backgroundColor: "#2a2a2a" }}>
+                    <div className="h-full rounded-full transition-all duration-500"
+                         style={{ width: `${Math.min(pct, 100)}%`, backgroundColor: item.color }} />
+                  </div>
+
+                  {/* % label */}
+                  {pct > 0 && (
+                    <div className="text-[9px] font-black text-right" style={{ color: item.color + "99", marginTop: "-6px" }}>
+                      {pct.toFixed(0)}%
+                    </div>
+                  )}
+
+                </div>
+              );
+            })}
+          </div>
+        </DarkCard>
+
+      </div>
+    </>
+  );
+}
+
 // ─── placeholder section ──────────────────────────────────────────────────────
 
 function PlaceholderSection({ section }: { section: SectionDef }) {
@@ -1017,6 +1239,15 @@ export default function PreplanningShell({ transportModes }: PreplanningShellPro
   function removeLodgingStay(id: string) {
     setLodgingStays((stays) => stays.filter((s) => s.id !== id));
   }
+
+  // ── Linked cost totals (passed to Budget section) ─────────────────────────
+  const linkedLodging = lodgingStays.reduce((sum, s) => {
+    const n = calcNights(s.checkInDate, s.checkOutDate);
+    return sum + (n !== null && s.costPerNight ? n * Number(s.costPerNight) : 0);
+  }, 0);
+  const linkedCarRental = drivingLegs.reduce((sum, l) => {
+    return sum + (l.rentalCar && l.rentalCost ? Number(l.rentalCost) : 0);
+  }, 0);
 
   const currentSection = ALL_SECTIONS.find((s) => s.key === activeSection) ?? ALL_SECTIONS[0];
 
@@ -1170,6 +1401,8 @@ export default function PreplanningShell({ transportModes }: PreplanningShellPro
       }
       case "group":
         return <GroupSection />;
+      case "budget":
+        return <BudgetSection linkedLodging={linkedLodging} linkedCarRental={linkedCarRental} />;
       case "lodging": {
         const stay = lodgingStays[activeLodgingStay] ?? lodgingStays[0];
         return stay
