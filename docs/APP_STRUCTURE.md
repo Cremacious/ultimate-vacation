@@ -99,10 +99,10 @@ This is a working model — shell design decisions come before implementation.
 
 ### Trip workspace shell
 
-- trip ball visible in workspace header (always present)
-- phase navigation (left rail on desktop, bottom tabs or drawer on mobile — TBD)
+- trip ball visible in workspace header (always present, compact during travel day active mode)
+- phase navigation: left rail on desktop, collapsible sidebar on mobile (toggled via hamburger button in header)
 - main content area for active phase
-- context panel for recommended action, blockers, and alerts (may be integrated into header or sidebar — TBD)
+- context panel for recommended action, blockers, and alerts (integrated into workspace header or top of main content area)
 
 ### Trip Ball in workspace
 
@@ -254,9 +254,34 @@ Until backend work lands, placeholder UI should explain:
 - what actions belong here
 - whether the feature is free, premium, or coming later
 
+## Mobile Navigation Pattern
+
+On mobile, the left-rail sidebar is hidden by default and revealed via a toggle. This is the locked navigation pattern -- there is no bottom tab bar.
+
+### Header bar on mobile
+
+- hamburger toggle button on the left of the header
+- trip name or logo in the center
+- account avatar or notification bell on the right
+- trip ball appears below the header bar in a compact strip, always visible
+
+### Sidebar open state
+
+- slides in from the left with a smooth animation
+- covers approximately 80% of the viewport width (max 300px)
+- a semi-transparent overlay covers the content behind it
+- tapping the overlay or swiping the sidebar left closes it
+- sidebar uses the elevated surface color from the dark UI palette
+
+### Sidebar contents
+
+1. trip name and compact trip ball indicator at the top
+2. full phase navigation list with colored icons (same as desktop)
+3. active phase highlighted, recommended phase badged
+4. trip settings and account at the bottom
+
 ## Open Layout Questions
 
-- Should the trip phase nav be a left rail on desktop only, or also available in a condensed top-bar mode?
 - Should the workspace overview be a separate page or integrated into the trip home?
 - How visible should premium locks be inside the main trip flow?
 - Should the trip ball click/tap open a health detail modal or expand inline?

@@ -216,6 +216,22 @@ Use this format for new entries:
 - Why: Free acquisition tool. Every shared itinerary is a TripWave ad seen by people who have never heard of us.
 - Follow-up: Organizer can revoke the link at any time. Include a subtle "Plan your trip with TripWave" CTA on the public view.
 
+### 2026-04-16 - Color scheme changed from white-dominant to rich dark surfaces with vibrant accents
+
+- Status: accepted
+- Context: The original design direction used white as the dominant background with brand colors as foreground splashes. In practice this created large areas of empty white space with insufficient visual energy.
+- Decision: The app UI uses deep rich dark surfaces (slate-navy base, not pure black) as the neutral foundation. Brand accent colors (cyan, yellow, pink, green, orange) are used freely as text labels, icon colors, borders, and highlight elements against the dark base. White is used for primary body text and high-contrast moments, not as a background fill. This is not a traditional dark mode -- it is a layered depth system where dark surfaces make every color element pop.
+- Why: A dark base with vibrant multi-color foreground elements creates a more energetic and visually interesting product. Empty white surfaces disappear. The brand palette becomes more expressive because every accent color reads clearly against the dark background without competing with each other.
+- Follow-up: Define the exact surface hex values when building the component library. Ensure text contrast ratios meet accessibility requirements on all surface tiers. Update marketing surfaces separately -- they can use more contrast between dark and light zones.
+
+### 2026-04-16 - Mobile navigation uses a collapsible left sidebar, no bottom tab bar
+
+- Status: accepted
+- Context: Mobile navigation pattern was previously undecided (bottom tabs or drawer noted as TBD). A decision is needed before building the shell.
+- Decision: Mobile navigation uses a collapsible left sidebar that matches the desktop left-rail content and structure. A hamburger toggle button in the top-left of the header opens and closes it. The sidebar slides in from the left, covers roughly 80% of viewport width, and sits above the content with a semi-transparent overlay behind it. There is no bottom tab bar.
+- Why: A sidebar keeps the mobile and desktop navigation patterns consistent in content and mental model. Bottom tab bars limit the number of nav items that can be shown and create a separate design paradigm that diverges from desktop. A sidebar can show all phases, their colored icons, active state, and recommended phase badge without truncation.
+- Follow-up: Implement the sidebar as a shared component used in both the app shell and trip workspace. Confirm animation duration and easing. Ensure the hamburger button is always reachable without scrolling.
+
 ### 2026-04-16 - Travel day UI is a vertical timeline with sequential task completion
 
 - Status: accepted

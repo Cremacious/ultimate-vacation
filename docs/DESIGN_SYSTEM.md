@@ -6,7 +6,7 @@ This is not a final visual spec. It is the set of early design rules that keep t
 
 - retro-pop and electric without being a costume
 - fun and functional in equal measure
-- airy white base with bold color confidence
+- rich dark surfaces with vibrant multi-color elements as foreground energy
 - circles and rounded forms as a recurring design language
 - sassy in copy everywhere -- not just headlines
 
@@ -24,43 +24,60 @@ These two lines serve different purposes. The headline creates instant recogniti
 
 ## Visual Thesis
 
-Trip planning should feel like a vacation postcard from 1983 that got updated with a modern layout. Bold color, round shapes, white space, and an attitude that makes planning feel exciting instead of overwhelming. Inspired by the Go-Gos song Vacation -- upbeat, confident, a little cheeky, and ready to go.
+Trip planning should feel like stepping into a neon-lit venue on the first night of a trip -- rich, alive, and full of personality. Dark surfaces give every color element room to breathe and pop. Inspired by the Go-Gos song Vacation -- upbeat, confident, a little cheeky, and ready to go. The energy comes from vivid color on depth, not from white space.
+
+This is not a dark mode. It is a rich, layered surface system where dark backgrounds make the brand palette sing. Cyan labels, yellow badges, pink accents, and green expense data all exist simultaneously on dark surfaces without competing -- because the dark base is the neutral, not white.
 
 ## Aesthetic Rules
 
-- white or very near-white is the base -- the color pops because of the white, not despite it
+- deep rich surfaces are the base -- color pops because of the depth, not despite it
+- this is not a flat dark theme -- surfaces layer (base, card, panel, modal) with clear depth hierarchy
+- brand colors (cyan, yellow, pink, green, orange) are used freely on dark backgrounds as text, labels, icons, and borders
+- white is a high-contrast accent, used for primary body text, active states, and maximum-emphasis moments -- not as fill
 - circles are the primary decorative motif: decorative splashes, background dots, pill shapes, round avatars, circular indicators
-- color is applied boldly and with intent -- not as background wash but as foreground energy
-- layered surfaces add depth without clutter
-- let big typography and strong color do the work -- do not over-detail
+- let vibrant typography and icon color do the work -- do not over-detail surfaces
 
 ## Color Direction
 
-### Primary palette
+### Surface palette (new)
 
-- **white / near-white** -- dominant background surface on all screens
-- **cyan-blue** -- primary action color, the most used brand color (#00AADD range, vivid and clean)
-- **hot yellow** -- energy accent, highlights, playful moments (#FFD600 range)
-- **electric pink** -- secondary accent, celebration moments, fun details (#FF2D8B range)
-- **deep charcoal / near-black** -- primary text and anchors
-- **green** -- exclusive to financial and expense contexts (#00C96B range, clean and confident)
-- **orange** -- allowed accent only, not a primary color
+- **deep base** -- the dominant background of the app shell, nav, and inactive areas. Deep slate-navy, not pure black. Something with warmth and personality. Working value: #0F1724 range.
+- **raised surface** -- cards, panels, and content containers sit one step lighter than the base. Working value: #1A2333 range.
+- **elevated surface** -- modals, popovers, and top-layer panels sit another step lighter. Working value: #243044 range.
+- **subtle border** -- thin dividers and card outlines. Barely lighter than the surface they sit on. Working value: #2E3D52 range.
+
+These are working values. Finalize exact hex values when building the component library.
+
+### Accent palette (unchanged brand colors, new usage role)
+
+- **cyan-blue** -- primary action color, active state, links, key labels. (#00AADD range, vivid and clean)
+- **hot yellow** -- energy accent, badges, highlights, celebration moments. (#FFD600 range)
+- **electric pink** -- secondary accent, invitation moments, personality touches. (#FF2D8B range)
+- **green** -- exclusive to financial and expense contexts. (#00C96B range)
+- **orange** -- travel day actions, secondary accents. Not a primary color.
+- **white / near-white** -- primary body text, active item labels, maximum contrast moments. Not a background fill.
 
 ### Color use rules
 
-- blue is the go-to for primary buttons, links, and key UI actions
-- yellow is for highlights, badges, fun callouts, and celebratory moments
-- pink is for secondary accents, invitation moments, and personality touches
+- dark surfaces are neutral -- they do not compete with the accent palette
+- cyan is the go-to for primary buttons, active nav items, links, and key UI actions
+- yellow is for badges, fun callouts, and celebratory moments
+- pink is for secondary accents and personality touches
 - green is reserved entirely for money, expenses, and financial contexts -- nowhere else
-- never use all accent colors in the same visual zone -- let one dominate per area
-- the white base is intentional -- it makes the color feel like paint splatter, not noise
+- orange is for travel day task completion circles and secondary accents
+- white text sits on dark surfaces for primary body copy -- it is crisp and readable, never washed out
+- multiple accent colors can coexist on a single dark surface -- the dark base is the unifier
+- never use a light or white surface as a large background fill in the app UI
+- marketing surfaces (landing page, pricing) may use more light moments -- product surfaces stay deep
 
 ### Avoid
 
-- default purple SaaS palettes
+- large expanses of white or near-white in the app UI
+- default purple SaaS dark themes
 - sandy, tropical, or beachy styling
-- flat monochrome surfaces with no color personality
-- going so neon it becomes chaotic
+- flat dark surfaces with no layering or depth hierarchy
+- pure black (#000) -- the base should feel rich and warm, not void
+- going so neon that the palette feels chaotic -- dark base keeps it grounded
 
 ## Action Circle Color Language
 
@@ -169,20 +186,20 @@ These are starting points. Finalize when building the nav.
 
 ## Background Circle System
 
-Circles appear as passive background decoration across the app UI. They are never interactive -- they exist purely to reinforce the design language and add warmth to white surfaces.
+Circles appear as passive background decoration across the app UI. They are never interactive -- they exist purely to reinforce the design language and add warmth to dark surfaces.
 
 ### Three tiers of background circles
 
 **Tier 1 -- Large atmospheric circles**
 - Very large (300px--600px diameter or larger)
-- Very low opacity (4%--10%)
+- Very low opacity (6%--12%) -- slightly more visible on dark than they were on white
 - Positioned behind page sections, bleeding off screen edges
 - Typical placement: top-right corner, bottom-left corner of a surface
 - Colors: brand cyan, yellow, or pink depending on the page context
 
 **Tier 2 -- Medium accent circles**
 - Medium size (80px--200px diameter)
-- Medium opacity (40%--70%)
+- Medium opacity (25%--45%) -- reduced from previous spec to stay tasteful on dark
 - Partially cut off by screen edges -- never fully centered on screen
 - Used in hero sections, onboarding screens, and empty states
 - Add visual energy without competing with content
@@ -191,32 +208,33 @@ Circles appear as passive background decoration across the app UI. They are neve
 - Tiny dots (4px--8px)
 - Arranged in scattered clusters or subtle grids
 - Used in card backgrounds, section dividers, and quiet zones
-- Low opacity (15%--30%)
+- Low opacity (10%--20%)
 - Provide texture without noise
 
 ### Circle placement rules
 
 - circles sit behind all content -- never in front of readable text or interactive elements
-- the white base must remain visually dominant -- circles add atmosphere, not chaos
+- the dark base keeps circles from overwhelming the UI -- they glow softly, not loudly
 - use a maximum of two or three circles per surface zone
 - circles can overlap each other but not overlap primary content areas
-- on app (non-marketing) surfaces, keep circles subtle -- tier 1 only, or light tier 2
+- on app (non-marketing) surfaces, keep circles subtle -- tier 1 only, or restrained tier 2
 
 ## Surface Strategy
 
-- hero and marketing surfaces can lean into the full color energy
-- app surfaces are calmer but still carry the color palette clearly
-- glass effects should be subtle and only used where they genuinely help
-- shadows suggest depth without being heavy
+- the app shell background uses the deep base -- no content lives directly on it, it is the floor
+- cards and panels rise off the base surface using the raised or elevated surface tones
+- glass effects work well on dark surfaces -- a subtle blur and border on a raised card looks natural
+- shadows on dark are more nuanced -- use lighter inner glows or colored border accents instead of heavy drop shadows
 - key panels feel stacked and tactile, not perfectly flat
+- marketing surfaces (landing page, pricing) can use more contrast between dark and light sections, but product surfaces stay consistently deep
 
 ## 3D Material Rules
 
 - use bottom-edge ledges on important cards, panels, pills, and buttons
 - 3D treatment feels like a crisp physical layer, not skeuomorphic plastic
-- primary buttons have a visible darker bottom lip in the button own color
-- important cards can use a shallow ledge plus shadow for dimensionality
-- inputs stay cleaner than buttons with softer depth cues
+- on dark surfaces, button ledges use a darkened version of the button color (e.g., a cyan button has a deep teal bottom lip)
+- important cards use a shallow ledge plus a subtle border highlight on the top edge to simulate lifted depth
+- inputs on dark surfaces use a slightly lighter background than the card they sit on, with a colored focus ring in cyan on focus
 - reserve the strongest 3D effect for primary actions and key surfaces
 
 ## Motion Direction
@@ -335,9 +353,39 @@ The app will be built web-first and packaged for native app second. The native a
 
 - touch targets must be generously sized from day one -- do not design for mouse-only
 - round shapes and pill buttons are naturally touch-friendly
-- bottom-of-screen navigation should be considered for mobile even in web layouts
 - the circle and pill motif works well on mobile without adaptation
 - avoid hover-only states for critical information -- everything must work on touch
+
+### Mobile sidebar navigation
+
+On mobile, the desktop left-rail phase navigation is replaced by a collapsible sidebar. There is no bottom tab bar.
+
+**Toggle behavior:**
+- a hamburger menu button sits in the top-left of the mobile header bar at all times
+- tapping the button opens the sidebar with a slide-in animation from the left
+- tapping the button again, tapping the overlay behind the sidebar, or swiping the sidebar left closes it
+- the sidebar state (open or closed) does not persist between page navigations -- it starts closed on each new route
+
+**Sidebar layout:**
+- slides in from the left edge of the viewport
+- width is approximately 80% of the viewport, capped at 300px
+- full viewport height, scrollable if the phase list is long
+- sits above the page content with a semi-transparent dark overlay behind it
+- the overlay uses the deep base color at around 70% opacity
+
+**Sidebar contents (top to bottom):**
+1. trip name and ball indicator (compact, at the top)
+2. phase navigation list -- same items and order as the desktop left rail
+3. each phase item shows its colored circle icon and phase label
+4. active phase is highlighted in cyan with a filled background indicator
+5. recommended phase has a subtle badge or dot
+6. a divider, then: trip settings and account links at the bottom
+
+**Visual treatment:**
+- sidebar background uses the elevated surface tone (one step above the raised surface)
+- phase labels use white text; active phase label uses cyan
+- colored phase icons use the same assignments as desktop
+- the sidebar feels continuous with the rest of the dark UI -- not a bright panel interrupting a dark app
 
 ### Travel day mobile UI
 
@@ -387,15 +435,17 @@ The marketing surfaces (landing page, pricing page) can lean into the full energ
 
 The current reference style is:
 
-- white base with bold paint-pop color energy
-- 1980s Go-Gos Vacation aesthetic -- upbeat, electric, a little cheeky
+- deep rich dark surfaces (slate-navy base, not pure black) with vibrant multi-color elements as the foreground energy
+- 1980s Go-Gos Vacation aesthetic -- upbeat, electric, a little cheeky -- now with the lights turned down and the neon turned up
 - circles and pill forms as the dominant shape language
-- cyan-blue primary CTA, hot yellow highlights, electric pink accents, green for finance
+- cyan-blue primary CTA and active states, hot yellow highlights, electric pink accents, green for finance, white for primary body text
+- brand accent colors used freely as text, labels, borders, and icon colors against the dark base
 - sassy copy everywhere in the product
-- ledged 3D buttons and card bottoms
-- calmer product UI than the marketing energy but still clearly the same brand
+- ledged 3D buttons and card bottoms (ledge color darkened to match button hue)
+- layered dark surfaces (base, raised, elevated) creating clear depth hierarchy
 - **Fredoka 600** for large display, **Fredoka 400** for section headings
 - **Nunito** across all UI, labels, and body copy
 - Phosphor Icons (fill) in colored circle containers
 - action circles animated into the trip ball on meaningful user actions
+- mobile navigation uses a collapsible left sidebar toggled by a hamburger button -- no bottom tab bar
 - slogan: "Get everyone on the same wave."

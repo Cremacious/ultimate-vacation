@@ -35,8 +35,13 @@ This backlog is meant to stay human-readable. It should help us choose the next 
 - [x] Scaffold Next.js project
 - [x] Replace starter landing page
 - [x] Create workspace placeholder route
-- [ ] Build shared app shell layout (blocked on shell design decisions)
-- [ ] Add reusable section and panel primitives
+- [ ] Define Tailwind color tokens for the dark surface system (base, raised, elevated, border)
+- [ ] Build shared app shell layout using dark surface palette
+- [ ] Add reusable section and panel primitives (cards on raised surface, elevated modals)
+- [ ] Build mobile collapsible sidebar component (slide-in from left, hamburger toggle, overlay backdrop)
+- [ ] Wire mobile sidebar to trip phase navigation (same items as desktop left rail)
+- [ ] Build desktop left-rail phase navigation component (shared nav data with mobile sidebar)
+- [ ] Confirm all surface color contrast ratios meet accessibility requirements
 
 ### Technical foundation
 
