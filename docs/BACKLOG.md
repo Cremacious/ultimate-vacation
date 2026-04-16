@@ -2,12 +2,10 @@
 
 This backlog is meant to stay human-readable. It should help us choose the next best thing to build without needing a separate project tool yet.
 
-## Next session: fix mobile UI
-- MobilePhaseNav component (horizontal scrollable tab bar for the trip phase nav on small screens)
-- TripSideNav hides on mobile, replaced by MobilePhaseNav pinned above the content area
-- Marketing page hero and feature grid reviewed and adjusted for small screens
-- Auth card padding and font sizes checked on mobile
-- Dashboard hero strip layout adjusted for small screens
+## In Progress
+
+- Setup page view + edit (UI only, mock data)
+- Building phase pages one by one with mock data before wiring backend
 
 ---
 
@@ -57,13 +55,73 @@ This backlog is meant to stay human-readable. It should help us choose the next 
 
 ### Trip creation and structure
 
-- [ ] Create trip onboarding flow
+- [ ] Create trip onboarding flow (lands in setup edit form)
 - [ ] Model trip phases and stage progress
 - [ ] Model trip lifecycle statuses and readiness logic
 - [ ] Define next best action computation rules
 - [ ] Add trip dashboard overview
-- [ ] Add destination and travel basics capture
 - [ ] Define setup-complete criteria in product and schema terms
+
+### Setup page — high-level trip skeleton only
+
+- [ ] Build setup view page (read-only display of trip configuration)
+- [ ] Build setup edit form (creates or updates trip configuration)
+- [ ] Trip name
+- [ ] Multiple destinations — city + country per stop, ordered, with arrival/departure dates
+- [ ] Start and end dates
+- [ ] Transport mode multi-select (fly, drive, train, cruise — can select more than one)
+- [ ] Traveler count stepper
+- [ ] Trip type pills (beach, city, adventure, road trip, family, romantic, group, honeymoon)
+- [ ] Trip vibe pills (relaxed, packed, spontaneous, structured)
+- [ ] Ball color picker — brand palette swatches + custom hex option
+- [ ] Budget target, currency (ISO 4217), and type toggle (total vs per-person)
+- [ ] Invite mode selection (private, invite-only, public link)
+
+### Preplanning page — dynamic detail driven by Setup
+
+All sections are optional. Sections shown/hidden based on Setup choices.
+
+- [ ] Section: Transport details — Flying (shown when fly selected in Setup)
+  - [ ] Multiple flight legs (outbound, return, connections, separate mid-trip flights)
+  - [ ] Per leg: origin/destination airport (IATA), departure/arrival date+time, flight number, airline, confirmation ref, seat class, connection flag
+  - [ ] Airport transfer notes per leg
+- [ ] Section: Transport details — Driving (shown when drive selected in Setup)
+  - [ ] Own car vs rental toggle
+  - [ ] Car rental: company, pickup/return location, pickup/return date+time, confirmation ref
+  - [ ] Key stops / waypoints list
+  - [ ] Estimated total drive hours
+- [ ] Section: Transport details — Train (shown when train selected in Setup)
+  - [ ] Multiple train legs: stations, times, train number, service label, confirmation ref, seat class
+  - [ ] Rail pass toggle: pass name, confirmation ref
+- [ ] Section: Transport details — Cruise (shown when cruise selected in Setup)
+  - [ ] Cruise line, ship name, ports, embarkation/disembarkation date+time, cabin class, confirmation ref
+- [ ] Section: Lodging — always shown
+  - [ ] Multiple entries: property name, type, city, address, check-in/out dates+times, confirmation ref, contact number, notes
+  - [ ] Number of suggested entries informed by destination count from Setup
+- [ ] Section: Group composition (shown when travelerCount > 1)
+  - [ ] Per-traveler: name, dietary needs (tag multi-select), mobility needs, medical notes (private), emergency contact
+- [ ] Section: Budget breakdown (shown when budget set in Setup)
+  - [ ] Category budgets: flights, accommodation, food, activities, transport, misc
+  - [ ] Per-person breakdown view
+- [ ] Section: Destination info — always shown
+  - [ ] Per destination: timezone, local currency, language notes, seasonal warnings, local holiday notes
+- [ ] Section: Visa and health entry (international destinations only)
+  - [ ] Per destination: visa required toggle, visa notes, health entry requirements (vaccinations, tests)
+- [ ] Section: Power adapter (international destinations only)
+  - [ ] Adapter needed toggle, adapter type, voltage notes
+- [ ] Section: Driving rules (shown when drive selected in Setup)
+  - [ ] Road side, speed units, IDP required toggle, transit notes
+- [ ] Section: Documents — always shown
+  - [ ] Per traveler: passport expiry, visa docs, travel insurance ref, vaccination record, loyalty program numbers
+- [ ] Section: Pre-departure logistics — always shown
+  - [ ] Airport parking or transport arranged
+  - [ ] House key left with someone
+  - [ ] Pet care arranged (shown when trip >= 3 days)
+  - [ ] Mail hold requested
+  - [ ] Out-of-office set
+  - [ ] Medication supply checked (shown when medical needs flagged)
+  - [ ] School absence arranged (shown when children in group)
+  - [ ] Car maintenance checked (shown when drive selected)
 
 ### Preplanning wizard
 

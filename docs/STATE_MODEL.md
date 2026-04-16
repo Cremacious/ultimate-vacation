@@ -16,43 +16,254 @@ The app should know:
 
 This is a product-facing model, not a final database schema.
 
-### Trip
+### Setup vs Preplanning — the core distinction
+
+**Setup** captures the high-level skeleton of the trip. It answers: what is this trip, when, where, who, and roughly how are we getting there. Setup should take 5 minutes. Every field is broad and high-level. No booking references, no flight times, no confirmation numbers.
+
+**Preplanning** captures all the small details that make the trip actually work. It is dynamically scaffolded by the choices made in Setup — the sections shown to the user and the questions asked are determined by what was entered in Setup. A user who selected Flying + Driving will see flight detail sections and car rental sections. A domestic trip will not be asked about visas. A solo trip skips group composition. All fields in preplanning are optional so power planners can go deep while casual planners are never overwhelmed.
+
+---
+
+### Trip (Setup fields only)
+
+These are the fields collected during Setup. They define the trip identity.
 
 - `id`
 - `ownerUserId`
 - `name`
-- `destinationSummary`
 - `startDate`
 - `endDate`
 - `status`
 - `recommendedPhase`
-- `tripType` (beach, city, adventure, road trip, family, romantic, group friends, honeymoon, etc.)
+- `tripType` (beach, city, adventure, road trip, family, romantic, group, honeymoon, etc.)
 - `tripVibe` (relaxed, packed, spontaneous, structured)
-- `transportMode`
-- `lodgingSummary`
+- `transportModes` (array — user selects one or more: fly, drive, train, cruise. Multiple allowed e.g. fly + drive)
 - `travelerCount`
-- `inviteMode`
+- `inviteMode` (private, invite_only, public_link)
 - `isPremiumTrip` (organizer has premium unlock)
 - `readinessScore`
-- `ballColor` (user-selected hex or palette choice)
+- `ballColor` (user-selected from brand palette or custom hex — core trip personalization)
+- `budgetTarget` (numeric amount, optional)
+- `budgetCurrency` (ISO 4217 currency code, e.g. USD, EUR, JPY)
+- `budgetType` (total or per_person)
 - `createdAt`
 - `updatedAt`
 
+### TripDestination (Setup)
+
+A trip has one or more destinations. Destinations are ordered and define the route at a high level.
+
+- `id`
+- `tripId`
+- `order` (integer, 1-based)
+- `city`
+- `country`
+- `arrivalDate` (optional at setup, can be added in preplanning)
+- `departureDate` (optional at setup, can be added in preplanning)
+
+The first destination's arrival date and the last destination's departure date drive the trip start/end dates. Intermediate destinations represent a multi-city trip.
+
+---
+
+### Preplanning — detailed data models
+
+All preplanning data is optional. Sections are surfaced dynamically based on Setup choices.
+
+### TransportDetail (Preplanning — one per transport mode selected in Setup)
+
+Each mode selected in Setup gets its own detailed section in Preplanning.
+
+#### Flying detail
+
+- `id`, `tripId`
+- One or more `FlightLeg` entries (outbound, return, and any connections or separate flights during the trip)
+
+Each `FlightLeg`:
+- `originAirportCode` (IATA, e.g. SRQ)
+- `originAirportName` (optional)
+- `destinationAirportCode` (IATA, e.g. FRA)
+- `destinationAirportName` (optional)
+- `departureDate`, `departureTime`
+- `arrivalDate`, `arrivalTime`
+- `flightNumber` (optional, e.g. LH 401)
+- `airline` (optional)
+- `confirmationRef` (optional)
+- `seatClass` (economy, premium_economy, business, first)
+- `isConnection` (boolean)
+- `notes` (optional)
+
+Airport transfer notes (how getting to/from each airport) stored as free text per leg.
+
+#### Driving detail
+
+- `id`, `tripId`
+- `isCarRental` (boolean)
+- `rentalCompany` (optional)
+- `rentalConfirmationRef` (optional)
+- `rentalPickupLocation` (optional)
+- `rentalPickupDate`, `rentalPickupTime` (optional)
+- `rentalReturnLocation` (optional)
+- `rentalReturnDate`, `rentalReturnTime` (optional)
+- `estimatedTotalDriveHours` (optional)
+- `keyStops` (array of location strings — waypoints, optional)
+- `notes` (optional)
+
+#### Train detail
+
+- `id`, `tripId`
+- One or more `TrainLeg` entries
+
+Each `TrainLeg`:
+- `originStation`, `destinationStation`
+- `departureDate`, `departureTime`
+- `arrivalDate`, `arrivalTime`
+- `trainNumber` (optional)
+- `serviceLabel` (optional, e.g. Shinkansen Nozomi)
+- `confirmationRef` (optional)
+- `seatClass` (optional)
+- `notes` (optional)
+
+Rail pass (if used):
+- `railPassUsed` (boolean)
+- `railPassName` (optional)
+- `railPassConfirmationRef` (optional)
+
+#### Cruise detail
+
+- `id`, `tripId`
+- `cruiseLine`
+- `shipName` (optional)
+- `portOfEmbarkation`, `embarkationDate`, `embarkationTime`
+- `portOfDisembarkation`, `disembarkationDate`, `disembarkationTime`
+- `cabinNumber` (optional)
+- `cabinClass` (optional)
+- `confirmationRef` (optional)
+- `notes` (optional)
+
+---
+
+### LodgingEntry (Preplanning — one per place stayed)
+
+Shown in Preplanning regardless of transport mode. Number of suggested entries is informed by the number of destinations in Setup.
+
+- `id`
+- `tripId`
+- `order` (integer, 1-based for display)
+- `propertyName`
+- `type` (hotel, airbnb, hostel, resort, camping, vacation_rental, friends_family, other)
+- `city`
+- `address` (optional)
+- `checkInDate`, `checkInTime` (optional)
+- `checkOutDate`, `checkOutTime` (optional)
+- `confirmationRef` (optional)
+- `contactNumber` (optional)
+- `notes` (optional)
+
+---
+
+### GroupMember (Preplanning — one per traveler)
+
+Shown when `travelerCount > 1`. Number of entries matches `travelerCount` from Setup.
+
+- `id`
+- `tripId`
+- `userId` (nullable — may not be a registered user yet)
+- `displayName`
+- `dietaryNeeds` (array of tags: vegetarian, vegan, gluten-free, halal, kosher, nut allergy, shellfish allergy, other)
+- `mobilityNeeds` (free text, optional)
+- `medicalNotes` (free text, private to organizer, optional)
+- `emergencyContactName` (optional)
+- `emergencyContactPhone` (optional)
+- `emergencyContactRelation` (optional)
+
+---
+
+### DestinationDetail (Preplanning — one per TripDestination)
+
+Shown for each destination added in Setup.
+
+- `id`
+- `tripId`
+- `destinationId` (links to TripDestination)
+- `timezone` (optional, IANA timezone string)
+- `localCurrency` (optional, ISO 4217)
+- `languageNotes` (optional)
+- `visaRequired` (boolean, nullable — null means not yet checked)
+- `visaNotes` (optional)
+- `healthEntryRequirements` (optional — vaccinations, tests, etc.)
+- `powerAdapterNeeded` (boolean, nullable)
+- `adapterType` (optional)
+- `drivingRules` (optional — road side, speed units, IDP required)
+- `emergencyNumbers` (optional — local police, hospital, embassy)
+- `seasonalWarnings` (optional — weather risks, closures, peak season notes)
+- `localHolidayNotes` (optional)
+
+Shown only for international trips: visa, health entry, adapter, emergency numbers, embassy.
+Shown only for driving trips: driving rules, IDP.
+
+---
+
+### DocumentEntry (Preplanning — one per traveler per document type)
+
+- `id`
+- `tripId`
+- `travelerId` (links to GroupMember)
+- `type` (passport, visa, travel_insurance, vaccination_record, international_driving_permit, other)
+- `expiryDate` (optional)
+- `notes` (optional — reference numbers, issuing country, etc.)
+
+---
+
+### PreDepartureItem (Preplanning — checklist of home logistics)
+
+Shown when trip is more than a few days and/or trip type suggests it (family trips, longer trips).
+
+Examples of items surfaced:
+- Airport parking or transport to airport arranged
+- House sitter / key left with neighbour
+- Pet care arranged
+- Mail hold requested
+- Plants watered / arranged
+- Out-of-office set
+- Medication supply checked (shown when medical needs flagged)
+- School absence arranged (shown when children flagged in group)
+- Car maintenance checked (shown when driving mode selected)
+
 ### Preplanning completeness fields
 
-These track the preplanning wizard completion and drive the trip ball fill percentage.
+These track section-level completion and drive the trip ball fill percentage.
 
-- `preplanningGroupCompositionComplete`
-- `preplanningTransportComplete`
+- `preplanningTransportComplete` (only counted if transport modes were selected in Setup)
 - `preplanningAccommodationComplete`
+- `preplanningGroupCompositionComplete` (only counted if travelerCount > 1)
 - `preplanningBudgetComplete`
 - `preplanningDestinationInfoComplete`
-- `preplanningDocumentsComplete`
-- `preplanningTripCharacterComplete`
+- `preplanningDocumentsComplete` (only counted for international trips)
 - `preplanningPreDepartureComplete`
 - `preplanningCompletionPct` (computed 0–100)
 
-Inapplicable fields are excluded from the denominator. For example, a domestic trip does not count visa requirements against its completion score.
+### Dynamic preplanning section rules
+
+Sections are shown or hidden based on Setup choices. Hidden sections are excluded from the completion denominator entirely.
+
+| Section | Shown when |
+|---|---|
+| Transport — Flying details | fly selected in transportModes |
+| Transport — Driving details | drive selected in transportModes |
+| Transport — Train details | train selected in transportModes |
+| Transport — Cruise details | cruise selected in transportModes |
+| Lodging | always shown |
+| Group composition | travelerCount > 1 |
+| Budget breakdown | budgetTarget set in Setup |
+| Destination info | always shown |
+| Visa and health entry | destination country is international (not home country) |
+| Power adapter | destination country uses different plug/voltage |
+| Driving rules and IDP | drive selected in transportModes |
+| Documents | always shown |
+| Pre-departure logistics | always shown |
+| Medication reminder | medical needs flagged in group composition |
+| Pet/house logistics | trip length >= 3 days (suggested, not forced) |
+| School absence | children flagged in group composition |
 
 ### Trip readiness support fields
 
@@ -98,18 +309,19 @@ Inapplicable fields are excluded from the denominator. For example, a domestic t
 The trip should count as setup-complete only when these fields exist:
 
 - trip name
-- destination summary
-- start date
-- end date
-- at least one traveler
-- transport mode
+- at least one destination (city required)
+- start date and end date
+- travelerCount >= 1
+- at least one transport mode selected
 
-Optional but useful:
+Optional but shown in Setup form and encouraged:
 
-- budget target
-- lodging summary
+- additional destinations (for multi-city trips)
 - trip type and vibe
-- notes
+- ball color (defaults to brand cyan if not set)
+- budget target, currency, and type
+
+Everything else (flight numbers, lodging details, group member info, documents, etc.) belongs in Preplanning and is never required for setup-complete status.
 
 ## 3. Trip Status Rules
 

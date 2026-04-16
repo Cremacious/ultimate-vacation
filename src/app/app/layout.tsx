@@ -8,7 +8,7 @@ export default function AppLayout({
 }) {
   return (
     <AppShellProvider>
-      <div className="min-h-screen bg-[#F5F7FA]">
+      <div className="min-h-screen" style={{ background: "radial-gradient(ellipse at center, #d4d4d4 0%, #a8a8a8 50%, #787878 100%)" }}>
         <TopNav />
         <main className="pt-14">{children}</main>
       </div>

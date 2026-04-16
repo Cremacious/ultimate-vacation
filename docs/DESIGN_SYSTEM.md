@@ -139,6 +139,8 @@ This is the most shareable visual the app produces. Design it to be screenshot-w
 - keep Nunito clean and readable at small sizes
 - compact uppercase labels are fine in Nunito for utility moments
 - no decorative or script typefaces anywhere in the product
+- inside dark bento cards, text should always feel proportional to the card size -- do not use 10px or 11px text inside a card that has room for 13px or larger
+- stat numbers (travelers, duration, budget) inside solid-color or dark cells should be large enough to dominate the cell -- these are the message, not an annotation
 
 ## Shape and Form Language
 
@@ -218,6 +220,108 @@ Circles appear as passive background decoration across the app UI. They are neve
 - use a maximum of two or three circles per surface zone
 - circles can overlap each other but not overlap primary content areas
 - on app (non-marketing) surfaces, keep circles subtle -- tier 1 only, or restrained tier 2
+
+## Page Background Treatment
+
+The authenticated app uses a radial gradient background, not a flat color. White or near-white at the center fades outward to a medium-dark gray at the edges. This creates a natural focal center that draws the eye inward toward the content area while the dark cards sit against a surface that has depth and character.
+
+### Rules
+
+- the center of the page background is white or very light
+- edges and corners fade to a medium-dark gray (around #787878 or darker)
+- the gradient is radial, centered on the viewport, not directional
+- this background sits beneath dark cards, so it provides contrast and separation without competing with card content
+- never use a flat solid color for the page background in authenticated views
+- marketing surfaces follow their own background rules
+
+### Why this works
+
+Dark cards against a light-center gradient feel grounded and intentional. The card surfaces are clearly the content layer, and the background is clearly the floor. The radial fade adds depth without requiring any decorative elements.
+
+## Bento Grid Layout
+
+Data-rich pages use a bento grid layout instead of a vertical list of cards. Bento grids place different-sized cells in a CSS grid, letting important data occupy more space and secondary data occupy less.
+
+### When to use bento grid
+
+- any page that shows a summary view of structured trip data (Setup, Preplanning summary, trip overview)
+- any edit form with heterogeneous field types (some fields simple, some multi-select, some numeric steppers)
+- do not use bento grid for linear workflows, step-by-step wizards, or content-heavy text areas
+
+### View page bento vs edit form bento
+
+View and edit pages for the same data should use different bento layouts. They are not the same grid with inputs swapped in.
+
+- the view grid is more visual: large stat cells for numbers, hero cell for the trip name and key context
+- the edit grid is more functional: cells sized to match their input complexity, not their data importance
+- the most important data point (trip name, key stat) gets a large cell in both layouts, but for different reasons
+
+### Standard bento grid column pattern
+
+For a trip data summary page (like Setup view):
+
+- three columns: `2fr 1fr 1fr`
+- hero cell spans the full left column across two rows
+- stat cells (duration, travelers, budget) occupy the right two columns, one per cell
+- bottom row spans all three columns and is subdivided into 2 or 3 equal sub-cells
+
+For an edit form:
+
+- two columns: approximately `1.4fr 1fr`
+- full-width cells for the most prominent field (trip name)
+- left column for destination and transport fields
+- right column for dates and character fields
+- full-width bottom row for stepper, numeric, and picker fields
+
+### Cell sizing philosophy
+
+Cells do not have fixed heights. CSS grid auto-sizes rows based on content. Short cells (stat numbers) will be shorter than tall cells (destination lists). This is correct behavior. The stat cells fill their available space using large typography, not by adding padding.
+
+## Card UI Scale Rules
+
+All content inside dark bento cells must be sized to fill the cell visually. The goal is that a card with only two lines of content should not look empty. Scale up the typography and UI elements until the content feels proportional to the card.
+
+### Minimum sizes inside dark cards
+
+These are hard floors, not starting points. Go larger when the card has room.
+
+| Element | Minimum size |
+|---|---|
+| Cell label (ALL CAPS header) | 13px, font-black, tracking-widest |
+| Form input text | 16px (text-base) |
+| Pill text (transport, type, vibe) | 14px |
+| Transport/mode pill text | 15px |
+| Hint or helper text | 14px |
+| Sub-labels (DEPART, RETURN, etc.) | 12px |
+| Stat numbers (duration, travelers) | clamp(56px, 6vw, 88px) |
+| Budget display number | clamp(44px, 4.5vw, 68px) |
+| Stat unit label (Days, Travelers) | 13px, font-black, uppercase |
+
+### clamp() for stat numbers
+
+Stat numbers inside colored or dark cells use `clamp()` so they scale with the viewport instead of staying fixed. This keeps them filling the card at any reasonable screen width. The pattern is:
+
+```
+clamp(minimum, preferred-vw, maximum)
+```
+
+Example: `clamp(56px, 6vw, 88px)` is small enough for narrow screens, scales up on wider screens, and caps before becoming absurd.
+
+### Pill padding scale
+
+Pill-shaped buttons and labels inside bento cells should have generous padding relative to their font size:
+
+- transport and mode pills: 10px top/bottom, 20px left/right
+- type and vibe pills: 8px top/bottom, 16px left/right
+- do not use cramped pill padding (4px/8px) inside dark cards
+
+### Icon sizing inside cards
+
+Icons inside pill buttons should be at least 16px. Icons inside colored circles that appear as standalone visual elements should be at least 16px, with a circle diameter of at least 36px.
+
+### Cell padding
+
+Dark bento cells use 24px (p-6) padding on all sides. Do not use 16px or 20px cell padding as this makes cells feel cramped relative to their content.
 
 ## Surface Strategy
 

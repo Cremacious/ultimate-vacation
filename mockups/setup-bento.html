@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>TripWave — Setup Bento Mockups</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --cyan:   #00A8CC;
+  --yellow: #FFD600;
+  --pink:   #FF2D8B;
+  --green:  #00C96B;
+  --nav:    #1e1e1e;
+  --sidebar:#252525;
+  --header: #282828;
+  --card:   #2e2e2e;
+  --card-lt:#363636;
+  --border: #3a3a3a;
+  --page:   #F5F7FA;
+}
+body { font-family: 'Nunito', sans-serif; background: #0e0e0e; color: white; padding: 40px 20px; display: flex; flex-direction: column; gap: 80px; }
+.label { font-family: 'Fredoka', sans-serif; font-size: 13px; font-weight: 600; letter-spacing: 3px; text-transform: uppercase; color: #555; margin-bottom: 20px; }
+
+/* ── CHROME ── */
+.chrome { border-radius: 16px; overflow: hidden; box-shadow: 0 32px 80px rgba(0,0,0,0.7); width: 100%; max-width: 1200px; margin: 0 auto; }
+.navbar { background: var(--nav); height: 52px; display: flex; align-items: center; padding: 0 20px; border-bottom: 1px solid #2a2a2a; gap: 12px; flex-shrink: 0; }
+.logo { font-family: 'Fredoka', sans-serif; font-size: 22px; font-weight: 600; color: var(--cyan); }
+.spacer { flex: 1; }
+.nav-bell { width: 32px; height: 32px; border-radius: 50%; background: #2a2a2a; display: flex; align-items: center; justify-content: center; font-size: 13px; }
+.nav-avatar { width: 32px; height: 32px; border-radius: 50%; background: var(--cyan); display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 800; color: #1a1a1a; }
+.app-body { display: flex; background: var(--page); min-height: 640px; }
+
+/* ── SIDEBAR ── */
+.sidebar { width: 210px; background: var(--sidebar); border-right: 1px solid #333; flex-shrink: 0; padding: 14px 10px; display: flex; flex-direction: column; gap: 2px; }
+.sb-head { display: flex; align-items: center; gap: 10px; padding: 10px 12px 14px; border-bottom: 1px solid #333; margin-bottom: 6px; }
+.trip-ball { width: 36px; height: 36px; border-radius: 50%; background: conic-gradient(#FF2D8B 259deg, #3a3a3a 259deg); position: relative; flex-shrink: 0; }
+.trip-ball::after { content: ''; position: absolute; inset: 15%; border-radius: 50%; background: var(--sidebar); }
+.sb-name { font-family: 'Fredoka', sans-serif; font-size: 13px; font-weight: 600; color: white; line-height: 1.3; }
+.sb-sub { font-size: 10px; color: #9CA3AF; font-weight: 600; }
+.sb-item { display: flex; align-items: center; gap: 8px; padding: 8px 12px; border-radius: 10px; font-size: 12px; font-weight: 600; color: #9CA3AF; }
+.sb-item.active { background: #333; border: 1px solid rgba(0,168,204,0.2); color: white; font-weight: 700; }
+.sb-dot { width: 22px; height: 22px; border-radius: 50%; background: #3a3a3a; display: flex; align-items: center; justify-content: center; font-size: 10px; flex-shrink: 0; }
+.sb-item.active .sb-dot { background: var(--cyan); color: #1a1a1a; }
+.sb-divider { height: 1px; background: #333; margin: 6px 4px; }
+
+/* ── SHARED PAGE ── */
+.page { flex: 1; overflow: hidden; display: flex; flex-direction: column; }
+.page-header { background: var(--header); border-bottom: 1px solid #333; padding: 22px 28px; display: flex; align-items: center; justify-content: space-between; }
+.page-title { font-family: 'Fredoka', sans-serif; font-size: 32px; font-weight: 600; color: white; line-height: 1; }
+.page-sub { font-size: 12px; font-weight: 600; color: rgba(255,255,255,0.45); margin-top: 3px; }
+.edit-btn { display: flex; align-items: center; gap: 6px; background: var(--cyan); color: #1a1a1a; font-size: 12px; font-weight: 800; padding: 9px 20px; border-radius: 100px; cursor: pointer; }
+.page-body { flex: 1; padding: 20px 28px; overflow-y: auto; }
+
+/* ── BADGE ── */
+.badge { display: inline-flex; align-items: center; padding: 5px 14px; border-radius: 100px; font-size: 12px; font-weight: 800; color: #1a1a1a; white-space: nowrap; }
+
+/* ══════════════════════════════════════════════════════
+   VIEW PAGE — BENTO GRID
+══════════════════════════════════════════════════════ */
+.bento-view {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr;
+  grid-template-rows: auto auto auto;
+  gap: 10px;
+}
+
+/* HERO cell — spans full height left column */
+.b-hero {
+  grid-column: 1;
+  grid-row: 1 / 3;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 28px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  position: relative;
+  overflow: hidden;
+  min-height: 220px;
+}
+.b-hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at 20% 50%, rgba(255,45,139,0.12) 0%, transparent 65%);
+  pointer-events: none;
+}
+.b-hero-eyebrow { font-size: 10px; font-weight: 800; letter-spacing: 3px; text-transform: uppercase; color: rgba(255,255,255,0.35); margin-bottom: 8px; }
+.b-hero-name { font-family: 'Fredoka', sans-serif; font-size: 36px; font-weight: 600; color: white; line-height: 1.1; margin-bottom: 6px; }
+.b-hero-dest { display: flex; align-items: center; gap: 6px; font-size: 14px; font-weight: 700; color: rgba(255,255,255,0.6); margin-bottom: 14px; }
+.b-hero-dest-pin { color: var(--pink); }
+.b-hero-dates { display: inline-flex; align-items: center; gap: 8px; background: rgba(0,168,204,0.12); border: 1px solid rgba(0,168,204,0.25); border-radius: 10px; padding: 8px 14px; }
+.b-hero-date-val { font-family: 'Fredoka', sans-serif; font-size: 16px; color: white; font-weight: 600; }
+.b-hero-date-lbl { font-size: 9px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; color: rgba(255,255,255,0.4); }
+.b-hero-arrow { color: rgba(255,255,255,0.25); font-size: 14px; }
+
+/* DURATION cell */
+.b-duration {
+  background: var(--cyan);
+  border-radius: 20px;
+  padding: 22px 24px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+.b-duration-val { font-family: 'Fredoka', sans-serif; font-size: 52px; font-weight: 600; color: #1a1a1a; line-height: 1; }
+.b-duration-lbl { font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 1.5px; color: rgba(0,0,0,0.5); margin-top: 4px; }
+
+/* BUDGET cell */
+.b-budget {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 22px 24px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+.b-budget-lbl { font-size: 10px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; color: rgba(255,255,255,0.35); margin-bottom: 6px; }
+.b-budget-val { font-family: 'Fredoka', sans-serif; font-size: 40px; font-weight: 600; color: var(--green); line-height: 1; }
+.b-budget-type { font-size: 11px; font-weight: 700; color: rgba(255,255,255,0.35); margin-top: 3px; }
+
+/* TRAVELERS cell */
+.b-travelers {
+  background: var(--yellow);
+  border-radius: 20px;
+  padding: 22px 24px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  grid-column: 2;
+  grid-row: 2;
+}
+.b-travelers-val { font-family: 'Fredoka', sans-serif; font-size: 52px; font-weight: 600; color: #1a1a1a; line-height: 1; }
+.b-travelers-lbl { font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 1.5px; color: rgba(0,0,0,0.5); margin-top: 4px; }
+
+/* TRANSPORT cell */
+.b-transport {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 22px 24px;
+  grid-column: 3;
+  grid-row: 2;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 8px;
+}
+.b-transport-lbl { font-size: 10px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; color: rgba(255,255,255,0.35); margin-bottom: 2px; }
+.b-transport-modes { display: flex; flex-direction: column; gap: 6px; }
+.b-transport-mode { display: flex; align-items: center; gap: 8px; }
+.b-transport-icon { width: 28px; height: 28px; border-radius: 50%; background: var(--pink); display: flex; align-items: center; justify-content: center; font-size: 13px; flex-shrink: 0; }
+.b-transport-name { font-family: 'Fredoka', sans-serif; font-size: 18px; font-weight: 600; color: white; }
+
+/* BOTTOM ROW — spans full width */
+.b-bottom-row {
+  grid-column: 1 / 4;
+  display: grid;
+  grid-template-columns: 1fr 1fr 1.5fr;
+  gap: 10px;
+}
+
+.b-type {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 20px 22px;
+}
+.b-cell-lbl { font-size: 10px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; color: rgba(255,255,255,0.35); margin-bottom: 10px; }
+.b-badge-row { display: flex; flex-wrap: wrap; gap: 6px; }
+
+.b-vibe {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 20px 22px;
+}
+
+.b-lodging {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 20px 22px;
+}
+.b-lodging-entries { display: flex; flex-direction: column; gap: 8px; margin-top: 4px; }
+.b-lodging-entry { display: flex; align-items: flex-start; gap: 10px; }
+.b-lodging-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--cyan); flex-shrink: 0; margin-top: 5px; }
+.b-lodging-name { font-size: 13px; font-weight: 700; color: white; }
+.b-lodging-sub { font-size: 11px; font-weight: 600; color: rgba(255,255,255,0.4); }
+
+
+/* ══════════════════════════════════════════════════════
+   EDIT FORM — BENTO GRID (different layout)
+══════════════════════════════════════════════════════ */
+.bento-edit {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr;
+  grid-template-rows: auto;
+  gap: 10px;
+}
+
+/* inputs */
+.inp { width: 100%; background: #1e1e1e; border: 1px solid #3a3a3a; border-radius: 12px; padding: 10px 14px; font-family: 'Nunito', sans-serif; font-size: 13px; font-weight: 600; color: white; outline: none; }
+.inp::placeholder { color: rgba(255,255,255,0.25); }
+.inp-date { width: 100%; background: #1e1e1e; border: 1px solid #3a3a3a; border-radius: 12px; padding: 10px 14px; font-family: 'Nunito', sans-serif; font-size: 13px; font-weight: 600; color: rgba(255,255,255,0.5); outline: none; }
+.inp-lbl { font-size: 10px; font-weight: 800; letter-spacing: 1.5px; text-transform: uppercase; color: rgba(255,255,255,0.4); margin-bottom: 7px; }
+
+/* edit card base */
+.ec { background: var(--card); border: 1px solid var(--border); border-radius: 20px; padding: 22px; }
+
+/* TRIP NAME — full width, tall, prominent */
+.ec-name { grid-column: 1 / 3; }
+.ec-name-inner { display: flex; align-items: center; gap: 16px; }
+.ec-name-icon { width: 48px; height: 48px; border-radius: 14px; background: rgba(0,168,204,0.15); border: 1px solid rgba(0,168,204,0.25); display: flex; align-items: center; justify-content: center; font-size: 22px; flex-shrink: 0; }
+.ec-name-inp { flex: 1; background: #1e1e1e; border: 1px solid #3a3a3a; border-radius: 14px; padding: 14px 18px; font-family: 'Fredoka', sans-serif; font-size: 24px; font-weight: 600; color: white; outline: none; width: 100%; }
+.ec-name-inp::placeholder { color: rgba(255,255,255,0.2); }
+
+/* DESTINATION — left column */
+.ec-dest { grid-column: 1; }
+.dest-rows { display: flex; flex-direction: column; gap: 8px; }
+.dest-row { display: flex; align-items: center; gap: 8px; }
+.dest-order { width: 22px; height: 22px; border-radius: 50%; background: var(--pink); display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 800; color: white; flex-shrink: 0; }
+.dest-add { display: flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 800; color: var(--cyan); background: transparent; border: 1px dashed rgba(0,168,204,0.4); border-radius: 10px; padding: 6px 12px; cursor: pointer; width: fit-content; margin-top: 2px; }
+
+/* DATES — right column */
+.ec-dates { grid-column: 2; display: flex; flex-direction: column; gap: 10px; }
+.date-pair { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.b-computed { background: rgba(0,168,204,0.08); border: 1px solid rgba(0,168,204,0.15); border-radius: 12px; padding: 10px 14px; display: flex; align-items: center; justify-content: space-between; }
+.b-computed-lbl { font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; color: rgba(255,255,255,0.35); }
+.b-computed-val { font-family: 'Fredoka', sans-serif; font-size: 18px; color: var(--cyan); font-weight: 600; }
+
+/* TRANSPORT — left column */
+.ec-transport { grid-column: 1; }
+.transport-pills { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 4px; }
+.t-pill { display: flex; align-items: center; gap: 7px; padding: 9px 16px; border-radius: 100px; border: 1px solid #484848; background: #3a3a3a; font-size: 12px; font-weight: 800; color: #9CA3AF; cursor: pointer; }
+.t-pill.active-fly { background: var(--pink); border-color: var(--pink); color: white; }
+.t-pill.active-drive { background: #FF8C00; border-color: #FF8C00; color: white; }
+.t-pill-icon { font-size: 14px; }
+.t-pill-other { border-style: dashed; color: rgba(255,255,255,0.4); }
+.t-pill-other:hover { border-color: rgba(255,255,255,0.35); color: rgba(255,255,255,0.6); }
+.t-custom-wrap { margin-top: 10px; }
+.t-custom-inp { font-size: 12px; padding: 9px 14px; }
+
+/* CHARACTER — right column, spans 2 rows height */
+.ec-character { grid-column: 2; display: flex; flex-direction: column; gap: 10px; }
+.char-row { }
+.char-pills { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+.c-pill { padding: 6px 12px; border-radius: 100px; border: 1px solid #484848; background: #3a3a3a; font-size: 11px; font-weight: 800; color: #9CA3AF; cursor: pointer; }
+.c-pill.sel-cyan { background: var(--cyan); border-color: var(--cyan); color: #1a1a1a; }
+.c-pill.sel-yellow { background: var(--yellow); border-color: var(--yellow); color: #1a1a1a; }
+
+/* TRAVELERS + BUDGET row */
+.ec-group-row { grid-column: 1 / 3; display: grid; grid-template-columns: 1fr 1fr 1.2fr; gap: 10px; }
+
+.ec-travelers { }
+.stepper { display: flex; align-items: center; gap: 12px; margin-top: 8px; }
+.step-btn { width: 34px; height: 34px; border-radius: 50%; border: 1px solid #3a3a3a; background: #1e1e1e; color: white; display: flex; align-items: center; justify-content: center; font-size: 16px; font-weight: 800; cursor: pointer; }
+.step-val { font-family: 'Fredoka', sans-serif; font-size: 36px; font-weight: 600; color: var(--yellow); line-height: 1; min-width: 36px; text-align: center; }
+
+.ec-budget { }
+.budget-inp-wrap { position: relative; margin-top: 8px; }
+.budget-prefix { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); font-size: 14px; font-weight: 800; color: rgba(255,255,255,0.3); }
+.budget-inp { width: 100%; background: #1e1e1e; border: 1px solid #3a3a3a; border-radius: 12px; padding: 11px 14px 11px 28px; font-family: 'Fredoka', sans-serif; font-size: 24px; font-weight: 600; color: var(--green); outline: none; }
+.budget-toggle { display: flex; gap: 4px; margin-top: 8px; }
+.b-tog { padding: 4px 10px; border-radius: 6px; font-size: 10px; font-weight: 800; border: 1px solid #3a3a3a; background: transparent; color: #9CA3AF; cursor: pointer; }
+.b-tog.sel { background: var(--green); border-color: var(--green); color: #1a1a1a; }
+
+/* BALL COLOR */
+.ec-color { }
+.color-swatches { display: flex; gap: 10px; margin-top: 10px; flex-wrap: wrap; }
+.swatch { width: 32px; height: 32px; border-radius: 50%; cursor: pointer; position: relative; }
+.swatch.selected::after { content: '✓'; position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 800; color: rgba(0,0,0,0.6); }
+.swatch-add { width: 32px; height: 32px; border-radius: 50%; border: 1px dashed #3a3a3a; display: flex; align-items: center; justify-content: center; font-size: 16px; color: #9CA3AF; cursor: pointer; }
+
+/* SAVE BAR */
+.ec-save { grid-column: 1 / 3; display: flex; justify-content: flex-end; gap: 10px; padding-top: 4px; }
+.btn-cancel { padding: 10px 22px; border-radius: 100px; border: 1px solid #3a3a3a; background: #2e2e2e; color: white; font-size: 13px; font-weight: 800; cursor: pointer; }
+.btn-save { padding: 10px 28px; border-radius: 100px; background: var(--cyan); color: #1a1a1a; font-size: 13px; font-weight: 800; cursor: pointer; border: none; }
+
+</style>
+</head>
+<body>
+
+<!-- ══ VIEW PAGE ══════════════════════════════════════════════════════════ -->
+<p class="label">Option A — Setup View (Bento Grid)</p>
+
+<div class="chrome">
+  <div class="navbar">
+    <span class="logo">TripWave</span>
+    <div class="spacer"></div>
+    <div class="nav-bell">🔔</div>
+    <div class="nav-avatar">C</div>
+  </div>
+  <div class="app-body">
+    <div class="sidebar">
+      <div class="sb-head">
+        <div class="trip-ball"></div>
+        <div><div class="sb-name">Japan Spring<br/>2025</div><div class="sb-sub">42 days away</div></div>
+      </div>
+      <div class="sb-item"><div class="sb-dot">⌂</div>Overview</div>
+      <div class="sb-item active"><div class="sb-dot">⚙</div>Setup</div>
+      <div class="sb-item"><div class="sb-dot">✓</div>Preplanning</div>
+      <div class="sb-item"><div class="sb-dot">📅</div>Itinerary</div>
+      <div class="sb-item"><div class="sb-dot">🎒</div>Packing</div>
+      <div class="sb-divider"></div>
+      <div class="sb-item"><div class="sb-dot">📊</div>Polls</div>
+      <div class="sb-item"><div class="sb-dot">⭐</div>Wishlist</div>
+    </div>
+
+    <div class="page">
+      <div class="page-header">
+        <div><div class="page-title">Setup</div><div class="page-sub">Your trip configuration at a glance.</div></div>
+        <div class="edit-btn">✎ Edit</div>
+      </div>
+      <div class="page-body">
+        <div class="bento-view">
+
+          <!-- HERO -->
+          <div class="b-hero">
+            <div class="b-hero-eyebrow">Trip</div>
+            <div class="b-hero-name">Japan Spring 2025</div>
+            <div class="b-hero-dest"><span class="b-hero-dest-pin">📍</span>Tokyo · Kyoto · Osaka</div>
+            <div class="b-hero-dates">
+              <div><div class="b-hero-date-val">Apr 1</div><div class="b-hero-date-lbl">Depart</div></div>
+              <span class="b-hero-arrow">→</span>
+              <div><div class="b-hero-date-val">Apr 14</div><div class="b-hero-date-lbl">Return</div></div>
+            </div>
+          </div>
+
+          <!-- DURATION -->
+          <div class="b-duration">
+            <div class="b-duration-val">14</div>
+            <div class="b-duration-lbl">Days</div>
+          </div>
+
+          <!-- BUDGET -->
+          <div class="b-budget">
+            <div class="b-budget-lbl">Budget</div>
+            <div class="b-budget-val">$5k</div>
+            <div class="b-budget-type">per person · USD</div>
+          </div>
+
+          <!-- TRAVELERS -->
+          <div class="b-travelers">
+            <div class="b-travelers-val">4</div>
+            <div class="b-travelers-lbl">Travelers</div>
+          </div>
+
+          <!-- TRANSPORT -->
+          <div class="b-transport">
+            <div class="b-transport-lbl">Getting there</div>
+            <div class="b-transport-modes">
+              <div class="b-transport-mode">
+                <div class="b-transport-icon">✈</div>
+                <div class="b-transport-name">Flying</div>
+              </div>
+              <div class="b-transport-mode">
+                <div class="b-transport-icon" style="background:#FF8C00;">🚗</div>
+                <div class="b-transport-name">Driving</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- BOTTOM ROW -->
+          <div class="b-bottom-row">
+            <div class="b-type">
+              <div class="b-cell-lbl">Type</div>
+              <div class="b-badge-row">
+                <span class="badge" style="background:var(--cyan)">City</span>
+              </div>
+            </div>
+            <div class="b-vibe">
+              <div class="b-cell-lbl">Vibe</div>
+              <div class="b-badge-row">
+                <span class="badge" style="background:var(--yellow)">Relaxed</span>
+              </div>
+            </div>
+            <div class="b-lodging">
+              <div class="b-cell-lbl">Lodging</div>
+              <div class="b-lodging-entries">
+                <div class="b-lodging-entry">
+                  <div class="b-lodging-dot"></div>
+                  <div><div class="b-lodging-name">Hotel Gracery Shinjuku</div><div class="b-lodging-sub">Apr 1 – Apr 8 · Tokyo</div></div>
+                </div>
+                <div class="b-lodging-entry">
+                  <div class="b-lodging-dot" style="background:var(--yellow)"></div>
+                  <div><div class="b-lodging-name">Airbnb Gion District</div><div class="b-lodging-sub">Apr 8 – Apr 14 · Kyoto</div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══ EDIT FORM ══════════════════════════════════════════════════════════ -->
+<p class="label">Option B — Setup Edit Form (Bento Grid, different layout)</p>
+
+<div class="chrome">
+  <div class="navbar">
+    <span class="logo">TripWave</span>
+    <div class="spacer"></div>
+    <div class="nav-bell">🔔</div>
+    <div class="nav-avatar">C</div>
+  </div>
+  <div class="app-body">
+    <div class="sidebar">
+      <div class="sb-head">
+        <div class="trip-ball"></div>
+        <div><div class="sb-name">Japan Spring<br/>2025</div><div class="sb-sub">42 days away</div></div>
+      </div>
+      <div class="sb-item"><div class="sb-dot">⌂</div>Overview</div>
+      <div class="sb-item active"><div class="sb-dot">⚙</div>Setup</div>
+      <div class="sb-item"><div class="sb-dot">✓</div>Preplanning</div>
+      <div class="sb-item"><div class="sb-dot">📅</div>Itinerary</div>
+      <div class="sb-item"><div class="sb-dot">🎒</div>Packing</div>
+      <div class="sb-divider"></div>
+      <div class="sb-item"><div class="sb-dot">📊</div>Polls</div>
+      <div class="sb-item"><div class="sb-dot">⭐</div>Wishlist</div>
+    </div>
+
+    <div class="page">
+      <div class="page-header" style="background:#1e1e1e;">
+        <div style="display:flex;align-items:center;gap:14px;">
+          <div style="width:36px;height:36px;border-radius:50%;border:1px solid #3a3a3a;background:#282828;display:flex;align-items:center;justify-content:center;font-size:16px;cursor:pointer;">←</div>
+          <div><div class="page-title">Edit Setup</div><div class="page-sub">Changes are saved when you click Save.</div></div>
+        </div>
+      </div>
+      <div class="page-body">
+        <div class="bento-edit">
+
+          <!-- TRIP NAME — full width -->
+          <div class="ec ec-name">
+            <div class="inp-lbl">Trip Name</div>
+            <div class="ec-name-inner">
+              <div class="ec-name-icon">✈</div>
+              <input class="ec-name-inp" value="Japan Spring 2025" placeholder="Name your trip…" />
+            </div>
+          </div>
+
+          <!-- DESTINATIONS — left -->
+          <div class="ec ec-dest">
+            <div class="inp-lbl">Destinations</div>
+            <div class="dest-rows">
+              <div class="dest-row">
+                <div class="dest-order">1</div>
+                <input class="inp" value="Tokyo, Japan" style="flex:1" />
+              </div>
+              <div class="dest-row">
+                <div class="dest-order" style="background:var(--yellow)">2</div>
+                <input class="inp" value="Kyoto, Japan" style="flex:1" />
+              </div>
+              <div class="dest-row">
+                <div class="dest-order" style="background:var(--green)">3</div>
+                <input class="inp" value="Osaka, Japan" style="flex:1" />
+              </div>
+              <div class="dest-add">+ Add destination</div>
+            </div>
+          </div>
+
+          <!-- DATES — right -->
+          <div class="ec ec-dates">
+            <div class="inp-lbl">Dates</div>
+            <div class="date-pair">
+              <div>
+                <div style="font-size:10px;font-weight:800;color:rgba(255,255,255,0.3);margin-bottom:5px;letter-spacing:1px;">DEPART</div>
+                <input class="inp-date" type="date" value="2025-04-01" />
+              </div>
+              <div>
+                <div style="font-size:10px;font-weight:800;color:rgba(255,255,255,0.3);margin-bottom:5px;letter-spacing:1px;">RETURN</div>
+                <input class="inp-date" type="date" value="2025-04-14" />
+              </div>
+            </div>
+            <div class="b-computed">
+              <span class="b-computed-lbl">Duration</span>
+              <span class="b-computed-val">14 days</span>
+            </div>
+          </div>
+
+          <!-- TRANSPORT — left -->
+          <div class="ec ec-transport">
+            <div class="inp-lbl">How are you getting there?</div>
+            <div class="transport-pills">
+              <div class="t-pill active-fly"><span class="t-pill-icon">✈</span>Flying</div>
+              <div class="t-pill active-drive"><span class="t-pill-icon">🚗</span>Driving</div>
+              <div class="t-pill"><span class="t-pill-icon">🚂</span>Train</div>
+              <div class="t-pill"><span class="t-pill-icon">🚢</span>Cruise</div>
+              <div class="t-pill t-pill-other"><span class="t-pill-icon">+</span>Other…</div>
+            </div>
+            <!-- revealed when "Other" is toggled -->
+            <div class="t-custom-wrap">
+              <input class="inp t-custom-inp" placeholder="e.g. Ferry, Motorbike, Helicopter…" />
+              <div style="font-size:10px;font-weight:700;color:rgba(255,255,255,0.25);margin-top:4px;">Press Enter to add · add as many as you need</div>
+            </div>
+            <div style="font-size:11px;color:rgba(255,255,255,0.3);margin-top:10px;font-weight:600;">Select all that apply. Details go in Preplanning.</div>
+          </div>
+
+          <!-- CHARACTER — right (type + vibe stacked) -->
+          <div class="ec ec-character">
+            <div class="char-row">
+              <div class="inp-lbl">Trip Type</div>
+              <div class="char-pills">
+                <div class="c-pill">Beach</div>
+                <div class="c-pill sel-cyan">City</div>
+                <div class="c-pill">Adventure</div>
+                <div class="c-pill">Road Trip</div>
+                <div class="c-pill">Family</div>
+                <div class="c-pill">Romantic</div>
+              </div>
+            </div>
+            <div class="char-row" style="margin-top:14px;">
+              <div class="inp-lbl">Vibe</div>
+              <div class="char-pills">
+                <div class="c-pill sel-yellow">Relaxed</div>
+                <div class="c-pill">Packed</div>
+                <div class="c-pill">Spontaneous</div>
+                <div class="c-pill">Structured</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- TRAVELERS + BUDGET + BALL COLOR -->
+          <div class="ec-group-row">
+            <div class="ec">
+              <div class="inp-lbl">Travelers</div>
+              <div class="stepper">
+                <div class="step-btn">−</div>
+                <div class="step-val">4</div>
+                <div class="step-btn">+</div>
+              </div>
+            </div>
+            <div class="ec">
+              <div class="inp-lbl">Budget Target</div>
+              <div class="budget-inp-wrap">
+                <span class="budget-prefix">$</span>
+                <input class="budget-inp" value="5000" />
+              </div>
+              <div class="budget-toggle">
+                <div class="b-tog">Total</div>
+                <div class="b-tog sel">Per person</div>
+              </div>
+            </div>
+            <div class="ec">
+              <div class="inp-lbl">Ball Color</div>
+              <div class="color-swatches">
+                <div class="swatch" style="background:#FF2D8B;" title="Pink"></div>
+                <div class="swatch selected" style="background:#00A8CC;" title="Cyan"></div>
+                <div class="swatch" style="background:#FFD600;" title="Yellow"></div>
+                <div class="swatch" style="background:#00C96B;" title="Green"></div>
+                <div class="swatch" style="background:#FF8C00;" title="Orange"></div>
+                <div class="swatch" style="background:#A855F7;" title="Purple"></div>
+                <div class="swatch-add">+</div>
+              </div>
+              <div style="font-size:11px;color:rgba(255,255,255,0.3);margin-top:8px;font-weight:600;">This is your trip's TripBall color.</div>
+            </div>
+          </div>
+
+          <!-- SAVE BAR -->
+          <div class="ec-save">
+            <div class="btn-cancel">Cancel</div>
+            <div class="btn-save">Save changes</div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

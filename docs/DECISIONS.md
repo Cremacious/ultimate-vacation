@@ -240,6 +240,30 @@ Use this format for new entries:
 - Why: A sequential vertical timeline with auto-scroll eliminates all uncertainty on departure day. The user never has to wonder what comes next -- the app moves them forward automatically. The format is mobile-first by nature since users will be on their phones while physically moving through the day.
 - Follow-up: Define default task presets per transport mode (flight, drive, train). Define auto-scroll animation timing and easing. Allow task customization: add, remove, reorder, and rename tasks. Same timeline UI applies to vacation days with a different default task structure.
 
+### 2026-04-16 - Bento grid layout for data-summary and edit pages
+
+- Status: accepted
+- Context: Setup and similar pages were initially built as narrow left-aligned vertical card stacks, leaving large amounts of empty white space on wider screens and making the layout feel like a list of form fields rather than a visual dashboard.
+- Decision: Data-summary pages (Setup view, trip overview) and their corresponding edit forms use a bento grid layout. View and edit pages use different grid configurations from each other. The view grid emphasizes visual hierarchy with a large hero cell and solid-color stat cells for key numbers. The edit grid is organized by field complexity. The standard view pattern is a three-column grid (2fr 1fr 1fr) with a spanning hero cell. The standard edit pattern is a two-column grid (1.4fr 1fr) with full-width cells for prominent fields.
+- Why: A bento grid eliminates empty whitespace, gives important data proportional visual weight, and makes the page feel like a dashboard rather than a form. It also naturally differentiates the view experience from the edit experience without feeling like the same layout with inputs swapped in.
+- Follow-up: Apply bento grid layout to Preplanning summary and trip overview pages. Establish a shared pattern library for bento cell types.
+
+### 2026-04-16 - UI scale inside dark bento cards is large by default
+
+- Status: accepted
+- Context: Initial implementation used small text sizes inside bento cells (10-11px labels, 12px pill text, small inputs) consistent with typical UI density. Against the dark card backgrounds and with the cells occupying significant screen real estate, this scale felt mismatched: cards with a lot of space and very small content. The Travelers "4" stat card made the problem obvious -- the number was large and impactful while adjacent pill cards felt like footnotes.
+- Decision: All content inside dark bento cells is scaled up permanently. Hard minimums: cell labels 13px, form inputs 16px (text-base), pill text 14-15px, hint text 14px, sub-labels 12px. Stat numbers use clamp() to fill their cells responsively. Cell padding is always 24px (p-6). Pill padding is generous (10px/20px for transport, 8px/16px for type/vibe). These are floors, not targets -- go larger when the card has more room.
+- Why: Dark cards occupy significant visual real estate. If the content inside them is small, the card reads as mostly empty background. Large content fills the card and makes every cell feel intentional. The scale also improves readability and touch target sizes at no cost.
+- Follow-up: Apply these scale rules to all future bento-style pages. Do not introduce smaller scales for "compact" variants without explicit justification.
+
+### 2026-04-16 - Page background is a radial gradient from white center to dark gray edges
+
+- Status: accepted
+- Context: The page background went through several iterations: flat #F5F7FA, light blue gradient, medium blue, medium gray. Each iteration was evaluated visually against the dark card surfaces.
+- Decision: The authenticated app page background is a radial gradient centered on the viewport. Center is white or near-white. Edges fade to medium-dark gray (around #787878). This applies to all authenticated app pages. The gradient direction is always radial from center, not linear.
+- Why: A radial gradient creates a natural focal center that draws the eye toward the content area. Dark cards on a light-center surface feel grounded and readable. The dark edges give the overall page depth without requiring decorative elements. Flat colors feel static by comparison.
+- Follow-up: Adjust the gray depth as the overall UI evolves. The current stop values are #d4d4d4 center, #a8a8a8 midpoint, #787878 edge.
+
 ### 2026-04-16 - Work on master branch until foundation is complete
 
 - Status: accepted

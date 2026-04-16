@@ -73,7 +73,8 @@ Purpose:
 - `/app/trips` — all trips
 - `/app/trips/new` — create trip flow
 - `/app/trips/[tripId]` — trip overview
-- `/app/trips/[tripId]/setup`
+- `/app/trips/[tripId]/setup` — view mode: trip configuration at a glance
+- `/app/trips/[tripId]/setup/edit` — edit form: all setup fields editable
 - `/app/trips/[tripId]/preplanning`
 - `/app/trips/[tripId]/itinerary`
 - `/app/trips/[tripId]/packing`
@@ -159,22 +160,27 @@ The workspace should not act like a flat folder of pages. It should respond to t
 
 ## Trip Creation Flow
 
-### Step 1 — basics
+Trip creation lands the user directly in the Setup edit form. Setup captures only the high-level skeleton of the trip. All granular details (flight numbers, lodging confirmations, group member info, documents, etc.) live in Preplanning.
+
+### Setup form fields
 
 - trip name
-- destination
-- dates
-- transport mode
+- one or more destinations (city + country, with rough arrival/departure dates)
+- start date and end date
+- transport mode multi-select (fly, drive, train, cruise — multiple allowed)
+- traveler count
+- trip type and vibe
+- ball color picker
+- budget target, currency, type (total or per-person)
+- invite mode
 
-### Step 2 — group
+After completing setup, the user lands on the Setup view page. A prompt guides them to continue into Preplanning to fill in the details.
 
-- invite participants (or skip)
-- simplified permission preset selection
-- note pointing to trip settings for full control
+### Preplanning is dynamically shaped by Setup
 
-### Step 3 — preplanning start
+The Preplanning page reads the user's Setup choices and shows only the relevant sections. A user who selected Flying + Driving sees flight detail sections and car rental sections but not train or cruise sections. A domestic trip does not see visa or health entry sections. All preplanning fields are optional — power planners can go as deep as they want, casual planners are never blocked.
 
-- begin preplanning wizard or skip to overview
+Preplanning completion drives the trip ball fill percentage. Sections that are not applicable (because of Setup choices) are excluded from the completion denominator.
 
 ## Expense Surface
 
