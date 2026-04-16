@@ -20,6 +20,7 @@ import {
   Users,
 } from "@phosphor-icons/react";
 import TripBall from "./TripBall";
+import { useAppShell } from "./AppShellProvider";
 
 interface Phase {
   key: string;
@@ -62,25 +63,26 @@ export default function TripSideNav({
 }: TripSideNavProps) {
   const pathname = usePathname();
   const base = `/app/trips/${tripId}`;
+  const { sidebarOpen, closeSidebar } = useAppShell();
 
   const mainPhases: Phase[] = [
-    { key: "overview", label: "Overview", href: base, icon: <House size={14} weight="fill" />, color: "#00A8CC" },
-    { key: "setup", label: "Setup", href: `${base}/setup`, icon: <Gear size={14} weight="fill" />, color: phaseColor.setup },
-    { key: "preplanning", label: "Preplanning", href: `${base}/preplanning`, icon: <Checks size={14} weight="fill" />, color: phaseColor.preplanning },
-    { key: "itinerary", label: "Itinerary", href: `${base}/itinerary`, icon: <CalendarBlank size={14} weight="fill" />, color: phaseColor.itinerary },
-    { key: "packing", label: "Packing", href: `${base}/packing`, icon: <Backpack size={14} weight="fill" />, color: phaseColor.packing },
-    { key: "travel-days", label: "Travel Day", href: `${base}/travel-days`, icon: <Airplane size={14} weight="fill" />, color: phaseColor["travel-days"] },
-    { key: "vacation-days", label: "Vacation Day", href: `${base}/vacation-days`, icon: <Sun size={14} weight="fill" />, color: phaseColor["vacation-days"] },
-    { key: "expenses", label: "Expenses", href: `${base}/expenses`, icon: <Receipt size={14} weight="fill" />, color: phaseColor.expenses },
+    { key: "overview",      label: "Overview",     href: base,                      icon: <House size={14} weight="fill" />,        color: "#00A8CC" },
+    { key: "setup",         label: "Setup",        href: `${base}/setup`,           icon: <Gear size={14} weight="fill" />,         color: phaseColor.setup },
+    { key: "preplanning",   label: "Preplanning",  href: `${base}/preplanning`,     icon: <Checks size={14} weight="fill" />,       color: phaseColor.preplanning },
+    { key: "itinerary",     label: "Itinerary",    href: `${base}/itinerary`,       icon: <CalendarBlank size={14} weight="fill" />,color: phaseColor.itinerary },
+    { key: "packing",       label: "Packing",      href: `${base}/packing`,         icon: <Backpack size={14} weight="fill" />,     color: phaseColor.packing },
+    { key: "travel-days",   label: "Travel Day",   href: `${base}/travel-days`,     icon: <Airplane size={14} weight="fill" />,     color: phaseColor["travel-days"] },
+    { key: "vacation-days", label: "Vacation Day", href: `${base}/vacation-days`,   icon: <Sun size={14} weight="fill" />,          color: phaseColor["vacation-days"] },
+    { key: "expenses",      label: "Expenses",     href: `${base}/expenses`,        icon: <Receipt size={14} weight="fill" />,      color: phaseColor.expenses },
   ];
 
   const extraPhases: Phase[] = [
-    { key: "polls", label: "Polls", href: `${base}/polls`, icon: <ChartBar size={14} weight="fill" />, color: phaseColor.polls },
-    { key: "wishlist", label: "Wishlist", href: `${base}/wishlist`, icon: <Star size={14} weight="fill" />, color: phaseColor.wishlist },
-    { key: "notes", label: "Notes", href: `${base}/notes`, icon: <Note size={14} weight="fill" />, color: phaseColor.notes },
-    { key: "tools", label: "Tools", href: `${base}/tools`, icon: <Wrench size={14} weight="fill" />, color: phaseColor.tools },
-    { key: "vault", label: "Vault", href: `${base}/vault`, icon: <Vault size={14} weight="fill" />, color: phaseColor.vault },
-    { key: "memory", label: "Memory", href: `${base}/memory`, icon: <ListChecks size={14} weight="fill" />, color: phaseColor.memory },
+    { key: "polls",    label: "Polls",   href: `${base}/polls`,   icon: <ChartBar size={14} weight="fill" />,  color: phaseColor.polls },
+    { key: "wishlist", label: "Wishlist",href: `${base}/wishlist`,icon: <Star size={14} weight="fill" />,      color: phaseColor.wishlist },
+    { key: "notes",    label: "Notes",   href: `${base}/notes`,   icon: <Note size={14} weight="fill" />,      color: phaseColor.notes },
+    { key: "tools",    label: "Tools",   href: `${base}/tools`,   icon: <Wrench size={14} weight="fill" />,    color: phaseColor.tools },
+    { key: "vault",    label: "Vault",   href: `${base}/vault`,   icon: <Vault size={14} weight="fill" />,     color: phaseColor.vault },
+    { key: "memory",   label: "Memory",  href: `${base}/memory`,  icon: <ListChecks size={14} weight="fill" />,color: phaseColor.memory },
   ];
 
   const isActive = (href: string, key: string) => {
@@ -91,17 +93,17 @@ export default function TripSideNav({
   const renderPhase = (phase: Phase) => {
     const active = isActive(phase.href, phase.key);
     return (
-      <Link key={phase.key} href={phase.href}>
+      <Link key={phase.key} href={phase.href} onClick={closeSidebar}>
         <div
           className={`flex items-center gap-2.5 px-3 py-2 rounded-xl transition-all ${
             active
-              ? "bg-[#F0FAFE] border border-[#00A8CC]/20"
-              : "hover:bg-gray-50"
+              ? "bg-[#333333] border border-[#00A8CC]/25"
+              : "hover:bg-[#333333]/60"
           }`}
         >
           <div
             className="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0"
-            style={{ backgroundColor: active ? phase.color : "#E5E7EB" }}
+            style={{ backgroundColor: active ? phase.color : "#3a3a3a" }}
           >
             <span style={{ color: active ? "white" : "#9CA3AF" }}>
               {phase.icon}
@@ -109,7 +111,7 @@ export default function TripSideNav({
           </div>
           <span
             className={`text-sm truncate ${
-              active ? "font-bold text-[#1A1A1A]" : "font-semibold text-gray-500"
+              active ? "font-bold text-white" : "font-semibold text-[#9CA3AF]"
             }`}
           >
             {phase.label}
@@ -128,50 +130,83 @@ export default function TripSideNav({
   };
 
   return (
-    <aside className="fixed left-0 top-14 bottom-0 w-56 bg-white border-r border-gray-100 flex flex-col overflow-y-auto z-40">
-      <div className="px-4 py-4 border-b border-gray-100">
-        <div className="flex items-center gap-3 mb-2">
-          <TripBall fillPct={fillPct} color={ballColor} size={40} pulse />
-          <div className="min-w-0">
-            <p
-              className="font-semibold text-[#1A1A1A] truncate text-sm leading-tight"
-              style={{ fontFamily: "var(--font-fredoka)" }}
-            >
-              {tripName}
-            </p>
-            {countdownLabel() && (
-              <p className="text-xs text-gray-400 font-medium">{countdownLabel()}</p>
-            )}
+    <>
+      {/* Mobile backdrop overlay -- tap to close */}
+      {sidebarOpen && (
+        <div
+          className="fixed top-14 inset-x-0 bottom-0 z-40 bg-black/75 md:hidden"
+          onClick={closeSidebar}
+        />
+      )}
+
+      {/* Sidebar */}
+      <aside
+        className={[
+          "fixed top-14 left-0 bottom-0 z-50",
+          "bg-[#252525] border-r border-[#333333]",
+          "flex flex-col overflow-y-auto scrollbar-dark",
+          "transition-transform duration-300 ease-in-out",
+          // Mobile: 80vw wide, slide in/out
+          "w-[80vw] max-w-[300px]",
+          sidebarOpen ? "translate-x-0" : "-translate-x-full",
+          // Desktop: always visible, fixed 224px wide
+          "md:translate-x-0 md:w-56",
+        ].join(" ")}
+      >
+        {/* Trip header */}
+        <div className="px-4 py-4 border-b border-[#333333]">
+          <div className="flex items-center gap-3">
+            <TripBall
+              fillPct={fillPct}
+              color={ballColor}
+              size={40}
+              pulse
+              surfaceColor="#252525"
+              emptyArcColor="#404040"
+            />
+            <div className="min-w-0">
+              <p
+                className="font-semibold text-white truncate text-sm leading-tight"
+                style={{ fontFamily: "var(--font-fredoka)" }}
+              >
+                {tripName}
+              </p>
+              {countdownLabel() && (
+                <p className="text-xs font-medium text-[#9CA3AF]">
+                  {countdownLabel()}
+                </p>
+              )}
+            </div>
           </div>
         </div>
-      </div>
 
-      <nav className="flex-1 px-2 py-3 space-y-0.5">
-        {mainPhases.map(renderPhase)}
+        {/* Phase navigation */}
+        <nav className="flex-1 px-2 py-3 space-y-0.5">
+          {mainPhases.map(renderPhase)}
+          <div className="border-t border-[#333333] my-2" />
+          {extraPhases.map(renderPhase)}
+        </nav>
 
-        <div className="border-t border-gray-100 my-2" />
-
-        {extraPhases.map(renderPhase)}
-      </nav>
-
-      <div className="px-2 py-3 border-t border-gray-100 space-y-0.5">
-        <Link href={`${base}/settings/members`}>
-          <div className="flex items-center gap-2.5 px-3 py-2 rounded-xl hover:bg-gray-50 transition-colors">
-            <div className="w-6 h-6 rounded-full bg-gray-100 flex items-center justify-center flex-shrink-0">
-              <Users size={14} weight="fill" className="text-gray-400" />
+        {/* Bottom: Members + Settings */}
+        <div className="px-2 py-3 border-t border-[#333333] space-y-0.5">
+          <Link href={`${base}/settings/members`} onClick={closeSidebar}>
+            <div className="flex items-center gap-2.5 px-3 py-2 rounded-xl hover:bg-[#333333]/60 transition-colors">
+              <div className="w-6 h-6 rounded-full bg-[#3a3a3a] flex items-center justify-center flex-shrink-0">
+                <Users size={14} weight="fill" className="text-[#9CA3AF]" />
+              </div>
+              <span className="text-sm font-semibold text-[#9CA3AF]">Members</span>
             </div>
-            <span className="text-sm font-semibold text-gray-500">Members</span>
-          </div>
-        </Link>
-        <Link href={`${base}/settings`}>
-          <div className="flex items-center gap-2.5 px-3 py-2 rounded-xl hover:bg-gray-50 transition-colors">
-            <div className="w-6 h-6 rounded-full bg-gray-100 flex items-center justify-center flex-shrink-0">
-              <Gear size={14} weight="fill" className="text-gray-400" />
+          </Link>
+          <Link href={`${base}/settings`} onClick={closeSidebar}>
+            <div className="flex items-center gap-2.5 px-3 py-2 rounded-xl hover:bg-[#333333]/60 transition-colors">
+              <div className="w-6 h-6 rounded-full bg-[#3a3a3a] flex items-center justify-center flex-shrink-0">
+                <Gear size={14} weight="fill" className="text-[#9CA3AF]" />
+              </div>
+              <span className="text-sm font-semibold text-[#9CA3AF]">Settings</span>
             </div>
-            <span className="text-sm font-semibold text-gray-500">Settings</span>
-          </div>
-        </Link>
-      </div>
-    </aside>
+          </Link>
+        </div>
+      </aside>
+    </>
   );
 }

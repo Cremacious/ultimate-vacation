@@ -1,11 +1,18 @@
 @import "tailwindcss";
 
 @theme {
+  /* Brand accent palette */
   --color-brand-cyan: #00A8CC;
   --color-brand-yellow: #FFD600;
   --color-brand-pink: #FF2D8B;
   --color-brand-green: #00C96B;
-  --color-brand-charcoal: #1A1A1A;
+
+  /* Dark surface system -- used by navbar, sidebar, and other intentionally dark elements */
+  --color-surface-base: #141414;
+  --color-surface-raised: #252525;
+  --color-surface-elevated: #333333;
+  --color-surface-border: #404040;
+
   --font-display: var(--font-fredoka);
   --font-body: var(--font-nunito);
 }
@@ -66,4 +73,24 @@
 
 .animate-ripple-2 {
   animation: ripple-out 2.2s ease-out 0.8s infinite;
+}
+
+/* Custom scrollbar -- dark sidebar style */
+.scrollbar-dark {
+  /* Firefox */
+  scrollbar-width: thin;
+  scrollbar-color: #00A8CC #1a1a1a;
+}
+.scrollbar-dark::-webkit-scrollbar {
+  width: 4px;
+}
+.scrollbar-dark::-webkit-scrollbar-track {
+  background: transparent;
+}
+.scrollbar-dark::-webkit-scrollbar-thumb {
+  background-color: #00A8CC;
+  border-radius: 9999px;
+}
+.scrollbar-dark::-webkit-scrollbar-thumb:hover {
+  background-color: #00c4ef;
 }

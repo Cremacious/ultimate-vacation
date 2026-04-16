@@ -2,7 +2,8 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Bell, CaretDown, User } from "@phosphor-icons/react";
+import { Bell, List, X, User, CaretDown } from "@phosphor-icons/react";
+import { useAppShell } from "./AppShellProvider";
 
 interface TopNavProps {
   tripName?: string;
@@ -11,9 +12,25 @@ interface TopNavProps {
 export default function TopNav({ tripName }: TopNavProps) {
   const pathname = usePathname();
   const inTrip = pathname.includes("/trips/") && !pathname.endsWith("/trips/new");
+  const { sidebarOpen, toggleSidebar } = useAppShell();
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 h-14 bg-white border-b border-gray-100 flex items-center px-4 gap-4">
+    <header className="fixed top-0 left-0 right-0 z-50 h-14 bg-[#1e1e1e] border-b border-[#333333] flex items-center px-4 gap-3">
+      {/* Hamburger toggle -- mobile only, inside trip workspace */}
+      {inTrip && (
+        <button
+          onClick={toggleSidebar}
+          className="md:hidden flex items-center justify-center w-9 h-9 rounded-xl hover:bg-[#333333] transition-colors flex-shrink-0"
+          aria-label={sidebarOpen ? "Close navigation" : "Open navigation"}
+        >
+          {sidebarOpen ? (
+            <X size={20} weight="bold" className="text-white" />
+          ) : (
+            <List size={20} weight="bold" className="text-white" />
+          )}
+        </button>
+      )}
+
       {/* Logo */}
       <Link href="/app" className="flex-shrink-0">
         <span
@@ -24,10 +41,10 @@ export default function TopNav({ tripName }: TopNavProps) {
         </span>
       </Link>
 
-      {/* Trip switcher (shows when inside a trip) */}
+      {/* Trip switcher -- desktop only */}
       {inTrip && tripName && (
-        <button className="flex items-center gap-1.5 bg-[#F8F8FA] border border-gray-100 rounded-full px-3.5 py-1.5 hover:border-[#00A8CC] transition-colors max-w-[200px]">
-          <span className="text-sm font-bold text-[#1A1A1A] truncate">{tripName}</span>
+        <button className="hidden md:flex items-center gap-1.5 bg-[#2a2a2a] border border-[#404040] rounded-full px-3.5 py-1.5 hover:border-[#00A8CC]/50 transition-colors max-w-[200px]">
+          <span className="text-sm font-bold text-white truncate">{tripName}</span>
           <CaretDown size={12} weight="bold" className="text-gray-400 flex-shrink-0" />
         </button>
       )}
@@ -36,8 +53,8 @@ export default function TopNav({ tripName }: TopNavProps) {
 
       {/* Right side actions */}
       <div className="flex items-center gap-2">
-        <button className="relative w-9 h-9 rounded-full bg-[#F8F8FA] hover:bg-gray-100 flex items-center justify-center transition-colors">
-          <Bell size={18} weight="bold" className="text-[#1A1A1A]" />
+        <button className="relative w-9 h-9 rounded-full bg-[#2a2a2a] hover:bg-[#333333] flex items-center justify-center transition-colors">
+          <Bell size={18} weight="bold" className="text-white" />
           <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-[#FF2D8B]" />
         </button>
 
