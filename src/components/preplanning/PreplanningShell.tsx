@@ -8,6 +8,7 @@ import {
   ForkKnife, Ticket, ShoppingBag, Bus, Tag,
   IdentificationCard, Stamp, Umbrella, Globe, Syringe,
   CaretDown, CaretUp,
+  Mountains, Waves, BookOpen, Leaf, Moon, Heart, Camera, Compass, Sun,
 } from "@phosphor-icons/react";
 
 // ─── types ────────────────────────────────────────────────────────────────────
@@ -132,7 +133,7 @@ const ALL_SECTIONS: SectionDef[] = [
 const MOCK_STATUSES: Record<string, SectionStatus> = {
   group: "done", travel: "partial", lodging: "partial",
   budget: "partial", destinations: "partial", documents: "partial",
-  vibe: "empty", predeparture: "empty",
+  vibe: "partial", predeparture: "empty",
 };
 
 const MOCK_STATUS_TEXT: Record<string, string> = {
@@ -142,7 +143,7 @@ const MOCK_STATUS_TEXT: Record<string, string> = {
   budget:       "Budget set · 8 categories",
   destinations: "3 stops · 12 days planned",
   documents:    "6 of 8 confirmed",
-  vibe:         "Not started",
+  vibe:         "2 vibes · Balanced pace",
   predeparture: "Not started",
 };
 
@@ -1734,6 +1735,256 @@ function DestinationsBento({
   );
 }
 
+// ─── VIBE section ────────────────────────────────────────────────────────────
+
+const VIBE_COLOR = "#FF2D8B";
+
+const VIBE_TAGS: { key: string; label: string; Icon: React.ElementType; color: string }[] = [
+  { key: "adventure",   label: "Adventure",    Icon: Mountains,   color: "#FF8C00" },
+  { key: "relaxation",  label: "Relaxation",   Icon: Waves,       color: "#00A8CC" },
+  { key: "culture",     label: "Cultural",     Icon: BookOpen,    color: "#A855F7" },
+  { key: "foodie",      label: "Foodie",       Icon: ForkKnife,   color: "#FFD600" },
+  { key: "nature",      label: "Nature",       Icon: Leaf,        color: "#00C96B" },
+  { key: "nightlife",   label: "Nightlife",    Icon: Moon,        color: "#6366F1" },
+  { key: "shopping",    label: "Shopping",     Icon: ShoppingBag, color: "#FF2D8B" },
+  { key: "romance",     label: "Romance",      Icon: Heart,       color: "#FF2D8B" },
+  { key: "wellness",    label: "Wellness",     Icon: Sparkle,     color: "#00C96B" },
+  { key: "photography", label: "Photography",  Icon: Camera,      color: "#00A8CC" },
+  { key: "offpath",     label: "Off the Grid", Icon: Compass,     color: "#FF8C00" },
+  { key: "family",      label: "Family Fun",   Icon: Users,       color: "#00A8CC" },
+  { key: "sunny",       label: "Sun & Beach",  Icon: Sun,         color: "#FFD600" },
+  { key: "luxury",      label: "Luxury",       Icon: Sparkle,     color: "#A855F7" },
+];
+
+const PACE_OPTIONS: { key: string; label: string; desc: string; color: string }[] = [
+  { key: "mellow",   label: "Mellow",    desc: "Max relaxation",           color: "#00A8CC" },
+  { key: "balanced", label: "Balanced",  desc: "Rest meets activity",      color: "#00C96B" },
+  { key: "active",   label: "Active",    desc: "Full days, light nights",  color: "#FFD600" },
+  { key: "packed",   label: "Packed",    desc: "Something every day",      color: "#FF8C00" },
+  { key: "nonstop",  label: "Non-Stop",  desc: "We'll sleep when home",    color: "#FF2D8B" },
+];
+
+const STYLE_OPTIONS: { key: string; label: string; desc: string; color: string }[] = [
+  { key: "budget",   label: "Budget",    desc: "Stretching every dollar",    color: "#00C96B" },
+  { key: "midrange", label: "Mid-Range", desc: "Comfort without splurging",  color: "#00A8CC" },
+  { key: "upscale",  label: "Upscale",   desc: "Treating ourselves well",    color: "#A855F7" },
+  { key: "luxury",   label: "Luxury",    desc: "Only the finest things",     color: "#FFD600" },
+];
+
+const ENERGY_OPTIONS: { key: string; label: string; desc: string; color: string }[] = [
+  { key: "lowkey",   label: "Low-Key",   desc: "Slow mornings, easy pace",    color: "#00A8CC" },
+  { key: "chill",    label: "Chill",     desc: "Flexible & spontaneous",      color: "#00C96B" },
+  { key: "social",   label: "Social",    desc: "Group fun & togetherness",    color: "#FFD600" },
+  { key: "fullsend", label: "Full Send", desc: "Max energy, all in",          color: "#FF2D8B" },
+];
+
+function VibeSection() {
+  const [selectedVibes, setSelectedVibes] = useState<string[]>(["adventure", "foodie"]);
+  const [pace,   setPace]   = useState("balanced");
+  const [style,  setStyle]  = useState("midrange");
+  const [energy, setEnergy] = useState("chill");
+  const [mantra, setMantra] = useState("");
+  const [notes,  setNotes]  = useState("");
+
+  function toggleVibe(key: string) {
+    setSelectedVibes((prev) =>
+      prev.includes(key) ? prev.filter((v) => v !== key) : [...prev, key]
+    );
+  }
+
+  return (
+    <>
+      <style>{`
+        .vb          { display: grid; grid-template-columns: 1fr; gap: 10px; }
+        @media (min-width: 768px) {
+          .vb          { grid-template-columns: 1fr 1fr 1fr; }
+          .vb-tags     { grid-column: 1 / 4; }
+          .vb-pace     { grid-column: 1; }
+          .vb-style    { grid-column: 2; }
+          .vb-energy   { grid-column: 3; }
+          .vb-mantra   { grid-column: 1 / 3; }
+          .vb-notes    { grid-column: 3; }
+        }
+      `}</style>
+      <div className="vb">
+
+        {/* ── Vibe Tags ── */}
+        <DarkCard className="vb-tags p-4 md:p-5">
+          <CardLabel>Trip Vibes</CardLabel>
+          <div className="flex flex-wrap gap-2">
+            {VIBE_TAGS.map(({ key, label, Icon, color }) => {
+              const active = selectedVibes.includes(key);
+              return (
+                <button key={key} type="button"
+                  onClick={() => toggleVibe(key)}
+                  className="flex items-center gap-1.5 rounded-full font-black border text-sm transition-all"
+                  style={{
+                    padding: "6px 14px",
+                    backgroundColor: active ? color              : "rgba(255,255,255,0.05)",
+                    borderColor:     active ? color              : "rgba(255,255,255,0.10)",
+                    color:           active ? "#fff"             : "#9CA3AF",
+                    boxShadow:       active ? `0 0 14px ${color}50` : "none",
+                  }}>
+                  <Icon size={13} weight="fill" />
+                  {label}
+                </button>
+              );
+            })}
+          </div>
+          {selectedVibes.length > 0 && (
+            <div className="mt-3 text-[10px] font-black uppercase tracking-widest text-white/25">
+              {selectedVibes.length} vibe{selectedVibes.length !== 1 ? "s" : ""} selected
+            </div>
+          )}
+        </DarkCard>
+
+        {/* ── Trip Pace ── */}
+        <DarkCard className="vb-pace p-4 md:p-5">
+          <CardLabel>Trip Pace</CardLabel>
+          <div className="flex flex-col gap-2">
+            {PACE_OPTIONS.map(({ key, label, desc, color }) => {
+              const active = pace === key;
+              return (
+                <button key={key} type="button" onClick={() => setPace(key)}
+                  className="flex items-center gap-3 w-full rounded-[12px] px-3 py-2.5 border transition-all text-left"
+                  style={{
+                    backgroundColor: active ? `${color}18` : "rgba(255,255,255,0.03)",
+                    borderColor:     active ? `${color}55` : "rgba(255,255,255,0.07)",
+                  }}>
+                  <div className="w-2 h-2 rounded-full flex-shrink-0"
+                       style={{ backgroundColor: active ? color : "rgba(255,255,255,0.2)" }} />
+                  <div className="flex-1 min-w-0">
+                    <div className="text-[12px] font-black leading-none"
+                         style={{ color: active ? "#fff" : "#9CA3AF" }}>
+                      {label}
+                    </div>
+                    <div className="text-[10px] font-bold mt-0.5 truncate"
+                         style={{ color: active ? color : "rgba(255,255,255,0.2)" }}>
+                      {desc}
+                    </div>
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+        </DarkCard>
+
+        {/* ── Travel Style ── */}
+        <DarkCard className="vb-style p-4 md:p-5">
+          <CardLabel>Travel Style</CardLabel>
+          <div className="flex flex-col gap-2">
+            {STYLE_OPTIONS.map(({ key, label, desc, color }) => {
+              const active = style === key;
+              return (
+                <button key={key} type="button" onClick={() => setStyle(key)}
+                  className="flex items-center gap-3 w-full rounded-[12px] px-3 py-2.5 border transition-all text-left"
+                  style={{
+                    backgroundColor: active ? `${color}18` : "rgba(255,255,255,0.03)",
+                    borderColor:     active ? `${color}55` : "rgba(255,255,255,0.07)",
+                  }}>
+                  <div className="w-2 h-2 rounded-full flex-shrink-0"
+                       style={{ backgroundColor: active ? color : "rgba(255,255,255,0.2)" }} />
+                  <div className="flex-1 min-w-0">
+                    <div className="text-[12px] font-black leading-none"
+                         style={{ color: active ? "#fff" : "#9CA3AF" }}>
+                      {label}
+                    </div>
+                    <div className="text-[10px] font-bold mt-0.5 truncate"
+                         style={{ color: active ? color : "rgba(255,255,255,0.2)" }}>
+                      {desc}
+                    </div>
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+        </DarkCard>
+
+        {/* ── Group Energy ── */}
+        <DarkCard className="vb-energy p-4 md:p-5">
+          <CardLabel>Group Energy</CardLabel>
+          <div className="flex flex-col gap-2">
+            {ENERGY_OPTIONS.map(({ key, label, desc, color }) => {
+              const active = energy === key;
+              return (
+                <button key={key} type="button" onClick={() => setEnergy(key)}
+                  className="flex items-center gap-3 w-full rounded-[12px] px-3 py-2.5 border transition-all text-left"
+                  style={{
+                    backgroundColor: active ? `${color}18` : "rgba(255,255,255,0.03)",
+                    borderColor:     active ? `${color}55` : "rgba(255,255,255,0.07)",
+                  }}>
+                  <div className="w-2 h-2 rounded-full flex-shrink-0"
+                       style={{ backgroundColor: active ? color : "rgba(255,255,255,0.2)" }} />
+                  <div className="flex-1 min-w-0">
+                    <div className="text-[12px] font-black leading-none"
+                         style={{ color: active ? "#fff" : "#9CA3AF" }}>
+                      {label}
+                    </div>
+                    <div className="text-[10px] font-bold mt-0.5 truncate"
+                         style={{ color: active ? color : "rgba(255,255,255,0.2)" }}>
+                      {desc}
+                    </div>
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+        </DarkCard>
+
+        {/* ── Trip Mantra ── */}
+        <DarkCard className="vb-mantra p-4 md:p-5 overflow-hidden" style={{ position: "relative" }}>
+          {/* subtle pink radial glow */}
+          <div style={{
+            position: "absolute", inset: 0, borderRadius: "18px",
+            background: "radial-gradient(ellipse at 50% 0%, rgba(255,45,139,0.09) 0%, transparent 65%)",
+            pointerEvents: "none",
+          }} />
+          <CardLabel>Trip Mantra</CardLabel>
+          <div className="min-h-[56px] flex items-center justify-center mb-4">
+            {mantra ? (
+              <div className="font-semibold text-center leading-tight px-2"
+                   style={{
+                     fontFamily: "var(--font-fredoka)",
+                     fontSize: "clamp(20px, 2.5vw, 30px)",
+                     color: VIBE_COLOR,
+                   }}>
+                &ldquo;{mantra}&rdquo;
+              </div>
+            ) : (
+              <div className="text-[12px] font-bold text-white/20 text-center">
+                What&apos;s your group&apos;s rallying cry?
+              </div>
+            )}
+          </div>
+          <FieldInput
+            placeholder="e.g. No bad days in Japan ✌"
+            value={mantra}
+            onChange={(e) => setMantra(e.target.value)}
+            maxLength={80}
+            style={{ textAlign: "center" }}
+          />
+          <div className="text-[10px] font-black text-white/20 text-right mt-1.5">
+            {mantra.length}/80
+          </div>
+        </DarkCard>
+
+        {/* ── Group Notes ── */}
+        <DarkCard className="vb-notes p-4 md:p-5 flex flex-col">
+          <CardLabel>Group Notes</CardLabel>
+          <textarea
+            placeholder="Expectations, must-haves, group agreements, things everyone wants…"
+            value={notes}
+            onChange={(e) => setNotes(e.target.value)}
+            className="flex-1 rounded-[10px] px-3 py-2.5 text-sm font-semibold text-white outline-none border resize-none transition-colors focus:border-[#FF2D8B] placeholder-white/20"
+            style={{ backgroundColor: "#1e1e1e", borderColor: "#3a3a3a", minHeight: "150px" }}
+          />
+        </DarkCard>
+
+      </div>
+    </>
+  );
+}
+
 // ─── placeholder section ──────────────────────────────────────────────────────
 
 function PlaceholderSection({ section }: { section: SectionDef }) {
@@ -2174,6 +2425,8 @@ export default function PreplanningShell({ transportModes }: PreplanningShellPro
           ? <LodgingBento stay={stay} updateStay={updateLodgingStay} />
           : null;
       }
+      case "vibe":
+        return <VibeSection />;
       default:
         return <PlaceholderSection section={currentSection} />;
     }
