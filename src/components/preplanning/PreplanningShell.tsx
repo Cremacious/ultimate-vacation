@@ -11,6 +11,7 @@ import {
 
 type SectionStatus = "empty" | "partial" | "done";
 type SeatClass = "economy" | "premium" | "business" | "first";
+type AccommodationType = "hotel" | "airbnb" | "resort" | "hostel" | "motel" | "rental" | "other";
 
 interface SectionDef {
   key: string;
@@ -46,6 +47,22 @@ interface DrivingLeg {
   notes: string;
 }
 
+interface LodgingStay {
+  id: string;
+  name: string;
+  type: AccommodationType;
+  address: string;
+  city: string;
+  checkInDate: string;
+  checkInTime: string;
+  checkOutDate: string;
+  checkOutTime: string;
+  costPerNight: string;
+  confirmCode: string;
+  roomType: string;
+  notes: string;
+}
+
 // ─── transport mode metadata ──────────────────────────────────────────────────
 
 const TRANSPORT_META: Record<string, { label: string; Icon: React.ElementType; color: string }> = {
@@ -71,7 +88,7 @@ const ALL_SECTIONS: SectionDef[] = [
 // ─── mock state ───────────────────────────────────────────────────────────────
 
 const MOCK_STATUSES: Record<string, SectionStatus> = {
-  group: "done", travel: "partial", lodging: "empty",
+  group: "done", travel: "partial", lodging: "partial",
   budget: "empty", destinations: "empty", documents: "empty",
   vibe: "empty", predeparture: "empty",
 };
@@ -79,7 +96,7 @@ const MOCK_STATUSES: Record<string, SectionStatus> = {
 const MOCK_STATUS_TEXT: Record<string, string> = {
   group:        "4 travelers added",
   travel:       "2 flights entered",
-  lodging:      "Not started",
+  lodging:      "1 of 2 stays confirmed",
   budget:       "Not started",
   destinations: "Not started",
   documents:    "Not started",
@@ -134,6 +151,45 @@ const SEAT_CLASSES: { key: SeatClass; label: string }[] = [
   { key: "first",    label: "First"    },
 ];
 
+const ACCOM_TYPES: { key: AccommodationType; label: string }[] = [
+  { key: "hotel",   label: "Hotel"           },
+  { key: "airbnb",  label: "Airbnb"          },
+  { key: "resort",  label: "Resort"          },
+  { key: "hostel",  label: "Hostel"          },
+  { key: "motel",   label: "Motel"           },
+  { key: "rental",  label: "Vacation Rental" },
+  { key: "other",   label: "Other"           },
+];
+
+const INITIAL_LODGING_STAYS: LodgingStay[] = [
+  {
+    id: "1",
+    name: "Park Hyatt Tokyo",
+    type: "hotel",
+    address: "3-7-1-2 Nishi Shinjuku",
+    city: "Tokyo, Japan",
+    checkInDate:  "2025-04-02", checkInTime:  "15:00",
+    checkOutDate: "2025-04-07", checkOutTime: "11:00",
+    costPerNight: "280",
+    confirmCode: "PH8823X",
+    roomType: "Deluxe King",
+    notes: "Requested high floor with city view.",
+  },
+  {
+    id: "2",
+    name: "Kyoto Machiya Stay",
+    type: "airbnb",
+    address: "Higashiyama-ku",
+    city: "Kyoto, Japan",
+    checkInDate:  "2025-04-08", checkInTime:  "16:00",
+    checkOutDate: "2025-04-12", checkOutTime: "10:00",
+    costPerNight: "150",
+    confirmCode: "",
+    roomType: "",
+    notes: "",
+  },
+];
+
 // ─── helpers ──────────────────────────────────────────────────────────────────
 
 function iconBgColor(status: SectionStatus, isActive: boolean): string {
@@ -141,6 +197,14 @@ function iconBgColor(status: SectionStatus, isActive: boolean): string {
   if (status === "done")    return "#00C96B";
   if (status === "partial") return "#FF8C00";
   return "#3a3a3a";
+}
+
+function calcNights(checkIn: string, checkOut: string): number | null {
+  if (!checkIn || !checkOut) return null;
+  const diff = Math.round(
+    (new Date(checkOut).getTime() - new Date(checkIn).getTime()) / 86_400_000
+  );
+  return diff > 0 ? diff : null;
 }
 
 function statusTextColor(status: SectionStatus): string {
@@ -609,6 +673,238 @@ function DrivingBento({ leg, updateLeg, addStop, removeStop, updateStop }: Drivi
   );
 }
 
+// ─── LODGING bento ────────────────────────────────────────────────────────────
+
+const LODGING_COLOR = "#A855F7";
+
+interface LodgingBentoProps {
+  stay: LodgingStay;
+  updateStay: (id: string, field: keyof LodgingStay, value: string) => void;
+}
+
+function LodgingBento({ stay, updateStay }: LodgingBentoProps) {
+  const nights = calcNights(stay.checkInDate, stay.checkOutDate);
+  const totalCost = nights !== null && stay.costPerNight
+    ? (nights * Number(stay.costPerNight))
+    : null;
+
+  return (
+    <>
+      <style>{`
+        .lb { display: grid; grid-template-columns: 1fr; gap: 10px; }
+        .lb-extras-wrap { display: contents; }
+        .lb-extras { display: grid; grid-template-columns: 1fr; gap: 10px; }
+        @media (min-width: 768px) {
+          .lb              { grid-template-columns: 1fr 1fr 1fr; }
+          .lb-property     { grid-column: 1 / 3; }
+          .lb-confirm      { grid-column: 3; grid-row: 1; }
+          .lb-dates        { grid-column: 1 / 4; }
+          .lb-extras-wrap  { display: block; grid-column: 1 / 4; }
+          .lb-extras       { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+          .lb-cost         { grid-column: 1 / 3; }
+        }
+      `}</style>
+      <div className="lb">
+
+        {/* Property */}
+        <DarkCard className="lb-property p-4 md:p-5">
+          <CardLabel>Property</CardLabel>
+          {/* Big name display */}
+          <div className="font-semibold text-white leading-none mb-1 truncate"
+               style={{ fontFamily: "var(--font-fredoka)", fontSize: "clamp(22px, 2.8vw, 32px)" }}>
+            {stay.name || "Property Name"}
+          </div>
+          <div className="text-[11px] font-bold text-white/30 mb-3 truncate">
+            {stay.city || "City, Country"}
+          </div>
+          {/* Name + city fields */}
+          <div className="flex flex-col gap-2 mb-3">
+            <FieldInput
+              placeholder="Hotel / Airbnb name"
+              value={stay.name}
+              onChange={(e) => updateStay(stay.id, "name", e.target.value)}
+            />
+            <div className="grid grid-cols-[1fr_1fr] gap-2">
+              <FieldInput
+                placeholder="Address"
+                value={stay.address}
+                onChange={(e) => updateStay(stay.id, "address", e.target.value)}
+              />
+              <FieldInput
+                placeholder="City, Country"
+                value={stay.city}
+                onChange={(e) => updateStay(stay.id, "city", e.target.value)}
+              />
+            </div>
+          </div>
+          {/* Accommodation type pills */}
+          <div className="flex flex-wrap gap-1.5">
+            {ACCOM_TYPES.map(({ key, label }) => (
+              <button key={key} type="button"
+                onClick={() => updateStay(stay.id, "type", key)}
+                className="rounded-full font-black border text-[12px] transition-all"
+                style={{
+                  padding: "5px 12px",
+                  backgroundColor: stay.type === key ? LODGING_COLOR : "#3a3a3a",
+                  borderColor:     stay.type === key ? LODGING_COLOR : "#484848",
+                  color:           stay.type === key ? "#fff"        : "#9CA3AF",
+                }}>
+                {label}
+              </button>
+            ))}
+          </div>
+        </DarkCard>
+
+        {/* Confirmation */}
+        <DarkCard className="lb-confirm p-4 md:p-5 flex flex-col items-center justify-center gap-3">
+          <CardLabel>Confirmation</CardLabel>
+          <div className="font-semibold tracking-widest text-center"
+               style={{ fontFamily: "var(--font-fredoka)", fontSize: "clamp(20px, 2vw, 28px)", color: "#FFD600" }}>
+            {stay.confirmCode || "—"}
+          </div>
+          <FieldInput
+            placeholder="XKMN29"
+            value={stay.confirmCode}
+            onChange={(e) => updateStay(stay.id, "confirmCode", e.target.value.toUpperCase())}
+            style={{ textTransform: "uppercase", textAlign: "center", letterSpacing: "3px", fontWeight: 900 }}
+          />
+          {/* Room type */}
+          <div className="w-full" style={{ borderTop: "1px solid rgba(255,255,255,0.07)", paddingTop: "12px" }}>
+            <div className="text-[10px] font-black uppercase tracking-[1.5px] text-white/35 text-center mb-2">Room Type</div>
+            <FieldInput
+              placeholder="Deluxe King, Suite…"
+              value={stay.roomType}
+              onChange={(e) => updateStay(stay.id, "roomType", e.target.value)}
+              style={{ textAlign: "center" }}
+            />
+          </div>
+        </DarkCard>
+
+        {/* Check-in / Check-out */}
+        <DarkCard className="lb-dates p-4 md:p-5">
+          <CardLabel>Check-in → Check-out</CardLabel>
+          <div className="grid grid-cols-1 gap-3 md:grid-cols-[1fr_auto_1fr]">
+            {/* Check-in */}
+            <div>
+              <div className="text-[11px] font-black uppercase tracking-widest text-white/30 text-center mb-2">Check-in</div>
+              <div className="grid grid-cols-2 gap-2">
+                <FieldInput type="date" value={stay.checkInDate} className="text-white/70 text-xs"
+                  onChange={(e) => updateStay(stay.id, "checkInDate", e.target.value)} />
+                <FieldInput type="time" value={stay.checkInTime} className="text-white/70 text-xs"
+                  onChange={(e) => updateStay(stay.id, "checkInTime", e.target.value)} />
+              </div>
+            </div>
+            {/* Nights pill */}
+            <div className="hidden md:flex flex-col items-center justify-center gap-1 px-2">
+              <div
+                className="rounded-full font-black text-[13px] px-3 py-1.5 text-center"
+                style={{
+                  backgroundColor: nights !== null ? `${LODGING_COLOR}22` : "rgba(255,255,255,0.05)",
+                  color: nights !== null ? LODGING_COLOR : "rgba(255,255,255,0.2)",
+                  border: `1px solid ${nights !== null ? LODGING_COLOR + "55" : "rgba(255,255,255,0.1)"}`,
+                  minWidth: "52px",
+                }}>
+                {nights !== null ? `${nights}n` : "--"}
+              </div>
+              <div className="text-[9px] font-black uppercase tracking-widest text-white/20">nights</div>
+            </div>
+            {/* Check-out */}
+            <div>
+              <div className="text-[11px] font-black uppercase tracking-widest text-white/30 text-center mb-2">Check-out</div>
+              <div className="grid grid-cols-2 gap-2">
+                <FieldInput type="date" value={stay.checkOutDate} className="text-white/70 text-xs"
+                  onChange={(e) => updateStay(stay.id, "checkOutDate", e.target.value)} />
+                <FieldInput type="time" value={stay.checkOutTime} className="text-white/70 text-xs"
+                  onChange={(e) => updateStay(stay.id, "checkOutTime", e.target.value)} />
+              </div>
+            </div>
+          </div>
+          {/* Mobile nights pill */}
+          {nights !== null && (
+            <div className="flex md:hidden justify-center mt-3">
+              <div className="rounded-full font-black text-[12px] px-4 py-1"
+                   style={{ backgroundColor: `${LODGING_COLOR}22`, color: LODGING_COLOR, border: `1px solid ${LODGING_COLOR}55` }}>
+                {nights} night{nights !== 1 ? "s" : ""}
+              </div>
+            </div>
+          )}
+        </DarkCard>
+
+        {/* Cost + Notes */}
+        <div className="lb-extras-wrap">
+          <div className="lb-extras">
+
+            {/* Cost */}
+            <DarkCard className="lb-cost p-4 md:p-5">
+              <CardLabel>Cost</CardLabel>
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-[1fr_1fr]">
+                {/* Per-night */}
+                <div>
+                  <div className="text-[10px] font-black uppercase tracking-widest text-white/25 text-center mb-2">Per Night</div>
+                  <div className="relative">
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm font-black text-white/30 pointer-events-none">$</span>
+                    <FieldInput
+                      type="number"
+                      min="0"
+                      placeholder="0.00"
+                      value={stay.costPerNight}
+                      onChange={(e) => updateStay(stay.id, "costPerNight", e.target.value)}
+                      className="pl-6 text-right"
+                    />
+                  </div>
+                </div>
+                {/* Breakdown */}
+                <div className="flex flex-col items-center justify-center gap-1 rounded-[12px] p-3"
+                     style={{ backgroundColor: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}>
+                  {nights !== null && stay.costPerNight ? (
+                    <>
+                      <div className="text-[10px] font-black uppercase tracking-widest text-white/25">
+                        {nights} night{nights !== 1 ? "s" : ""} ×  ${Number(stay.costPerNight).toLocaleString()}
+                      </div>
+                      <div className="font-semibold leading-none"
+                           style={{ fontFamily: "var(--font-fredoka)", fontSize: "28px", color: LODGING_COLOR }}>
+                        ${totalCost!.toLocaleString()}
+                      </div>
+                      <div className="text-[9px] font-black uppercase tracking-widest text-white/20">total</div>
+                    </>
+                  ) : (
+                    <div className="text-[11px] font-bold text-white/20 text-center">
+                      Enter dates + nightly rate to calculate total
+                    </div>
+                  )}
+                </div>
+              </div>
+              {/* Trip cost badge */}
+              {totalCost !== null && (
+                <div className="mt-3 flex items-center justify-center gap-1.5 rounded-[10px] px-3 py-1.5"
+                     style={{ backgroundColor: `${LODGING_COLOR}18`, border: `1px solid ${LODGING_COLOR}33` }}>
+                  <span className="text-[10px] font-black uppercase tracking-widest" style={{ color: LODGING_COLOR }}>
+                    +${totalCost.toLocaleString()} to trip cost
+                  </span>
+                </div>
+              )}
+            </DarkCard>
+
+            {/* Notes */}
+            <DarkCard className="p-4 md:p-5 flex flex-col">
+              <CardLabel>Notes</CardLabel>
+              <textarea
+                placeholder="Special requests, amenities, parking, early check-in…"
+                value={stay.notes}
+                onChange={(e) => updateStay(stay.id, "notes", e.target.value)}
+                className="flex-1 rounded-[10px] px-3 py-2.5 text-sm font-semibold text-white outline-none border resize-none transition-colors focus:border-[#00A8CC] placeholder-white/20"
+                style={{ backgroundColor: "#1e1e1e", borderColor: "#3a3a3a", minHeight: "100px" }}
+              />
+            </DarkCard>
+
+          </div>
+        </div>
+
+      </div>
+    </>
+  );
+}
+
 // ─── placeholder section ──────────────────────────────────────────────────────
 
 function PlaceholderSection({ section }: { section: SectionDef }) {
@@ -641,6 +937,10 @@ export default function PreplanningShell({ transportModes }: PreplanningShellPro
   // Driving state
   const [drivingLegs,     setDrivingLegs]     = useState<DrivingLeg[]>(INITIAL_DRIVING_LEGS);
   const [activeDrivingLeg, setActiveDrivingLeg] = useState(0);
+
+  // Lodging state
+  const [lodgingStays,     setLodgingStays]     = useState<LodgingStay[]>(INITIAL_LODGING_STAYS);
+  const [activeLodgingStay, setActiveLodgingStay] = useState(0);
 
   // Progress metrics
   const touchedCount = ALL_SECTIONS.filter((s) => MOCK_STATUSES[s.key] !== "empty").length;
@@ -700,6 +1000,24 @@ export default function PreplanningShell({ transportModes }: PreplanningShellPro
     ));
   }
 
+  // ── Lodging handlers ──────────────────────────────────────────────────────
+  function updateLodgingStay(id: string, field: keyof LodgingStay, value: string) {
+    setLodgingStays((stays) => stays.map((s) => s.id === id ? { ...s, [field]: value } : s));
+  }
+  function addLodgingStay() {
+    const newStay: LodgingStay = {
+      id: Date.now().toString(), name: "", type: "hotel",
+      address: "", city: "", checkInDate: "", checkInTime: "15:00",
+      checkOutDate: "", checkOutTime: "11:00", costPerNight: "",
+      confirmCode: "", roomType: "", notes: "",
+    };
+    setLodgingStays((stays) => [...stays, newStay]);
+    setActiveLodgingStay(lodgingStays.length);
+  }
+  function removeLodgingStay(id: string) {
+    setLodgingStays((stays) => stays.filter((s) => s.id !== id));
+  }
+
   const currentSection = ALL_SECTIONS.find((s) => s.key === activeSection) ?? ALL_SECTIONS[0];
 
   // ── Active leg info for sub-nav ────────────────────────────────────────────
@@ -712,8 +1030,50 @@ export default function PreplanningShell({ transportModes }: PreplanningShellPro
     : removeDrivingLeg;
   const modeColor       = TRANSPORT_META[activeTravelMode]?.color ?? "#00A8CC";
 
-  // ── Sub-nav for travel section ─────────────────────────────────────────────
+  // ── Sub-nav (travel + lodging) ─────────────────────────────────────────────
   function renderSubNav(): React.ReactNode {
+    // ── Lodging stay tabs ──
+    if (activeSection === "lodging") {
+      return (
+        <div className="mt-4 pt-4 flex items-center gap-2 flex-wrap"
+             style={{ borderTop: "1px solid rgba(255,255,255,0.08)" }}>
+          {lodgingStays.map((s, i) => (
+            <button key={s.id} type="button"
+              onClick={() => setActiveLodgingStay(i)}
+              className="flex items-center gap-1.5 rounded-full font-black border transition-all text-sm"
+              style={{
+                padding: "6px 14px",
+                backgroundColor: activeLodgingStay === i ? LODGING_COLOR : "rgba(255,255,255,0.05)",
+                borderColor:     activeLodgingStay === i ? LODGING_COLOR : "rgba(255,255,255,0.10)",
+                color:           activeLodgingStay === i ? "#fff"        : "#9CA3AF",
+              }}>
+              <span className="w-1.5 h-1.5 rounded-full bg-current flex-shrink-0" />
+              {s.name ? s.name.split(" ").slice(0, 2).join(" ") : `Stay ${i + 1}`}
+              {lodgingStays.length > 1 && (
+                <span role="button"
+                  onClick={(e) => { e.stopPropagation(); removeLodgingStay(s.id); setActiveLodgingStay(Math.max(0, i - 1)); }}
+                  className="ml-1 opacity-60 hover:opacity-100 cursor-pointer">
+                  <X size={11} weight="bold" />
+                </span>
+              )}
+            </button>
+          ))}
+          <button type="button" onClick={addLodgingStay}
+            className="flex items-center gap-1.5 rounded-full font-black border text-sm transition-all"
+            style={{
+              padding: "6px 14px",
+              borderStyle: "dashed",
+              borderColor: `${LODGING_COLOR}55`,
+              color: LODGING_COLOR,
+              backgroundColor: "transparent",
+            }}>
+            <Plus size={11} weight="bold" />
+            Add stay
+          </button>
+        </div>
+      );
+    }
+
     if (activeSection !== "travel") return null;
 
     if (transportModes.length === 0) return (
@@ -810,6 +1170,12 @@ export default function PreplanningShell({ transportModes }: PreplanningShellPro
       }
       case "group":
         return <GroupSection />;
+      case "lodging": {
+        const stay = lodgingStays[activeLodgingStay] ?? lodgingStays[0];
+        return stay
+          ? <LodgingBento stay={stay} updateStay={updateLodgingStay} />
+          : null;
+      }
       default:
         return <PlaceholderSection section={currentSection} />;
     }
