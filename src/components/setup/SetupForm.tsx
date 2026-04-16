@@ -93,7 +93,7 @@ function Cell({
 }) {
   return (
     <div
-      className={`rounded-[20px] border p-6 flex flex-col items-center justify-center ${className}`}
+      className={`rounded-[20px] border p-4 md:p-6 flex flex-col items-center justify-center ${className}`}
       style={{ ...CARD, ...style }}
     >
       {children}
@@ -154,14 +154,14 @@ export default function SetupForm({ initialData = {} }: SetupFormProps) {
   }
 
   return (
-    <div style={{ display: "grid", gridTemplateColumns: "1.4fr 1fr", gap: "12px" }}>
+    <div className="grid grid-cols-1 gap-[12px] md:grid-cols-[1.4fr_1fr]">
 
       {/* ── TRIP NAME — full width ───────────────────────────────── */}
-      <Cell style={{ gridColumn: "1 / 3" }}>
+      <Cell className="md:col-span-2">
         <CellLabel>Trip Name</CellLabel>
         <div className="flex items-center gap-3 w-full">
           <div
-            className="w-12 h-12 rounded-[14px] flex items-center justify-center flex-shrink-0 text-2xl"
+            className="w-11 h-11 rounded-[14px] flex items-center justify-center flex-shrink-0 text-xl"
             style={{ backgroundColor: "rgba(0,168,204,0.15)", border: "1px solid rgba(0,168,204,0.25)" }}
           >
             ✈
@@ -170,9 +170,9 @@ export default function SetupForm({ initialData = {} }: SetupFormProps) {
             className="flex-1"
             style={{
               fontFamily: "var(--font-fredoka)",
-              fontSize: "24px",
+              fontSize: "clamp(18px, 2vw, 24px)",
               fontWeight: 600,
-              padding: "14px 18px",
+              padding: "12px 16px",
               borderRadius: "14px",
             }}
             placeholder="Name your trip…"
@@ -436,14 +436,8 @@ export default function SetupForm({ initialData = {} }: SetupFormProps) {
       </Cell>
 
       {/* ── BOTTOM ROW: travelers + budget + ball color ───────────── */}
-      <div
-        style={{
-          gridColumn: "1 / 3",
-          display: "grid",
-          gridTemplateColumns: "1fr 1.4fr 1fr",
-          gap: "12px",
-        }}
-      >
+      <div className="grid grid-cols-1 gap-[12px] md:col-span-2 md:grid-cols-[1fr_1.4fr_1fr]">
+
         {/* Travelers */}
         <Cell>
           <CellLabel>Travelers</CellLabel>
@@ -525,13 +519,13 @@ export default function SetupForm({ initialData = {} }: SetupFormProps) {
         {/* Ball color */}
         <Cell>
           <CellLabel>Trip Ball Color</CellLabel>
-          <div className="flex flex-wrap justify-center gap-2.5">
+          <div className="flex flex-wrap justify-center gap-3">
             {BALL_COLORS.map((c) => (
               <button
                 key={c}
                 type="button"
                 onClick={() => setBallColor(c)}
-                className="w-9 h-9 rounded-full flex items-center justify-center transition-all flex-shrink-0"
+                className="w-10 h-10 rounded-full flex items-center justify-center transition-all flex-shrink-0"
                 style={{
                   backgroundColor: c,
                   outline: ballColor === c ? `3px solid ${c}` : "3px solid transparent",
@@ -545,17 +539,14 @@ export default function SetupForm({ initialData = {} }: SetupFormProps) {
             ))}
           </div>
           <div className="flex items-center gap-2 mt-3">
-            <div className="w-6 h-6 rounded-full flex-shrink-0" style={{ backgroundColor: ballColor }} />
+            <div className="w-5 h-5 rounded-full flex-shrink-0" style={{ backgroundColor: ballColor }} />
             <span className="text-[13px] font-bold text-white/40">{ballColor}</span>
           </div>
         </Cell>
       </div>
 
       {/* ── SAVE BAR ─────────────────────────────────────────────── */}
-      <div
-        className="flex items-center justify-end gap-3 pt-2"
-        style={{ gridColumn: "1 / 3" }}
-      >
+      <div className="md:col-span-2 flex items-center justify-end gap-3 pt-2">
         <button
           type="button"
           className="px-6 py-3 rounded-full text-[15px] font-black border text-white transition-opacity hover:opacity-80"

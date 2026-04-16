@@ -48,289 +48,288 @@ export default async function SetupPage({
     s.currency === "USD" ? `$${s.budget.toLocaleString()}` : `${s.budget.toLocaleString()} ${s.currency}`;
 
   return (
-    <div>
-      {/* Page header */}
-      <div
-        className="border-b px-7 py-6 flex items-center justify-between flex-shrink-0"
-        style={{ backgroundColor: "#282828", borderColor: "#333333" }}
-      >
-        <div>
-          <h1
-            className="text-4xl font-semibold text-white leading-none mb-1"
-            style={{ fontFamily: "var(--font-fredoka)" }}
-          >
-            Setup
-          </h1>
-          <p className="text-xs font-semibold text-white/50 uppercase tracking-widest">
-            Your trip at a glance
-          </p>
-        </div>
-        <Link
-          href={`/app/trips/${tripId}/setup/edit`}
-          className="flex items-center gap-2 px-5 py-2.5 rounded-full font-bold text-sm text-[#1a1a1a] transition-opacity hover:opacity-90 flex-shrink-0"
-          style={{ backgroundColor: "#00A8CC" }}
-        >
-          <PencilSimple size={15} weight="bold" />
-          Edit Setup
-        </Link>
-      </div>
+    <>
+      <style>{`
+        .setup-grid {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 10px;
+        }
+        .sg-hero     { grid-column: 1 / 3; }
+        .sg-bottom   { grid-column: 1 / 3; }
 
-      {/* Bento grid body */}
-      <div className="p-6">
+        @media (min-width: 768px) {
+          .setup-grid {
+            grid-template-columns: 2fr 1fr 1fr;
+          }
+          .sg-hero     { grid-column: 1;     grid-row: 1 / 3; }
+          .sg-duration { grid-column: 2;     grid-row: 1;     }
+          .sg-budget   { grid-column: 3;     grid-row: 1;     }
+          .sg-travelers{ grid-column: 2;     grid-row: 2;     }
+          .sg-transport{ grid-column: 3;     grid-row: 2;     }
+          .sg-bottom   { grid-column: 1 / 4;               }
+        }
+      `}</style>
+
+      <div>
+        {/* ── Page header ───────────────────────────────────────── */}
         <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "2fr 1fr 1fr",
-            gridTemplateRows: "auto auto auto",
-            gap: "10px",
-          }}
+          className="border-b flex items-center justify-between flex-shrink-0 px-4 py-4 md:px-7 md:py-6"
+          style={{ backgroundColor: "#282828", borderColor: "#333333" }}
         >
-          {/* ── HERO — col 1, rows 1-2 ───────────────────────────── */}
-          <div
-            className="rounded-[20px] border p-7 flex flex-col justify-end relative overflow-hidden"
-            style={{
-              gridColumn: "1",
-              gridRow: "1 / 3",
-              backgroundColor: "#2e2e2e",
-              borderColor: "#3a3a3a",
-              minHeight: "220px",
-            }}
-          >
-            {/* glow */}
-            <div
-              className="absolute inset-0 pointer-events-none"
-              style={{
-                background:
-                  `radial-gradient(ellipse at 20% 50%, ${s.ballColor}1f 0%, transparent 65%)`,
-              }}
-            />
-            <div className="relative">
-              <div className="text-[10px] font-black uppercase tracking-[3px] text-white/35 mb-2">
-                Trip Name
-              </div>
-              <div
-                className="text-4xl font-semibold text-white leading-tight mb-2"
-                style={{ fontFamily: "var(--font-fredoka)" }}
-              >
-                {s.name}
-              </div>
-
-              {/* destinations */}
-              <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mb-5">
-                {s.destinations.map((d, i) => (
-                  <div key={i} className="flex items-center gap-1">
-                    <MapPin size={12} weight="fill" style={{ color: DEST_COLORS[i % DEST_COLORS.length] }} />
-                    <span className="text-sm font-bold text-white/70">
-                      {d.city}, {d.country}
-                    </span>
-                  </div>
-                ))}
-              </div>
-
-              {/* date range pill */}
-              <div
-                className="inline-flex items-center gap-3 rounded-xl px-4 py-2.5"
-                style={{ backgroundColor: "rgba(0,168,204,0.12)", border: "1px solid rgba(0,168,204,0.25)" }}
-              >
-                <div>
-                  <div className="text-[9px] font-black uppercase tracking-widest text-white/40">Depart</div>
-                  <div className="font-semibold text-base text-white leading-none" style={{ fontFamily: "var(--font-fredoka)" }}>
-                    {s.startDate}
-                  </div>
-                </div>
-                <div className="text-white/25 text-sm">→</div>
-                <div>
-                  <div className="text-[9px] font-black uppercase tracking-widest text-white/40">Return</div>
-                  <div className="font-semibold text-base text-white leading-none" style={{ fontFamily: "var(--font-fredoka)" }}>
-                    {s.endDate}
-                  </div>
-                </div>
-              </div>
-            </div>
+          <div>
+            <h1
+              className="text-3xl md:text-4xl font-semibold text-white leading-none mb-1"
+              style={{ fontFamily: "var(--font-fredoka)" }}
+            >
+              Setup
+            </h1>
+            <p className="text-xs font-semibold text-white/50 uppercase tracking-widest">
+              Your trip at a glance
+            </p>
           </div>
-
-          {/* ── DURATION — col 2, row 1 ──────────────────────────── */}
-          <div
-            className="rounded-[20px] p-6 flex flex-col items-center justify-center text-center"
+          <Link
+            href={`/app/trips/${tripId}/setup/edit`}
+            className="flex items-center gap-2 px-4 py-2 md:px-5 md:py-2.5 rounded-full font-bold text-sm text-[#1a1a1a] transition-opacity hover:opacity-90 flex-shrink-0"
             style={{ backgroundColor: "#00A8CC" }}
           >
-            <div
-              className="font-semibold text-[#1a1a1a] leading-none"
-              style={{ fontFamily: "var(--font-fredoka)", fontSize: "clamp(56px, 6vw, 88px)" }}
-            >
-              {s.durationDays}
-            </div>
-            <div className="text-[13px] font-black uppercase tracking-[2px] text-black/50 mt-2">
-              Days
-            </div>
-          </div>
+            <PencilSimple size={15} weight="bold" />
+            <span className="hidden sm:inline">Edit Setup</span>
+            <span className="sm:hidden">Edit</span>
+          </Link>
+        </div>
 
-          {/* ── BUDGET — col 3, row 1 ────────────────────────────── */}
-          <div
-            className="rounded-[20px] border p-6 flex flex-col items-center justify-center text-center"
-            style={{ backgroundColor: "#2e2e2e", borderColor: "#3a3a3a" }}
-          >
-            <div className="text-[11px] font-black uppercase tracking-[2px] text-white/35 mb-2">
-              Budget
-            </div>
-            <div
-              className="font-semibold text-[#00C96B] leading-none"
-              style={{ fontFamily: "var(--font-fredoka)", fontSize: "clamp(44px, 4.5vw, 68px)" }}
-            >
-              {budgetDisplay}
-            </div>
-            <div className="text-[12px] font-bold text-white/35 mt-2">
-              {s.budgetType === "per-person" ? "per person" : "total"} · {s.currency}
-            </div>
-          </div>
+        {/* ── Bento grid body ───────────────────────────────────── */}
+        <div className="p-3 md:p-6">
+          <div className="setup-grid">
 
-          {/* ── TRAVELERS — col 2, row 2 ─────────────────────────── */}
-          <div
-            className="rounded-[20px] p-6 flex flex-col items-center justify-center text-center"
-            style={{ backgroundColor: "#FFD600" }}
-          >
+            {/* ── HERO — mobile: full-width row 1, desktop: col 1 rows 1-2 ── */}
             <div
-              className="font-semibold text-[#1a1a1a] leading-none"
-              style={{ fontFamily: "var(--font-fredoka)", fontSize: "clamp(56px, 6vw, 88px)" }}
+              className="sg-hero rounded-[20px] border flex flex-col justify-end relative overflow-hidden p-5 md:p-7"
+              style={{
+                backgroundColor: "#2e2e2e",
+                borderColor: "#3a3a3a",
+                minHeight: "200px",
+              }}
             >
-              {s.travelers}
+              <div
+                className="absolute inset-0 pointer-events-none"
+                style={{
+                  background: `radial-gradient(ellipse at 20% 50%, ${s.ballColor}1f 0%, transparent 65%)`,
+                }}
+              />
+              <div className="relative">
+                <div className="text-[10px] font-black uppercase tracking-[3px] text-white/35 mb-1">
+                  Trip Name
+                </div>
+                <div
+                  className="text-3xl md:text-4xl font-semibold text-white leading-tight mb-2"
+                  style={{ fontFamily: "var(--font-fredoka)" }}
+                >
+                  {s.name}
+                </div>
+                <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mb-4">
+                  {s.destinations.map((d, i) => (
+                    <div key={i} className="flex items-center gap-1">
+                      <MapPin size={12} weight="fill" style={{ color: DEST_COLORS[i % DEST_COLORS.length] }} />
+                      <span className="text-sm font-bold text-white/70">
+                        {d.city}, {d.country}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+                <div
+                  className="inline-flex items-center gap-3 rounded-xl px-4 py-2.5"
+                  style={{ backgroundColor: "rgba(0,168,204,0.12)", border: "1px solid rgba(0,168,204,0.25)" }}
+                >
+                  <div>
+                    <div className="text-[9px] font-black uppercase tracking-widest text-white/40">Depart</div>
+                    <div className="font-semibold text-base text-white leading-none" style={{ fontFamily: "var(--font-fredoka)" }}>
+                      {s.startDate}
+                    </div>
+                  </div>
+                  <div className="text-white/25 text-sm">→</div>
+                  <div>
+                    <div className="text-[9px] font-black uppercase tracking-widest text-white/40">Return</div>
+                    <div className="font-semibold text-base text-white leading-none" style={{ fontFamily: "var(--font-fredoka)" }}>
+                      {s.endDate}
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
-            <div className="text-[13px] font-black uppercase tracking-[2px] text-black/50 mt-2">
-              Travelers
-            </div>
-          </div>
 
-          {/* ── TRANSPORT — col 3, row 2 ─────────────────────────── */}
-          <div
-            className="rounded-[20px] border p-6 flex flex-col items-center justify-center gap-3"
-            style={{ backgroundColor: "#2e2e2e", borderColor: "#3a3a3a" }}
-          >
-            <div className="text-[11px] font-black uppercase tracking-[2px] text-white/35 text-center mb-1">
-              Getting There
+            {/* ── DURATION — mobile: col 1 row 2, desktop: col 2 row 1 ── */}
+            <div
+              className="sg-duration rounded-[20px] p-5 md:p-6 flex flex-col items-center justify-center text-center"
+              style={{ backgroundColor: "#00A8CC" }}
+            >
+              <div
+                className="font-semibold text-[#1a1a1a] leading-none"
+                style={{ fontFamily: "var(--font-fredoka)", fontSize: "clamp(48px, 6vw, 88px)" }}
+              >
+                {s.durationDays}
+              </div>
+              <div className="text-[13px] font-black uppercase tracking-[2px] text-black/50 mt-2">Days</div>
             </div>
-            <div className="flex flex-col items-center gap-3">
-              {s.transportModes.map((key) => {
-                const meta = TRANSPORT_META[key];
-                if (!meta) return null;
-                const { label, color, Icon } = meta;
-                return (
-                  <div key={key} className="flex items-center gap-3">
+
+            {/* ── BUDGET — mobile: col 2 row 2, desktop: col 3 row 1 ── */}
+            <div
+              className="sg-budget rounded-[20px] border p-5 md:p-6 flex flex-col items-center justify-center text-center"
+              style={{ backgroundColor: "#2e2e2e", borderColor: "#3a3a3a" }}
+            >
+              <div className="text-[11px] font-black uppercase tracking-[2px] text-white/35 mb-2">Budget</div>
+              <div
+                className="font-semibold text-[#00C96B] leading-none"
+                style={{ fontFamily: "var(--font-fredoka)", fontSize: "clamp(32px, 4.5vw, 68px)" }}
+              >
+                {budgetDisplay}
+              </div>
+              <div className="text-[12px] font-bold text-white/35 mt-2">
+                {s.budgetType === "per-person" ? "per person" : "total"} · {s.currency}
+              </div>
+            </div>
+
+            {/* ── TRAVELERS — mobile: col 1 row 3, desktop: col 2 row 2 ── */}
+            <div
+              className="sg-travelers rounded-[20px] p-5 md:p-6 flex flex-col items-center justify-center text-center"
+              style={{ backgroundColor: "#FFD600" }}
+            >
+              <div
+                className="font-semibold text-[#1a1a1a] leading-none"
+                style={{ fontFamily: "var(--font-fredoka)", fontSize: "clamp(48px, 6vw, 88px)" }}
+              >
+                {s.travelers}
+              </div>
+              <div className="text-[13px] font-black uppercase tracking-[2px] text-black/50 mt-2">Travelers</div>
+            </div>
+
+            {/* ── TRANSPORT — mobile: col 2 row 3, desktop: col 3 row 2 ── */}
+            <div
+              className="sg-transport rounded-[20px] border p-5 md:p-6 flex flex-col items-center justify-center gap-3"
+              style={{ backgroundColor: "#2e2e2e", borderColor: "#3a3a3a" }}
+            >
+              <div className="text-[11px] font-black uppercase tracking-[2px] text-white/35 text-center">
+                Getting There
+              </div>
+              <div className="flex flex-col items-center gap-2.5">
+                {s.transportModes.map((key) => {
+                  const meta = TRANSPORT_META[key];
+                  if (!meta) return null;
+                  const { label, color, Icon } = meta;
+                  return (
+                    <div key={key} className="flex items-center gap-2.5">
+                      <div
+                        className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0"
+                        style={{ backgroundColor: color }}
+                      >
+                        <Icon size={14} weight="fill" color="#fff" />
+                      </div>
+                      <span
+                        className="font-semibold text-white"
+                        style={{ fontFamily: "var(--font-fredoka)", fontSize: "clamp(17px, 2vw, 26px)" }}
+                      >
+                        {label}
+                      </span>
+                    </div>
+                  );
+                })}
+                {s.customTransport.map((label, i) => (
+                  <div key={i} className="flex items-center gap-2.5">
                     <div
-                      className="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0"
-                      style={{ backgroundColor: color }}
+                      className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0"
+                      style={{ backgroundColor: "#A855F7" }}
                     >
-                      <Icon size={16} weight="fill" color="#fff" />
+                      <Shuffle size={14} weight="fill" color="#fff" />
                     </div>
                     <span
                       className="font-semibold text-white"
-                      style={{ fontFamily: "var(--font-fredoka)", fontSize: "clamp(20px, 2vw, 26px)" }}
+                      style={{ fontFamily: "var(--font-fredoka)", fontSize: "clamp(17px, 2vw, 26px)" }}
                     >
                       {label}
                     </span>
                   </div>
-                );
-              })}
-              {s.customTransport.map((label, i) => (
-                <div key={i} className="flex items-center gap-3">
-                  <div
-                    className="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0"
-                    style={{ backgroundColor: "#A855F7" }}
-                  >
-                    <Shuffle size={16} weight="fill" color="#fff" />
-                  </div>
-                  <span
-                    className="font-semibold text-white"
-                    style={{ fontFamily: "var(--font-fredoka)", fontSize: "clamp(20px, 2vw, 26px)" }}
-                  >
-                    {label}
-                  </span>
+                ))}
+              </div>
+            </div>
+
+            {/* ── BOTTOM ROW — full-width, 3 cells ──────────────── */}
+            <div className="sg-bottom grid grid-cols-1 gap-[10px] sm:grid-cols-3">
+              {/* Trip type */}
+              <div
+                className="rounded-[20px] border p-5 flex flex-col items-center justify-center"
+                style={{ backgroundColor: "#2e2e2e", borderColor: "#3a3a3a" }}
+              >
+                <div className="text-[10px] font-black uppercase tracking-[2px] text-white/35 text-center mb-3">
+                  Type
                 </div>
-              ))}
-            </div>
-          </div>
+                <div className="flex flex-wrap justify-center gap-1.5">
+                  {s.tripTypes.map((t) => (
+                    <span
+                      key={t}
+                      className="px-3.5 py-1.5 rounded-full text-xs font-black text-[#1a1a1a]"
+                      style={{ backgroundColor: "#00A8CC" }}
+                    >
+                      {t}
+                    </span>
+                  ))}
+                </div>
+              </div>
 
-          {/* ── BOTTOM ROW — full width, 3 equal cells ───────────── */}
-          <div
-            style={{
-              gridColumn: "1 / 4",
-              display: "grid",
-              gridTemplateColumns: "1fr 1fr 1.5fr",
-              gap: "10px",
-            }}
-          >
-            {/* Trip type */}
-            <div
-              className="rounded-[20px] border p-5 flex flex-col items-center justify-center"
-              style={{ backgroundColor: "#2e2e2e", borderColor: "#3a3a3a" }}
-            >
-              <div className="text-[10px] font-black uppercase tracking-[2px] text-white/35 text-center mb-3">
-                Type
+              {/* Vibe */}
+              <div
+                className="rounded-[20px] border p-5 flex flex-col items-center justify-center"
+                style={{ backgroundColor: "#2e2e2e", borderColor: "#3a3a3a" }}
+              >
+                <div className="text-[10px] font-black uppercase tracking-[2px] text-white/35 text-center mb-3">
+                  Vibe
+                </div>
+                <div className="flex flex-wrap justify-center gap-1.5">
+                  {s.vibes.map((v) => (
+                    <span
+                      key={v}
+                      className="px-3.5 py-1.5 rounded-full text-xs font-black text-[#1a1a1a]"
+                      style={{ backgroundColor: "#FFD600" }}
+                    >
+                      {v}
+                    </span>
+                  ))}
+                </div>
               </div>
-              <div className="flex flex-wrap justify-center gap-1.5">
-                {s.tripTypes.map((t) => (
-                  <span
-                    key={t}
-                    className="px-3.5 py-1 rounded-full text-xs font-black text-[#1a1a1a]"
-                    style={{ backgroundColor: "#00A8CC" }}
-                  >
-                    {t}
-                  </span>
-                ))}
-              </div>
-            </div>
 
-            {/* Vibe */}
-            <div
-              className="rounded-[20px] border p-5 flex flex-col items-center justify-center"
-              style={{ backgroundColor: "#2e2e2e", borderColor: "#3a3a3a" }}
-            >
-              <div className="text-[10px] font-black uppercase tracking-[2px] text-white/35 text-center mb-3">
-                Vibe
-              </div>
-              <div className="flex flex-wrap justify-center gap-1.5">
-                {s.vibes.map((v) => (
-                  <span
-                    key={v}
-                    className="px-3.5 py-1 rounded-full text-xs font-black text-[#1a1a1a]"
-                    style={{ backgroundColor: "#FFD600" }}
-                  >
-                    {v}
-                  </span>
-                ))}
-              </div>
-            </div>
-
-            {/* Lodging */}
-            <div
-              className="rounded-[20px] border p-5 flex flex-col items-center justify-center"
-              style={{ backgroundColor: "#2e2e2e", borderColor: "#3a3a3a" }}
-            >
-              <div className="text-[10px] font-black uppercase tracking-[2px] text-white/35 text-center mb-3">
-                Lodging
-              </div>
-              <div className="flex flex-col items-center gap-2">
-                {s.lodging.map((l, i) => (
-                  <div key={i} className="flex items-start gap-2.5">
-                    <div
-                      className="w-2 h-2 rounded-full flex-shrink-0 mt-1.5"
-                      style={{ backgroundColor: DEST_COLORS[i % DEST_COLORS.length] }}
-                    />
-                    <div>
-                      <div className="text-[13px] font-bold text-white leading-tight">{l.name}</div>
-                      <div className="text-[11px] font-semibold text-white/40">
-                        {l.dates} · {l.city}
+              {/* Lodging */}
+              <div
+                className="rounded-[20px] border p-5 flex flex-col items-center justify-center"
+                style={{ backgroundColor: "#2e2e2e", borderColor: "#3a3a3a" }}
+              >
+                <div className="text-[10px] font-black uppercase tracking-[2px] text-white/35 text-center mb-3">
+                  Lodging
+                </div>
+                <div className="flex flex-col items-center gap-2">
+                  {s.lodging.map((l, i) => (
+                    <div key={i} className="flex items-start gap-2.5">
+                      <div
+                        className="w-2 h-2 rounded-full flex-shrink-0 mt-1.5"
+                        style={{ backgroundColor: DEST_COLORS[i % DEST_COLORS.length] }}
+                      />
+                      <div>
+                        <div className="text-[13px] font-bold text-white leading-tight">{l.name}</div>
+                        <div className="text-[11px] font-semibold text-white/40">
+                          {l.dates} · {l.city}
+                        </div>
                       </div>
                     </div>
-                  </div>
-                ))}
-                {s.lodging.length === 0 && (
-                  <p className="text-xs font-semibold text-white/30 italic">Not set yet</p>
-                )}
+                  ))}
+                  {s.lodging.length === 0 && (
+                    <p className="text-xs font-semibold text-white/30 italic">Not set yet</p>
+                  )}
+                </div>
               </div>
             </div>
+
           </div>
         </div>
       </div>
-    </div>
+    </>
   );
 }

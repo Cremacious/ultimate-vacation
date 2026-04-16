@@ -38,7 +38,7 @@ export default async function SetupEditPage({
     <div>
       {/* Page header */}
       <div
-        className="border-b px-7 py-6 flex items-center gap-4 flex-shrink-0"
+        className="border-b px-4 py-4 md:px-7 md:py-6 flex items-center gap-3 md:gap-4 flex-shrink-0"
         style={{ backgroundColor: "#282828", borderColor: "#333333" }}
       >
         <Link
@@ -50,7 +50,7 @@ export default async function SetupEditPage({
         </Link>
         <div>
           <h1
-            className="text-4xl font-semibold text-white leading-none mb-1"
+            className="text-3xl md:text-4xl font-semibold text-white leading-none mb-1"
             style={{ fontFamily: "var(--font-fredoka)" }}
           >
             Edit Setup
@@ -62,7 +62,7 @@ export default async function SetupEditPage({
       </div>
 
       {/* Form body — full width with padding */}
-      <div className="p-6">
+      <div className="p-3 md:p-6">
         <SetupForm initialData={mockSetup} />
       </div>
     </div>
