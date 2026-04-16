@@ -4,7 +4,7 @@ import { useState } from "react";
 import {
   Users, Airplane, Car, Train, Boat, House,
   CurrencyDollar, MapPin, Files, Sparkle, CheckSquare,
-  Plus, X, PlusCircle, Warning,
+  Plus, X, PlusCircle, Warning, Check,
   ForkKnife, Ticket, ShoppingBag, Bus, Tag,
 } from "@phosphor-icons/react";
 
@@ -64,6 +64,28 @@ interface LodgingStay {
   notes: string;
 }
 
+type DestinationType =
+  | "city" | "beach" | "mountain" | "countryside"
+  | "island" | "national-park" | "ski" | "other";
+
+interface MustDoItem {
+  id: string;
+  text: string;
+  done: boolean;
+}
+
+interface Destination {
+  id: string;
+  name: string;
+  country: string;
+  type: DestinationType;
+  color: string;
+  arrivalDate: string;
+  departureDate: string;
+  mustDo: MustDoItem[];
+  notes: string;
+}
+
 // ─── transport mode metadata ──────────────────────────────────────────────────
 
 const TRANSPORT_META: Record<string, { label: string; Icon: React.ElementType; color: string }> = {
@@ -90,7 +112,7 @@ const ALL_SECTIONS: SectionDef[] = [
 
 const MOCK_STATUSES: Record<string, SectionStatus> = {
   group: "done", travel: "partial", lodging: "partial",
-  budget: "partial", destinations: "empty", documents: "empty",
+  budget: "partial", destinations: "partial", documents: "empty",
   vibe: "empty", predeparture: "empty",
 };
 
@@ -99,7 +121,7 @@ const MOCK_STATUS_TEXT: Record<string, string> = {
   travel:       "2 flights entered",
   lodging:      "1 of 2 stays confirmed",
   budget:       "Budget set · 8 categories",
-  destinations: "Not started",
+  destinations: "3 stops · 12 days planned",
   documents:    "Not started",
   vibe:         "Not started",
   predeparture: "Not started",
@@ -191,6 +213,55 @@ const INITIAL_LODGING_STAYS: LodgingStay[] = [
   },
 ];
 
+const DEST_TYPES: { key: DestinationType; label: string }[] = [
+  { key: "city",          label: "City"          },
+  { key: "beach",         label: "Beach"         },
+  { key: "mountain",      label: "Mountain"      },
+  { key: "countryside",   label: "Countryside"   },
+  { key: "island",        label: "Island"        },
+  { key: "national-park", label: "National Park" },
+  { key: "ski",           label: "Ski Resort"    },
+  { key: "other",         label: "Other"         },
+];
+
+const DEST_COLOR_OPTIONS = ["#FF2D8B", "#00A8CC", "#FFD600", "#00C96B", "#FF8C00", "#A855F7"];
+
+const INITIAL_DESTINATIONS: Destination[] = [
+  {
+    id: "d1", name: "Tokyo", country: "Japan", type: "city", color: "#FF2D8B",
+    arrivalDate: "2025-04-02", departureDate: "2025-04-07",
+    mustDo: [
+      { id: "d1a", text: "Shibuya Crossing at night",       done: true  },
+      { id: "d1b", text: "teamLab Planets",                 done: false },
+      { id: "d1c", text: "Shinjuku Gyoen cherry blossoms",  done: false },
+      { id: "d1d", text: "Tsukiji Outer Market breakfast",  done: false },
+      { id: "d1e", text: "Senso-ji Temple at sunrise",      done: false },
+    ],
+    notes: "Book teamLab tickets well in advance. Check cherry blossom forecast.",
+  },
+  {
+    id: "d2", name: "Kyoto", country: "Japan", type: "city", color: "#FFD600",
+    arrivalDate: "2025-04-08", departureDate: "2025-04-12",
+    mustDo: [
+      { id: "d2a", text: "Fushimi Inari at dawn",           done: false },
+      { id: "d2b", text: "Arashiyama Bamboo Grove",         done: false },
+      { id: "d2c", text: "Kinkaku-ji (Golden Pavilion)",    done: false },
+      { id: "d2d", text: "Nishiki Market food walk",        done: false },
+    ],
+    notes: "Rent bikes to explore. Comfortable shoes — lots of walking.",
+  },
+  {
+    id: "d3", name: "Osaka", country: "Japan", type: "city", color: "#00C96B",
+    arrivalDate: "2025-04-12", departureDate: "2025-04-15",
+    mustDo: [
+      { id: "d3a", text: "Dotonbori street food crawl",     done: false },
+      { id: "d3b", text: "Osaka Castle grounds",            done: false },
+      { id: "d3c", text: "Kuromon Ichiba Market",           done: false },
+    ],
+    notes: "",
+  },
+];
+
 // ─── helpers ──────────────────────────────────────────────────────────────────
 
 function iconBgColor(status: SectionStatus, isActive: boolean): string {
@@ -231,9 +302,9 @@ function DarkCard({ children, className = "", style }: {
   );
 }
 
-function CardLabel({ children }: { children: React.ReactNode }) {
+function CardLabel({ children, className = "" }: { children: React.ReactNode; className?: string }) {
   return (
-    <div className="text-[10px] font-black uppercase tracking-[1.5px] text-white/35 text-center mb-2">
+    <div className={`text-[10px] font-black uppercase tracking-[1.5px] text-white/35 text-center mb-2 ${className}`}>
       {children}
     </div>
   );
@@ -1127,6 +1198,222 @@ function BudgetSection({ linkedLodging, linkedCarRental }: BudgetSectionProps) {
   );
 }
 
+// ─── DESTINATIONS section ────────────────────────────────────────────────────
+
+function AddMustDoInputSmall({
+  destId, color, onAdd,
+}: {
+  destId: string;
+  color: string;
+  onAdd: (destId: string, text: string) => void;
+}) {
+  const [text, setText] = useState("");
+  function commit() {
+    if (text.trim()) { onAdd(destId, text.trim()); setText(""); }
+  }
+  return (
+    <div className="flex items-center gap-3 mt-3 pt-3"
+         style={{ borderTop: "1px solid rgba(255,255,255,0.07)" }}>
+      <button type="button" onClick={commit}
+        className="w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 transition-colors hover:opacity-80"
+        style={{ borderColor: `${color}70`, backgroundColor: "transparent" }}>
+        <Plus size={9} weight="bold" style={{ color: `${color}90` }} />
+      </button>
+      <input
+        type="text" value={text}
+        onChange={(e) => setText(e.target.value)}
+        onKeyDown={(e) => { if (e.key === "Enter") commit(); }}
+        placeholder="Add item… press Enter"
+        className="flex-1 bg-transparent text-sm font-semibold text-white outline-none border-b border-transparent focus:border-white/20 transition-colors placeholder-white/20 pb-0.5"
+      />
+    </div>
+  );
+}
+
+interface DestinationsBentoProps {
+  dest:             Destination;
+  updateDest:       (id: string, field: keyof Destination, value: string) => void;
+  toggleMustDo:     (destId: string, itemId: string) => void;
+  updateMustDoText: (destId: string, itemId: string, text: string) => void;
+  addMustDo:        (destId: string, text: string) => void;
+  removeMustDo:     (destId: string, itemId: string) => void;
+}
+
+function DestinationsBento({
+  dest, updateDest, toggleMustDo, updateMustDoText, addMustDo, removeMustDo,
+}: DestinationsBentoProps) {
+  const days      = calcNights(dest.arrivalDate, dest.departureDate);
+  const doneCount = dest.mustDo.filter((m) => m.done).length;
+
+  return (
+    <>
+      <style>{`
+        .destb { display: grid; grid-template-columns: 1fr; gap: 10px; }
+        @media (min-width: 768px) {
+          .destb          { grid-template-columns: 1fr 1fr 1fr; }
+          .destb-info     { grid-column: 1 / 3; }
+          .destb-dates    { grid-column: 3; grid-row: 1; }
+          .destb-mustdo   { grid-column: 1 / 4; }
+          .destb-notes    { grid-column: 1 / 4; }
+        }
+      `}</style>
+      <div className="destb">
+
+        {/* ── Info ── */}
+        <DarkCard className="destb-info p-4 md:p-5">
+          <CardLabel>Destination</CardLabel>
+          {/* Big name */}
+          <div className="font-semibold leading-none mb-1 truncate"
+               style={{ fontFamily: "var(--font-fredoka)", fontSize: "clamp(24px, 3vw, 36px)", color: dest.color }}>
+            {dest.name || "City / Place"}
+          </div>
+          <div className="text-[11px] font-bold text-white/30 mb-4">
+            {dest.country || "Country"}
+          </div>
+          {/* Name + country fields */}
+          <div className="grid grid-cols-2 gap-2 mb-3">
+            <FieldInput placeholder="City / Place name" value={dest.name}
+              onChange={(e) => updateDest(dest.id, "name", e.target.value)} />
+            <FieldInput placeholder="Country" value={dest.country}
+              onChange={(e) => updateDest(dest.id, "country", e.target.value)} />
+          </div>
+          {/* Type pills */}
+          <div className="flex flex-wrap gap-1.5 mb-4">
+            {DEST_TYPES.map(({ key, label }) => (
+              <button key={key} type="button"
+                onClick={() => updateDest(dest.id, "type", key)}
+                className="rounded-full font-black border text-[11px] transition-all"
+                style={{
+                  padding: "4px 10px",
+                  backgroundColor: dest.type === key ? dest.color : "#3a3a3a",
+                  borderColor:     dest.type === key ? dest.color : "#484848",
+                  color:           dest.type === key ? "#fff"     : "#9CA3AF",
+                }}>
+                {label}
+              </button>
+            ))}
+          </div>
+          {/* Color picker */}
+          <div>
+            <div className="text-[10px] font-black uppercase tracking-widest text-white/25 mb-2">Color</div>
+            <div className="flex gap-2">
+              {DEST_COLOR_OPTIONS.map((c) => (
+                <button key={c} type="button"
+                  onClick={() => updateDest(dest.id, "color", c)}
+                  className="w-6 h-6 rounded-full transition-all flex-shrink-0"
+                  style={{
+                    backgroundColor: c,
+                    outline:    dest.color === c ? `2px solid ${c}` : "none",
+                    outlineOffset: "2px",
+                    opacity:   dest.color === c ? 1 : 0.4,
+                    transform: dest.color === c ? "scale(1.2)" : "scale(1)",
+                  }} />
+              ))}
+            </div>
+          </div>
+        </DarkCard>
+
+        {/* ── Dates ── */}
+        <DarkCard className="destb-dates p-4 md:p-5">
+          <CardLabel>Dates</CardLabel>
+          <div className="flex flex-col gap-3">
+            <div>
+              <div className="text-[10px] font-black uppercase tracking-widest text-white/25 mb-1.5">Arrival</div>
+              <FieldInput type="date" value={dest.arrivalDate} className="text-white/70 text-xs"
+                onChange={(e) => updateDest(dest.id, "arrivalDate", e.target.value)} />
+            </div>
+            {/* Days pill */}
+            <div className="flex justify-center">
+              <div className="rounded-full font-black text-[13px] px-4 py-1 text-center"
+                   style={{
+                     backgroundColor: days !== null ? `${dest.color}22` : "rgba(255,255,255,0.04)",
+                     color:           days !== null ? dest.color         : "rgba(255,255,255,0.2)",
+                     border: `1px solid ${days !== null ? dest.color + "55" : "rgba(255,255,255,0.08)"}`,
+                     minWidth: "80px",
+                   }}>
+                {days !== null ? `${days} day${days !== 1 ? "s" : ""}` : "— days"}
+              </div>
+            </div>
+            <div>
+              <div className="text-[10px] font-black uppercase tracking-widest text-white/25 mb-1.5">Departure</div>
+              <FieldInput type="date" value={dest.departureDate} className="text-white/70 text-xs"
+                onChange={(e) => updateDest(dest.id, "departureDate", e.target.value)} />
+            </div>
+          </div>
+        </DarkCard>
+
+        {/* ── Must-Do list ── */}
+        <DarkCard className="destb-mustdo p-4 md:p-5">
+          <div className="flex items-center justify-between mb-1">
+            <CardLabel className="mb-0">Must-Do</CardLabel>
+            {dest.mustDo.length > 0 && (
+              <span className="text-[11px] font-black" style={{ color: dest.color }}>
+                {doneCount} / {dest.mustDo.length} done
+              </span>
+            )}
+          </div>
+          {dest.mustDo.length > 0 && (
+            <div className="h-1.5 rounded-full overflow-hidden mt-2 mb-4" style={{ backgroundColor: "#3a3a3a" }}>
+              <div className="h-full rounded-full transition-all duration-500"
+                   style={{ width: `${(doneCount / dest.mustDo.length) * 100}%`, backgroundColor: dest.color }} />
+            </div>
+          )}
+          {dest.mustDo.length === 0 && (
+            <p className="py-3 text-center text-[12px] font-bold text-white/20">
+              No items yet — add your first must-do below
+            </p>
+          )}
+          <div className="flex flex-col gap-2.5">
+            {dest.mustDo.map((item) => (
+              <div key={item.id} className="flex items-center gap-3 group">
+                {/* Checkbox */}
+                <button type="button"
+                  onClick={() => toggleMustDo(dest.id, item.id)}
+                  className="w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 border-2 transition-all"
+                  style={{
+                    backgroundColor: item.done ? dest.color : "transparent",
+                    borderColor:     item.done ? dest.color : "rgba(255,255,255,0.2)",
+                  }}>
+                  {item.done && <Check size={10} weight="bold" color="#fff" />}
+                </button>
+                {/* Text */}
+                <input type="text" value={item.text}
+                  onChange={(e) => updateMustDoText(dest.id, item.id, e.target.value)}
+                  className="flex-1 bg-transparent text-sm font-semibold outline-none border-b border-transparent focus:border-white/20 transition-colors placeholder-white/20 pb-0.5"
+                  style={{
+                    color:          item.done ? "rgba(255,255,255,0.3)" : "rgba(255,255,255,0.9)",
+                    textDecoration: item.done ? "line-through" : "none",
+                  }}
+                  placeholder="What to do…" />
+                {/* Delete */}
+                <button type="button"
+                  onClick={() => removeMustDo(dest.id, item.id)}
+                  className="text-white/15 hover:text-white/60 transition-colors flex-shrink-0 opacity-0 group-hover:opacity-100">
+                  <X size={12} weight="bold" />
+                </button>
+              </div>
+            ))}
+          </div>
+          <AddMustDoInputSmall destId={dest.id} color={dest.color} onAdd={addMustDo} />
+        </DarkCard>
+
+        {/* ── Notes ── */}
+        <DarkCard className="destb-notes p-4 md:p-5 flex flex-col">
+          <CardLabel>Notes</CardLabel>
+          <textarea
+            placeholder="Tips, research needed, best time to visit…"
+            value={dest.notes}
+            onChange={(e) => updateDest(dest.id, "notes", e.target.value)}
+            className="flex-1 rounded-[10px] px-3 py-2.5 text-sm font-semibold text-white outline-none border resize-none transition-colors focus:border-[#00A8CC] placeholder-white/20"
+            style={{ backgroundColor: "#1e1e1e", borderColor: "#3a3a3a", minHeight: "72px" }}
+          />
+        </DarkCard>
+
+      </div>
+    </>
+  );
+}
+
 // ─── placeholder section ──────────────────────────────────────────────────────
 
 function PlaceholderSection({ section }: { section: SectionDef }) {
@@ -1163,6 +1450,10 @@ export default function PreplanningShell({ transportModes }: PreplanningShellPro
   // Lodging state
   const [lodgingStays,     setLodgingStays]     = useState<LodgingStay[]>(INITIAL_LODGING_STAYS);
   const [activeLodgingStay, setActiveLodgingStay] = useState(0);
+
+  // Destinations state
+  const [destinations,         setDestinations]         = useState<Destination[]>(INITIAL_DESTINATIONS);
+  const [activeDestinationIdx, setActiveDestinationIdx] = useState(0);
 
   // Progress metrics
   const touchedCount = ALL_SECTIONS.filter((s) => MOCK_STATUSES[s.key] !== "empty").length;
@@ -1240,6 +1531,52 @@ export default function PreplanningShell({ transportModes }: PreplanningShellPro
     setLodgingStays((stays) => stays.filter((s) => s.id !== id));
   }
 
+  // ── Destination handlers ──────────────────────────────────────────────────
+  function updateDestination(id: string, field: keyof Destination, value: string) {
+    setDestinations((prev) => prev.map((d) => d.id === id ? { ...d, [field]: value } : d));
+  }
+  function addDestination() {
+    const nextColor = DEST_COLOR_OPTIONS[destinations.length % DEST_COLOR_OPTIONS.length];
+    const newDest: Destination = {
+      id: Date.now().toString(), name: "", country: "", type: "city",
+      color: nextColor, arrivalDate: "", departureDate: "", mustDo: [], notes: "",
+    };
+    setDestinations((prev) => [...prev, newDest]);
+    setActiveDestinationIdx(destinations.length);
+  }
+  function removeDestination(id: string) {
+    setDestinations((prev) => prev.filter((d) => d.id !== id));
+    setActiveDestinationIdx((i) => Math.max(0, i - 1));
+  }
+  function toggleMustDo(destId: string, itemId: string) {
+    setDestinations((prev) => prev.map((d) =>
+      d.id === destId
+        ? { ...d, mustDo: d.mustDo.map((m) => m.id === itemId ? { ...m, done: !m.done } : m) }
+        : d
+    ));
+  }
+  function updateMustDoText(destId: string, itemId: string, text: string) {
+    setDestinations((prev) => prev.map((d) =>
+      d.id === destId
+        ? { ...d, mustDo: d.mustDo.map((m) => m.id === itemId ? { ...m, text } : m) }
+        : d
+    ));
+  }
+  function addMustDo(destId: string, text: string) {
+    setDestinations((prev) => prev.map((d) =>
+      d.id === destId
+        ? { ...d, mustDo: [...d.mustDo, { id: Date.now().toString(), text, done: false }] }
+        : d
+    ));
+  }
+  function removeMustDo(destId: string, itemId: string) {
+    setDestinations((prev) => prev.map((d) =>
+      d.id === destId
+        ? { ...d, mustDo: d.mustDo.filter((m) => m.id !== itemId) }
+        : d
+    ));
+  }
+
   // ── Linked cost totals (passed to Budget section) ─────────────────────────
   const linkedLodging = lodgingStays.reduce((sum, s) => {
     const n = calcNights(s.checkInDate, s.checkOutDate);
@@ -1263,6 +1600,48 @@ export default function PreplanningShell({ transportModes }: PreplanningShellPro
 
   // ── Sub-nav (travel + lodging) ─────────────────────────────────────────────
   function renderSubNav(): React.ReactNode {
+    // ── Destination stop tabs ──
+    if (activeSection === "destinations") {
+      return (
+        <div className="mt-4 pt-4 flex items-center gap-2 flex-wrap"
+             style={{ borderTop: "1px solid rgba(255,255,255,0.08)" }}>
+          {destinations.map((d, i) => (
+            <button key={d.id} type="button"
+              onClick={() => setActiveDestinationIdx(i)}
+              className="flex items-center gap-1.5 rounded-full font-black border transition-all text-sm"
+              style={{
+                padding: "6px 14px",
+                backgroundColor: activeDestinationIdx === i ? d.color : "rgba(255,255,255,0.05)",
+                borderColor:     activeDestinationIdx === i ? d.color : "rgba(255,255,255,0.10)",
+                color:           activeDestinationIdx === i ? "#fff"  : "#9CA3AF",
+              }}>
+              <span className="w-1.5 h-1.5 rounded-full bg-current flex-shrink-0" />
+              {d.name || `Stop ${i + 1}`}
+              {destinations.length > 1 && (
+                <span role="button"
+                  onClick={(e) => { e.stopPropagation(); removeDestination(d.id); }}
+                  className="ml-1 opacity-60 hover:opacity-100 cursor-pointer">
+                  <X size={11} weight="bold" />
+                </span>
+              )}
+            </button>
+          ))}
+          <button type="button" onClick={addDestination}
+            className="flex items-center gap-1.5 rounded-full font-black border text-sm transition-all"
+            style={{
+              padding: "6px 14px",
+              borderStyle: "dashed",
+              borderColor: "#FFD60055",
+              color: "#FFD600",
+              backgroundColor: "transparent",
+            }}>
+            <Plus size={11} weight="bold" />
+            Add stop
+          </button>
+        </div>
+      );
+    }
+
     // ── Lodging stay tabs ──
     if (activeSection === "lodging") {
       return (
@@ -1403,6 +1782,19 @@ export default function PreplanningShell({ transportModes }: PreplanningShellPro
         return <GroupSection />;
       case "budget":
         return <BudgetSection linkedLodging={linkedLodging} linkedCarRental={linkedCarRental} />;
+      case "destinations": {
+        const dest = destinations[activeDestinationIdx] ?? destinations[0];
+        return dest ? (
+          <DestinationsBento
+            dest={dest}
+            updateDest={updateDestination}
+            toggleMustDo={toggleMustDo}
+            updateMustDoText={updateMustDoText}
+            addMustDo={addMustDo}
+            removeMustDo={removeMustDo}
+          />
+        ) : null;
+      }
       case "lodging": {
         const stay = lodgingStays[activeLodgingStay] ?? lodgingStays[0];
         return stay
