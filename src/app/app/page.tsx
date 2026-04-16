@@ -7,6 +7,11 @@ const mockTrips = [
   { id: "trip-3", name: "Family Beach Week",  fillPct: 5,  color: "#00A8CC", daysUntil: 130 },
 ];
 
+// Trip card bg -- ball donut cutout must match
+const CARD_BG = "#2e2e2e";
+const CARD_ARC = "#3a3a3a";
+const CARD_BORDER = "#3a3a3a";
+
 function TripCard({ trip }: { trip: typeof mockTrips[0] }) {
   const deg = (trip.fillPct / 100) * 360;
   const urgency = trip.daysUntil <= 7 && trip.daysUntil >= 0;
@@ -20,14 +25,17 @@ function TripCard({ trip }: { trip: typeof mockTrips[0] }) {
 
   return (
     <Link href={`/app/trips/${trip.id}`}>
-      <div className="group relative overflow-hidden rounded-3xl p-5 border border-gray-100 bg-white hover:shadow-md hover:border-gray-200 transition-all flex items-center gap-5">
+      <div
+        className="group relative overflow-hidden rounded-3xl p-5 border transition-all flex items-center gap-5 hover:brightness-110"
+        style={{ backgroundColor: CARD_BG, borderColor: CARD_BORDER }}
+      >
         {/* Left color accent bar */}
         <div
           className="absolute left-0 top-0 bottom-0 w-1 rounded-l-3xl"
           style={{ backgroundColor: trip.color }}
         />
 
-        {/* Trip ball */}
+        {/* Trip ball -- cutout matches card bg */}
         <div
           className="rounded-full flex-shrink-0 relative ml-2"
           style={{
@@ -36,7 +44,7 @@ function TripCard({ trip }: { trip: typeof mockTrips[0] }) {
             background:
               trip.fillPct < 2
                 ? "transparent"
-                : `conic-gradient(${trip.color} ${deg}deg, #E5E7EB ${deg}deg)`,
+                : `conic-gradient(${trip.color} ${deg}deg, ${CARD_ARC} ${deg}deg)`,
             border: trip.fillPct < 2 ? `2px dashed ${trip.color}` : "none",
             boxShadow: trip.fillPct > 70 ? `0 0 16px ${trip.color}40` : undefined,
           }}
@@ -44,19 +52,19 @@ function TripCard({ trip }: { trip: typeof mockTrips[0] }) {
           {trip.fillPct > 0 && trip.fillPct < 100 && (
             <div
               className="absolute rounded-full"
-              style={{ inset: "15%", backgroundColor: "#ffffff" }}
+              style={{ inset: "15%", backgroundColor: CARD_BG }}
             />
           )}
         </div>
 
         {/* Trip info */}
         <div className="flex-1 min-w-0">
-          <h3 className="font-bold text-[#1A1A1A] truncate group-hover:text-[#00A8CC] transition-colors">
+          <h3 className="font-bold text-white truncate group-hover:text-[#00A8CC] transition-colors">
             {trip.name}
           </h3>
           <p
             className="text-xs font-semibold mt-0.5"
-            style={{ color: urgency ? trip.color : "#94A3B8" }}
+            style={{ color: urgency ? trip.color : "white" }}
           >
             {countdownText()}
           </p>
@@ -70,7 +78,7 @@ function TripCard({ trip }: { trip: typeof mockTrips[0] }) {
           >
             {trip.fillPct}%
           </span>
-          <p className="text-xs font-medium text-gray-400">planned</p>
+          <p className="text-xs font-medium text-white">planned</p>
         </div>
       </div>
     </Link>
@@ -80,6 +88,8 @@ function TripCard({ trip }: { trip: typeof mockTrips[0] }) {
 export default function DashboardPage() {
   const nextTrip = mockTrips.find((t) => t.daysUntil >= 0) ?? mockTrips[0];
   const nextDeg = (nextTrip.fillPct / 100) * 360;
+  const HERO_BG = "#282828";
+  const HERO_ARC = "#3a3a3a";
 
   const nextCountdown = () => {
     if (nextTrip.daysUntil === 0) return "Today";
@@ -89,11 +99,12 @@ export default function DashboardPage() {
 
   return (
     <div>
-      {/* Hero strip */}
+      {/* Hero strip -- dark header band */}
       <div
-        className="relative overflow-hidden bg-white border-b border-gray-100"
+        className="relative overflow-hidden border-b"
+        style={{ backgroundColor: HERO_BG, borderColor: "#333333" }}
       >
-        {/* Subtle color wash behind the ball */}
+        {/* Color wash glow */}
         <div
           className="absolute pointer-events-none"
           style={{
@@ -102,10 +113,9 @@ export default function DashboardPage() {
             top: "50%",
             left: "12%",
             transform: "translate(-50%, -50%)",
-            background: `radial-gradient(circle, ${nextTrip.color}18 0%, transparent 65%)`,
+            background: `radial-gradient(circle, ${nextTrip.color}20 0%, transparent 65%)`,
           }}
         />
-        {/* Soft ambient blob top-right */}
         <div
           className="absolute pointer-events-none rounded-full"
           style={{
@@ -114,19 +124,19 @@ export default function DashboardPage() {
             top: "-50%",
             right: "-5%",
             background: nextTrip.color,
-            opacity: 0.06,
+            opacity: 0.08,
             filter: "blur(48px)",
           }}
         />
 
         <div className="max-w-2xl mx-auto relative flex items-center gap-6 px-6 py-10">
-          {/* Glowing trip ball */}
+          {/* Glowing trip ball -- cutout matches hero bg */}
           <div className="relative flex-shrink-0">
             <div
               className="absolute rounded-full pointer-events-none"
               style={{
                 inset: -10,
-                background: `radial-gradient(circle, ${nextTrip.color}25 0%, transparent 70%)`,
+                background: `radial-gradient(circle, ${nextTrip.color}28 0%, transparent 70%)`,
               }}
             />
             <div
@@ -134,24 +144,24 @@ export default function DashboardPage() {
               style={{
                 width: 72,
                 height: 72,
-                background: `conic-gradient(${nextTrip.color} ${nextDeg}deg, #E5E7EB ${nextDeg}deg)`,
-                boxShadow: `0 0 28px ${nextTrip.color}45`,
+                background: `conic-gradient(${nextTrip.color} ${nextDeg}deg, ${HERO_ARC} ${nextDeg}deg)`,
+                boxShadow: `0 0 28px ${nextTrip.color}50`,
               }}
             >
               <div
                 className="absolute rounded-full"
-                style={{ inset: "15%", backgroundColor: "#ffffff" }}
+                style={{ inset: "15%", backgroundColor: HERO_BG }}
               />
             </div>
           </div>
 
           {/* Trip info */}
           <div>
-            <p className="text-xs font-bold uppercase tracking-widest mb-0.5 text-gray-400">
+            <p className="text-xs font-bold uppercase tracking-widest mb-0.5 text-white opacity-50">
               Next up
             </p>
             <h2
-              className="text-3xl font-semibold text-[#1A1A1A] leading-tight"
+              className="text-3xl font-semibold text-white leading-tight"
               style={{ fontFamily: "var(--font-fredoka)" }}
             >
               {nextTrip.name}
@@ -163,7 +173,7 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      {/* Trip list */}
+      {/* Trip list -- sits on light #F5F7FA page background */}
       <div className="max-w-2xl mx-auto px-4 py-8">
         <div className="flex items-center justify-between mb-6">
           <div>
@@ -173,7 +183,7 @@ export default function DashboardPage() {
             >
               Your trips
             </h1>
-            <p className="text-xs font-medium mt-0.5 text-gray-400">
+            <p className="text-xs font-medium mt-0.5 text-[#1A1A1A] opacity-50">
               {mockTrips.length} of 3 slots used
             </p>
           </div>
@@ -199,7 +209,7 @@ export default function DashboardPage() {
             >
               No trips yet.
             </h2>
-            <p className="text-sm font-medium mb-6 text-gray-400">
+            <p className="text-sm font-medium mb-6 text-[#1A1A1A] opacity-60">
               Start planning your first adventure.
             </p>
             <Link
