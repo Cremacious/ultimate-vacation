@@ -2,20 +2,8 @@
 
 import { useState } from "react";
 import {
-  ChartBar,
-  Plus,
-  X,
-  Check,
-  Trophy,
-  Heart,
-  CalendarBlank,
-  ArrowRight,
-  Lock,
-  Users,
-  Sparkle,
-  Timer,
-  CaretDown,
-  Confetti,
+  ChartBar, Plus, X, Check, Trophy,
+  ArrowRight, Lock, Users, Timer, Sparkle,
 } from "@phosphor-icons/react";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -27,8 +15,6 @@ interface PollOption {
   text: string;
   votes: number;
   voters: string[];
-  likes: number;
-  myLike: boolean;
   promotedToItinerary: boolean;
 }
 
@@ -43,13 +29,12 @@ interface Poll {
   totalMembers: number;
   myVote: string | null;
   closedAgo?: string;
-  fromWishlist?: string;
+  fromProposals?: string;
 }
 
 // ─── Mock Data ────────────────────────────────────────────────────────────────
 
 const INITIAL_POLLS: Poll[] = [
-  // ── Active ─────────────────────────────────────────────────────────────────
   {
     id: "p1",
     question: "Where should we eat on our last night in Osaka?",
@@ -60,10 +45,10 @@ const INITIAL_POLLS: Poll[] = [
     totalMembers: 4,
     myVote: null,
     options: [
-      { id: "o1", text: "Kappo Tamura — omakase splurge 💳",       votes: 2, voters: ["Sarah", "Emma"], likes: 1, myLike: false, promotedToItinerary: false },
-      { id: "o2", text: "Mizuno — legendary okonomiyaki 🥞",        votes: 1, voters: ["Tom"],           likes: 2, myLike: true,  promotedToItinerary: false },
-      { id: "o3", text: "Dotonbori food crawl — eat everything 🦑", votes: 0, voters: [],                likes: 0, myLike: false, promotedToItinerary: false },
-      { id: "o4", text: "Kura Sushi — budget-friendly, no shame 🍣", votes: 0, voters: [],               likes: 0, myLike: false, promotedToItinerary: false },
+      { id: "o1", text: "Kappo Tamura — omakase splurge 💳",       votes: 2, voters: ["Sarah", "Emma"], promotedToItinerary: false },
+      { id: "o2", text: "Mizuno — legendary okonomiyaki 🥞",        votes: 1, voters: ["Tom"],           promotedToItinerary: false },
+      { id: "o3", text: "Dotonbori food crawl — eat everything 🦑", votes: 0, voters: [],               promotedToItinerary: false },
+      { id: "o4", text: "Kura Sushi — budget-friendly, no shame 🍣", votes: 0, voters: [],              promotedToItinerary: false },
     ],
   },
   {
@@ -75,14 +60,13 @@ const INITIAL_POLLS: Poll[] = [
     expiresLabel: "Tomorrow",
     totalMembers: 4,
     myVote: "o5",
-    fromWishlist: "Nara day trip",
+    fromProposals: "Nara day trip",
     options: [
-      { id: "o5", text: "Nara — free-roaming deer 🦌",             votes: 2, voters: ["You", "Sarah"], likes: 3, myLike: true,  promotedToItinerary: false },
-      { id: "o6", text: "Hiroshima + Miyajima island ⛩",           votes: 1, voters: ["Tom"],          likes: 1, myLike: false, promotedToItinerary: false },
-      { id: "o7", text: "Uji — matcha everything 🍵",               votes: 0, voters: [],               likes: 0, myLike: false, promotedToItinerary: false },
+      { id: "o5", text: "Nara — free-roaming deer 🦌",             votes: 2, voters: ["You", "Sarah"], promotedToItinerary: false },
+      { id: "o6", text: "Hiroshima + Miyajima island ⛩",           votes: 1, voters: ["Tom"],          promotedToItinerary: false },
+      { id: "o7", text: "Uji — matcha everything 🍵",               votes: 0, voters: [],               promotedToItinerary: false },
     ],
   },
-  // ── Closed ─────────────────────────────────────────────────────────────────
   {
     id: "p3",
     question: "What time should our return flight home leave?",
@@ -94,8 +78,8 @@ const INITIAL_POLLS: Poll[] = [
     myVote: "o8",
     closedAgo: "3d ago",
     options: [
-      { id: "o8",  text: "Early morning (7 AM) — get home sooner ✈️", votes: 3, voters: ["You", "Sarah", "Emma"], likes: 0, myLike: false, promotedToItinerary: false },
-      { id: "o9",  text: "Afternoon (2 PM) — sleep in one last time", votes: 1, voters: ["Tom"],                  likes: 0, myLike: false, promotedToItinerary: false },
+      { id: "o8",  text: "Early morning (7 AM) — get home sooner ✈️", votes: 3, voters: ["You", "Sarah", "Emma"], promotedToItinerary: false },
+      { id: "o9",  text: "Afternoon (2 PM) — sleep in one last time", votes: 1, voters: ["Tom"],                  promotedToItinerary: false },
     ],
   },
   {
@@ -109,9 +93,9 @@ const INITIAL_POLLS: Poll[] = [
     myVote: "o10",
     closedAgo: "7d ago",
     options: [
-      { id: "o10", text: "Shinjuku — central, everything nearby 🏙",  votes: 2, voters: ["You", "Tom"],   likes: 0, myLike: false, promotedToItinerary: true  },
-      { id: "o11", text: "Shibuya — trendy, great nightlife 🌆",       votes: 1, voters: ["Sarah"],        likes: 0, myLike: false, promotedToItinerary: false },
-      { id: "o12", text: "Asakusa — traditional, near Senso-ji 🏮",   votes: 1, voters: ["Emma"],         likes: 0, myLike: false, promotedToItinerary: false },
+      { id: "o10", text: "Shinjuku — central, everything nearby 🏙",  votes: 2, voters: ["You", "Tom"],   promotedToItinerary: true  },
+      { id: "o11", text: "Shibuya — trendy, great nightlife 🌆",       votes: 1, voters: ["Sarah"],        promotedToItinerary: false },
+      { id: "o12", text: "Asakusa — traditional, near Senso-ji 🏮",   votes: 1, voters: ["Emma"],         promotedToItinerary: false },
     ],
   },
   {
@@ -125,8 +109,8 @@ const INITIAL_POLLS: Poll[] = [
     myVote: "o14",
     closedAgo: "9d ago",
     options: [
-      { id: "o13", text: "Shared total budget ($8,000 for the group)", votes: 1, voters: ["Tom"],                   likes: 0, myLike: false, promotedToItinerary: false },
-      { id: "o14", text: "Per-person target ($2,000 each, own pace)",  votes: 3, voters: ["You", "Sarah", "Emma"], likes: 0, myLike: false, promotedToItinerary: false },
+      { id: "o13", text: "Shared total budget ($8,000 for the group)", votes: 1, voters: ["Tom"],                   promotedToItinerary: false },
+      { id: "o14", text: "Per-person target ($2,000 each, own pace)",  votes: 3, voters: ["You", "Sarah", "Emma"], promotedToItinerary: false },
     ],
   },
 ];
@@ -136,8 +120,8 @@ const INITIAL_POLLS: Poll[] = [
 function getWinner(poll: Poll): PollOption | null {
   if (poll.status === "open") return null;
   const sorted = [...poll.options].sort((a, b) => b.votes - a.votes);
-  if (sorted[0].votes > 0 && sorted[0].votes !== sorted[1]?.votes) return sorted[0];
-  return sorted[0].votes > 0 ? sorted[0] : null; // tied: return first by order
+  if (sorted[0].votes === 0) return null;
+  return sorted[0];
 }
 
 function totalVotes(poll: Poll) {
@@ -146,9 +130,9 @@ function totalVotes(poll: Poll) {
 
 // ─── DarkCard ─────────────────────────────────────────────────────────────────
 
-function DarkCard({ children, className = "" }: { children: React.ReactNode; className?: string }) {
+function DarkCard({ children, className = "", style = {} }: { children: React.ReactNode; className?: string; style?: React.CSSProperties }) {
   return (
-    <div className={`rounded-2xl border ${className}`} style={{ backgroundColor: "#2e2e2e", borderColor: "#3a3a3a" }}>
+    <div className={`rounded-2xl border ${className}`} style={{ backgroundColor: "#2e2e2e", borderColor: "#3a3a3a", ...style }}>
       {children}
     </div>
   );
@@ -163,7 +147,7 @@ function CreatePollForm({ onClose, onSubmit }: { onClose: () => void; onSubmit: 
 
   const EXPIRY_OPTS = [
     { val: null,  label: "No expiry" },
-    { val: "24h", label: "24 hours"  },
+    { val: "24h", label: "24 hrs"   },
     { val: "3d",  label: "3 days"   },
     { val: "1w",  label: "1 week"   },
   ];
@@ -186,30 +170,21 @@ function CreatePollForm({ onClose, onSubmit }: { onClose: () => void; onSubmit: 
       myVote: null,
       options: options
         .filter(o => o.trim())
-        .map((text, i) => ({
-          id: `new-o${i}`,
-          text: text.trim(),
-          votes: 0,
-          voters: [],
-          likes: 0,
-          myLike: false,
-          promotedToItinerary: false,
-        })),
+        .map((text, i) => ({ id: `new-o${i}`, text: text.trim(), votes: 0, voters: [], promotedToItinerary: false })),
     };
     onSubmit(newPoll);
   };
 
   return (
-    <DarkCard className="p-5">
-      <div className="flex items-center justify-between mb-4">
+    <DarkCard className="overflow-hidden">
+      <div className="px-4 py-3 flex items-center justify-between" style={{ borderBottom: "1px solid #3a3a3a" }}>
         <p className="text-sm font-black uppercase tracking-widest" style={{ color: "#FFD600" }}>New poll</p>
         <button onClick={onClose} className="w-7 h-7 rounded-full flex items-center justify-center hover:bg-[#3a3a3a] transition-colors" style={{ color: "#9CA3AF" }}>
           <X size={14} weight="bold" />
         </button>
       </div>
 
-      <div className="space-y-4">
-        {/* Question */}
+      <div className="p-4 space-y-4">
         <textarea
           value={question}
           onChange={e => setQuestion(e.target.value)}
@@ -220,13 +195,12 @@ function CreatePollForm({ onClose, onSubmit }: { onClose: () => void; onSubmit: 
           style={{ backgroundColor: "#1e1e1e", borderColor: "#3a3a3a" }}
         />
 
-        {/* Options */}
         <div>
-          <label className="text-xs font-black uppercase tracking-widest block mb-2" style={{ color: "#9CA3AF" }}>Options</label>
+          <p className="text-xs font-black uppercase tracking-widest mb-2" style={{ color: "#9CA3AF" }}>Options</p>
           <div className="space-y-2">
             {options.map((opt, i) => (
               <div key={i} className="flex items-center gap-2">
-                <div className="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 text-xs font-black" style={{ backgroundColor: "#3a3a3a", color: "#9CA3AF" }}>
+                <div className="w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 text-xs font-black" style={{ backgroundColor: "#3a3a3a", color: "#9CA3AF" }}>
                   {i + 1}
                 </div>
                 <input
@@ -238,33 +212,28 @@ function CreatePollForm({ onClose, onSubmit }: { onClose: () => void; onSubmit: 
                   style={{ backgroundColor: "#1e1e1e", borderColor: "#3a3a3a" }}
                 />
                 {options.length > 2 && (
-                  <button onClick={() => setOptions(prev => prev.filter((_, j) => j !== i))} className="w-7 h-7 rounded-full flex items-center justify-center hover:bg-[#3a3a3a] transition-colors flex-shrink-0" style={{ color: "#9CA3AF" }}>
-                    <X size={12} weight="bold" />
+                  <button onClick={() => setOptions(prev => prev.filter((_, j) => j !== i))} className="w-6 h-6 rounded-full flex items-center justify-center hover:bg-[#3a3a3a] flex-shrink-0" style={{ color: "#9CA3AF" }}>
+                    <X size={11} weight="bold" />
                   </button>
                 )}
               </div>
             ))}
           </div>
           {options.length < 5 && (
-            <button
-              onClick={() => setOptions(prev => [...prev, ""])}
-              className="mt-2 flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 rounded-lg hover:bg-[#3a3a3a] transition-colors"
-              style={{ color: "#9CA3AF" }}
-            >
-              <Plus size={11} weight="bold" /> Add option
+            <button onClick={() => setOptions(prev => [...prev, ""])} className="mt-2 flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 rounded-lg hover:bg-[#3a3a3a] transition-colors" style={{ color: "#9CA3AF" }}>
+              <Plus size={10} weight="bold" /> Add option
             </button>
           )}
         </div>
 
-        {/* Expiry */}
         <div>
-          <label className="text-xs font-black uppercase tracking-widest block mb-2" style={{ color: "#9CA3AF" }}>Expires</label>
-          <div className="flex gap-2">
+          <p className="text-xs font-black uppercase tracking-widest mb-2" style={{ color: "#9CA3AF" }}>Expires</p>
+          <div className="grid grid-cols-4 gap-1.5">
             {EXPIRY_OPTS.map(o => (
               <button
                 key={String(o.val)}
                 onClick={() => setExpiry(o.val)}
-                className="flex-1 py-2 rounded-xl text-xs font-bold transition-all"
+                className="py-2 rounded-xl text-xs font-bold transition-all"
                 style={{
                   backgroundColor: expiry === o.val ? "#FFD60022" : "#3a3a3a",
                   color: expiry === o.val ? "#FFD600" : "#9CA3AF",
@@ -277,8 +246,7 @@ function CreatePollForm({ onClose, onSubmit }: { onClose: () => void; onSubmit: 
           </div>
         </div>
 
-        {/* Actions */}
-        <div className="flex gap-3 pt-1">
+        <div className="flex gap-2 pt-1">
           <button
             onClick={handleSubmit}
             disabled={!canSubmit}
@@ -287,7 +255,7 @@ function CreatePollForm({ onClose, onSubmit }: { onClose: () => void; onSubmit: 
           >
             Launch poll
           </button>
-          <button onClick={onClose} className="px-5 py-2.5 rounded-xl text-sm font-bold" style={{ backgroundColor: "#3a3a3a", color: "#9CA3AF" }}>
+          <button onClick={onClose} className="px-4 py-2.5 rounded-xl text-sm font-bold" style={{ backgroundColor: "#3a3a3a", color: "#9CA3AF" }}>
             Cancel
           </button>
         </div>
@@ -299,123 +267,100 @@ function CreatePollForm({ onClose, onSubmit }: { onClose: () => void; onSubmit: 
 // ─── Poll Card ────────────────────────────────────────────────────────────────
 
 function PollCard({
-  poll,
-  onVote,
-  onLike,
-  onClose,
-  onPromote,
+  poll, onVote, onClose, onPromote,
 }: {
   poll: Poll;
   onVote: (pollId: string, optionId: string) => void;
-  onLike: (pollId: string, optionId: string) => void;
   onClose: (pollId: string) => void;
   onPromote: (pollId: string, optionId: string) => void;
 }) {
   const votes = totalVotes(poll);
   const winner = getWinner(poll);
   const isClosed = poll.status !== "open";
-  const allVoted = votes >= poll.totalMembers;
+  const allVoters = [...new Set(poll.options.flatMap(o => o.voters))];
+  const allVoted = allVoters.length >= poll.totalMembers;
 
   return (
     <DarkCard className="overflow-hidden">
       {/* Card header */}
-      <div className="px-5 pt-5 pb-4">
-        {/* Status row */}
-        <div className="flex items-center gap-2 mb-3 flex-wrap">
-          {poll.status === "open" ? (
-            <span
-              className="text-xs font-black uppercase tracking-widest px-2.5 py-1 rounded-full flex items-center gap-1.5"
-              style={{ backgroundColor: "#FFD60022", color: "#FFD600" }}
-            >
-              <span className="w-1.5 h-1.5 rounded-full inline-block" style={{ backgroundColor: "#FFD600" }} />
-              Open
-            </span>
-          ) : (
-            <span
-              className="text-xs font-black uppercase tracking-widest px-2.5 py-1 rounded-full flex items-center gap-1.5"
-              style={{ backgroundColor: "#3a3a3a", color: "#9CA3AF" }}
-            >
-              <Lock size={10} weight="fill" />
-              Closed
-            </span>
-          )}
-
-          {poll.expiresLabel && poll.status === "open" && (
-            <span className="text-xs font-semibold flex items-center gap-1" style={{ color: "#9CA3AF" }}>
-              <Timer size={11} weight="fill" />
-              Expires in {poll.expiresLabel}
-            </span>
-          )}
-
-          {poll.fromWishlist && (
-            <span className="text-xs font-semibold flex items-center gap-1" style={{ color: "#A855F7" }}>
-              <Sparkle size={11} weight="fill" />
-              From wishlist
-            </span>
-          )}
+      <div className="px-5 pt-4 pb-3" style={{ borderBottom: "1px solid #333" }}>
+        <div className="flex items-start justify-between gap-3 mb-1.5">
+          <h3 className="text-base font-semibold text-white leading-snug" style={{ fontFamily: "var(--font-fredoka)", fontSize: "1.1rem" }}>
+            {poll.question}
+          </h3>
+          <div className="flex items-center gap-1.5 flex-shrink-0 mt-0.5">
+            {poll.status === "open" ? (
+              <span className="text-xs font-black uppercase tracking-widest px-2 py-0.5 rounded-full flex items-center gap-1" style={{ backgroundColor: "#FFD60022", color: "#FFD600" }}>
+                <span className="w-1.5 h-1.5 rounded-full inline-block" style={{ backgroundColor: "#FFD600" }} />
+                Open
+              </span>
+            ) : (
+              <span className="text-xs font-black uppercase tracking-widest px-2 py-0.5 rounded-full flex items-center gap-1" style={{ backgroundColor: "#3a3a3a", color: "#9CA3AF" }}>
+                <Lock size={9} weight="fill" />
+                Closed
+              </span>
+            )}
+          </div>
         </div>
-
-        {/* Question */}
-        <h3
-          className="text-lg font-semibold text-white leading-snug mb-1"
-          style={{ fontFamily: "var(--font-fredoka)" }}
-        >
-          {poll.question}
-        </h3>
-
-        <p className="text-xs font-medium" style={{ color: "#555" }}>
-          {poll.createdBy === "You" ? "You" : poll.createdBy} · {poll.createdAgo}
-          {poll.closedAgo ? ` · closed ${poll.closedAgo}` : ""}
-        </p>
+        <div className="flex items-center gap-2 text-xs font-medium flex-wrap" style={{ color: "#666" }}>
+          <span>{poll.createdBy} · {poll.createdAgo}</span>
+          {poll.expiresLabel && poll.status === "open" && (
+            <span className="flex items-center gap-1" style={{ color: "#9CA3AF" }}>
+              <Timer size={10} weight="fill" /> Expires in {poll.expiresLabel}
+            </span>
+          )}
+          {poll.fromProposals && (
+            <span className="flex items-center gap-1" style={{ color: "#A855F7" }}>
+              <Sparkle size={10} weight="fill" /> From proposals
+            </span>
+          )}
+          {poll.closedAgo && <span>· closed {poll.closedAgo}</span>}
+        </div>
       </div>
 
       {/* Options */}
-      <div className="px-3 pb-3 space-y-2">
+      <div className="p-3 space-y-2">
         {poll.options.map(option => {
           const pct = votes > 0 ? Math.round((option.votes / votes) * 100) : 0;
           const isMyVote = poll.myVote === option.id;
-          const isWinner = winner?.id === option.id && isClosed;
+          const isWinner = winner?.id === option.id;
 
           return (
-            <div key={option.id} className="relative overflow-hidden rounded-xl">
+            <div
+              key={option.id}
+              className="relative overflow-hidden rounded-xl"
+              style={{ cursor: isClosed ? "default" : "pointer" }}
+              onClick={() => !isClosed && onVote(poll.id, option.id)}
+            >
               {/* Background fill */}
               <div
                 className="absolute inset-0 rounded-xl transition-all duration-500"
                 style={{
                   width: `${pct}%`,
-                  backgroundColor: isWinner
-                    ? "#FFD60015"
-                    : isMyVote
-                    ? "#FFD60010"
-                    : "#00A8CC0A",
+                  backgroundColor: isWinner ? "#FFD60018" : isMyVote ? "#FFD60010" : "#ffffff06",
                 }}
               />
 
               <div
-                className="relative flex items-center gap-3 px-3 py-3 cursor-pointer transition-colors rounded-xl"
+                className="relative flex items-center gap-3 px-4 py-3.5 rounded-xl"
                 style={{
-                  border: `1px solid ${isMyVote ? "#FFD60040" : isWinner ? "#FFD60030" : "#3a3a3a"}`,
-                  backgroundColor: "transparent",
+                  border: `1px solid ${isMyVote ? "#FFD60050" : isWinner ? "#FFD60030" : "#3a3a3a"}`,
                 }}
-                onClick={() => !isClosed && onVote(poll.id, option.id)}
               >
                 {/* Vote indicator */}
                 <div
-                  className="w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 transition-all"
+                  className="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0"
                   style={{
-                    backgroundColor: isMyVote || isWinner ? "#FFD600" : "transparent",
+                    backgroundColor: isMyVote ? "#FFD600" : isWinner ? "#FFD600" : "transparent",
                     border: isMyVote || isWinner ? "none" : "2px solid #4a4a4a",
                   }}
                 >
-                  {isMyVote && <Check size={10} weight="bold" color="#1a1a1a" />}
-                  {isWinner && !isMyVote && <Trophy size={10} weight="fill" color="#1a1a1a" />}
+                  {isMyVote && <Check size={11} weight="bold" color="#1a1a1a" />}
+                  {isWinner && !isMyVote && <Trophy size={11} weight="fill" color="#1a1a1a" />}
                 </div>
 
                 {/* Text */}
-                <span
-                  className="flex-1 text-sm font-semibold leading-snug"
-                  style={{ color: isMyVote || isWinner ? "white" : "#d1d5db" }}
-                >
+                <span className="flex-1 text-sm font-semibold leading-snug" style={{ color: isMyVote || isWinner ? "white" : "#c9cdd4" }}>
                   {option.text}
                 </span>
 
@@ -428,76 +373,53 @@ function PollCard({
 
                 {/* Promoted badge */}
                 {option.promotedToItinerary && (
-                  <span className="text-xs font-black px-2 py-0.5 rounded-full flex-shrink-0 flex items-center gap-1" style={{ backgroundColor: "#00C96B22", color: "#00C96B" }}>
+                  <span className="text-xs font-black px-2 py-0.5 rounded-full flex items-center gap-1 flex-shrink-0" style={{ backgroundColor: "#00C96B22", color: "#00C96B" }}>
                     <Check size={9} weight="bold" /> In itinerary
                   </span>
                 )}
 
-                {/* Vote count + percent */}
-                <div className="text-right flex-shrink-0 min-w-[40px]">
-                  <p className="text-sm font-black" style={{ color: isWinner ? "#FFD600" : "#9CA3AF" }}>{option.votes}</p>
-                  {votes > 0 && <p className="text-xs font-medium" style={{ color: "#555" }}>{pct}%</p>}
-                </div>
+                {/* Percentage */}
+                <span
+                  className="text-sm font-black flex-shrink-0 min-w-[36px] text-right"
+                  style={{ fontFamily: "var(--font-fredoka)", color: isWinner ? "#FFD600" : "#555", fontSize: "1rem" }}
+                >
+                  {votes > 0 ? `${pct}%` : "—"}
+                </span>
               </div>
-
-              {/* Voters + like — shown below option row */}
-              {(option.voters.length > 0 || isClosed) && (
-                <div className="flex items-center justify-between px-3 pb-2">
-                  {/* Voter initials */}
-                  <div className="flex items-center gap-1">
-                    {option.voters.map((v, i) => (
-                      <div
-                        key={i}
-                        className="w-5 h-5 rounded-full flex items-center justify-center text-xs font-black"
-                        style={{ backgroundColor: "#3a3a3a", color: "#9CA3AF" }}
-                        title={v}
-                      >
-                        {v[0]}
-                      </div>
-                    ))}
-                    {option.voters.length === 0 && (
-                      <span className="text-xs font-medium" style={{ color: "#444" }}>No votes yet</span>
-                    )}
-                  </div>
-
-                  {/* Like button */}
-                  <button
-                    onClick={e => { e.stopPropagation(); onLike(poll.id, option.id); }}
-                    className="flex items-center gap-1 text-xs font-bold transition-colors px-2 py-0.5 rounded-full"
-                    style={{
-                      color: option.myLike ? "#FF2D8B" : "#555",
-                      backgroundColor: option.myLike ? "#FF2D8B15" : "transparent",
-                    }}
-                  >
-                    <Heart size={11} weight={option.myLike ? "fill" : "regular"} />
-                    {option.likes > 0 && option.likes}
-                  </button>
-                </div>
-              )}
             </div>
           );
         })}
       </div>
 
       {/* Footer */}
-      <div
-        className="px-5 py-3 border-t flex items-center justify-between gap-3"
-        style={{ borderColor: "#333333" }}
-      >
-        {/* Voter progress */}
+      <div className="px-4 py-3 flex items-center justify-between gap-3" style={{ borderTop: "1px solid #333" }}>
+        {/* Voters */}
         <div className="flex items-center gap-2">
-          <Users size={13} weight="fill" style={{ color: "#9CA3AF" }} />
-          <span className="text-xs font-bold" style={{ color: votes === poll.totalMembers ? "#00C96B" : "#9CA3AF" }}>
-            {votes} of {poll.totalMembers} voted
+          <Users size={13} style={{ color: "#9CA3AF" }} />
+          <span className="text-xs font-bold" style={{ color: allVoted ? "#00C96B" : "#9CA3AF" }}>
+            {votes} / {poll.totalMembers} voted
           </span>
+          {allVoters.length > 0 && (
+            <div className="flex">
+              {allVoters.slice(0, 4).map((v, i) => (
+                <div
+                  key={i}
+                  className="w-5 h-5 rounded-full flex items-center justify-center text-xs font-black border"
+                  style={{ backgroundColor: "#3a3a3a", color: "#9CA3AF", borderColor: "#2e2e2e", marginLeft: i > 0 ? "-4px" : "4px", fontSize: "0.6rem" }}
+                  title={v}
+                >
+                  {v[0]}
+                </div>
+              ))}
+            </div>
+          )}
           {allVoted && poll.status === "open" && (
-            <span className="text-xs font-semibold" style={{ color: "#FFD600" }}>· Everyone's in!</span>
+            <span className="text-xs font-semibold" style={{ color: "#FFD600" }}>Everyone in!</span>
           )}
         </div>
 
         {/* Actions */}
         <div className="flex items-center gap-2">
-          {/* Promote winner to itinerary */}
           {isClosed && winner && !winner.promotedToItinerary && (
             <button
               onClick={() => onPromote(poll.id, winner.id)}
@@ -508,12 +430,10 @@ function PollCard({
               Add to itinerary
             </button>
           )}
-
-          {/* Close poll */}
           {poll.status === "open" && poll.createdBy === "You" && (
             <button
               onClick={() => onClose(poll.id)}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-colors hover:bg-[#3a3a3a]"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold hover:bg-[#3a3a3a] transition-colors"
               style={{ color: "#9CA3AF", border: "1px solid #3a3a3a" }}
             >
               <Lock size={11} weight="fill" />
@@ -535,8 +455,7 @@ export default function PollsShell() {
 
   const openPolls   = polls.filter(p => p.status === "open");
   const closedPolls = polls.filter(p => p.status !== "open");
-
-  // ── Handlers ────────────────────────────────────────────────────────────────
+  const inItinerary = polls.filter(p => p.status !== "open" && getWinner(p)?.promotedToItinerary).length;
 
   const handleVote = (pollId: string, optionId: string) => {
     setPolls(prev => prev.map(p => {
@@ -554,21 +473,6 @@ export default function PollsShell() {
     }));
   };
 
-  const handleLike = (pollId: string, optionId: string) => {
-    setPolls(prev => prev.map(p =>
-      p.id !== pollId ? p : {
-        ...p,
-        options: p.options.map(o =>
-          o.id !== optionId ? o : {
-            ...o,
-            myLike: !o.myLike,
-            likes: o.myLike ? o.likes - 1 : o.likes + 1,
-          }
-        ),
-      }
-    ));
-  };
-
   const handleClosePoll = (pollId: string) => {
     setPolls(prev => prev.map(p =>
       p.id === pollId ? { ...p, status: "closed" as PollStatus, closedAgo: "Just now" } : p
@@ -578,12 +482,7 @@ export default function PollsShell() {
 
   const handlePromote = (pollId: string, optionId: string) => {
     setPolls(prev => prev.map(p =>
-      p.id !== pollId ? p : {
-        ...p,
-        options: p.options.map(o =>
-          o.id === optionId ? { ...o, promotedToItinerary: true } : o
-        ),
-      }
+      p.id !== pollId ? p : { ...p, options: p.options.map(o => o.id === optionId ? { ...o, promotedToItinerary: true } : o) }
     ));
   };
 
@@ -593,21 +492,31 @@ export default function PollsShell() {
     setTab("open");
   };
 
-  // ── Render ──────────────────────────────────────────────────────────────────
-
   const shown = tab === "open" ? openPolls : closedPolls;
 
   return (
     <div className="flex-1 overflow-y-auto scrollbar-dark" style={{ backgroundColor: "#1e1e1e" }}>
-      <div className="max-w-2xl mx-auto px-4 py-6 space-y-5">
 
-        {/* Header */}
-        <div className="flex items-start justify-between gap-4">
+      <style>{`
+        .polls-grid {
+          display: grid;
+          grid-template-columns: 2fr 1fr;
+          gap: 1.25rem;
+          align-items: start;
+        }
+        @media (max-width: 768px) {
+          .polls-grid { grid-template-columns: 1fr; }
+        }
+      `}</style>
+
+      {/* Header band */}
+      <div style={{ backgroundColor: "#282828", borderBottom: "1px solid #333" }}>
+        <div className="max-w-5xl mx-auto px-6 py-5 flex items-center justify-between gap-4">
           <div>
-            <h1 className="text-3xl font-semibold text-white leading-tight" style={{ fontFamily: "var(--font-fredoka)" }}>
+            <h1 style={{ fontFamily: "var(--font-fredoka)", fontSize: "2rem", color: "white", lineHeight: 1.1, margin: 0 }}>
               Polls
             </h1>
-            <p className="text-sm font-medium mt-0.5" style={{ color: "#9CA3AF" }}>
+            <p style={{ color: "#9CA3AF", fontSize: "0.875rem", marginTop: "0.25rem" }}>
               Stop the group chat spiral. Put it to a vote.
             </p>
           </div>
@@ -615,104 +524,163 @@ export default function PollsShell() {
             onClick={() => setCreating(v => !v)}
             className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold transition-all flex-shrink-0"
             style={{
-              backgroundColor: creating ? "#FFD600" : "#FFD60022",
-              color: creating ? "#1a1a1a" : "#FFD600",
-              border: "1px solid #FFD60055",
+              backgroundColor: "#FFD600",
+              color: "#1a1a1a",
+              boxShadow: creating ? "none" : "0 4px 0 #b39a00",
+              transform: creating ? "translateY(2px)" : "none",
             }}
           >
             <Plus size={14} weight="bold" />
             New poll
           </button>
         </div>
+      </div>
 
-        {/* Create form */}
-        {creating && <CreatePollForm onClose={() => setCreating(false)} onSubmit={handleCreate} />}
+      <div className="max-w-5xl mx-auto px-6 py-6 space-y-5">
 
         {/* Stats row */}
         <div className="grid grid-cols-3 gap-3">
           <DarkCard className="p-4 text-center">
-            <p className="text-2xl font-black" style={{ fontFamily: "var(--font-fredoka)", color: "#FFD600" }}>{openPolls.length}</p>
-            <p className="text-xs font-bold mt-1" style={{ color: "#9CA3AF" }}>Active</p>
+            <p className="text-3xl font-black" style={{ fontFamily: "var(--font-fredoka)", color: "#FFD600" }}>{openPolls.length}</p>
+            <p className="text-xs font-bold mt-0.5 uppercase tracking-widest" style={{ color: "#9CA3AF" }}>Active</p>
           </DarkCard>
           <DarkCard className="p-4 text-center">
-            <p className="text-2xl font-black" style={{ fontFamily: "var(--font-fredoka)", color: "#9CA3AF" }}>{closedPolls.length}</p>
-            <p className="text-xs font-bold mt-1" style={{ color: "#9CA3AF" }}>Closed</p>
+            <p className="text-3xl font-black" style={{ fontFamily: "var(--font-fredoka)", color: "#9CA3AF" }}>{closedPolls.length}</p>
+            <p className="text-xs font-bold mt-0.5 uppercase tracking-widest" style={{ color: "#9CA3AF" }}>Closed</p>
           </DarkCard>
           <DarkCard className="p-4 text-center">
-            <p className="text-2xl font-black" style={{ fontFamily: "var(--font-fredoka)", color: "#00C96B" }}>
-              {polls.filter(p => p.status !== "open" && getWinner(p)?.promotedToItinerary).length}
-            </p>
-            <p className="text-xs font-bold mt-1" style={{ color: "#9CA3AF" }}>In itinerary</p>
+            <p className="text-3xl font-black" style={{ fontFamily: "var(--font-fredoka)", color: "#00C96B" }}>{inItinerary}</p>
+            <p className="text-xs font-bold mt-0.5 uppercase tracking-widest" style={{ color: "#9CA3AF" }}>In itinerary</p>
           </DarkCard>
         </div>
 
-        {/* Tabs */}
-        <div className="flex gap-1 p-1 rounded-2xl" style={{ backgroundColor: "#2e2e2e" }}>
-          {[
-            { key: "open"   as const, label: `Active (${openPolls.length})` },
-            { key: "closed" as const, label: `Closed (${closedPolls.length})` },
-          ].map(t => (
-            <button
-              key={t.key}
-              onClick={() => setTab(t.key)}
-              className="flex-1 py-2.5 rounded-xl text-sm font-bold transition-all"
-              style={{
-                backgroundColor: tab === t.key ? "#3a3a3a" : "transparent",
-                color: tab === t.key ? "white" : "#9CA3AF",
-              }}
-            >
-              {t.label}
-            </button>
-          ))}
-        </div>
+        {/* Bento grid */}
+        <div className="polls-grid">
 
-        {/* Poll list */}
-        {shown.length === 0 ? (
-          <DarkCard className="p-12 text-center">
-            <div
-              className="w-14 h-14 rounded-full flex items-center justify-center mx-auto mb-3"
-              style={{ border: "2px dashed #3a3a3a" }}
-            >
-              <ChartBar size={22} weight="fill" style={{ color: "#3a3a3a" }} />
-            </div>
-            <p className="text-base font-bold text-white mb-1">
-              {tab === "open" ? "No active polls." : "No closed polls yet."}
-            </p>
-            <p className="text-sm font-medium" style={{ color: "#9CA3AF" }}>
-              {tab === "open"
-                ? "Something needs a group decision? Start one."
-                : "Closed polls land here once the group has spoken."}
-            </p>
-            {tab === "open" && (
-              <button
-                onClick={() => setCreating(true)}
-                className="mt-4 flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold mx-auto"
-                style={{ backgroundColor: "#FFD60022", color: "#FFD600", border: "1px solid #FFD60055" }}
-              >
-                <Plus size={13} weight="bold" />
-                Create a poll
-              </button>
-            )}
-          </DarkCard>
-        ) : (
+          {/* Left column — main poll list */}
           <div className="space-y-4">
-            {shown.map(poll => (
-              <PollCard
-                key={poll.id}
-                poll={poll}
-                onVote={handleVote}
-                onLike={handleLike}
-                onClose={handleClosePoll}
-                onPromote={handlePromote}
-              />
-            ))}
-          </div>
-        )}
+            {/* Tab bar */}
+            <div className="flex gap-1 p-1 rounded-2xl" style={{ backgroundColor: "#2e2e2e" }}>
+              {[
+                { key: "open"   as const, label: `Active (${openPolls.length})` },
+                { key: "closed" as const, label: `Closed (${closedPolls.length})` },
+              ].map(t => (
+                <button
+                  key={t.key}
+                  onClick={() => setTab(t.key)}
+                  className="flex-1 py-2.5 rounded-xl text-sm font-bold transition-all"
+                  style={{
+                    backgroundColor: tab === t.key ? "#3a3a3a" : "transparent",
+                    color: tab === t.key ? "white" : "#9CA3AF",
+                  }}
+                >
+                  {t.label}
+                </button>
+              ))}
+            </div>
 
-        {/* Tip */}
-        <p className="text-xs font-medium text-center pb-4" style={{ color: "#444" }}>
-          Polls are free for everyone. No login required to vote once you're in the trip.
-        </p>
+            {/* Polls */}
+            {shown.length === 0 ? (
+              <DarkCard className="p-10 text-center">
+                <div className="w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-3" style={{ border: "2px dashed #3a3a3a" }}>
+                  <ChartBar size={20} weight="fill" style={{ color: "#3a3a3a" }} />
+                </div>
+                <p className="text-base font-bold text-white mb-1">
+                  {tab === "open" ? "No active polls." : "No closed polls yet."}
+                </p>
+                <p className="text-sm font-medium" style={{ color: "#9CA3AF" }}>
+                  {tab === "open"
+                    ? "Need a group decision? Start a poll."
+                    : "Closed polls land here once the group has spoken."}
+                </p>
+              </DarkCard>
+            ) : (
+              shown.map(poll => (
+                <PollCard
+                  key={poll.id}
+                  poll={poll}
+                  onVote={handleVote}
+                  onClose={handleClosePoll}
+                  onPromote={handlePromote}
+                />
+              ))
+            )}
+          </div>
+
+          {/* Right column — sidebar */}
+          <div className="space-y-4">
+
+            {/* Create poll card */}
+            {creating ? (
+              <CreatePollForm onClose={() => setCreating(false)} onSubmit={handleCreate} />
+            ) : (
+              <DarkCard
+                className="p-5 text-center"
+                style={{ border: "1px dashed #3a3a3a" }}
+              >
+                <div
+                  className="w-10 h-10 rounded-full flex items-center justify-center mx-auto mb-3"
+                  style={{ backgroundColor: "#FFD60015", border: "1px solid #FFD60030" }}
+                >
+                  <Plus size={18} weight="bold" style={{ color: "#FFD600" }} />
+                </div>
+                <p className="text-sm font-bold text-white mb-1">New poll</p>
+                <p className="text-xs font-medium mb-4" style={{ color: "#9CA3AF" }}>
+                  Put a question to the group and let everyone vote.
+                </p>
+                <button
+                  onClick={() => setCreating(true)}
+                  className="w-full py-2.5 rounded-xl text-sm font-bold"
+                  style={{ backgroundColor: "#FFD600", color: "#1a1a1a", boxShadow: "0 4px 0 #b39a00" }}
+                >
+                  Create poll
+                </button>
+              </DarkCard>
+            )}
+
+            {/* Closed decisions */}
+            {closedPolls.length > 0 && (
+              <DarkCard className="overflow-hidden">
+                <div className="px-4 py-3 flex items-center justify-between" style={{ borderBottom: "1px solid #333" }}>
+                  <p className="text-xs font-black uppercase tracking-widest" style={{ color: "#9CA3AF" }}>Decisions made</p>
+                  <span className="text-xs font-bold px-2 py-0.5 rounded-full" style={{ backgroundColor: "#3a3a3a", color: "#9CA3AF" }}>
+                    {closedPolls.length}
+                  </span>
+                </div>
+                {closedPolls.map((poll, i) => {
+                  const winner = getWinner(poll);
+                  return (
+                    <div
+                      key={poll.id}
+                      className="px-4 py-3"
+                      style={{ borderBottom: i < closedPolls.length - 1 ? "1px solid #333" : "none" }}
+                    >
+                      <p className="text-xs font-semibold text-white leading-snug mb-1" style={{ lineHeight: 1.4 }}>
+                        {poll.question}
+                      </p>
+                      {winner ? (
+                        <div className="flex items-center gap-1.5">
+                          <Trophy size={10} weight="fill" style={{ color: "#FFD600", flexShrink: 0 }} />
+                          <span className="text-xs font-medium truncate" style={{ color: "#9CA3AF" }}>
+                            {winner.text}
+                          </span>
+                          {winner.promotedToItinerary && (
+                            <span className="text-xs font-bold flex-shrink-0 ml-auto px-1.5 py-0.5 rounded-full" style={{ backgroundColor: "#00C96B22", color: "#00C96B" }}>
+                              ✓ Added
+                            </span>
+                          )}
+                        </div>
+                      ) : (
+                        <span className="text-xs font-medium" style={{ color: "#555" }}>No clear winner</span>
+                      )}
+                    </div>
+                  );
+                })}
+              </DarkCard>
+            )}
+
+          </div>
+        </div>
 
       </div>
     </div>
