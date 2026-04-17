@@ -709,144 +709,201 @@ export default function ExpenseShell() {
   // ── Render ──────────────────────────────────────────────────────────────────
 
   return (
-    <div
-      className="flex-1 overflow-y-auto scrollbar-dark"
-      style={{ backgroundColor: "#1e1e1e" }}
-    >
-      <div className="max-w-2xl mx-auto px-4 py-6 space-y-5">
+    <div className="flex-1 overflow-y-auto scrollbar-dark" style={{ backgroundColor: "#1e1e1e" }}>
+      <style>{`
+        .expenses-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 1.5rem; }
+        @media (max-width: 1024px) { .expenses-grid { grid-template-columns: 1fr; } }
+      `}</style>
 
-        {/* Header */}
-        <div className="flex items-start justify-between gap-4">
-          <div>
-            <h1 className="text-3xl font-semibold text-white leading-tight" style={{ fontFamily: "var(--font-fredoka)" }}>
-              Expenses
-            </h1>
-            <p className="text-sm font-medium mt-0.5" style={{ color: "#9CA3AF" }}>
-              Every dollar tracked. Every debt settled. No awkward texts.
-            </p>
-          </div>
-
-          <div className="flex gap-2 flex-shrink-0">
-            {/* Receipt scan — premium */}
-            <button
-              onClick={() => setShowPremium(v => !v)}
-              className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-sm font-bold transition-all"
-              style={{
-                backgroundColor: showPremium ? "#FFD60022" : "#3a3a3a",
-                border: `1px solid ${showPremium ? "#FFD60055" : "transparent"}`,
-                color: showPremium ? "#FFD600" : "#9CA3AF",
-              }}
-            >
-              <Camera size={14} weight="fill" />
-              <span className="hidden sm:inline">Scan</span>
-              <Crown size={12} weight="fill" style={{ color: "#FFD600" }} />
-            </button>
-
-            {/* Log expense */}
-            <button
-              onClick={() => setAddingExpense(v => !v)}
-              className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-bold transition-all"
-              style={{
-                backgroundColor: addingExpense ? "#00C96B" : "#00C96B22",
-                border: "1px solid #00C96B55",
-                color: addingExpense ? "white" : "#00C96B",
-              }}
-            >
-              <Plus size={14} weight="bold" />
-              Log expense
-            </button>
-          </div>
+      {/* Header band */}
+      <div className="flex items-center justify-between px-6 py-4 sticky top-0 z-10" style={{ backgroundColor: "#282828", borderBottom: "1px solid #333333" }}>
+        <div>
+          <h1 style={{ fontFamily: "var(--font-fredoka)", fontSize: "2rem", color: "white", lineHeight: 1.1 }}>Expenses</h1>
+          <p className="text-sm font-medium mt-0.5" style={{ color: "#9CA3AF" }}>Every dollar tracked. Every debt settled.</p>
         </div>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => setShowPremium(v => !v)}
+            className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-sm font-bold transition-all"
+            style={{
+              backgroundColor: showPremium ? "#FFD60022" : "#3a3a3a",
+              border: `1px solid ${showPremium ? "#FFD60055" : "transparent"}`,
+              color: showPremium ? "#FFD600" : "#9CA3AF",
+            }}
+          >
+            <Camera size={14} weight="fill" />
+            <span className="hidden sm:inline">Scan</span>
+            <Crown size={12} weight="fill" style={{ color: "#FFD600" }} />
+          </button>
+          <button
+            onClick={() => setAddingExpense(v => !v)}
+            className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold transition-all active:translate-y-0.5"
+            style={{ backgroundColor: "#00C96B", color: "white", boxShadow: "0 4px 0 #007a42" }}
+          >
+            <Plus size={14} weight="bold" />
+            Log expense
+          </button>
+        </div>
+      </div>
 
-        {/* Premium scan gate */}
-        {showPremium && (
-          <DarkCard className="p-4">
-            <div className="flex items-start gap-3">
-              <div className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0" style={{ backgroundColor: "#FFD60022" }}>
-                <Camera size={18} weight="fill" color="#FFD600" />
-              </div>
-              <div className="flex-1">
-                <p className="text-sm font-bold text-white mb-0.5">Scan a receipt</p>
-                <p className="text-xs font-medium mb-3" style={{ color: "#9CA3AF" }}>
-                  Snap a photo and we'll pull out the amount, merchant, and date automatically via Azure OCR. Premium feature.
-                </p>
-                <div className="flex gap-2">
-                  <button className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-bold" style={{ backgroundColor: "#FFD600", color: "#1a1a1a" }}>
-                    <Crown size={13} weight="fill" />
-                    Unlock · $5 one-time
-                  </button>
-                  <button onClick={() => setShowPremium(false)} className="px-3 py-2 rounded-xl text-sm font-bold hover:bg-[#3a3a3a] transition-colors" style={{ color: "#9CA3AF" }}>
-                    Not now
-                  </button>
+      {/* Stats row */}
+      <div className="grid grid-cols-3 gap-3 px-6 py-3" style={{ borderBottom: "1px solid #2a2a2a" }}>
+        {[
+          { value: `$${TOTAL_SPENT.toLocaleString()}`, label: "Total spent",  color: "#00C96B" },
+          { value: "$2,143",                            label: "My share",     color: "#00A8CC" },
+          { value: `${myNet >= 0 ? "+" : "-"}$${Math.abs(myNet)}`, label: "Net balance", color: myNet >= 0 ? "#00C96B" : "#FF2D8B" },
+        ].map(s => (
+          <div key={s.label} className="rounded-2xl px-4 py-3" style={{ backgroundColor: "#2e2e2e", border: "1px solid #3a3a3a" }}>
+            <p style={{ fontFamily: "var(--font-fredoka)", fontSize: "1.75rem", color: s.color, lineHeight: 1 }}>{s.value}</p>
+            <p className="text-xs font-bold uppercase tracking-widest mt-1" style={{ color: "#9CA3AF" }}>{s.label}</p>
+          </div>
+        ))}
+      </div>
+
+      {/* Premium / Add form */}
+      {(showPremium || addingExpense) && (
+        <div className="px-6 pt-4 space-y-3">
+          {showPremium && (
+            <DarkCard className="p-4">
+              <div className="flex items-start gap-3">
+                <div className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0" style={{ backgroundColor: "#FFD60022" }}>
+                  <Camera size={18} weight="fill" color="#FFD600" />
+                </div>
+                <div className="flex-1">
+                  <p className="text-sm font-bold text-white mb-0.5">Scan a receipt</p>
+                  <p className="text-xs font-medium mb-3" style={{ color: "#9CA3AF" }}>
+                    Snap a photo and we'll pull out the amount, merchant, and date automatically via Azure OCR. Premium feature.
+                  </p>
+                  <div className="flex gap-2">
+                    <button className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-bold" style={{ backgroundColor: "#FFD600", color: "#1a1a1a" }}>
+                      <Crown size={13} weight="fill" />
+                      Unlock · $5 one-time
+                    </button>
+                    <button onClick={() => setShowPremium(false)} className="px-3 py-2 rounded-xl text-sm font-bold hover:bg-[#3a3a3a] transition-colors" style={{ color: "#9CA3AF" }}>
+                      Not now
+                    </button>
+                  </div>
                 </div>
               </div>
-            </div>
-          </DarkCard>
-        )}
+            </DarkCard>
+          )}
+          {addingExpense && <AddExpenseForm onClose={() => setAddingExpense(false)} />}
+        </div>
+      )}
 
-        {/* Add expense form */}
-        {addingExpense && <AddExpenseForm onClose={() => setAddingExpense(false)} />}
+      {/* Main bento grid */}
+      <div className="expenses-grid px-6 py-5">
 
-        {/* Summary stat cards */}
-        <div className="grid grid-cols-3 gap-3">
-          <DarkCard className="p-4">
-            <p className="text-xs font-black uppercase tracking-widest mb-2" style={{ color: "#9CA3AF" }}>Total spent</p>
-            <p className="text-2xl font-black leading-tight" style={{ fontFamily: "var(--font-fredoka)", color: "#00C96B" }}>
-              ${TOTAL_SPENT.toLocaleString()}
-            </p>
-            <p className="text-xs font-medium mt-1" style={{ color: "#555" }}>day 0 through return</p>
-          </DarkCard>
-
-          <DarkCard className="p-4">
-            <p className="text-xs font-black uppercase tracking-widest mb-2" style={{ color: "#9CA3AF" }}>My share</p>
-            <p className="text-2xl font-black leading-tight" style={{ fontFamily: "var(--font-fredoka)", color: "#00C96B" }}>
-              $2,143
-            </p>
-            <p className="text-xs font-medium mt-1" style={{ color: "#9CA3AF" }}>
-              of $2,250 budget
-            </p>
-          </DarkCard>
-
-          <DarkCard className="p-4">
-            <p className="text-xs font-black uppercase tracking-widest mb-2" style={{ color: "#9CA3AF" }}>Outstanding</p>
-            <div className="flex items-center gap-1 mb-0.5">
-              <ArrowDown size={12} weight="bold" color="#00C96B" />
-              <p className="text-sm font-black" style={{ color: "#00C96B" }}>+${totalOwed} owed</p>
-            </div>
-            <div className="flex items-center gap-1">
-              <ArrowUp size={12} weight="bold" color="#FF2D8B" />
-              <p className="text-sm font-black" style={{ color: "#FF2D8B" }}>-${totalIOwe} you owe</p>
-            </div>
-          </DarkCard>
+        {/* Left col: Tabs + tab content */}
+        <div className="space-y-4">
+          <div className="flex gap-1 p-1 rounded-2xl" style={{ backgroundColor: "#2e2e2e" }}>
+            {[
+              { key: "ledger"   as const, label: "Ledger",   Icon: Receipt   },
+              { key: "balances" as const, label: "Balances", Icon: ArrowDown },
+              { key: "budget"   as const, label: "Budget",   Icon: ChartBar  },
+            ].map(({ key, label, Icon: TIcon }) => (
+              <button
+                key={key}
+                onClick={() => setTab(key)}
+                className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-bold transition-all"
+                style={{
+                  backgroundColor: tab === key ? "#3a3a3a" : "transparent",
+                  color: tab === key ? "white" : "#9CA3AF",
+                }}
+              >
+                <TIcon size={14} weight="fill" />
+                {label}
+              </button>
+            ))}
+          </div>
+          {tab === "ledger"   && ledgerContent}
+          {tab === "balances" && balancesContent}
+          {tab === "budget"   && budgetContent}
         </div>
 
-        {/* Tabs */}
-        <div className="flex gap-1 p-1 rounded-2xl" style={{ backgroundColor: "#2e2e2e" }}>
-          {[
-            { key: "ledger" as const,   label: "Ledger",   Icon: Receipt },
-            { key: "balances" as const, label: "Balances", Icon: ArrowDown },
-            { key: "budget" as const,   label: "Budget",   Icon: ChartBar },
-          ].map(({ key, label, Icon: TIcon }) => (
-            <button
-              key={key}
-              onClick={() => setTab(key)}
-              className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-bold transition-all"
-              style={{
-                backgroundColor: tab === key ? "#3a3a3a" : "transparent",
-                color: tab === key ? "white" : "#9CA3AF",
-              }}
-            >
-              <TIcon size={14} weight="fill" />
-              {label}
-            </button>
-          ))}
+        {/* Right col: Settlement + Budget snapshot (always visible) */}
+        <div className="space-y-4">
+
+          {/* Settlement */}
+          <DarkCard className="p-4">
+            <p className="text-xs font-black uppercase tracking-widest mb-3" style={{ color: "#00A8CC" }}>Settlement</p>
+            <div className="flex items-end gap-2 mb-4">
+              <span style={{ fontFamily: "var(--font-fredoka)", fontSize: "2rem", color: myNet >= 0 ? "#00C96B" : "#FF2D8B", lineHeight: 1 }}>
+                {myNet >= 0 ? "+" : "-"}${Math.abs(myNet)}
+              </span>
+              <span className="text-xs font-bold pb-1" style={{ color: "#9CA3AF" }}>
+                {myNet >= 0 ? "net owed to you" : "net you owe"}
+              </span>
+            </div>
+            <div className="space-y-2">
+              {balances.map(b => {
+                const amount = b.theyOwe > 0 ? b.theyOwe : b.youOwe;
+                const isOwed = b.theyOwe > 0;
+                if (amount === 0) return (
+                  <div key={b.person} className="flex items-center gap-2.5 px-3 py-2 rounded-xl" style={{ backgroundColor: "#1e1e1e" }}>
+                    <div className="w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0 text-xs font-black" style={{ backgroundColor: b.color + "33", color: b.color }}>{b.initials}</div>
+                    <span className="flex-1 text-sm font-bold text-white">{b.person}</span>
+                    <span className="text-xs font-bold px-2 py-0.5 rounded-full" style={{ backgroundColor: "#00C96B22", color: "#00C96B" }}>Settled</span>
+                  </div>
+                );
+                return (
+                  <div key={b.person} className="flex items-center gap-2.5 px-3 py-2 rounded-xl" style={{ backgroundColor: "#1e1e1e" }}>
+                    <div className="w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0 text-xs font-black" style={{ backgroundColor: b.color + "33", color: b.color }}>{b.initials}</div>
+                    <span className="flex-1 text-sm font-bold text-white">{b.person}</span>
+                    <span className="text-sm font-black" style={{ color: isOwed ? "#00C96B" : "#FF2D8B" }}>{isOwed ? `+$${amount}` : `-$${amount}`}</span>
+                    <span className="text-xs font-bold px-2 py-0.5 rounded-full" style={{ backgroundColor: isOwed ? "#00C96B22" : "#FF2D8B22", color: isOwed ? "#00C96B" : "#FF2D8B" }}>
+                      {isOwed ? "owes you" : "you owe"}
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+          </DarkCard>
+
+          {/* Budget snapshot */}
+          <DarkCard className="p-4">
+            <div className="flex items-center justify-between mb-3">
+              <p className="text-xs font-black uppercase tracking-widest" style={{ color: "#A855F7" }}>Budget</p>
+              <span
+                className="text-xs font-black px-2 py-0.5 rounded-full"
+                style={{ backgroundColor: budgetOver ? "#FF2D8B22" : "#00C96B22", color: budgetOver ? "#FF2D8B" : "#00C96B" }}
+              >
+                {budgetPct}%
+              </span>
+            </div>
+            <div className="flex items-end gap-2 mb-2">
+              <span style={{ fontFamily: "var(--font-fredoka)", fontSize: "1.4rem", color: budgetOver ? "#FF2D8B" : "#00C96B", lineHeight: 1 }}>
+                ${TOTAL_SPENT.toLocaleString()}
+              </span>
+              <span className="text-xs font-bold pb-0.5" style={{ color: "#555" }}>/ ${TOTAL_BUDGET.toLocaleString()}</span>
+            </div>
+            <div className="rounded-full overflow-hidden mb-4" style={{ height: 6, backgroundColor: "#3a3a3a" }}>
+              <div className="h-full rounded-full" style={{ width: `${Math.min(budgetPct, 100)}%`, backgroundColor: budgetOver ? "#FF2D8B" : "#00C96B" }} />
+            </div>
+            <div className="space-y-2.5">
+              {BUDGET_CATEGORIES.map(({ cat, budget, spent }) => {
+                const meta = CATEGORY_META[cat];
+                const CIcon = meta.Icon;
+                const pct = Math.round((spent / budget) * 100);
+                const over = spent > budget;
+                return (
+                  <div key={cat}>
+                    <div className="flex items-center gap-2 mb-1">
+                      <CIcon size={11} weight="fill" color={meta.color} />
+                      <span className="text-xs font-bold flex-1" style={{ color: "#d1d5db" }}>{meta.label}</span>
+                      {over && <Warning size={10} weight="fill" color="#FF2D8B" />}
+                      <span className="text-xs font-black" style={{ color: over ? "#FF2D8B" : "#9CA3AF" }}>${spent.toLocaleString()}</span>
+                    </div>
+                    <div className="rounded-full overflow-hidden" style={{ height: 3, backgroundColor: "#3a3a3a" }}>
+                      <div className="h-full rounded-full" style={{ width: `${Math.min(pct, 100)}%`, backgroundColor: over ? "#FF2D8B" : pct > 85 ? "#FFD600" : meta.color }} />
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </DarkCard>
+
         </div>
-
-        {/* Tab content */}
-        {tab === "ledger"   && ledgerContent}
-        {tab === "balances" && balancesContent}
-        {tab === "budget"   && budgetContent}
-
       </div>
     </div>
   );
