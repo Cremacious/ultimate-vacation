@@ -2323,6 +2323,8 @@ export default function PreplanningShell({ transportModes }: PreplanningShellPro
 
   // Progress metrics
   const touchedCount = ALL_SECTIONS.filter((s) => MOCK_STATUSES[s.key] !== "empty").length;
+  const doneCount    = ALL_SECTIONS.filter((s) => MOCK_STATUSES[s.key] === "done").length;
+  const partialCount = ALL_SECTIONS.filter((s) => MOCK_STATUSES[s.key] === "partial").length;
   const progressPct  = Math.round(
     (ALL_SECTIONS.reduce((acc, s) => {
       const st = MOCK_STATUSES[s.key] ?? "empty";
@@ -2732,34 +2734,58 @@ export default function PreplanningShell({ transportModes }: PreplanningShellPro
       {/* ── DARK PAGE HEADER ─────────────────────────────────────── */}
       <header className="border-b flex-shrink-0 px-4 py-4 md:px-7 md:py-5"
               style={{ backgroundColor: "#282828", borderColor: "#333333" }}>
-        <div className="flex items-start justify-between gap-4">
+        <div className="flex items-center justify-between gap-4 mb-3">
           <div>
-            <h1 className="text-3xl md:text-4xl font-semibold text-white leading-none mb-1"
-                style={{ fontFamily: "var(--font-fredoka)" }}>
+            <h1 className="font-semibold text-white leading-none mb-1"
+                style={{ fontFamily: "var(--font-fredoka)", fontSize: "2rem" }}>
               Preplanning
             </h1>
             <p className="text-xs font-semibold text-white/50 uppercase tracking-widest">
-              Fill in the details. Everything here is optional.
+              Fill in the details · Everything is optional
             </p>
           </div>
-          <div className="text-right flex-shrink-0">
-            <div className="text-[10px] font-black uppercase tracking-widest text-white/35 mb-0.5">Ball fill</div>
-            <div className="font-semibold leading-none"
-                 style={{ fontFamily: "var(--font-fredoka)", fontSize: "26px", color: "#00A8CC" }}>
-              {progressPct}%
-            </div>
-          </div>
         </div>
-        <div className="flex items-center gap-3 mt-3">
+        <div className="flex items-center gap-3">
           <div className="flex-1 h-1.5 rounded-full overflow-hidden" style={{ backgroundColor: "#3a3a3a" }}>
             <div className="h-full rounded-full transition-all duration-500"
                  style={{ width: `${progressPct}%`, background: "linear-gradient(90deg, #FF2D8B, #00A8CC)" }} />
           </div>
           <span className="text-[11px] font-black whitespace-nowrap" style={{ color: "#00A8CC" }}>
-            {touchedCount} of {ALL_SECTIONS.length} sections touched
+            {progressPct}% filled in
           </span>
         </div>
       </header>
+
+      {/* ── STATS ROW ────────────────────────────────────────────── */}
+      <div className="flex-shrink-0 border-b px-4 py-3 md:px-7"
+           style={{ backgroundColor: "#1e1e1e", borderColor: "#333333" }}>
+        <div className="grid grid-cols-3 gap-3">
+          <div className="rounded-[14px] border p-3 flex flex-col items-center"
+               style={{ backgroundColor: "#2e2e2e", borderColor: "#3a3a3a" }}>
+            <div className="text-[10px] font-black uppercase tracking-[1.5px] text-white/35 mb-1 text-center">Sections done</div>
+            <div className="font-semibold leading-none"
+                 style={{ fontFamily: "var(--font-fredoka)", fontSize: "1.75rem", color: "#00C96B" }}>
+              {doneCount}
+            </div>
+          </div>
+          <div className="rounded-[14px] border p-3 flex flex-col items-center"
+               style={{ backgroundColor: "#2e2e2e", borderColor: "#3a3a3a" }}>
+            <div className="text-[10px] font-black uppercase tracking-[1.5px] text-white/35 mb-1 text-center">In progress</div>
+            <div className="font-semibold leading-none"
+                 style={{ fontFamily: "var(--font-fredoka)", fontSize: "1.75rem", color: "#FF8C00" }}>
+              {partialCount}
+            </div>
+          </div>
+          <div className="rounded-[14px] border p-3 flex flex-col items-center"
+               style={{ backgroundColor: "#2e2e2e", borderColor: "#3a3a3a" }}>
+            <div className="text-[10px] font-black uppercase tracking-[1.5px] text-white/35 mb-1 text-center">Overall</div>
+            <div className="font-semibold leading-none"
+                 style={{ fontFamily: "var(--font-fredoka)", fontSize: "1.75rem", color: "#00A8CC" }}>
+              {progressPct}%
+            </div>
+          </div>
+        </div>
+      </div>
 
       {/* ── BODY ─────────────────────────────────────────────────── */}
       <div className="flex">

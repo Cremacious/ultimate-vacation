@@ -1,29 +1,53 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
 import {
+  Mountains,
+  ForkKnife,
+  Airplane,
+  House,
+  ShoppingBag,
+  Ticket,
+  Sun,
+  MapPin,
   Plus,
   ThumbsUp,
   ThumbsDown,
   Receipt,
   ArrowLeft,
   Check,
+  X,
+  Star,
   Trophy,
   PaperPlaneTilt,
   CalendarBlank,
   UsersThree,
-  MapPin,
-  Sun,
+  Confetti,
+  Smiley,
+  type Icon as PhosphorIcon,
 } from "@phosphor-icons/react";
-import {
-  type ScheduleEvent,
-  CATEGORY_META,
-  DEST_RANGES,
-  MOCK_EVENTS,
-} from "@/lib/schedule";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
+
+type EventCategory =
+  | "sightseeing"
+  | "food"
+  | "transport"
+  | "lodging"
+  | "shopping"
+  | "entertainment"
+  | "free";
+
+interface DayEvent {
+  id: string;
+  time: string;
+  endTime?: string;
+  title: string;
+  location: string;
+  category: EventCategory;
+  confirmed: boolean;
+  cost?: number;
+}
 
 interface MeetupMessage {
   id: string;
@@ -58,80 +82,282 @@ interface ScavengerItem {
   done: boolean;
 }
 
-// events are now derived from shared MOCK_EVENTS — not stored here
-interface VacationDayMeta {
+interface VacationDay {
   date: string;
-  destination: string;   // short name: "Tokyo", "Kyoto", "Osaka"
+  destination: string;
   destColor: string;
   tripDayNum: number;
+  events: DayEvent[];
   meetupMessages: MeetupMessage[];
   vote: QuickVote | null;
   expenses: TodayExpense[];
   briefingNote: string;
 }
 
+// ─── Config ───────────────────────────────────────────────────────────────────
+
+const CATEGORY_META: Record<
+  EventCategory,
+  { label: string; color: string; Icon: PhosphorIcon }
+> = {
+  sightseeing: { label: "Sightseeing", color: "#FF2D8B", Icon: Mountains },
+  food: { label: "Food & Drink", color: "#FFD600", Icon: ForkKnife },
+  transport: { label: "Transport", color: "#00A8CC", Icon: Airplane },
+  lodging: { label: "Lodging", color: "#A855F7", Icon: House },
+  shopping: { label: "Shopping", color: "#FF8C00", Icon: ShoppingBag },
+  entertainment: { label: "Entertainment", color: "#00C96B", Icon: Ticket },
+  free: { label: "Free Time", color: "#9CA3AF", Icon: Sun },
+};
+
+const DEST_RANGES = [
+  { name: "Tokyo", full: "Tokyo, Japan", color: "#FF2D8B", from: "2025-04-01", to: "2025-04-07" },
+  { name: "Kyoto", full: "Kyoto, Japan", color: "#FFD600", from: "2025-04-08", to: "2025-04-11" },
+  { name: "Osaka", full: "Osaka, Japan", color: "#00C96B", from: "2025-04-12", to: "2025-04-15" },
+];
+
+function getDest(date: string) {
+  return (
+    DEST_RANGES.find((d) => date >= d.from && date <= d.to) ?? {
+      name: "Unknown",
+      full: "Unknown",
+      color: "#9CA3AF",
+    }
+  );
+}
+
+const TRAVEL_DATES = new Set(["2025-04-01", "2025-04-08", "2025-04-15"]);
+
 // ─── Mock Data ────────────────────────────────────────────────────────────────
 
 const SCAVENGER_ITEMS: ScavengerItem[] = [
-  { id: "s1",  text: "Eat something you can't identify",            points: 5,  done: true  },
-  { id: "s2",  text: "Buy something from a 100-yen shop",           points: 3,  done: true  },
-  { id: "s3",  text: "Witness a vending machine moment",            points: 2,  done: true  },
-  { id: "s4",  text: "See a shrine or temple",                      points: 2,  done: true  },
-  { id: "s5",  text: "Photo with someone in traditional clothing",  points: 5,  done: false },
-  { id: "s6",  text: "Navigate the subway with zero English",       points: 10, done: false },
-  { id: "s7",  text: "Try karaoke",                                 points: 8,  done: false },
-  { id: "s8",  text: "Find a cat café",                             points: 5,  done: false },
-  { id: "s9",  text: "Have a full combini breakfast",               points: 3,  done: false },
-  { id: "s10", text: "Make a local friend",                         points: 10, done: false },
+  { id: "s1", text: "Eat something you can't identify", points: 5, done: true },
+  { id: "s2", text: "Buy something from a 100-yen shop", points: 3, done: true },
+  { id: "s3", text: "Witness a vending machine moment", points: 2, done: true },
+  { id: "s4", text: "See a shrine or temple", points: 2, done: true },
+  { id: "s5", text: "Photo with someone in traditional clothing", points: 5, done: false },
+  { id: "s6", text: "Navigate the subway with zero English", points: 10, done: false },
+  { id: "s7", text: "Try karaoke", points: 8, done: false },
+  { id: "s8", text: "Find a cat café", points: 5, done: false },
+  { id: "s9", text: "Have a full combini breakfast", points: 3, done: false },
+  { id: "s10", text: "Make a local friend", points: 10, done: false },
 ];
 
-const MOCK_DAY_META: VacationDayMeta[] = [
-  // Tokyo
-  { date: "2025-04-02", destination: "Tokyo", destColor: "#FF2D8B", tripDayNum: 2,  meetupMessages: [], vote: null, expenses: [], briefingNote: "Cherry blossom season. Gyoen is peak pink right now." },
-  { date: "2025-04-03", destination: "Tokyo", destColor: "#FF2D8B", tripDayNum: 3,  meetupMessages: [], vote: null, expenses: [], briefingNote: "Senso-ji is packed before 9 AM — get there early." },
-  { date: "2025-04-04", destination: "Tokyo", destColor: "#FF2D8B", tripDayNum: 4,  meetupMessages: [], vote: null, expenses: [], briefingNote: "teamLab tickets are timed entry — don't be late." },
+const MOCK_DAYS: VacationDay[] = [
+  // Tokyo days
+  {
+    date: "2025-04-02",
+    destination: "Tokyo",
+    destColor: "#FF2D8B",
+    tripDayNum: 2,
+    events: [
+      { id: "e1", time: "10:00", title: "Shinjuku Gyoen Garden", location: "Shinjuku", category: "sightseeing", confirmed: true },
+      { id: "e2", time: "13:00", title: "Ramen at Ichiran", location: "Shinjuku", category: "food", confirmed: true, cost: 1200 },
+      { id: "e3", time: "15:30", title: "Kabukicho neon walk", location: "Shinjuku", category: "sightseeing", confirmed: false },
+      { id: "e4", time: "19:00", title: "Izakaya dinner", location: "Shinjuku", category: "food", confirmed: true, cost: 3500 },
+    ],
+    meetupMessages: [],
+    vote: null,
+    expenses: [],
+    briefingNote: "Cherry blossom season. Gyoen is peak pink right now.",
+  },
+  {
+    date: "2025-04-03",
+    destination: "Tokyo",
+    destColor: "#FF2D8B",
+    tripDayNum: 3,
+    events: [
+      { id: "e1", time: "08:30", title: "Senso-ji Temple", location: "Asakusa", category: "sightseeing", confirmed: true },
+      { id: "e2", time: "11:00", title: "Ueno Park stroll", location: "Ueno", category: "free", confirmed: true },
+      { id: "e3", time: "13:30", title: "Sushi lunch at Tsukiji Outer Market", location: "Tsukiji", category: "food", confirmed: true, cost: 2800 },
+      { id: "e4", time: "19:00", title: "Yakitori dinner", location: "Asakusa", category: "food", confirmed: true, cost: 4200 },
+    ],
+    meetupMessages: [],
+    vote: null,
+    expenses: [],
+    briefingNote: "Senso-ji is packed before 9 AM — get there early.",
+  },
+  {
+    date: "2025-04-04",
+    destination: "Tokyo",
+    destColor: "#FF2D8B",
+    tripDayNum: 4,
+    events: [
+      { id: "e1", time: "09:00", title: "Tsukiji Outer Market breakfast", location: "Tsukiji", category: "food", confirmed: true, cost: 1500 },
+      { id: "e2", time: "14:00", title: "teamLab Planets", location: "Toyosu", category: "entertainment", confirmed: true, cost: 3200 },
+      { id: "e3", time: "18:00", title: "Odaiba waterfront", location: "Odaiba", category: "free", confirmed: false },
+    ],
+    meetupMessages: [],
+    vote: null,
+    expenses: [],
+    briefingNote: "teamLab tickets are timed entry — don't be late.",
+  },
+  // APR 5 — FULL DETAIL DAY
   {
     date: "2025-04-05",
     destination: "Tokyo",
     destColor: "#FF2D8B",
     tripDayNum: 5,
+    events: [
+      { id: "e1", time: "10:00", endTime: "12:00", title: "Harajuku shopping", location: "Cat Street & Takeshita Dori", category: "shopping", confirmed: true, cost: 8500 },
+      { id: "e2", time: "12:30", endTime: "13:30", title: "Ramen at Afuri", location: "Omotesando", category: "food", confirmed: true, cost: 1400 },
+      { id: "e3", time: "14:00", endTime: "15:30", title: "Meiji Shrine", location: "Harajuku", category: "sightseeing", confirmed: true },
+      { id: "e4", time: "16:30", endTime: "18:00", title: "Shibuya Crossing", location: "Shibuya", category: "sightseeing", confirmed: true },
+      { id: "e5", time: "19:00", title: "Sushi dinner at Sushi no Midori", location: "Shibuya", category: "food", confirmed: true, cost: 4200 },
+    ],
     meetupMessages: [
-      { id: "m1", author: "Emma",  initials: "EM", color: "#00C96B", message: "At Shibuya crossing now! Where is everyone? 🚦", minsAgo: 2  },
-      { id: "m2", author: "Sarah", initials: "SA", color: "#FF2D8B", message: "Near the Meiji Shrine torii gate, come find me",  minsAgo: 11 },
-      { id: "m3", author: "Tom",   initials: "TM", color: "#00A8CC", message: "Still in Harajuku finishing takoyaki 🐙 coming soon", minsAgo: 18 },
+      { id: "m1", author: "Emma", initials: "EM", color: "#00C96B", message: "At Shibuya crossing now! Where is everyone? 🚦", minsAgo: 2 },
+      { id: "m2", author: "Sarah", initials: "SA", color: "#FF2D8B", message: "Near the Meiji Shrine torii gate, come find me", minsAgo: 11 },
+      { id: "m3", author: "Tom", initials: "TM", color: "#00A8CC", message: "Still in Harajuku finishing takoyaki 🐙 coming soon", minsAgo: 18 },
     ],
     vote: {
-      question: "Golden Gai tonight or early night for tomorrow?",
+      question: "Shibuya scramble at sunset or wait for the night lights?",
       yes: 2,
       no: 1,
       total: 4,
       myVote: null,
     },
     expenses: [
-      { id: "x1", description: "Shinjuku Gyoen entry", amountYen: 500,  amountUsd: 3,  paidBy: "You",   split: true  },
-      { id: "x2", description: "Subway IC card top-up", amountYen: 1000, amountUsd: 7,  paidBy: "You",   split: false },
-      { id: "x3", description: "Meiji Shrine donation", amountYen: 1000, amountUsd: 7,  paidBy: "Tom",   split: false },
+      { id: "x1", description: "Ramen at Afuri", amountYen: 1400, amountUsd: 9, paidBy: "Sarah", split: true },
+      { id: "x2", description: "Subway IC card top-up", amountYen: 1000, amountUsd: 7, paidBy: "You", split: false },
+      { id: "x3", description: "Meiji Shrine donation", amountYen: 1000, amountUsd: 7, paidBy: "Tom", split: false },
     ],
-    briefingNote: "Peak cherry blossoms at Gyoen today. Golden Gai crawl in the evening.",
+    briefingNote: "Dinner moved to 7 PM. Tom is always late but we love him.",
   },
-  { date: "2025-04-06", destination: "Tokyo", destColor: "#FF2D8B", tripDayNum: 6,  meetupMessages: [], vote: null, expenses: [], briefingNote: "Last full day in Tokyo. Make it count." },
-  { date: "2025-04-07", destination: "Tokyo", destColor: "#FF2D8B", tripDayNum: 7,  meetupMessages: [], vote: null, expenses: [], briefingNote: "Pack light today — it's a day trip. Big bags stay at the hotel." },
-  // Kyoto
-  { date: "2025-04-09", destination: "Kyoto", destColor: "#FFD600", tripDayNum: 9,  meetupMessages: [], vote: null, expenses: [], briefingNote: "Fushimi Inari before 8 AM is almost crowd-free. This is the move." },
-  { date: "2025-04-10", destination: "Kyoto", destColor: "#FFD600", tripDayNum: 10, meetupMessages: [], vote: null, expenses: [], briefingNote: "The golden pavilion looks impossible in person. No filter needed." },
-  { date: "2025-04-11", destination: "Kyoto", destColor: "#FFD600", tripDayNum: 11, meetupMessages: [], vote: null, expenses: [], briefingNote: "Last day in Kyoto. The Philosopher's Path hits different in cherry blossom season." },
-  // Osaka
-  { date: "2025-04-12", destination: "Osaka", destColor: "#00C96B", tripDayNum: 12, meetupMessages: [], vote: null, expenses: [], briefingNote: "Osaka is built different. It's all about the food from here on." },
-  { date: "2025-04-13", destination: "Osaka", destColor: "#00C96B", tripDayNum: 13, meetupMessages: [], vote: null, expenses: [], briefingNote: "The castle park is also excellent for picnics if anyone wants a detour." },
-  { date: "2025-04-14", destination: "Osaka", destColor: "#00C96B", tripDayNum: 14, meetupMessages: [], vote: null, expenses: [], briefingNote: "Last night. Someone's going to cry. It won't be Tom (it will be Tom)." },
+  {
+    date: "2025-04-06",
+    destination: "Tokyo",
+    destColor: "#FF2D8B",
+    tripDayNum: 6,
+    events: [
+      { id: "e1", time: "10:00", title: "Akihabara electric town", location: "Akihabara", category: "shopping", confirmed: true },
+      { id: "e2", time: "14:00", title: "Tokyo Tower observation deck", location: "Minato", category: "sightseeing", confirmed: true, cost: 1200 },
+      { id: "e3", time: "19:00", title: "Tonkatsu dinner", location: "Shinjuku", category: "food", confirmed: true, cost: 2200 },
+    ],
+    meetupMessages: [],
+    vote: null,
+    expenses: [],
+    briefingNote: "Last full day in Tokyo. Make it count.",
+  },
+  {
+    date: "2025-04-07",
+    destination: "Tokyo",
+    destColor: "#FF2D8B",
+    tripDayNum: 7,
+    events: [
+      { id: "e1", time: "09:00", title: "Nikko day trip", location: "Nikko", category: "sightseeing", confirmed: true },
+      { id: "e2", time: "13:00", title: "Lunch at Nikko Kanaya Hotel", location: "Nikko", category: "food", confirmed: false, cost: 3500 },
+      { id: "e3", time: "18:00", title: "Return to Tokyo", location: "JR Nikko Line", category: "transport", confirmed: true },
+    ],
+    meetupMessages: [],
+    vote: null,
+    expenses: [],
+    briefingNote: "Pack light today — it's a day trip. Big bags stay at the hotel.",
+  },
+  // Kyoto days
+  {
+    date: "2025-04-09",
+    destination: "Kyoto",
+    destColor: "#FFD600",
+    tripDayNum: 9,
+    events: [
+      { id: "e1", time: "08:00", title: "Fushimi Inari Shrine", location: "Fushimi", category: "sightseeing", confirmed: true },
+      { id: "e2", time: "12:00", title: "Kaiseki lunch", location: "Gion", category: "food", confirmed: true, cost: 5500 },
+      { id: "e3", time: "15:00", title: "Gion evening walk", location: "Gion", category: "sightseeing", confirmed: true },
+      { id: "e4", time: "19:30", title: "Tofu restaurant dinner", location: "Higashiyama", category: "food", confirmed: true, cost: 4000 },
+    ],
+    meetupMessages: [],
+    vote: null,
+    expenses: [],
+    briefingNote: "Fushimi Inari before 8 AM is almost crowd-free. This is the move.",
+  },
+  {
+    date: "2025-04-10",
+    destination: "Kyoto",
+    destColor: "#FFD600",
+    tripDayNum: 10,
+    events: [
+      { id: "e1", time: "09:30", title: "Arashiyama Bamboo Grove", location: "Arashiyama", category: "sightseeing", confirmed: true },
+      { id: "e2", time: "11:30", title: "Tenryu-ji Garden", location: "Arashiyama", category: "sightseeing", confirmed: true, cost: 1100 },
+      { id: "e3", time: "14:00", title: "Kinkaku-ji Golden Pavilion", location: "Kita-ku", category: "sightseeing", confirmed: true, cost: 500 },
+      { id: "e4", time: "19:00", title: "Nishiki Market evening snacks", location: "Downtown Kyoto", category: "food", confirmed: true },
+    ],
+    meetupMessages: [],
+    vote: null,
+    expenses: [],
+    briefingNote: "The golden pavilion looks impossible in person. No filter needed.",
+  },
+  {
+    date: "2025-04-11",
+    destination: "Kyoto",
+    destColor: "#FFD600",
+    tripDayNum: 11,
+    events: [
+      { id: "e1", time: "09:00", title: "Nijo Castle", location: "Nijo", category: "sightseeing", confirmed: true, cost: 1300 },
+      { id: "e2", time: "13:00", title: "Ramen lunch", location: "Downtown Kyoto", category: "food", confirmed: true, cost: 1200 },
+      { id: "e3", time: "15:00", title: "Philosopher's Path", location: "Higashiyama", category: "free", confirmed: true },
+      { id: "e4", time: "19:00", title: "Farewell Kyoto dinner", location: "Gion", category: "food", confirmed: true, cost: 6000 },
+    ],
+    meetupMessages: [],
+    vote: null,
+    expenses: [],
+    briefingNote: "Last day in Kyoto. The Philosopher's Path hits different in cherry blossom season.",
+  },
+  // Osaka days
+  {
+    date: "2025-04-12",
+    destination: "Osaka",
+    destColor: "#00C96B",
+    tripDayNum: 12,
+    events: [
+      { id: "e1", time: "11:00", title: "Check in to hotel", location: "Namba", category: "lodging", confirmed: true },
+      { id: "e2", time: "14:00", title: "Dotonbori street food crawl", location: "Dotonbori", category: "food", confirmed: true, cost: 2500 },
+      { id: "e3", time: "17:00", title: "Kuromon Ichiba Market", location: "Nipponbashi", category: "food", confirmed: true },
+      { id: "e4", time: "20:00", title: "Takoyaki at Juhachiban", location: "Dotonbori", category: "food", confirmed: true, cost: 800 },
+    ],
+    meetupMessages: [],
+    vote: null,
+    expenses: [],
+    briefingNote: "Osaka is built different. It's all about the food from here on.",
+  },
+  {
+    date: "2025-04-13",
+    destination: "Osaka",
+    destColor: "#00C96B",
+    tripDayNum: 13,
+    events: [
+      { id: "e1", time: "09:30", title: "Osaka Castle", location: "Chuo-ku", category: "sightseeing", confirmed: true, cost: 600 },
+      { id: "e2", time: "13:00", title: "Okonomiyaki lunch", location: "Fukushima", category: "food", confirmed: true, cost: 1200 },
+      { id: "e3", time: "15:30", title: "Shinsekai retro district", location: "Naniwa", category: "sightseeing", confirmed: true },
+      { id: "e4", time: "19:00", title: "Wagyu dinner splurge", location: "Namba", category: "food", confirmed: true, cost: 9800 },
+    ],
+    meetupMessages: [],
+    vote: null,
+    expenses: [],
+    briefingNote: "The castle park is also excellent for picnics if anyone wants a detour.",
+  },
+  {
+    date: "2025-04-14",
+    destination: "Osaka",
+    destColor: "#00C96B",
+    tripDayNum: 14,
+    events: [
+      { id: "e1", time: "10:00", title: "Namba shopping", location: "Namba", category: "shopping", confirmed: true },
+      { id: "e2", time: "13:00", title: "Lunch at the conveyor belt sushi place", location: "Nipponbashi", category: "food", confirmed: true, cost: 2100 },
+      { id: "e3", time: "15:00", title: "Free time / souvenir run", location: "Dotonbori", category: "free", confirmed: false },
+      { id: "e4", time: "19:00", title: "Final trip dinner", location: "Namba", category: "food", confirmed: true, cost: 7500 },
+    ],
+    meetupMessages: [],
+    vote: null,
+    expenses: [],
+    briefingNote: "Last night. Someone's going to cry. It won't be Tom (it will be Tom).",
+  },
 ];
 
-// ─── Helpers ─────────────────────────────────────────────────────────────────
-
-function destDayLabel(day: VacationDayMeta): string {
-  const dest = DEST_RANGES.find((d) => d.short === day.destination);
+// Day number within destination (e.g. "Tokyo Day 3")
+function destDayLabel(day: VacationDay): string {
+  const dest = DEST_RANGES.find((d) => d.name === day.destination);
   if (!dest) return `Day ${day.tripDayNum}`;
-  const daysInDest = MOCK_DAY_META.filter((d) => d.destination === day.destination);
+  const daysInDest = MOCK_DAYS.filter((d) => d.destination === day.destination);
   const idx = daysInDest.findIndex((d) => d.date === day.date);
   return `${day.destination} · Day ${idx + 1}`;
 }
@@ -158,20 +384,14 @@ function DarkCard({ children, className = "" }: { children: React.ReactNode; cla
 
 // ─── Main Shell ───────────────────────────────────────────────────────────────
 
-interface VacationDayShellProps {
-  tripId: string;
-  initialDate?: string;
-}
+const SELECTED_DATE = "2025-04-05";
 
-export default function VacationDayShell({ tripId, initialDate }: VacationDayShellProps) {
-  const base = `/app/trips/${tripId}`;
-  const DEFAULT_DATE = "2025-04-05";
-
-  const [selectedDate, setSelectedDate] = useState(initialDate ?? DEFAULT_DATE);
+export default function VacationDayShell() {
+  const [selectedDate, setSelectedDate] = useState(SELECTED_DATE);
   const [mobileView, setMobileView] = useState<"list" | "detail">("list");
   const [scavengerItems, setScavengerItems] = useState(SCAVENGER_ITEMS);
-  const [scavengerOpen, setScavengerOpen] = useState(true);
-  const [days, setDays] = useState(MOCK_DAY_META);
+  const [scavengerOpen, setScavengerOpen] = useState(false);
+  const [days, setDays] = useState(MOCK_DAYS);
   const [meetupInput, setMeetupInput] = useState("");
   const [showMeetupInput, setShowMeetupInput] = useState(false);
   const [expenseForm, setExpenseForm] = useState(false);
@@ -179,13 +399,8 @@ export default function VacationDayShell({ tripId, initialDate }: VacationDayShe
   const [expenseAmt, setExpenseAmt] = useState("");
   const [expensePaidBy, setExpensePaidBy] = useState("You");
 
-  const day = days.find((d) => d.date === selectedDate) ?? days[0];
+  const day = days.find((d) => d.date === selectedDate)!;
   const { weekday, long: longDate, dayNum, month } = formatDate(selectedDate);
-
-  // Events derived from shared MOCK_EVENTS — single source of truth
-  const dayEvents: ScheduleEvent[] = MOCK_EVENTS
-    .filter((e) => e.dayDate === selectedDate)
-    .sort((a, b) => a.startTime.localeCompare(b.startTime));
 
   const handleVote = (v: "yes" | "no") => {
     setDays((prev) =>
@@ -267,32 +482,36 @@ export default function VacationDayShell({ tripId, initialDate }: VacationDayShe
   const leftPanel = (
     <div
       className="flex-shrink-0 border-r flex flex-col"
-      style={{ width: 248, height: "100%", backgroundColor: "#252525", borderColor: "#333333" }}
+      style={{ width: 248, height: "calc(100vh - 56px)", position: "sticky", top: 56, backgroundColor: "#252525", borderColor: "#333333" }}
     >
-      <div className="px-4 pt-4 pb-3 border-b" style={{ borderColor: "#333333" }}>
-        <p className="text-xs font-black uppercase tracking-widest" style={{ color: "#9CA3AF" }}>
-          {MOCK_DAY_META.length} days · 3 cities
+      {/* Header */}
+      <div className="px-4 pt-5 pb-3 border-b" style={{ borderColor: "#333333" }}>
+        <h2 className="text-xl font-semibold text-white leading-tight" style={{ fontFamily: "var(--font-fredoka)" }}>
+          Vacation Days
+        </h2>
+        <p className="text-xs font-medium mt-0.5" style={{ color: "#9CA3AF" }}>
+          {MOCK_DAYS.length} days · Apr 2–14
         </p>
       </div>
 
+      {/* Day list */}
       <div className="flex-1 overflow-y-auto scrollbar-dark px-2 py-2 space-y-0.5">
+        {/* Group by destination */}
         {DEST_RANGES.map((dest) => {
-          const destDays = days.filter((d) => d.destination === dest.short);
-          if (destDays.length === 0) return null;
+          const destDays = days.filter((d) => d.destination === dest.name);
           return (
-            <div key={dest.short}>
+            <div key={dest.name}>
+              {/* Destination label */}
               <div className="px-3 pt-3 pb-1 flex items-center gap-2">
                 <div className="w-2 h-2 rounded-full flex-shrink-0" style={{ backgroundColor: dest.color }} />
                 <span className="text-xs font-black uppercase tracking-widest" style={{ color: dest.color }}>
-                  {dest.short}
+                  {dest.name}
                 </span>
               </div>
               {destDays.map((d) => {
                 const active = d.date === selectedDate;
                 const { weekday: wd, dayNum: dn, month: mo } = formatDate(d.date);
                 const dIdx = destDays.findIndex((x) => x.date === d.date);
-                const dateEvents = MOCK_EVENTS.filter((e) => e.dayDate === d.date);
-                const confirmedCount = dateEvents.filter((e) => e.confirmed).length;
                 return (
                   <button
                     key={d.date}
@@ -304,6 +523,7 @@ export default function VacationDayShell({ tripId, initialDate }: VacationDayShe
                     }}
                   >
                     <div className="flex items-center gap-2.5">
+                      {/* Day number */}
                       <div
                         className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 text-sm font-black"
                         style={{
@@ -320,16 +540,17 @@ export default function VacationDayShell({ tripId, initialDate }: VacationDayShe
                           {wd}, {mo} {dn}
                         </p>
                         <p className="text-xs font-medium" style={{ color: "#9CA3AF" }}>
-                          {dateEvents.length} events
+                          {d.events.length} events
                         </p>
                       </div>
 
-                      {confirmedCount > 0 && (
+                      {/* Event count badge */}
+                      {d.events.filter((e) => e.confirmed).length > 0 && (
                         <div
                           className="w-5 h-5 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0"
                           style={{ backgroundColor: active ? dest.color + "33" : "#3a3a3a", color: active ? dest.color : "#9CA3AF" }}
                         >
-                          {confirmedCount}
+                          {d.events.filter((e) => e.confirmed).length}
                         </div>
                       )}
                     </div>
@@ -347,16 +568,14 @@ export default function VacationDayShell({ tripId, initialDate }: VacationDayShe
 
   const rightPanel = (
     <div className="flex-1 overflow-y-auto scrollbar-dark">
+      {/* Mobile back */}
       <div className="md:hidden px-4 pt-4">
         <button onClick={() => setMobileView("list")} className="flex items-center gap-1.5 text-sm font-semibold mb-3" style={{ color: "#9CA3AF" }}>
           <ArrowLeft size={14} /> All days
         </button>
       </div>
 
-      <div className="p-5 vd-detail-grid">
-
-        {/* ── Left column: briefing + schedule ── */}
-        <div className="space-y-4">
+      <div className="p-6 space-y-5 max-w-2xl">
 
         {/* ── Morning Briefing Card ── */}
         <div
@@ -366,51 +585,42 @@ export default function VacationDayShell({ tripId, initialDate }: VacationDayShe
             border: `1px solid ${day.destColor}30`,
           }}
         >
+          {/* Background glow */}
           <div
             className="absolute -top-10 -right-10 w-48 h-48 rounded-full opacity-10 pointer-events-none"
             style={{ backgroundColor: day.destColor, filter: "blur(40px)" }}
           />
 
           <div className="relative">
-            {/* Destination pill + cross-nav to Itinerary */}
-            <div className="flex items-center justify-between gap-2 mb-3">
-              <div className="flex items-center gap-2">
-                <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: day.destColor }} />
-                <span className="text-xs font-black uppercase tracking-widest" style={{ color: day.destColor }}>
-                  {destDayLabel(day)}
-                </span>
-              </div>
-              <Link
-                href={`${base}/itinerary?date=${selectedDate}`}
-                className="flex items-center gap-1.5 rounded-[8px] px-2.5 py-1 text-[10px] font-black transition-all border hover:border-[#00A8CC]/50 hover:text-[#00A8CC]"
-                style={{ borderColor: "#3a3a3a", color: "rgba(255,255,255,0.35)", backgroundColor: "rgba(0,0,0,0.2)" }}
-              >
-                <CalendarBlank size={10} weight="fill" />
-                Full Itinerary
-              </Link>
-            </div>
-
-            <div className="flex items-center gap-2 mb-1">
+            {/* Destination pill */}
+            <div className="flex items-center gap-2 mb-3">
+              <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: day.destColor }} />
+              <span className="text-xs font-black uppercase tracking-widest" style={{ color: day.destColor }}>
+                {destDayLabel(day)}
+              </span>
               <span className="text-xs font-bold px-2 py-0.5 rounded-full" style={{ backgroundColor: "#3a3a3a", color: "#9CA3AF" }}>
                 Trip Day {day.tripDayNum} of 15
               </span>
             </div>
 
+            {/* Headline */}
             <h2 className="text-2xl font-semibold text-white mb-0.5" style={{ fontFamily: "var(--font-fredoka)" }}>
               {longDate}
             </h2>
 
+            {/* Sassy briefing note */}
             {day.briefingNote && (
               <p className="text-sm font-medium mt-1 mb-3" style={{ color: "#d1d5db" }}>
                 {day.briefingNote}
               </p>
             )}
 
+            {/* Stats row */}
             <div className="flex items-center gap-4 mt-3">
               <div className="flex items-center gap-1.5">
                 <CalendarBlank size={13} weight="fill" style={{ color: day.destColor }} />
                 <span className="text-sm font-bold" style={{ color: "#e5e7eb" }}>
-                  {dayEvents.length} events
+                  {day.events.length} events
                 </span>
               </div>
               <div className="flex items-center gap-1.5">
@@ -437,14 +647,14 @@ export default function VacationDayShell({ tripId, initialDate }: VacationDayShe
             Today's Schedule
           </p>
 
-          {dayEvents.length === 0 ? (
+          {day.events.length === 0 ? (
             <div className="text-center py-6">
               <CalendarBlank size={28} weight="fill" style={{ color: "#3a3a3a", margin: "0 auto 8px" }} />
               <p className="text-sm font-medium" style={{ color: "#9CA3AF" }}>Nothing planned yet. That's brave.</p>
             </div>
           ) : (
             <div className="space-y-1">
-              {dayEvents.map((ev) => {
+              {day.events.map((ev) => {
                 const meta = CATEGORY_META[ev.category];
                 const Icon = meta.Icon;
                 return (
@@ -452,12 +662,14 @@ export default function VacationDayShell({ tripId, initialDate }: VacationDayShe
                     key={ev.id}
                     className="flex items-start gap-3 px-2 py-2.5 rounded-xl hover:bg-[#333333]/40 transition-colors group"
                   >
+                    {/* Time */}
                     <div className="w-14 flex-shrink-0 pt-0.5">
                       <span className="text-xs font-black" style={{ color: "#9CA3AF" }}>
-                        {ev.startTime}
+                        {ev.time}
                       </span>
                     </div>
 
+                    {/* Category dot */}
                     <div
                       className="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5"
                       style={{ backgroundColor: meta.color + "22" }}
@@ -465,6 +677,7 @@ export default function VacationDayShell({ tripId, initialDate }: VacationDayShe
                       <Icon size={12} weight="fill" color={meta.color} />
                     </div>
 
+                    {/* Info */}
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-bold text-white leading-tight">{ev.title}</p>
                       {ev.location && (
@@ -475,10 +688,11 @@ export default function VacationDayShell({ tripId, initialDate }: VacationDayShe
                       )}
                     </div>
 
+                    {/* Cost + confirmed */}
                     <div className="flex items-center gap-1.5 flex-shrink-0">
                       {ev.cost && (
                         <span className="text-xs font-bold px-2 py-0.5 rounded-full" style={{ backgroundColor: "#00C96B22", color: "#00C96B" }}>
-                          {ev.cost}
+                          ¥{ev.cost.toLocaleString()}
                         </span>
                       )}
                       {ev.confirmed ? (
@@ -497,103 +711,18 @@ export default function VacationDayShell({ tripId, initialDate }: VacationDayShe
             </div>
           )}
 
-          <Link
-            href={`${base}/itinerary?date=${selectedDate}`}
+          <button
             className="mt-3 w-full flex items-center justify-center gap-2 py-2 rounded-xl text-sm font-semibold transition-colors hover:bg-[#333333]/60"
             style={{ border: "1px dashed #3a3a3a", color: "#9CA3AF" }}
           >
             <Plus size={13} weight="bold" />
-            Add event in Itinerary
-          </Link>
-        </DarkCard>
-
-        {/* ── Scavenger Hunt ── */}
-        <DarkCard className="overflow-hidden">
-          <button
-            className="w-full flex items-center justify-between px-4 py-3 transition-colors hover:bg-[#333333]/40"
-            onClick={() => setScavengerOpen((v) => !v)}
-          >
-            <div className="flex items-center gap-2">
-              <Trophy size={14} weight="fill" style={{ color: "#FFD600" }} />
-              <span className="text-xs font-black uppercase tracking-widest" style={{ color: "#FFD600" }}>
-                Scavenger Hunt
-              </span>
-              <span
-                className="text-xs font-bold px-2 py-0.5 rounded-full"
-                style={{
-                  backgroundColor: scavengerPts > 0 ? "#FFD60022" : "#3a3a3a",
-                  color: scavengerPts > 0 ? "#FFD600" : "#9CA3AF",
-                }}
-              >
-                {scavengerPts} / {scavengerTotal} pts
-              </span>
-            </div>
-            <span className="text-xs font-bold" style={{ color: "#9CA3AF" }}>
-              {scavengerOpen ? "▲" : "▼"}
-            </span>
+            Add event to today
           </button>
-
-          {scavengerOpen && (
-            <div className="px-4 pb-4 space-y-1.5">
-              <div className="rounded-full overflow-hidden mb-3" style={{ height: 4, backgroundColor: "#3a3a3a" }}>
-                <div
-                  className="h-full rounded-full transition-all"
-                  style={{
-                    width: `${Math.round((scavengerPts / scavengerTotal) * 100)}%`,
-                    backgroundColor: "#FFD600",
-                  }}
-                />
-              </div>
-
-              {scavengerItems.map((item) => (
-                <button
-                  key={item.id}
-                  onClick={() => toggleScavenger(item.id)}
-                  className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left transition-all hover:bg-[#333333]/40"
-                >
-                  <div
-                    className="w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 transition-all"
-                    style={{
-                      backgroundColor: item.done ? "#FFD600" : "transparent",
-                      border: item.done ? "none" : "2px solid #4a4a4a",
-                    }}
-                  >
-                    {item.done && <Check size={10} weight="bold" color="#1a1a1a" />}
-                  </div>
-
-                  <span
-                    className="flex-1 text-sm font-medium leading-snug"
-                    style={{ color: item.done ? "#666" : "#e5e7eb", textDecoration: item.done ? "line-through" : "none" }}
-                  >
-                    {item.text}
-                  </span>
-
-                  <span
-                    className="text-xs font-black flex-shrink-0 px-2 py-0.5 rounded-full"
-                    style={{
-                      backgroundColor: item.done ? "#FFD60022" : "#3a3a3a",
-                      color: item.done ? "#FFD600" : "#9CA3AF",
-                    }}
-                  >
-                    +{item.points}
-                  </span>
-                </button>
-              ))}
-
-              <p className="text-xs font-medium pt-1" style={{ color: "#444" }}>
-                Tap to check off. Results are visible to the whole group.
-              </p>
-            </div>
-          )}
         </DarkCard>
-
-        </div>{/* end left col */}
-
-        {/* ── Right column ── */}
-        <div className="space-y-4">
 
         {/* ── Quick Actions ── */}
         <div className="grid grid-cols-3 gap-3">
+          {/* Log Expense */}
           <button
             onClick={() => setExpenseForm((v) => !v)}
             className="flex flex-col items-center gap-2 py-4 rounded-2xl text-sm font-bold transition-all"
@@ -607,6 +736,7 @@ export default function VacationDayShell({ tripId, initialDate }: VacationDayShe
             Log expense
           </button>
 
+          {/* Quick Vote */}
           <button
             className="flex flex-col items-center gap-2 py-4 rounded-2xl text-sm font-bold transition-all"
             style={{ backgroundColor: "#2e2e2e", border: "1px solid #3a3a3a", color: "#9CA3AF" }}
@@ -615,6 +745,7 @@ export default function VacationDayShell({ tripId, initialDate }: VacationDayShe
             Quick vote
           </button>
 
+          {/* Meetup Point */}
           <button
             onClick={() => setShowMeetupInput((v) => !v)}
             className="flex flex-col items-center gap-2 py-4 rounded-2xl text-sm font-bold transition-all"
@@ -691,8 +822,10 @@ export default function VacationDayShell({ tripId, initialDate }: VacationDayShe
           </DarkCard>
         )}
 
-        {/* Meetup Point */}
-        <DarkCard className="p-4">
+        {/* ── Group Coordination ── */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          {/* Meetup Point */}
+          <DarkCard className="p-4">
             <div className="flex items-center justify-between mb-3">
               <p className="text-xs font-black uppercase tracking-widest" style={{ color: "#00A8CC" }}>
                 Where is everyone
@@ -780,7 +913,7 @@ export default function VacationDayShell({ tripId, initialDate }: VacationDayShe
                     }}
                   >
                     <ThumbsUp size={16} weight="fill" />
-                    Yes ({day.vote.yes})
+                    Sunset ({day.vote.yes})
                   </button>
                   <button
                     onClick={() => !day.vote?.myVote && handleVote("no")}
@@ -793,10 +926,11 @@ export default function VacationDayShell({ tripId, initialDate }: VacationDayShe
                     }}
                   >
                     <ThumbsDown size={16} weight="fill" />
-                    No ({day.vote.no})
+                    Night ({day.vote.no})
                   </button>
                 </div>
 
+                {/* Tally bar */}
                 <div className="rounded-full overflow-hidden" style={{ height: 4, backgroundColor: "#3a3a3a" }}>
                   <div
                     className="h-full rounded-full transition-all"
@@ -819,6 +953,7 @@ export default function VacationDayShell({ tripId, initialDate }: VacationDayShe
               </div>
             )}
           </DarkCard>
+        </div>
 
         {/* ── Today's Expenses ── */}
         <DarkCard className="p-4">
@@ -870,7 +1005,88 @@ export default function VacationDayShell({ tripId, initialDate }: VacationDayShe
         </DarkCard>
 
         {/* ── Scavenger Hunt ── */}
-        </div>{/* end right col */}
+        <DarkCard className="overflow-hidden">
+          <button
+            className="w-full flex items-center justify-between px-4 py-3 transition-colors hover:bg-[#333333]/40"
+            onClick={() => setScavengerOpen((v) => !v)}
+          >
+            <div className="flex items-center gap-2">
+              <Trophy size={14} weight="fill" style={{ color: "#FFD600" }} />
+              <span className="text-xs font-black uppercase tracking-widest" style={{ color: "#FFD600" }}>
+                Scavenger Hunt
+              </span>
+              <span
+                className="text-xs font-bold px-2 py-0.5 rounded-full"
+                style={{
+                  backgroundColor: scavengerPts > 0 ? "#FFD60022" : "#3a3a3a",
+                  color: scavengerPts > 0 ? "#FFD600" : "#9CA3AF",
+                }}
+              >
+                {scavengerPts} / {scavengerTotal} pts
+              </span>
+            </div>
+            <span className="text-xs font-bold" style={{ color: "#9CA3AF" }}>
+              {scavengerOpen ? "▲" : "▼"}
+            </span>
+          </button>
+
+          {scavengerOpen && (
+            <div className="px-4 pb-4 space-y-1.5">
+              {/* Progress bar */}
+              <div className="rounded-full overflow-hidden mb-3" style={{ height: 4, backgroundColor: "#3a3a3a" }}>
+                <div
+                  className="h-full rounded-full transition-all"
+                  style={{
+                    width: `${Math.round((scavengerPts / scavengerTotal) * 100)}%`,
+                    backgroundColor: "#FFD600",
+                  }}
+                />
+              </div>
+
+              {scavengerItems.map((item) => (
+                <button
+                  key={item.id}
+                  onClick={() => toggleScavenger(item.id)}
+                  className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left transition-all hover:bg-[#333333]/40"
+                >
+                  {/* Checkbox */}
+                  <div
+                    className="w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 transition-all"
+                    style={{
+                      backgroundColor: item.done ? "#FFD600" : "transparent",
+                      border: item.done ? "none" : "2px solid #4a4a4a",
+                    }}
+                  >
+                    {item.done && <Check size={10} weight="bold" color="#1a1a1a" />}
+                  </div>
+
+                  {/* Text */}
+                  <span
+                    className="flex-1 text-sm font-medium leading-snug"
+                    style={{ color: item.done ? "#666" : "#e5e7eb", textDecoration: item.done ? "line-through" : "none" }}
+                  >
+                    {item.text}
+                  </span>
+
+                  {/* Points */}
+                  <span
+                    className="text-xs font-black flex-shrink-0 px-2 py-0.5 rounded-full"
+                    style={{
+                      backgroundColor: item.done ? "#FFD60022" : "#3a3a3a",
+                      color: item.done ? "#FFD600" : "#9CA3AF",
+                    }}
+                  >
+                    +{item.points}
+                  </span>
+                </button>
+              ))}
+
+              <p className="text-xs font-medium pt-1" style={{ color: "#444" }}>
+                Tap to check off. Results are visible to the whole group.
+              </p>
+            </div>
+          )}
+        </DarkCard>
 
       </div>
     </div>
@@ -881,57 +1097,15 @@ export default function VacationDayShell({ tripId, initialDate }: VacationDayShe
   return (
     <>
       <style>{`
-        .vd-detail-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 1.25rem; }
-        @media (max-width: 1024px) { .vd-detail-grid { grid-template-columns: 1fr; } }
         @media (max-width: 767px) {
-          .vd-left  { display: var(--vd-left-display, flex) !important; width: 100% !important; height: auto !important; position: static !important; border-right: none !important; }
-          .vd-right { display: var(--vd-right-display, flex) !important; }
+          .vd-left  { display: ${mobileView === "list" ? "flex" : "none"} !important; width: 100% !important; height: auto !important; position: static !important; border-right: none !important; }
+          .vd-right { display: ${mobileView === "detail" ? "flex" : "none"} !important; }
         }
       `}</style>
 
-      <div className="flex flex-col" style={{
-        height: "calc(100vh - 56px)",
-        backgroundColor: "#1e1e1e",
-        "--vd-left-display": mobileView === "list" ? "flex" : "none",
-        "--vd-right-display": mobileView === "detail" ? "flex" : "none",
-      } as React.CSSProperties}>
-
-        {/* Header band */}
-        <div className="flex items-center justify-between px-6 py-4 flex-shrink-0" style={{ backgroundColor: "#282828", borderBottom: "1px solid #333333" }}>
-          <div>
-            <h1 style={{ fontFamily: "var(--font-fredoka)", fontSize: "2rem", color: "white", lineHeight: 1.1 }}>Vacation Days</h1>
-            <p className="text-sm font-medium mt-0.5" style={{ color: "#9CA3AF" }}>Apr 2–14 · Japan · {MOCK_DAY_META.length} days</p>
-          </div>
-          <button
-            onClick={() => setExpenseForm((v) => !v)}
-            className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold transition-all active:translate-y-0.5"
-            style={{ backgroundColor: "#00C96B", color: "white", boxShadow: "0 4px 0 #007a42" }}
-          >
-            <Receipt size={14} weight="fill" />
-            Log expense
-          </button>
-        </div>
-
-        {/* Stats row */}
-        <div className="grid grid-cols-3 gap-3 px-6 py-3 flex-shrink-0" style={{ borderBottom: "1px solid #2a2a2a" }}>
-          {[
-            { value: MOCK_DAY_META.length, label: "Days planned", color: "#00A8CC" },
-            { value: `$${totalExpenses}`, label: "Spent today",   color: "#00C96B" },
-            { value: `${scavengerPts} pts`, label: "Hunt score",  color: "#FFD600" },
-          ].map((s) => (
-            <div key={s.label} className="rounded-2xl px-4 py-3" style={{ backgroundColor: "#2e2e2e", border: "1px solid #3a3a3a" }}>
-              <p style={{ fontFamily: "var(--font-fredoka)", fontSize: "1.75rem", color: s.color, lineHeight: 1 }}>{s.value}</p>
-              <p className="text-xs font-bold uppercase tracking-widest mt-1" style={{ color: "#9CA3AF" }}>{s.label}</p>
-            </div>
-          ))}
-        </div>
-
-        {/* Two-panel area */}
-        <div className="flex flex-1 min-h-0">
-          <div className="vd-left hidden md:flex flex-col">{leftPanel}</div>
-          <div className="vd-right flex-1 flex flex-col overflow-hidden">{rightPanel}</div>
-        </div>
-
+      <div className="flex" style={{ height: "calc(100vh - 56px)", backgroundColor: "#1e1e1e" }}>
+        <div className="vd-left hidden md:flex flex-col">{leftPanel}</div>
+        <div className="vd-right flex-1 flex flex-col overflow-hidden">{rightPanel}</div>
       </div>
     </>
   );
