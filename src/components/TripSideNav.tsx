@@ -18,6 +18,7 @@ import {
   Vault,
   Star,
   Users,
+  Compass,
 } from "@phosphor-icons/react";
 import TripBall from "./TripBall";
 import { useAppShell } from "./AppShellProvider";
@@ -48,6 +49,7 @@ const phaseColor: Record<string, string> = {
   expenses: "#00C96B",
   polls: "#FFD600",
   wishlist: "#00A8CC",
+  "scavenger-hunt": "#FF8C00",
   notes: "#FFD600",
   tools: "#00A8CC",
   vault: "#FF2D8B",
@@ -77,8 +79,9 @@ export default function TripSideNav({
   ];
 
   const extraPhases: Phase[] = [
-    { key: "polls",    label: "Polls",   href: `${base}/polls`,   icon: <ChartBar size={14} weight="fill" />,  color: phaseColor.polls },
-    { key: "wishlist", label: "Wishlist",href: `${base}/wishlist`,icon: <Star size={14} weight="fill" />,      color: phaseColor.wishlist },
+    { key: "polls",           label: "Polls",         href: `${base}/polls`,          icon: <ChartBar size={14} weight="fill" />,  color: phaseColor.polls },
+    { key: "wishlist",        label: "Proposals",     href: `${base}/wishlist`,       icon: <Star size={14} weight="fill" />,      color: phaseColor.wishlist },
+    { key: "scavenger-hunt",  label: "Scavenger Hunt",href: `${base}/scavenger-hunt`, icon: <Compass size={14} weight="fill" />,   color: phaseColor["scavenger-hunt"] },
     { key: "notes",    label: "Notes",   href: `${base}/notes`,   icon: <Note size={14} weight="fill" />,      color: phaseColor.notes },
     { key: "tools",    label: "Tools",   href: `${base}/tools`,   icon: <Wrench size={14} weight="fill" />,    color: phaseColor.tools },
     { key: "vault",    label: "Vault",   href: `${base}/vault`,   icon: <Vault size={14} weight="fill" />,     color: phaseColor.vault },
