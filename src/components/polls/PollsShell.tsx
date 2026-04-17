@@ -495,7 +495,7 @@ export default function PollsShell() {
   const shown = tab === "open" ? openPolls : closedPolls;
 
   return (
-    <div className="flex-1 overflow-y-auto scrollbar-dark" style={{ backgroundColor: "#1e1e1e" }}>
+    <div className="flex-1 overflow-y-auto scrollbar-dark" style={{ backgroundColor: "#404040" }}>
 
       <style>{`
         .polls-grid {

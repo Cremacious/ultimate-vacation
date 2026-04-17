@@ -1338,7 +1338,7 @@ export default function TravelDayShell() {
         }
       `}</style>
 
-      <div className="flex flex-col" style={{ height: "calc(100vh - 56px)", backgroundColor: "#1e1e1e" }}>
+      <div className="flex flex-col" style={{ height: "calc(100vh - 56px)", backgroundColor: "#404040" }}>
 
         {/* Header band */}
         <div className="flex items-center justify-between px-6 py-4 flex-shrink-0" style={{ backgroundColor: "#282828", borderBottom: "1px solid #333333" }}>

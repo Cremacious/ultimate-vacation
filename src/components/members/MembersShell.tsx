@@ -77,7 +77,7 @@ export default function MembersShell() {
   }
 
   return (
-    <div style={{ backgroundColor: "#1e1e1e", minHeight: "100vh", color: "white" }}>
+    <div style={{ backgroundColor: "#404040", minHeight: "100vh", color: "white" }}>
       <style>{`
         .mb-member-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
         @media (max-width: 640px) { .mb-member-grid { grid-template-columns: 1fr; } }

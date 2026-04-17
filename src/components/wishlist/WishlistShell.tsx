@@ -576,7 +576,7 @@ export default function WishlistShell() {
   };
 
   return (
-    <div className="flex flex-col h-full" style={{ backgroundColor: "#1e1e1e" }}>
+    <div className="flex flex-col h-full" style={{ backgroundColor: "#404040" }}>
 
       {promoteTarget && (
         <PromoteModal title={promoteTarget.title} onClose={() => setPromoteTarget(null)} onConfirm={confirmPromote} />

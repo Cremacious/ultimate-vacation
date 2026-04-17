@@ -891,7 +891,7 @@ export default function VacationDayShell({ tripId, initialDate }: VacationDayShe
 
       <div className="flex flex-col" style={{
         height: "calc(100vh - 56px)",
-        backgroundColor: "#1e1e1e",
+        backgroundColor: "#404040",
         "--vd-left-display": mobileView === "list" ? "flex" : "none",
         "--vd-right-display": mobileView === "detail" ? "flex" : "none",
       } as React.CSSProperties}>

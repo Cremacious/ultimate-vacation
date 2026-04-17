@@ -713,7 +713,7 @@ export default function ItineraryShell({ tripId, initialDate }: ItineraryShellPr
 
   // ── Render ─────────────────────────────────────────────────────────────────
   return (
-    <div className="flex flex-col min-h-screen" style={{ backgroundColor: "#1e1e1e" }}>
+    <div className="flex flex-col min-h-screen" style={{ backgroundColor: "#404040" }}>
       {/* Page header */}
       <div
         className="sticky top-14 z-10 border-b px-5 py-4 flex items-center justify-between gap-4"

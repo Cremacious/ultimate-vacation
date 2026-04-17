@@ -709,7 +709,7 @@ export default function ExpenseShell() {
   // ── Render ──────────────────────────────────────────────────────────────────
 
   return (
-    <div className="flex-1 overflow-y-auto scrollbar-dark" style={{ backgroundColor: "#1e1e1e" }}>
+    <div className="flex-1 overflow-y-auto scrollbar-dark" style={{ backgroundColor: "#404040" }}>
       <style>{`
         .expenses-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 1.5rem; }
         @media (max-width: 1024px) { .expenses-grid { grid-template-columns: 1fr; } }

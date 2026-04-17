@@ -571,7 +571,7 @@ export default function PackingShell() {
   }, {} as Record<PackingCategory, PackingItem[]>);
 
   return (
-    <div className="flex-1 overflow-y-auto scrollbar-dark" style={{ backgroundColor: "#1e1e1e" }}>
+    <div className="flex-1 overflow-y-auto scrollbar-dark" style={{ backgroundColor: "#404040" }}>
 
       <style>{`
         .packing-grid {

@@ -154,7 +154,7 @@ export default function ScavengerHuntShell() {
   const [hintOpen, setHintOpen] = useState<string | null>(null);
 
   return (
-    <div style={{ backgroundColor: "#1e1e1e", minHeight: "100vh", color: "white" }}>
+    <div style={{ backgroundColor: "#404040", minHeight: "100vh", color: "white" }}>
       <style>{`
         .sh-action-btn:hover  { transform: translateY(2px); }
         .sh-action-btn:active { transform: translateY(4px); box-shadow: none !important; }

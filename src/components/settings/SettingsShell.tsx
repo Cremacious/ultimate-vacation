@@ -41,7 +41,7 @@ export default function SettingsShell() {
   }
 
   return (
-    <div style={{ backgroundColor: "#1e1e1e", minHeight: "100vh", color: "white" }}>
+    <div style={{ backgroundColor: "#404040", minHeight: "100vh", color: "white" }}>
       <style>{`
         .st-grid {
           display: grid;
