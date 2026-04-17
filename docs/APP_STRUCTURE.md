@@ -82,6 +82,8 @@ Purpose:
 - `/app/trips/[tripId]/vacation-days`
 - `/app/trips/[tripId]/expenses`
 - `/app/trips/[tripId]/polls`
+- `/app/trips/[tripId]/scavenger-hunt`
+- `/app/trips/[tripId]/wishlist`
 - `/app/trips/[tripId]/group`
 - `/app/trips/[tripId]/settings`
 - `/app/trips/[tripId]/settings/members`
@@ -122,8 +124,10 @@ Phase order (as shown in nav):
 7. Vacation Day
 8. Expenses
 9. Polls
-10. Group
-11. Settings
+10. Wishlist
+11. Scavenger Hunt
+12. Group
+13. Settings
 
 The recommended phase is visually highlighted. All phases remain accessible regardless of current recommendation.
 
@@ -181,6 +185,48 @@ After completing setup, the user lands on the Setup view page. A prompt guides t
 The Preplanning page reads the user's Setup choices and shows only the relevant sections. A user who selected Flying + Driving sees flight detail sections and car rental sections but not train or cruise sections. A domestic trip does not see visa or health entry sections. All preplanning fields are optional — power planners can go as deep as they want, casual planners are never blocked.
 
 Preplanning completion drives the trip ball fill percentage. Sections that are not applicable (because of Setup choices) are excluded from the completion denominator.
+
+## Quick-Action Toolbar
+
+Every trip workspace page shows a quick-action toolbar at the top of the content area. It exposes high-frequency actions that would otherwise require navigating to another page.
+
+Default actions:
+
+- Log Expense
+- Create Poll
+- Create Scavenger Hunt challenge
+
+Rules:
+
+- each action opens a small modal or sheet in place — no full page navigation
+- writes go to the same underlying models used by the dedicated Expenses, Polls, and Scavenger Hunt pages
+- the toolbar is the fastest path to the three most commonly-created objects during an active trip; dedicated pages remain the place for review and management
+
+## Cross-Surface Integrations
+
+Certain data objects are intentionally shared between pages. These pages read from and write to the same source — they do not duplicate state.
+
+### Must Do's → Wishlist and Itinerary
+
+Must Do's are added in the Destinations tab of Preplanning. They are the user's "things we really want to do" list. They then surface as suggestions on two other pages:
+
+- Wishlist: Must Do's appear as suggested wishlist items
+- Itinerary: Must Do's appear as "suggested to schedule" prompts
+
+A banner near the top of both pages reads: "You added X, Y, Z to trip Must Do's — let's schedule them now!" One tap adds a Must Do to the Itinerary (with undo) or to the Wishlist. Must Do's stay the source of truth; Wishlist and Itinerary reflect them rather than copy them.
+
+### Itinerary ↔ Vacation Days
+
+Itinerary and Vacation Days read and write the same schedule model.
+
+- "Today's schedule" on Vacation Days pulls directly from the Itinerary data model
+- edits made on Vacation Days flow back to the Itinerary and vice versa
+- the event detail view (attach expense, attach note, like, comment) is the same surface regardless of which page opened it
+- open question: does Itinerary remain a separate sidebar tab during trip-in-progress, or collapse into Vacation Days?
+
+### Scavenger Hunt in Vacation Days
+
+Scavenger Hunt has its own sidebar tab and route (`/app/trips/[tripId]/scavenger-hunt`). Active challenges and progress are also surfaced inside the Vacation Days page while the trip is in progress, so travelers do not need to navigate away to see or check off challenges during the day.
 
 ## Expense Surface
 

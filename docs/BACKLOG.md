@@ -9,6 +9,55 @@ This backlog is meant to stay human-readable. It should help us choose the next 
 
 ---
 
+## P0 - UX Pass (from recent review, to tackle next)
+
+These items came out of a review of the recent preplanning, itinerary, vacation-days, expenses, polls, and wishlist work. They describe cross-page integrations and a layout parity pass to bring every page up to the bento-box standard already set on preplanning. Each bullet is intended to become its own task.
+
+### Must Do's → Wishlist and Itinerary auto-suggestions
+
+- [ ] Must Do's added in the Destinations tab on Preplanning propagate to the Wishlist page as suggested items
+- [ ] Must Do's also appear as "suggested to schedule" prompts on the Itinerary page
+- [ ] Show a banner near the top of Wishlist and Itinerary: "You added X, Y, Z to trip Must Do's — let's schedule them now!"
+- [ ] One-tap add from the banner to Itinerary (with undo) and to Wishlist
+- [ ] Must Do's stay the source of truth; Wishlist and Itinerary reflect, they do not duplicate
+
+### Itinerary ↔ Vacation Days unification
+
+- [ ] "Today's schedule" on `/app/trips/[tripId]/vacation-days` pulls from the Itinerary data model (single source of truth)
+- [ ] Edits made from Vacation Days flow back to Itinerary and vice versa (shared event detail, shared attach-expense/note/like surface)
+- [ ] Decide: does Itinerary remain a separate sidebar tab, or collapse into Vacation Days during trip-in-progress?
+- [ ] Navigation between the two feels continuous — same event detail view opens from either page
+
+### Quick-action toolbar on trip workspace pages
+
+- [ ] Add a top-of-page toolbar with quick actions: Log Expense, Create Poll, Create Scavenger Hunt challenge
+- [ ] Toolbar is visible on every trip workspace page (minimum: Itinerary, Vacation Days, Expenses, Polls, Scavenger Hunt)
+- [ ] Each action opens a small modal / sheet — no full page navigation required
+- [ ] Actions write to the same underlying models as their dedicated pages
+
+### Scavenger Hunt as its own sidebar tab
+
+- [ ] Add `/app/trips/[tripId]/scavenger-hunt` route
+- [ ] Add Scavenger Hunt to the main trip sidebar nav
+- [ ] Scavenger Hunt info (active challenges, progress) is also surfaced inside the Vacation Days page during trip-in-progress
+- [ ] Creating a challenge uses the same surface whether triggered from the sidebar tab or the quick-action toolbar
+
+### Bento-box layout parity across the app
+
+- [ ] Preplanning pages (`/app/trips/[tripId]/preplanning`) are the visual baseline — treat them as the reference for bento-box / large-scale UI layout
+- [ ] Redesign Itinerary to the bento-box grid layout
+- [ ] Redesign Vacation Days to the bento-box grid layout
+- [ ] Redesign Expenses to the bento-box grid layout
+- [ ] Redesign Polls to the bento-box grid layout
+- [ ] Redesign Wishlist to the bento-box grid layout
+- [ ] Redesign Travel Days to the bento-box grid layout
+- [ ] Redesign Packing to the bento-box grid layout
+- [ ] Redesign Group to the bento-box grid layout
+- [ ] Redesign Settings to the bento-box grid layout
+- [ ] Redesign Scavenger Hunt (new) to the bento-box grid layout from the start
+
+---
+
 ## P0 - Active Foundation Work
 
 ### Product and planning

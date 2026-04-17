@@ -282,6 +282,11 @@ Here are the major unresolved choices we still need to answer:
 - packing
 - vacation day
 - expenses
+- polls
+- wishlist
+- scavenger hunt (new sidebar tab)
+- bento-box layout parity — preplanning is the visual baseline; every other page in this round should be redesigned to match its large-scale bento grid treatment
+- quick-action toolbar pattern (Log Expense / Create Poll / Create Scavenger Hunt) applied consistently across trip workspace pages
 
 ### Round 5
 
