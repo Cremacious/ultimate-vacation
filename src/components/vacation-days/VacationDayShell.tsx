@@ -170,7 +170,7 @@ export default function VacationDayShell({ tripId, initialDate }: VacationDayShe
   const [selectedDate, setSelectedDate] = useState(initialDate ?? DEFAULT_DATE);
   const [mobileView, setMobileView] = useState<"list" | "detail">("list");
   const [scavengerItems, setScavengerItems] = useState(SCAVENGER_ITEMS);
-  const [scavengerOpen, setScavengerOpen] = useState(false);
+  const [scavengerOpen, setScavengerOpen] = useState(true);
   const [days, setDays] = useState(MOCK_DAY_META);
   const [meetupInput, setMeetupInput] = useState("");
   const [showMeetupInput, setShowMeetupInput] = useState(false);
@@ -267,14 +267,11 @@ export default function VacationDayShell({ tripId, initialDate }: VacationDayShe
   const leftPanel = (
     <div
       className="flex-shrink-0 border-r flex flex-col"
-      style={{ width: 248, height: "calc(100vh - 56px)", position: "sticky", top: 56, backgroundColor: "#252525", borderColor: "#333333" }}
+      style={{ width: 248, height: "100%", backgroundColor: "#252525", borderColor: "#333333" }}
     >
-      <div className="px-4 pt-5 pb-3 border-b" style={{ borderColor: "#333333" }}>
-        <h2 className="text-xl font-semibold text-white leading-tight" style={{ fontFamily: "var(--font-fredoka)" }}>
-          Vacation Days
-        </h2>
-        <p className="text-xs font-medium mt-0.5" style={{ color: "#9CA3AF" }}>
-          {MOCK_DAY_META.length} days · Apr 2–14
+      <div className="px-4 pt-4 pb-3 border-b" style={{ borderColor: "#333333" }}>
+        <p className="text-xs font-black uppercase tracking-widest" style={{ color: "#9CA3AF" }}>
+          {MOCK_DAY_META.length} days · 3 cities
         </p>
       </div>
 
@@ -356,7 +353,10 @@ export default function VacationDayShell({ tripId, initialDate }: VacationDayShe
         </button>
       </div>
 
-      <div className="p-6 space-y-5 max-w-2xl">
+      <div className="p-5 vd-detail-grid">
+
+        {/* ── Left column: briefing + schedule ── */}
+        <div className="space-y-4">
 
         {/* ── Morning Briefing Card ── */}
         <div
@@ -507,6 +507,91 @@ export default function VacationDayShell({ tripId, initialDate }: VacationDayShe
           </Link>
         </DarkCard>
 
+        {/* ── Scavenger Hunt ── */}
+        <DarkCard className="overflow-hidden">
+          <button
+            className="w-full flex items-center justify-between px-4 py-3 transition-colors hover:bg-[#333333]/40"
+            onClick={() => setScavengerOpen((v) => !v)}
+          >
+            <div className="flex items-center gap-2">
+              <Trophy size={14} weight="fill" style={{ color: "#FFD600" }} />
+              <span className="text-xs font-black uppercase tracking-widest" style={{ color: "#FFD600" }}>
+                Scavenger Hunt
+              </span>
+              <span
+                className="text-xs font-bold px-2 py-0.5 rounded-full"
+                style={{
+                  backgroundColor: scavengerPts > 0 ? "#FFD60022" : "#3a3a3a",
+                  color: scavengerPts > 0 ? "#FFD600" : "#9CA3AF",
+                }}
+              >
+                {scavengerPts} / {scavengerTotal} pts
+              </span>
+            </div>
+            <span className="text-xs font-bold" style={{ color: "#9CA3AF" }}>
+              {scavengerOpen ? "▲" : "▼"}
+            </span>
+          </button>
+
+          {scavengerOpen && (
+            <div className="px-4 pb-4 space-y-1.5">
+              <div className="rounded-full overflow-hidden mb-3" style={{ height: 4, backgroundColor: "#3a3a3a" }}>
+                <div
+                  className="h-full rounded-full transition-all"
+                  style={{
+                    width: `${Math.round((scavengerPts / scavengerTotal) * 100)}%`,
+                    backgroundColor: "#FFD600",
+                  }}
+                />
+              </div>
+
+              {scavengerItems.map((item) => (
+                <button
+                  key={item.id}
+                  onClick={() => toggleScavenger(item.id)}
+                  className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left transition-all hover:bg-[#333333]/40"
+                >
+                  <div
+                    className="w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 transition-all"
+                    style={{
+                      backgroundColor: item.done ? "#FFD600" : "transparent",
+                      border: item.done ? "none" : "2px solid #4a4a4a",
+                    }}
+                  >
+                    {item.done && <Check size={10} weight="bold" color="#1a1a1a" />}
+                  </div>
+
+                  <span
+                    className="flex-1 text-sm font-medium leading-snug"
+                    style={{ color: item.done ? "#666" : "#e5e7eb", textDecoration: item.done ? "line-through" : "none" }}
+                  >
+                    {item.text}
+                  </span>
+
+                  <span
+                    className="text-xs font-black flex-shrink-0 px-2 py-0.5 rounded-full"
+                    style={{
+                      backgroundColor: item.done ? "#FFD60022" : "#3a3a3a",
+                      color: item.done ? "#FFD600" : "#9CA3AF",
+                    }}
+                  >
+                    +{item.points}
+                  </span>
+                </button>
+              ))}
+
+              <p className="text-xs font-medium pt-1" style={{ color: "#444" }}>
+                Tap to check off. Results are visible to the whole group.
+              </p>
+            </div>
+          )}
+        </DarkCard>
+
+        </div>{/* end left col */}
+
+        {/* ── Right column ── */}
+        <div className="space-y-4">
+
         {/* ── Quick Actions ── */}
         <div className="grid grid-cols-3 gap-3">
           <button
@@ -606,10 +691,8 @@ export default function VacationDayShell({ tripId, initialDate }: VacationDayShe
           </DarkCard>
         )}
 
-        {/* ── Group Coordination ── */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          {/* Meetup Point */}
-          <DarkCard className="p-4">
+        {/* Meetup Point */}
+        <DarkCard className="p-4">
             <div className="flex items-center justify-between mb-3">
               <p className="text-xs font-black uppercase tracking-widest" style={{ color: "#00A8CC" }}>
                 Where is everyone
@@ -736,7 +819,6 @@ export default function VacationDayShell({ tripId, initialDate }: VacationDayShe
               </div>
             )}
           </DarkCard>
-        </div>
 
         {/* ── Today's Expenses ── */}
         <DarkCard className="p-4">
@@ -788,84 +870,7 @@ export default function VacationDayShell({ tripId, initialDate }: VacationDayShe
         </DarkCard>
 
         {/* ── Scavenger Hunt ── */}
-        <DarkCard className="overflow-hidden">
-          <button
-            className="w-full flex items-center justify-between px-4 py-3 transition-colors hover:bg-[#333333]/40"
-            onClick={() => setScavengerOpen((v) => !v)}
-          >
-            <div className="flex items-center gap-2">
-              <Trophy size={14} weight="fill" style={{ color: "#FFD600" }} />
-              <span className="text-xs font-black uppercase tracking-widest" style={{ color: "#FFD600" }}>
-                Scavenger Hunt
-              </span>
-              <span
-                className="text-xs font-bold px-2 py-0.5 rounded-full"
-                style={{
-                  backgroundColor: scavengerPts > 0 ? "#FFD60022" : "#3a3a3a",
-                  color: scavengerPts > 0 ? "#FFD600" : "#9CA3AF",
-                }}
-              >
-                {scavengerPts} / {scavengerTotal} pts
-              </span>
-            </div>
-            <span className="text-xs font-bold" style={{ color: "#9CA3AF" }}>
-              {scavengerOpen ? "▲" : "▼"}
-            </span>
-          </button>
-
-          {scavengerOpen && (
-            <div className="px-4 pb-4 space-y-1.5">
-              <div className="rounded-full overflow-hidden mb-3" style={{ height: 4, backgroundColor: "#3a3a3a" }}>
-                <div
-                  className="h-full rounded-full transition-all"
-                  style={{
-                    width: `${Math.round((scavengerPts / scavengerTotal) * 100)}%`,
-                    backgroundColor: "#FFD600",
-                  }}
-                />
-              </div>
-
-              {scavengerItems.map((item) => (
-                <button
-                  key={item.id}
-                  onClick={() => toggleScavenger(item.id)}
-                  className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left transition-all hover:bg-[#333333]/40"
-                >
-                  <div
-                    className="w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 transition-all"
-                    style={{
-                      backgroundColor: item.done ? "#FFD600" : "transparent",
-                      border: item.done ? "none" : "2px solid #4a4a4a",
-                    }}
-                  >
-                    {item.done && <Check size={10} weight="bold" color="#1a1a1a" />}
-                  </div>
-
-                  <span
-                    className="flex-1 text-sm font-medium leading-snug"
-                    style={{ color: item.done ? "#666" : "#e5e7eb", textDecoration: item.done ? "line-through" : "none" }}
-                  >
-                    {item.text}
-                  </span>
-
-                  <span
-                    className="text-xs font-black flex-shrink-0 px-2 py-0.5 rounded-full"
-                    style={{
-                      backgroundColor: item.done ? "#FFD60022" : "#3a3a3a",
-                      color: item.done ? "#FFD600" : "#9CA3AF",
-                    }}
-                  >
-                    +{item.points}
-                  </span>
-                </button>
-              ))}
-
-              <p className="text-xs font-medium pt-1" style={{ color: "#444" }}>
-                Tap to check off. Results are visible to the whole group.
-              </p>
-            </div>
-          )}
-        </DarkCard>
+        </div>{/* end right col */}
 
       </div>
     </div>
@@ -876,15 +881,52 @@ export default function VacationDayShell({ tripId, initialDate }: VacationDayShe
   return (
     <>
       <style>{`
+        .vd-detail-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 1.25rem; }
+        @media (max-width: 1024px) { .vd-detail-grid { grid-template-columns: 1fr; } }
         @media (max-width: 767px) {
           .vd-left  { display: ${mobileView === "list" ? "flex" : "none"} !important; width: 100% !important; height: auto !important; position: static !important; border-right: none !important; }
           .vd-right { display: ${mobileView === "detail" ? "flex" : "none"} !important; }
         }
       `}</style>
 
-      <div className="flex" style={{ height: "calc(100vh - 56px)", backgroundColor: "#1e1e1e" }}>
-        <div className="vd-left hidden md:flex flex-col">{leftPanel}</div>
-        <div className="vd-right flex-1 flex flex-col overflow-hidden">{rightPanel}</div>
+      <div className="flex flex-col" style={{ height: "calc(100vh - 56px)", backgroundColor: "#1e1e1e" }}>
+
+        {/* Header band */}
+        <div className="flex items-center justify-between px-6 py-4 flex-shrink-0" style={{ backgroundColor: "#282828", borderBottom: "1px solid #333333" }}>
+          <div>
+            <h1 style={{ fontFamily: "var(--font-fredoka)", fontSize: "2rem", color: "white", lineHeight: 1.1 }}>Vacation Days</h1>
+            <p className="text-sm font-medium mt-0.5" style={{ color: "#9CA3AF" }}>Apr 2–14 · Japan · {MOCK_DAY_META.length} days</p>
+          </div>
+          <button
+            onClick={() => setExpenseForm((v) => !v)}
+            className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold transition-all active:translate-y-0.5"
+            style={{ backgroundColor: "#00C96B", color: "white", boxShadow: "0 4px 0 #007a42" }}
+          >
+            <Receipt size={14} weight="fill" />
+            Log expense
+          </button>
+        </div>
+
+        {/* Stats row */}
+        <div className="grid grid-cols-3 gap-3 px-6 py-3 flex-shrink-0" style={{ borderBottom: "1px solid #2a2a2a" }}>
+          {[
+            { value: MOCK_DAY_META.length, label: "Days planned", color: "#00A8CC" },
+            { value: `$${totalExpenses}`, label: "Spent today",   color: "#00C96B" },
+            { value: `${scavengerPts} pts`, label: "Hunt score",  color: "#FFD600" },
+          ].map((s) => (
+            <div key={s.label} className="rounded-2xl px-4 py-3" style={{ backgroundColor: "#2e2e2e", border: "1px solid #3a3a3a" }}>
+              <p style={{ fontFamily: "var(--font-fredoka)", fontSize: "1.75rem", color: s.color, lineHeight: 1 }}>{s.value}</p>
+              <p className="text-xs font-bold uppercase tracking-widest mt-1" style={{ color: "#9CA3AF" }}>{s.label}</p>
+            </div>
+          ))}
+        </div>
+
+        {/* Two-panel area */}
+        <div className="flex flex-1 min-h-0">
+          <div className="vd-left hidden md:flex flex-col">{leftPanel}</div>
+          <div className="vd-right flex-1 flex flex-col overflow-hidden">{rightPanel}</div>
+        </div>
+
       </div>
     </>
   );

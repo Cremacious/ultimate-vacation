@@ -716,31 +716,42 @@ export default function ItineraryShell({ tripId, initialDate }: ItineraryShellPr
     <div className="flex flex-col min-h-screen" style={{ backgroundColor: "#1e1e1e" }}>
       {/* Page header */}
       <div
-        className="sticky top-14 z-10 border-b px-5 py-4 flex items-center justify-between"
+        className="sticky top-14 z-10 border-b px-5 py-4 flex items-center justify-between gap-4"
         style={{ backgroundColor: "#282828", borderColor: "#333333" }}
       >
         <div>
-          <h1
-            className="text-white leading-tight"
-            style={{ fontSize: "clamp(24px, 4vw, 32px)", fontFamily: "var(--font-fredoka)" }}
-          >
+          <h1 style={{ fontSize: "2rem", fontFamily: "var(--font-fredoka)", color: "white", lineHeight: 1.1, margin: 0 }}>
             Itinerary
           </h1>
-          <p className="text-sm font-black mt-0.5" style={{ color: "rgba(255,255,255,0.4)" }}>
+          <p className="text-sm font-medium mt-0.5" style={{ color: "#9CA3AF" }}>
             Day-by-day schedule · Anyone can suggest
           </p>
         </div>
 
-        <div
-          className="flex flex-col items-end gap-0.5 rounded-[14px] px-4 py-2.5 border"
-          style={{ backgroundColor: "rgba(255,255,255,0.03)", borderColor: "#3a3a3a" }}
-        >
-          <span className="text-[11px] font-black" style={{ color: "rgba(255,255,255,0.35)" }}>
-            {totalEventCount} events
-          </span>
-          <span className="text-sm font-black" style={{ color: coverageColor }}>
-            Coverage: {coverageLabel}
-          </span>
+        <div className="flex items-center gap-3 flex-shrink-0">
+          {/* Mini stats */}
+          <div className="flex items-center gap-2">
+            {[
+              { value: totalEventCount, label: "Events",   color: "#00A8CC" },
+              { value: daysWithEvents,  label: "Days",     color: "#A855F7" },
+              { value: `${coveragePct}%`, label: coverageLabel, color: coverageColor },
+            ].map(s => (
+              <div key={s.label} className="text-center px-3 py-1.5 rounded-xl border"
+                style={{ backgroundColor: "rgba(255,255,255,0.03)", borderColor: "#3a3a3a" }}>
+                <p style={{ fontFamily: "var(--font-fredoka)", fontSize: "1.1rem", color: s.color, lineHeight: 1, fontWeight: 900 }}>{s.value}</p>
+                <p className="text-[10px] font-bold uppercase tracking-widest mt-0.5" style={{ color: "#555" }}>{s.label}</p>
+              </div>
+            ))}
+          </div>
+          {/* Add event button */}
+          <button
+            onClick={() => setAddingEvent(true)}
+            className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold transition-all flex-shrink-0"
+            style={{ backgroundColor: "#00A8CC", color: "white", boxShadow: "0 4px 0 #006e88" }}
+          >
+            <Plus size={14} weight="bold" />
+            Add event
+          </button>
         </div>
       </div>
 
