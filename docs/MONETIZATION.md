@@ -19,6 +19,18 @@ Premium should save the trip.
 
 That means free users should understand the app quickly and get real utility, but the features that reduce chaos the most — and the ads that would otherwise interrupt them — sit behind the upgrade.
 
+## 1. Discoverability and Monetization Visibility
+
+Pricing and monetization are **never shown on the landing page or any marketing surface**. The product is presented as free. Users discover limits and premium features naturally through usage.
+
+- Landing page: no pricing, no plan comparison, no mention of premium
+- The word "free" is used prominently on marketing surfaces to attract signups
+- Premium is surfaced only after account creation, through natural paywalls and a subtle "Get Premium" or "Remove Ads" entry point in the app
+- Users should assume the product is fully free until they encounter a paywall organically
+- The upgrade flow explains premium benefits and the $5 price only at that moment
+
+Landing page goal: sell the idea of one app that handles all trip planning details — show off every feature, emphasize free access, drive signups.
+
 ## 1. Customer Model
 
 Primary customer:
@@ -74,7 +86,7 @@ Ad revenue should cover Vercel + Neon costs. Azure receipt scanning costs are ab
 ### Keep free
 
 - create account
-- create trips (unlimited — no artificial trip limit)
+- 4 trip slots total (active, stale, and vaulted all count against the same limit; creating a trip and joining a trip each use one slot)
 - full trip setup and preplanning wizard
 - itinerary building (full CRUD, all users can contribute)
 - packing lists (personal and shared visibility)
@@ -87,6 +99,7 @@ Ad revenue should cover Vercel + Neon costs. Azure receipt scanning costs are ab
 
 ### Make premium (one-time $5)
 
+- **50 trip slots** — up from 4 (active, stale, and vaulted combined)
 - **Ad removal** — permanent ad-free experience
 - **Offline mode** — itinerary, packing, travel-day access without internet (high priority premium)
 - **Receipt scanning** — Azure-powered OCR to log expenses from photos

@@ -223,6 +223,11 @@ All sections are optional. Sections shown/hidden based on Setup choices.
 ### Travel day
 
 - [ ] Add travel-day data model (date, transport mode, ordered task list, departure window, stopover checkpoints)
+- [ ] Each traveler has their own personal checklist instance (not shared)
+- [ ] Checklist public/private toggle per user (public = visible to group)
+- [ ] Combine two checklists into side-by-side display view (display merge, not data merge — clean to uncombine)
+- [ ] Group status summary on travel day overview: who has checked off what (public checklists only)
+- [ ] Manual "We're off" trigger by organizer to enter Travel Day state (not automatic — accounts for delays)
 - [ ] Build vertical timeline UI component for travel day
 - [ ] Implement task check-off with completed visual state (dim and strike-through)
 - [ ] Implement auto-scroll animation to next incomplete task on check-off
@@ -271,10 +276,16 @@ All sections are optional. Sections shown/hidden based on Setup choices.
 
 ## P2 - Collaboration
 
-- [ ] Add invite code workflow
-- [ ] Add per-user permission management UI (trip settings → click user → toggle features)
-- [ ] Add simplified permission presets on trip creation form with link to full settings
-- [ ] Add QR code for invite sharing
+- [ ] Invite link system: general link (not per-person), with optional approval gate toggle set when generating the link
+- [ ] Organizer can disable non-admin invite link generation in trip settings
+- [ ] QR code version of active invite link
+- [ ] Invite landing page (unauthenticated): shows trip name, destination, dates, organizer — CTA "Join this trip — it's free"
+- [ ] New user joining via invite link skips empty dashboard and lands in trip workspace with Must Dos prompt
+- [ ] Participant first-action prompt: "What are your Must Dos for this trip?" before reaching full workspace
+- [ ] Three permission roles: Viewer (read-only), Contributor (add proposals, log expenses, vote), Co-organizer (full access)
+- [ ] Roles are presets — organizer can override individual permission toggles per user for precision
+- [ ] Per-user permission management UI (trip settings → click user → role selector + individual toggles)
+- [ ] Notification settings: per-type push notification toggle in account settings (all on by default)
 
 ## P2 - Social Layer
 

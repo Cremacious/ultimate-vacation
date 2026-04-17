@@ -162,6 +162,24 @@ The workspace should not act like a flat folder of pages. It should respond to t
 - context panel or alert area
 - daily status card (vacation days)
 
+## Trip Lifecycle States
+
+Trips move through a defined set of states. The workspace UI, trip ball behavior, and overview page content all respond to the current state automatically — with one manual exception.
+
+| State | Condition | Overview page focus |
+|---|---|---|
+| **Draft** | Created, setup incomplete | Push to complete setup |
+| **Planning** | Setup done, pre-departure | Preplanning progress, next best action, unscheduled Must Dos |
+| **Ready** | Preplanning complete, departure approaching | Travel day readiness, unresolved blockers |
+| **Travel Day** | Manually triggered by organizer on departure day | Group checklist status, everyone's progress, departure tasks |
+| **In Progress** | Trip active (between departure and return dates) | Today's highlights, coming up today, recent polls, activity feed |
+| **Stale** | Return date passed, not closed out | Wrap-up summary, unsettled expenses, close-out CTA |
+| **Vaulted** | Closed out by organizer | Memory vault — read-only, browsable, shareable |
+
+Phase transitions are date-driven and automatic. The Travel Day state is the only manually triggered transition — organizers tap "We're off" because real-world departures can be delayed and the app shouldn't assume.
+
+Stale trips can still be edited (add forgotten expenses, update notes). No nudge is sent for stale trips — the slot limit creates natural pressure. Users who want to create a new trip eventually have to close one out.
+
 ## Trip Creation Flow
 
 Trip creation follows an invite-first, async-collaborative flow:
@@ -172,6 +190,8 @@ Trip creation follows an invite-first, async-collaborative flow:
 4. **Trip workspace** — everyone lands in the full workspace; preplanning remains editable at any time
 
 Participants join before the plan solidifies so they can add their Must Dos and vote on early proposals. The invite step is the second screen after trip creation — not an afterthought.
+
+**Participant first action:** When a participant joins (via invite link or code), their first screen is a focused prompt — "What are your Must Dos for this trip?" — before they reach the full workspace. This seeds the Proposed queue with input from everyone on day one and immediately makes them a contributor rather than a viewer.
 
 Setup captures only the high-level skeleton of the trip. All granular details (flight numbers, lodging confirmations, group member info, documents, etc.) live in Preplanning.
 
@@ -272,6 +292,47 @@ TripWave does not have group chat. Communication is structured, async, and purpo
 
 **Per-page onboarding tooltips:** The first time a user visits any trip workspace page, a brief popup explains the page's purpose with examples. Dismissed with "Got it" — stored in user preferences and never shown again for that page.
 
+## Invite System
+
+Invites use a general link (not per-person). Anyone with the link can join. The organizer controls entry via an approval setting chosen when generating the link.
+
+**Invite link modes:**
+- **Open** — anyone with the link joins instantly, no approval required
+- **Approval required** — joiners are held in a pending state until the organizer accepts or declines; prevents unauthorized access if a link is forwarded
+
+**Who can generate invite links:**
+- Organizer always can
+- Non-admin members can by default — organizer can disable this in trip settings
+
+**Invite landing page (unauthenticated):** Shows the trip name, destination, dates, and organizer name. A brief line explains TripWave. CTA: "Join this trip — it's free." Signing up through an invite link skips the empty dashboard and drops the new user directly into the trip workspace, where the Must Dos prompt appears immediately.
+
+QR code is always available as an alternative share method for the active invite link.
+
+## Trip Overview Page
+
+The trip overview (`/app/trips/[tripId]`) is a dynamic dashboard — its content changes based on the trip's current lifecycle state.
+
+| State | Primary content |
+|---|---|
+| Draft / Planning | Preplanning progress, next best action, unscheduled Must Dos, upcoming milestones |
+| Ready | Travel day readiness checklist, unresolved blockers, departure countdown |
+| Travel Day | Group checklist status (who's done what), departure task summary |
+| In Progress | Coming up today, today's highlights, recent polls, activity feed |
+| Stale | Wrap-up summary (total spend, days, participants), unsettled expenses list, close-out CTA |
+| Vaulted | Memory vault summary — read-only, trip stats, recap |
+
+The activity feed (state-change log) appears on the In Progress overview as a scrollable section. It is also accessible from any trip page via the bell icon in the trip header.
+
+## Empty State (New User Dashboard)
+
+A user with no trips sees a single focused screen:
+- Large CTA: "Plan your first trip"
+- Tagline: "Invite your group, build your itinerary, and get everyone on the same wave"
+- Brief instructions explaining what to do first
+- Feature teasers showing what awaits them in the app
+
+No demo trip, no feature tour wizard. The per-page tooltips handle teaching once they're inside a real trip.
+
 ## Expense Surface
 
 Expenses are accessible from multiple entry points:
@@ -309,6 +370,16 @@ Travel day and vacation day pages use a dedicated full-screen vertical timeline 
 - completed tasks remain visible below, dimmed and struck through
 - phase nav and non-essential planning UI collapse to maximize timeline space
 - the trip ball remains visible but reduced -- it is not the focus during execution
+
+### Travel Day Checklist
+
+Each traveler has their own personal travel day checklist. Checklists are independent — checking off "left house" only marks it for you, not your travel partner.
+
+**Visibility toggle:** Each user can set their checklist to public (visible to the whole group) or private. Public checklists enable passive group coordination — "mom can check the app instead of texting to ask if I packed my passport."
+
+**Combining checklists:** Two travelers (e.g., a couple) can combine their checklists into a side-by-side view. This is a display merge, not a data merge — each person still owns and checks off their own items. Uncombining is always clean because ownership never changed. The value is seeing both lists at once without switching views.
+
+**Group status view:** When checklists are public, the trip overview (Travel Day state) shows a summary of everyone's progress — useful for seeing at a glance that mom and dad have landed while you're still at the airport.
 
 ### Mobile behavior
 
