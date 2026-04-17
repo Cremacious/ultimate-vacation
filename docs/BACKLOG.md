@@ -137,7 +137,12 @@ All sections are optional. Sections shown/hidden based on Setup choices.
 
 - [ ] Section: Transport details — Flying (shown when fly selected in Setup)
   - [ ] Multiple flight legs (outbound, return, connections, separate mid-trip flights)
-  - [ ] Per leg: origin/destination airport (IATA), departure/arrival date+time, flight number, airline, confirmation ref, seat class, connection flag
+  - [ ] Per leg: origin/destination airport (IATA + full name), departure/arrival date+time (with timezone), flight number, airline, confirmation/booking ref, ticket class, connection flag
+  - [ ] Per leg per traveler: seat number, boarding group, meal preference, checked bags count, baggage allowance
+  - [ ] Per traveler: frequent flyer number, TSA PreCheck/Known Traveler Number, passport number (for international), Known Traveler ID
+  - [ ] Check-in open time, online check-in status toggle
+  - [ ] Terminal and gate fields (fillable day-of)
+  - [ ] Ticket price per leg (auto-links to expense ledger)
   - [ ] Airport transfer notes per leg
 - [ ] Section: Transport details — Driving (shown when drive selected in Setup)
   - [ ] Own car vs rental toggle
@@ -150,7 +155,12 @@ All sections are optional. Sections shown/hidden based on Setup choices.
 - [ ] Section: Transport details — Cruise (shown when cruise selected in Setup)
   - [ ] Cruise line, ship name, ports, embarkation/disembarkation date+time, cabin class, confirmation ref
 - [ ] Section: Lodging — always shown
-  - [ ] Multiple entries: property name, type, city, address, check-in/out dates+times, confirmation ref, contact number, notes
+  - [ ] Multiple entries: property name, type (hotel/airbnb/hostel/rental/other), city, full address, check-in/out dates+times, confirmation ref, contact number, notes
+  - [ ] Per entry: room type, bed type, number of rooms, floor/unit number
+  - [ ] Per entry: included amenities (breakfast, parking, wifi, pool — tag multi-select)
+  - [ ] Per entry: cancellation deadline, cancellation policy notes
+  - [ ] Per entry: loyalty/rewards program number, early check-in or late checkout request notes
+  - [ ] Per entry: nightly rate + total cost (auto-links to expense ledger)
   - [ ] Number of suggested entries informed by destination count from Setup
 - [ ] Section: Group composition (shown when travelerCount > 1)
   - [ ] Per-traveler: name, dietary needs (tag multi-select), mobility needs, medical notes (private), emergency contact
@@ -347,6 +357,17 @@ All sections are optional. Sections shown/hidden based on Setup choices.
 - [ ] Shareable public link for memory vault (same rules as itinerary share link)
 - [ ] Surface past vaults from user dashboard past trips list
 
+## P2 - Dream Trip Mode
+
+- [ ] Add Dream Trip flag to trip data model (toggle at creation or in trip settings)
+- [ ] Dream Trip ball: distinct color/animation state in dashboard and workspace
+- [ ] Budget and expenses optional and untotaled in Dream Mode (no overage warnings, no settlement)
+- [ ] Public share link on by default for Dream Trips
+- [ ] "Make it real" CTA in trip settings — converts Dream Trip to live trip (premium upsell moment)
+- [ ] Dream Trips count against trip slots (same as real trips)
+- [ ] Vault entry for Dream Trips displays as vision board rather than trip summary
+- [ ] Dashboard distinguishes Dream Trips visually from active and vaulted real trips
+
 ## P3 - Trip Duplication (Premium)
 
 - [ ] Build duplicate trip action (organizer only, premium)
@@ -427,7 +448,17 @@ All sections are optional. Sections shown/hidden based on Setup choices.
 - [ ] Add offline confirmation vault access for premium users
 - [ ] Build trip statistics generator (auto at wrap-up: days, total spend, events, participants, etc.)
 - [ ] Build post-trip poll (organizer creates or auto-generated with suggested categories)
-- [ ] Build scavenger hunt (organizer creates challenges, participants check off, optional points)
+- [ ] Build scavenger hunt (organizer creates challenges, participants check off, point system)
+- [ ] Challenge types: photo submission, location check-in, trivia question, QR code scan, text answer
+- [ ] Sequential challenge unlocking (challenges reveal one at a time after completion)
+- [ ] Point system with live leaderboard visible to all participants
+- [ ] Hint system: organizer sets hints per challenge, participants unlock at point penalty
+- [ ] Timed challenges: organizer sets a completion deadline per challenge
+- [ ] Team vs individual mode (set at hunt creation)
+- [ ] Push notification on challenge unlock ("Your next challenge is ready")
+- [ ] Organizer live progress dashboard (see everyone's status in real time)
+- [ ] Completion celebration animation (water-themed burst)
+- [ ] Collaborative hunt creation: non-organizer participants can suggest challenges (subject to approval mode); complicates planning in a fun way and drives more screen time for all involved
 - [ ] Show scavenger hunt in vacation day section when trip is in progress
 
 ## P2 - Smart and Proactive Tools

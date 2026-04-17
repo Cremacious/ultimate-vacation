@@ -260,6 +260,35 @@ Itinerary and Vacation Days read and write the same schedule model.
 
 Scavenger Hunt has its own sidebar tab and route (`/app/trips/[tripId]/scavenger-hunt`). Active challenges and progress are also surfaced inside the Vacation Days page while the trip is in progress, so travelers do not need to navigate away to see or check off challenges during the day.
 
+### Scavenger Hunt Feature Design
+
+Scavenger Hunt is intentionally feature-rich — complexity drives re-opens, and re-opens drive ad time. Each challenge completion is a reason to open the app. A family of 5 doing a 10-challenge hunt is 50+ app sessions.
+
+**Challenge types:**
+- Photo submission (participant uploads a photo to complete)
+- Location check-in (arrive at a specific spot)
+- Trivia question (text answer, organizer sets correct answer)
+- QR code scan (organizer generates, placed at a real-world location)
+- Text answer (open-ended or exact match)
+
+**Engagement mechanics:**
+- **Sequential unlocking** — challenges reveal one at a time after each completion; forces repeated re-opens
+- **Point system + live leaderboard** — visible to all participants; competition drives check-ins
+- **Hint system** — organizer sets optional hints per challenge; participants unlock hints at a point penalty
+- **Timed challenges** — "complete before 6pm" adds urgency
+- **Team vs individual mode** — organizer chooses at hunt creation
+- **Push notification on unlock** — "Your next challenge is ready" guarantees a re-open
+- **Organizer live dashboard** — real-time view of everyone's progress
+- **Completion celebration** — water-themed animation burst on challenge completion
+
+## TripWave as Single Source of Truth
+
+TripWave does not search for or book flights or hotels. Users book externally (Delta, Booking.com, Airbnb, etc.) and then enter every detail into TripWave. After that, they never need to reopen those apps or dig through confirmation emails — TripWave has everything.
+
+**The goal:** a user who has finished preplanning should be able to leave their house with only TripWave open and have every piece of trip information they need — gate, seat, hotel address, check-in time, confirmation numbers, emergency contacts, visa requirements, everything.
+
+This philosophy drives the preplanning fields to be exhaustive. Every field a user would otherwise look up in a third-party app should be capturable here. The more complete TripWave is, the stickier it becomes.
+
 ## Approval Modes
 
 Every trip has an approval mode controlling who can change shared content. Organizer sets this during trip creation and can change it in trip settings.
@@ -358,6 +387,8 @@ The preplanning wizard is a multi-section form organized by category:
 
 Progress through the preplanning wizard drives the trip ball fill. Sections can be completed in any order. Skipped or not-applicable sections are handled gracefully.
 
+The preplanning page is a long scrollable form — not a step-by-step wizard. Users can see all sections at once, jump to what they know, skip what they don't, and return later without feeling blocked. Transition animations between sections (especially on mobile) make the experience feel fluid and dynamic rather than like a static form. Animations guide users forward and create a sense of momentum. The trip ball fill percentage is the progress indicator — not a wizard progress bar.
+
 ## Travel Day UI
 
 Travel day and vacation day pages use a dedicated full-screen vertical timeline layout that overrides the standard trip workspace shell when active.
@@ -403,6 +434,8 @@ Edits on the day do not overwrite the planning template.
 
 ## UX Rules For Structure
 
+- **Button 3D treatment (global rule):** Every clickable button has a bottom border that gives it a raised, 3D feel. This applies only to buttons — not links, labels, or non-interactive elements. This trains users to quickly identify what can be clicked, especially on unfamiliar pages. It is a consistent visual contract across the entire app.
+- **Animation philosophy (global rule):** The whole app should feel fluid. Animation direction is water and ocean-themed — fluid fills, ripples, wave-like motion — consistent with the tagline "get everyone on the same wave." The trip ball fills like liquid rising in a container, not a mechanical progress bar. Ripple animations give the ball personality. Page transitions, state changes, and micro-interactions all carry subtle fluid motion. Rules: animations must be fast (under 300ms), must never block interaction, and must not impact performance. App performance is always the highest priority — animations are personality, not spectacle. On mobile they feel essential; on desktop they are polish.
 - every page should make the current trip and current phase obvious
 - every phase page should show the next recommended action
 - empty states must teach, not just inform
@@ -446,6 +479,58 @@ On mobile, the left-rail sidebar is hidden by default and revealed via a toggle.
 2. full phase navigation list with colored icons (same as desktop)
 3. active phase highlighted, recommended phase badged
 4. trip settings and account at the bottom
+
+## Dream Trip Mode
+
+Dream Trip is a mode flag on a normal trip — not a separate feature or data model. Users can mark any trip as a Dream Trip at creation or from trip settings.
+
+**What it is:** Aspirational trip planning for experiences the user doesn't expect to take soon. A status symbol, a vision board, a fun planning exercise. Could be a $50k Japan fantasy or a backpacking trip a user is saving toward.
+
+**What changes in Dream Mode:**
+- Trip ball gets a distinct visual state/color — clearly differentiated from real trips in the dashboard
+- Budget is aspirational — no overage warnings, no expense settlement logic
+- Expenses are optional and untotaled — this is fantasy, not finance
+- Public share link is on by default — Dream Trips are built to be shown off
+- Vault entry feels like a vision board, not a trip summary
+- "Make it real" button converts Dream Trip to a live trip — natural premium upsell moment
+
+**What stays the same:** proposals, Must Dos, itinerary building, polls, wishlist, group collaboration. Full planning experience for a trip that may never happen.
+
+**Why it works for the business:**
+- Counts against trip slots — free users hit their 4-slot limit faster, driving premium upgrades
+- Increases screen time with no additional operating cost (same infrastructure)
+- Shareable by default — organic marketing and social proof
+- "Make it real" conversion is a premium moment that feels earned, not forced
+
+## Memory Vault (Vaulted Trip View)
+
+When a user opens a vaulted trip, they see a dedicated memory experience — not the trip workspace in read-only mode. It should feel like walking down memory lane, not a frozen planning tool.
+
+Design principles:
+- Nostalgic tone — the ball sits in its faded, calm state
+- Sidebar nav is gone or minimal; this is not a workspace
+- Sections are collapsed by default, expanded by tapping — browsable at the user's pace
+- Built for showing off: users can walk friends through what they did, where they went, what they spent
+- Shareable public link lets non-account users view the vault (no account required to view)
+
+Content:
+- Trip summary card: destination(s), dates, participant count, total spend
+- Expense breakdown: per-category and per-person
+- Itinerary highlights: events promoted from proposals, key moments
+- Must Dos: which ones made it, which didn't
+- Participant recap field (free text, written at close-out)
+- Photo-free — no image hosting; memory is built from structured data
+
+## Account Settings (`/app/account`)
+
+Four sections:
+
+- **Profile** — name, email, and avatar. Avatars are customizable colored circles — no image uploads supported. No image hosting needed; fits the app's text-first philosophy. Avatar customization (color, style options) sits at the top of this section.
+- **Notifications** — per-type push notification toggles. All notifications are on by default; users opt out of specific types.
+- **Premium** — current plan status, trip slot usage counter ("3 of 4 slots used"), upgrade CTA for free users, or confirmation for premium holders.
+- **Account** — change password, delete account.
+
+Personalization beyond profile (ball color, trip vibe) lives inside each trip, not in account settings.
 
 ## Open Layout Questions
 
