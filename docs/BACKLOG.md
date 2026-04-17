@@ -13,13 +13,17 @@ This backlog is meant to stay human-readable. It should help us choose the next 
 
 These items came out of a review of the recent preplanning, itinerary, vacation-days, expenses, polls, and wishlist work. They describe cross-page integrations and a layout parity pass to bring every page up to the bento-box standard already set on preplanning. Each bullet is intended to become its own task.
 
-### Must Do's → Wishlist and Itinerary auto-suggestions
+### Unified Proposal Layer (Must Do's, Wishlist, Suggestions)
 
-- [ ] Must Do's added in the Destinations tab on Preplanning propagate to the Wishlist page as suggested items
-- [ ] Must Do's also appear as "suggested to schedule" prompts on the Itinerary page
-- [ ] Show a banner near the top of Wishlist and Itinerary: "You added X, Y, Z to trip Must Do's — let's schedule them now!"
-- [ ] One-tap add from the banner to Itinerary (with undo) and to Wishlist
-- [ ] Must Do's stay the source of truth; Wishlist and Itinerary reflect, they do not duplicate
+Must Do's, wishlist items, and suggestions are unified into a single Proposed layer. There is no separate wishlist page — all proposals share one data type with a status field: Must Do / Proposed / Approved / Scheduled.
+
+- [ ] Design unified Proposed data model with status field
+- [ ] Must Dos: shared across the group, attributed by person ("Alex's Must Do"), visually priority-highlighted in the queue
+- [ ] App tracks unscheduled Must Dos and surfaces scheduling prompts on Itinerary
+- [ ] Proposed items support reactions, up/down voting, and one-liner opinions
+- [ ] Approved items stay in queue with Approved badge — not auto-moved to Itinerary
+- [ ] Promote to Itinerary: deliberate action with date + time selection
+- [ ] Per-page first-visit tooltip: brief popup explaining page purpose with examples, dismissed with "Got it", never shown again for that page (stored in user prefs)
 
 ### Itinerary ↔ Vacation Days unification
 
@@ -104,7 +108,8 @@ These items came out of a review of the recent preplanning, itinerary, vacation-
 
 ### Trip creation and structure
 
-- [ ] Create trip onboarding flow (lands in setup edit form)
+- [ ] Create trip onboarding flow: create blank trip → invite participants → async collaborative setup → trip workspace
+- [ ] Approval mode selection in trip creation form (Open / Vote / Gated) — also editable in trip settings later
 - [ ] Model trip phases and stage progress
 - [ ] Model trip lifecycle statuses and readiness logic
 - [ ] Define next best action computation rules
@@ -251,6 +256,19 @@ All sections are optional. Sections shown/hidden based on Setup choices.
 - [ ] Allow winning option to be converted to an itinerary item
 - [ ] Polls are free for all users
 
+### Proposal, Approval, and Communication System
+
+- [ ] Unified Proposed data model (status: Must Do / Proposed / Approved / Scheduled)
+- [ ] Approval mode setting: Open, Vote, Gated — set in trip creation wizard and editable in trip settings
+- [ ] Vote mode: vote closes on full participation, set end date, or manual close by admin or vote creator
+- [ ] Approved items stay in Proposed queue with Approved badge — not auto-moved to Itinerary
+- [ ] Promote to Itinerary: deliberate one-tap action with date and time selection
+- [ ] Activity feed per trip: state-change log (item added, voted, approved, promoted — no free text)
+- [ ] Reactions on proposed items and itinerary events (emoji, one per user per item)
+- [ ] One-liner opinion per user per item: quick-response chips + text input (not textarea), 100 char cap
+- [ ] Nudge: sends push notification to non-voters on a pending vote
+- [ ] Must Do scheduling reminders: app prompts when Must Dos haven't landed on Itinerary
+
 ## P2 - Collaboration
 
 - [ ] Add invite code workflow
@@ -271,13 +289,13 @@ All sections are optional. Sections shown/hidden based on Setup choices.
 
 ## P2 - Activity Wishlist
 
-- [ ] Add wishlist item model (title, description, category, author, created at)
-- [ ] Build wishlist UI within preplanning and trip workspace
-- [ ] Support likes and comments on wishlist items
-- [ ] One-tap promotion from wishlist to itinerary (with undo)
-- [ ] One-tap poll escalation from wishlist item
-- [ ] Organizer can restrict wishlist posting per user via existing permission toggles
-- [ ] Wishlist item removed from list on promotion, restored on undo
+> Design note: The wishlist is now part of the Unified Proposal Layer (see P1 Proposal, Approval, and Communication System). The `/wishlist` route and sidebar tab still exist as a view into the Proposed queue filtered to non-Must-Do items. The separate wishlist data model is replaced by the shared Proposed model.
+
+- [ ] Build wishlist/proposal UI (filter view of Proposed queue — Proposed and Approved status items, excluding Must Dos)
+- [ ] Support reactions and one-liner opinions on proposed items (shared with proposal system)
+- [ ] One-tap promotion from proposed to itinerary with date + time selection (shared with proposal system)
+- [ ] One-tap poll escalation from a proposed item
+- [ ] Organizer can restrict proposal posting per user via existing permission toggles
 
 ## P2 - Trip Notes
 

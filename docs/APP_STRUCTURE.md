@@ -164,7 +164,16 @@ The workspace should not act like a flat folder of pages. It should respond to t
 
 ## Trip Creation Flow
 
-Trip creation lands the user directly in the Setup edit form. Setup captures only the high-level skeleton of the trip. All granular details (flight numbers, lodging confirmations, group member info, documents, etc.) live in Preplanning.
+Trip creation follows an invite-first, async-collaborative flow:
+
+1. **Create blank trip** — organizer enters the trip name and at least one destination to create the shell
+2. **Invite participants** — organizer adds friends immediately, before setup is complete; all participants can begin contributing their Must Dos and reacting to proposals from the start
+3. **Async collaborative setup** — organizer and participants fill in preplanning details at their own pace; changes appear when others refresh or re-open the app; no real-time sync required
+4. **Trip workspace** — everyone lands in the full workspace; preplanning remains editable at any time
+
+Participants join before the plan solidifies so they can add their Must Dos and vote on early proposals. The invite step is the second screen after trip creation — not an afterthought.
+
+Setup captures only the high-level skeleton of the trip. All granular details (flight numbers, lodging confirmations, group member info, documents, etc.) live in Preplanning.
 
 ### Setup form fields
 
@@ -206,14 +215,17 @@ Rules:
 
 Certain data objects are intentionally shared between pages. These pages read from and write to the same source — they do not duplicate state.
 
-### Must Do's → Wishlist and Itinerary
+### Unified Proposal Layer (Must Do's, Wishlist, and Suggestions)
 
-Must Do's are added in the Destinations tab of Preplanning. They are the user's "things we really want to do" list. They then surface as suggestions on two other pages:
+There is no separate wishlist entity. All proposals share one data model with a status field.
 
-- Wishlist: Must Do's appear as suggested wishlist items
-- Itinerary: Must Do's appear as "suggested to schedule" prompts
+**Proposal lifecycle:**
+- **Must Do** — high-priority desire, attributed by person ("Alex's Must Do"). Shared with the whole group. A fairness mechanism: signals what someone really needs from the trip. Visually highlighted above other proposals. The app tracks unscheduled Must Dos and surfaces reminders on the Itinerary page.
+- **Proposed** — idea under group consideration. Reactions, up/down votes, and one-liner opinions attach here.
+- **Approved** — vote threshold met or organizer approved. Stays in queue with an Approved badge. Not auto-moved to Itinerary.
+- **Scheduled** — promoted deliberately to the Itinerary with a selected date and time.
 
-A banner near the top of both pages reads: "You added X, Y, Z to trip Must Do's — let's schedule them now!" One tap adds a Must Do to the Itinerary (with undo) or to the Wishlist. Must Do's stay the source of truth; Wishlist and Itinerary reflect them rather than copy them.
+**Collaboration emphasis:** "Get everyone on the same wave" is the guiding principle. Text, empty states, and prompts throughout the app encourage users to invite friends early, share their Must Dos, and react to proposals. Must Dos specifically prevent any one person's wishes from being ignored in group planning.
 
 ### Itinerary ↔ Vacation Days
 
@@ -227,6 +239,38 @@ Itinerary and Vacation Days read and write the same schedule model.
 ### Scavenger Hunt in Vacation Days
 
 Scavenger Hunt has its own sidebar tab and route (`/app/trips/[tripId]/scavenger-hunt`). Active challenges and progress are also surfaced inside the Vacation Days page while the trip is in progress, so travelers do not need to navigate away to see or check off challenges during the day.
+
+## Approval Modes
+
+Every trip has an approval mode controlling who can change shared content. Organizer sets this during trip creation and can change it in trip settings.
+
+- **Open** — any participant can add, edit, or remove items without approval
+- **Vote** — changes require majority support (threshold configurable by organizer, default 60%)
+- **Gated** — all additions and changes require organizer approval before they land
+
+**How votes close (Vote mode only):**
+- All eligible participants have voted
+- An end date and time is reached (optional, set when the vote is created)
+- The organizer or the vote's creator manually closes it
+
+Approved items receive an Approved badge in the Proposed queue. They do not auto-move to the Itinerary. Promotion is a deliberate action that requires selecting a date and time.
+
+## Communication Tools
+
+TripWave does not have group chat. Communication is structured, async, and purpose-built for trip coordination.
+
+| Tool | Purpose | Storage |
+|---|---|---|
+| Activity feed | State-change log per trip (item added, voted, approved, promoted) — no free text | One row per action |
+| Reactions | Emoji signal on proposals and events | One row per user per item |
+| One-liner opinion | Short user take on a proposed item | One string per user per item |
+| Nudge | Push notification to non-voters on a pending vote | Zero — fires and forgets |
+
+**One-liner UX:** Quick-response chips ("I'm in", "Too expensive", "Love it") plus a text input (not textarea). One opinion per user per item — not a thread. 100 character cap enforces signal over debate.
+
+**Activity feed:** Shows what changed, not what people said. Example entries: "Alex added Ramen at Ichiran", "Sam voted yes on teamLab Planets", "Jordan closed the vote." No free-form text. Replaces the "did you see the update?" message that would otherwise happen in group chat.
+
+**Per-page onboarding tooltips:** The first time a user visits any trip workspace page, a brief popup explains the page's purpose with examples. Dismissed with "Got it" — stored in user preferences and never shown again for that page.
 
 ## Expense Surface
 

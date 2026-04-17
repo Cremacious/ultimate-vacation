@@ -244,7 +244,48 @@ Profit comes from disciplined scope as much as revenue.
 - bad ad placements: during travel-day execution, mid-checklist, mid-expense entry
 - premium permanently removes all ads
 
-## 9. Open Monetization Questions
+## 9. Engagement Model and Ad Revenue Case
+
+### Why multi-day trips are structurally good for ad revenue
+
+Ad networks typically consider a user "active" at roughly 25 sessions × 4 minutes each per month. A single multi-day group trip can clear this threshold on its own:
+
+- A 7-day trip with 20 min/day average usage = 140 min for that trip alone
+- Multiple users per trip multiply this: a 4-person group trip = 4× the session count
+- Users return to the app naturally each morning to check Today's Schedule on Vacation Days — this is the daily anchor screen and the primary re-engagement hook during a live trip
+
+### Re-engagement strategy
+
+**During the trip (highest engagement window):**
+- Vacation Days page is the daily pull — users open it to see the day's schedule, check off scavenger hunt items, post meetup locations, and log expenses
+- This creates natural multi-session days without requiring any push from the organizer
+
+**Push notifications (iOS/Android — deferred to native build):**
+- Poll created → notify group to vote
+- New itinerary event added → notify participants
+- Expense logged → notify split members
+- Travel day starting → morning brief notification
+- These are the primary reason non-organizer participants reopen the app
+
+**Viral / referral loop:**
+- Every organizer pulls in multiple participants (typically 2–8 per trip)
+- Participants experience the app as users, not just as invited viewers
+- Future trips: participants become organizers, bringing new groups
+- One active user is likely to generate one or more additional accounts
+
+### Ad placement timing
+
+The highest-value ad slots are:
+- pre-trip preplanning (user is engaged but not time-pressured)
+- between vacation day sections (natural scroll pause points)
+- post-trip wrap-up and memory vault (nostalgic, relaxed browsing)
+
+The worst ad timing (never place here):
+- during travel-day execution checklist
+- mid-expense entry
+- during active meetup coordination
+
+## 10. Open Monetization Questions
 
 - Which ad network to use (Google AdSense, Carbon, other)?
 - Should there be a per-trip premium option for organizers who only travel once?
