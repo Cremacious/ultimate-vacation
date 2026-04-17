@@ -3,7 +3,7 @@
 import { useState } from "react";
 import {
   TShirt, Drop, DeviceMobile, IdentificationCard, FirstAidKit, Headphones, Backpack,
-  LockSimple, LockSimpleOpen, Eye, EyeSlash, Crown, Sparkle, Users,
+  LockSimple, LockSimpleOpen, Eye, EyeSlash, Crown,
   Plus, X, Check, CaretDown, CaretUp,
 } from "@phosphor-icons/react";
 
@@ -484,7 +484,6 @@ function GroupMemberCard({ member }: { member: GroupMemberList }) {
 // ─── PackingShell ─────────────────────────────────────────────────────────────
 
 export default function PackingShell() {
-  const [activeTab, setActiveTab]   = useState<"my" | "group" | "suggestions">("my");
   const [activeListId, setActiveListId] = useState("list-main");
   const [myLists, setMyLists]       = useState<PackingList[]>(MOCK_MY_LISTS);
   const [newListName, setNewListName] = useState("");
@@ -558,94 +557,96 @@ export default function PackingShell() {
   const listPacked = activeItems.filter(i => i.packed).length;
   const listPct    = activeItems.length > 0 ? Math.round((listPacked / activeItems.length) * 100) : 0;
 
+  // Stats row
+  const categoriesDone = ALL_CATEGORIES.filter(cat => {
+    const catItems = mainList?.items.filter(i => i.category === cat) ?? [];
+    return catItems.length > 0 && catItems.every(i => i.packed);
+  }).length;
+  const privateCount = mainList?.items.filter(i => i.isPrivate).length ?? 0;
+
   // Items grouped by category for active list
   const itemsByCategory = ALL_CATEGORIES.reduce((acc, cat) => {
     acc[cat] = activeItems.filter(i => i.category === cat);
     return acc;
   }, {} as Record<PackingCategory, PackingItem[]>);
 
-  // ── Tab bar ────────────────────────────────────────────────────────────────
-  const tabs = [
-    { key: "my"          as const, label: "My Packing",  Icon: Backpack  },
-    { key: "group"       as const, label: "Group",       Icon: Users     },
-    { key: "suggestions" as const, label: "Suggestions", Icon: Sparkle   },
-  ];
-
   return (
-    <div className="flex flex-col min-h-screen" style={{ backgroundColor: "#1e1e1e" }}>
+    <div className="flex-1 overflow-y-auto scrollbar-dark" style={{ backgroundColor: "#1e1e1e" }}>
 
-      {/* ── Header ──────────────────────────────────────────────────────────── */}
-      <div className="sticky top-14 z-10 border-b px-5 py-4 flex items-center justify-between"
-        style={{ backgroundColor: "#282828", borderColor: "#333333" }}>
-        <div>
-          <h1 className="text-white leading-tight"
-            style={{ fontSize: "clamp(24px, 4vw, 32px)", fontFamily: "var(--font-fredoka)" }}>
-            Packing
-          </h1>
-          <p className="text-sm font-black mt-0.5" style={{ color: "rgba(255,255,255,0.4)" }}>
-            Personal by default · Share when you&apos;re ready
-          </p>
-        </div>
-        {/* Progress badge */}
-        <div className="flex flex-col items-end gap-1 flex-shrink-0">
-          <div className="font-semibold leading-none"
-            style={{ fontFamily: "var(--font-fredoka)", fontSize: "22px", color: overallPct === 100 ? "#00C96B" : "#00A8CC" }}>
-            {packedItems}<span className="text-white/25" style={{ fontSize: "16px" }}>/{totalItems}</span>
+      <style>{`
+        .packing-grid {
+          display: grid;
+          grid-template-columns: 2fr 1fr;
+          gap: 1.25rem;
+          align-items: start;
+        }
+        @media (max-width: 768px) {
+          .packing-grid { grid-template-columns: 1fr; }
+        }
+      `}</style>
+
+      {/* Header */}
+      <div style={{ backgroundColor: "#282828", borderBottom: "1px solid #333" }}>
+        <div className="max-w-5xl mx-auto px-6 py-5 flex items-center justify-between gap-4">
+          <div>
+            <h1 style={{ fontFamily: "var(--font-fredoka)", fontSize: "2rem", color: "white", lineHeight: 1.1, margin: 0 }}>
+              Packing
+            </h1>
+            <p style={{ color: "#9CA3AF", fontSize: "0.875rem", marginTop: "0.25rem" }}>
+              Personal by default · Share when you&apos;re ready
+            </p>
           </div>
-          <div className="flex items-center gap-2">
-            <div className="w-24 h-1.5 rounded-full overflow-hidden" style={{ backgroundColor: "#3a3a3a" }}>
-              <div className="h-full rounded-full transition-all duration-500"
-                style={{ width: `${overallPct}%`, backgroundColor: overallPct === 100 ? "#00C96B" : "#00A8CC" }} />
+          <div className="flex flex-col items-end gap-1.5 flex-shrink-0">
+            <p style={{ fontFamily: "var(--font-fredoka)", fontSize: "1.5rem", color: overallPct === 100 ? "#00C96B" : "#00A8CC", lineHeight: 1 }}>
+              {packedItems}<span style={{ fontSize: "1rem", color: "#555" }}>/{totalItems}</span>
+            </p>
+            <div className="flex items-center gap-2">
+              <div className="w-28 h-1.5 rounded-full overflow-hidden" style={{ backgroundColor: "#3a3a3a" }}>
+                <div className="h-full rounded-full transition-all duration-500"
+                  style={{ width: `${overallPct}%`, backgroundColor: overallPct === 100 ? "#00C96B" : "#00A8CC" }} />
+              </div>
+              <span className="text-xs font-black" style={{ color: overallPct === 100 ? "#00C96B" : "#9CA3AF" }}>{overallPct}%</span>
             </div>
-            <span className="text-[10px] font-black" style={{ color: overallPct === 100 ? "#00C96B" : "rgba(255,255,255,0.3)" }}>
-              {overallPct}%
-            </span>
           </div>
         </div>
       </div>
 
-      {/* ── Tab bar ─────────────────────────────────────────────────────────── */}
-      <div className="flex border-b px-4 pt-3 gap-1 flex-shrink-0"
-        style={{ backgroundColor: "#252525", borderColor: "#333333" }}>
-        {tabs.map(({ key, label, Icon }) => {
-          const isActive = activeTab === key;
-          return (
-            <button key={key} type="button" onClick={() => setActiveTab(key)}
-              className="flex items-center gap-2 px-4 py-2.5 rounded-t-[12px] text-sm font-black transition-all"
-              style={{
-                backgroundColor: isActive ? "#1e1e1e"                  : "transparent",
-                color:           isActive ? "#fff"                     : "rgba(255,255,255,0.4)",
-                borderBottom:    isActive ? "2px solid #00A8CC"        : "2px solid transparent",
-              }}>
-              <Icon size={14} weight="fill"
-                style={{ color: isActive ? "#00A8CC" : "rgba(255,255,255,0.4)" }} />
-              {label}
-              {key === "suggestions" && (
-                <Crown size={11} weight="fill" style={{ color: "#FFD600" }} />
-              )}
-            </button>
-          );
-        })}
-      </div>
+      <div className="max-w-5xl mx-auto px-6 py-6 space-y-5">
 
-      {/* ── Content ─────────────────────────────────────────────────────────── */}
-      <div className="flex-1 p-4 md:p-6 max-w-3xl w-full mx-auto">
+        {/* Stats row */}
+        <div className="grid grid-cols-3 gap-3">
+          <div className="rounded-2xl border p-4 text-center" style={{ backgroundColor: "#2e2e2e", borderColor: "#3a3a3a" }}>
+            <p style={{ fontFamily: "var(--font-fredoka)", fontSize: "1.75rem", color: "#00A8CC", lineHeight: 1, fontWeight: 900 }}>
+              {packedItems}<span style={{ fontSize: "1rem", color: "#555" }}>/{totalItems}</span>
+            </p>
+            <p className="text-xs font-bold mt-1 uppercase tracking-widest" style={{ color: "#9CA3AF" }}>Items packed</p>
+          </div>
+          <div className="rounded-2xl border p-4 text-center" style={{ backgroundColor: "#2e2e2e", borderColor: "#3a3a3a" }}>
+            <p style={{ fontFamily: "var(--font-fredoka)", fontSize: "1.75rem", color: "#00C96B", lineHeight: 1, fontWeight: 900 }}>{categoriesDone}</p>
+            <p className="text-xs font-bold mt-1 uppercase tracking-widest" style={{ color: "#9CA3AF" }}>Categories done</p>
+          </div>
+          <div className="rounded-2xl border p-4 text-center" style={{ backgroundColor: "#2e2e2e", borderColor: "#3a3a3a" }}>
+            <p style={{ fontFamily: "var(--font-fredoka)", fontSize: "1.75rem", color: "#FF2D8B", lineHeight: 1, fontWeight: 900 }}>{privateCount}</p>
+            <p className="text-xs font-bold mt-1 uppercase tracking-widest" style={{ color: "#9CA3AF" }}>Private items</p>
+          </div>
+        </div>
 
-        {/* ── MY PACKING ───────────────────────────────────────────────────── */}
-        {activeTab === "my" && (
-          <div className="flex flex-col gap-4">
+        {/* Bento grid */}
+        <div className="packing-grid">
 
-            {/* List selector tabs */}
+          {/* Left: category sections */}
+          <div className="space-y-4">
+
+            {/* List selector */}
             <div className="flex items-center gap-2 flex-wrap">
               {myLists.map(list => (
-                <button key={list.id} type="button"
-                  onClick={() => setActiveListId(list.id)}
+                <button key={list.id} type="button" onClick={() => setActiveListId(list.id)}
                   className="flex items-center gap-1.5 rounded-full font-black border text-sm transition-all"
                   style={{
                     padding: "6px 14px",
-                    backgroundColor: activeListId === list.id ? "#00A8CC"                : "rgba(255,255,255,0.05)",
-                    borderColor:     activeListId === list.id ? "#00A8CC"                : "rgba(255,255,255,0.12)",
-                    color:           activeListId === list.id ? "#fff"                   : "#9CA3AF",
+                    backgroundColor: activeListId === list.id ? "#00A8CC" : "rgba(255,255,255,0.05)",
+                    borderColor:     activeListId === list.id ? "#00A8CC" : "rgba(255,255,255,0.12)",
+                    color:           activeListId === list.id ? "#fff" : "#9CA3AF",
                   }}>
                   {list.name}
                   {!list.isVisibleToGroup && (
@@ -654,7 +655,6 @@ export default function PackingShell() {
                   )}
                 </button>
               ))}
-              {/* Add list */}
               {addingList ? (
                 <div className="flex items-center gap-2">
                   <input autoFocus type="text" value={newListName}
@@ -670,53 +670,12 @@ export default function PackingShell() {
                 <button type="button" onClick={() => setAddingList(true)}
                   className="flex items-center gap-1.5 rounded-full font-black border text-sm transition-all"
                   style={{ padding: "6px 14px", borderStyle: "dashed", borderColor: "rgba(0,168,204,0.4)", color: "#00A8CC", backgroundColor: "transparent" }}>
-                  <Plus size={11} weight="bold" />
-                  New list
+                  <Plus size={11} weight="bold" /> New list
                 </button>
               )}
             </div>
 
-            {/* Active list settings card */}
-            <DarkCard className="p-4">
-              <div className="flex items-center justify-between flex-wrap gap-3">
-                <div className="flex-1 min-w-0">
-                  <p className="text-[10px] font-black uppercase tracking-widest text-white/30 mb-0.5">
-                    {activeList.name}
-                  </p>
-                  <div className="flex items-center gap-2">
-                    <div className="flex-1 h-1.5 rounded-full overflow-hidden" style={{ backgroundColor: "#3a3a3a" }}>
-                      <div className="h-full rounded-full transition-all duration-500"
-                        style={{ width: `${listPct}%`, backgroundColor: listPct === 100 ? "#00C96B" : "#00A8CC" }} />
-                    </div>
-                    <span className="text-[11px] font-black flex-shrink-0"
-                      style={{ color: listPct === 100 ? "#00C96B" : "rgba(255,255,255,0.4)" }}>
-                      {listPacked}/{activeItems.length} packed
-                    </span>
-                  </div>
-                </div>
-                {/* Visibility toggle */}
-                <button type="button" onClick={toggleListVisibility}
-                  className="flex items-center gap-2 rounded-full font-black border text-sm transition-all flex-shrink-0"
-                  style={{
-                    padding: "6px 14px",
-                    backgroundColor: activeList.isVisibleToGroup ? "rgba(0,201,107,0.12)" : "rgba(255,45,139,0.10)",
-                    borderColor:     activeList.isVisibleToGroup ? "rgba(0,201,107,0.35)" : "rgba(255,45,139,0.3)",
-                    color:           activeList.isVisibleToGroup ? "#00C96B"              : "#FF2D8B",
-                  }}>
-                  {activeList.isVisibleToGroup
-                    ? <><Eye size={13} weight="fill" /> Visible to group</>
-                    : <><EyeSlash size={13} weight="fill" /> Private</>}
-                </button>
-              </div>
-              {/* Visibility hint */}
-              <p className="text-[10px] font-bold mt-2" style={{ color: "rgba(255,255,255,0.25)" }}>
-                {activeList.isVisibleToGroup
-                  ? "Group can see your non-private items. Lock individual items to hide them."
-                  : "Only you can see this list. Toggle to share with the group."}
-              </p>
-            </DarkCard>
-
-            {/* Private item count hint for visible lists */}
+            {/* Private warning */}
             {activeList.isVisibleToGroup && activeItems.some(i => i.isPrivate) && (
               <div className="flex items-center gap-2 rounded-[12px] px-3 py-2.5"
                 style={{ backgroundColor: "rgba(255,45,139,0.08)", border: "1px solid rgba(255,45,139,0.2)" }}>
@@ -729,169 +688,155 @@ export default function PackingShell() {
 
             {/* Category sections */}
             {ALL_CATEGORIES.map(cat => (
-              <CategorySection key={cat}
-                category={cat}
-                items={itemsByCategory[cat]}
-                onTogglePacked={togglePacked}
-                onTogglePrivate={togglePrivate}
-                onRemoveItem={removeItem}
-                onAddItem={addItem}
-              />
+              <CategorySection key={cat} category={cat} items={itemsByCategory[cat]}
+                onTogglePacked={togglePacked} onTogglePrivate={togglePrivate}
+                onRemoveItem={removeItem} onAddItem={addItem} />
             ))}
           </div>
-        )}
 
-        {/* ── GROUP PACKING ────────────────────────────────────────────────── */}
-        {activeTab === "group" && (
-          <div className="flex flex-col gap-4">
-            <div className="text-[11px] font-black uppercase tracking-widest mb-1" style={{ color: "rgba(255,255,255,0.3)" }}>
-              4 travelers · {MOCK_GROUP_LISTS.filter(m => m.isShared).length} shared lists
-            </div>
+          {/* Right: sidebar */}
+          <div className="space-y-4">
 
-            {/* My own card (read-only summary) */}
-            <DarkCard className="p-4">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 font-black text-sm text-white"
-                  style={{ backgroundColor: "#FF2D8B33", border: "2px solid #FF2D8B55" }}>
-                  CM
-                </div>
-                <div className="flex-1">
-                  <p className="text-sm font-black text-white">Chris M. <span className="text-[11px] font-bold text-white/30">(you)</span></p>
-                  {mainList?.isVisibleToGroup ? (
-                    <p className="text-[11px] font-bold mt-0.5" style={{ color: "#00C96B" }}>
-                      Shared · {mainList.items.filter(i => !i.isPrivate).length} visible · {mainList.items.filter(i => i.isPrivate).length} private
-                    </p>
-                  ) : (
-                    <p className="text-[11px] font-bold mt-0.5" style={{ color: "rgba(255,255,255,0.3)" }}>
-                      Main list is private
-                    </p>
-                  )}
-                </div>
-                <button type="button" onClick={() => setActiveTab("my")}
-                  className="rounded-full px-3 py-1.5 text-[11px] font-black border transition-colors"
-                  style={{ borderColor: "#3a3a3a", color: "rgba(255,255,255,0.4)", backgroundColor: "transparent" }}>
-                  Edit mine
+            {/* Active list card */}
+            <DarkCard className="overflow-hidden">
+              <div className="px-4 py-3 flex items-center justify-between" style={{ borderBottom: "1px solid #3a3a3a" }}>
+                <p className="text-xs font-black uppercase tracking-widest" style={{ color: "#9CA3AF" }}>{activeList.name}</p>
+                <button type="button" onClick={toggleListVisibility}
+                  className="flex items-center gap-1.5 rounded-full text-xs font-black border transition-all px-2.5 py-1"
+                  style={{
+                    backgroundColor: activeList.isVisibleToGroup ? "rgba(0,201,107,0.12)" : "rgba(255,45,139,0.10)",
+                    borderColor:     activeList.isVisibleToGroup ? "rgba(0,201,107,0.35)" : "rgba(255,45,139,0.3)",
+                    color:           activeList.isVisibleToGroup ? "#00C96B" : "#FF2D8B",
+                  }}>
+                  {activeList.isVisibleToGroup
+                    ? <><Eye size={11} weight="fill" /> Shared</>
+                    : <><EyeSlash size={11} weight="fill" /> Private</>}
                 </button>
+              </div>
+              <div className="p-4">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-xs font-bold" style={{ color: "#9CA3AF" }}>Progress</span>
+                  <span className="text-xs font-black" style={{ color: listPct === 100 ? "#00C96B" : "#9CA3AF" }}>
+                    {listPacked}/{activeItems.length}
+                  </span>
+                </div>
+                <div className="w-full h-2 rounded-full overflow-hidden" style={{ backgroundColor: "#3a3a3a" }}>
+                  <div className="h-full rounded-full transition-all duration-500"
+                    style={{ width: `${listPct}%`, backgroundColor: listPct === 100 ? "#00C96B" : "#00A8CC" }} />
+                </div>
+                <p className="text-[10px] font-bold mt-2" style={{ color: "rgba(255,255,255,0.25)" }}>
+                  {activeList.isVisibleToGroup
+                    ? "Group can see your non-private items."
+                    : "Only you can see this list."}
+                </p>
               </div>
             </DarkCard>
 
-            {/* Other members */}
-            {MOCK_GROUP_LISTS.map(member => (
-              <GroupMemberCard key={member.memberId} member={member} />
-            ))}
-          </div>
-        )}
-
-        {/* ── SMART SUGGESTIONS (premium) ──────────────────────────────────── */}
-        {activeTab === "suggestions" && (
-          <div className="flex flex-col gap-4">
-            {/* Premium gate card */}
-            <DarkCard className="overflow-hidden" style={{ position: "relative" }}>
-              {/* Subtle gold radial glow */}
-              <div style={{
-                position: "absolute", inset: 0, borderRadius: "18px",
-                background: "radial-gradient(ellipse at 50% 0%, rgba(255,214,0,0.07) 0%, transparent 65%)",
-                pointerEvents: "none",
-              }} />
-              <div className="p-5">
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0"
-                    style={{ backgroundColor: "rgba(255,214,0,0.15)" }}>
-                    <Sparkle size={20} weight="fill" style={{ color: "#FFD600" }} />
-                  </div>
-                  <div>
-                    <p className="text-base font-black text-white">Smart Packing Suggestions</p>
-                    <p className="text-[11px] font-bold mt-0.5" style={{ color: "rgba(255,255,255,0.4)" }}>
-                      Japan · April · 15 days · 4 travelers
-                    </p>
-                  </div>
-                  <span className="ml-auto flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-black flex-shrink-0"
-                    style={{ backgroundColor: "rgba(255,214,0,0.15)", color: "#FFD600", border: "1px solid rgba(255,214,0,0.3)" }}>
-                    <Crown size={11} weight="fill" />
-                    Premium
-                  </span>
+            {/* Group packing status */}
+            <DarkCard className="overflow-hidden">
+              <div className="px-4 py-3 flex items-center justify-between" style={{ borderBottom: "1px solid #3a3a3a" }}>
+                <p className="text-xs font-black uppercase tracking-widest" style={{ color: "#9CA3AF" }}>Group packing</p>
+                <span className="text-xs font-bold px-2 py-0.5 rounded-full" style={{ backgroundColor: "#3a3a3a", color: "#9CA3AF" }}>4 people</span>
+              </div>
+              {/* You */}
+              <div className="px-4 py-3 flex items-center gap-3" style={{ borderBottom: "1px solid #333" }}>
+                <div className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-black text-white flex-shrink-0"
+                  style={{ backgroundColor: "#FF2D8B33", border: "2px solid #FF2D8B55" }}>CM</div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-bold text-white">You</p>
+                  <p className="text-xs font-bold" style={{ color: mainList?.isVisibleToGroup ? "#00C96B" : "#9CA3AF" }}>
+                    {mainList?.isVisibleToGroup ? `${packedItems}/${totalItems} packed · shared` : "Private"}
+                  </p>
                 </div>
-
-                {/* 2 free previews */}
-                <div className="flex flex-col gap-2 mb-4">
-                  {SMART_SUGGESTIONS.slice(0, 2).map((s, i) => (
-                    <div key={i} className="flex items-start gap-3 rounded-[12px] p-3"
-                      style={{ backgroundColor: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.07)" }}>
-                      <span className="text-lg flex-shrink-0 leading-none mt-0.5">{s.icon}</span>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-black text-white leading-snug">{s.text}</p>
-                        <p className="text-[10px] font-bold mt-0.5" style={{ color: "rgba(255,255,255,0.35)" }}>{s.reason}</p>
-                      </div>
-                      <button type="button"
-                        className="flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-black transition-colors flex-shrink-0"
-                        style={{ backgroundColor: "rgba(0,168,204,0.15)", color: "#00A8CC", border: "1px solid rgba(0,168,204,0.3)" }}>
-                        <Plus size={9} weight="bold" />
-                        Add
-                      </button>
+                {mainList?.isVisibleToGroup && (
+                  <div className="w-12 h-1.5 rounded-full overflow-hidden flex-shrink-0" style={{ backgroundColor: "#3a3a3a" }}>
+                    <div className="h-full rounded-full" style={{ width: `${overallPct}%`, backgroundColor: overallPct === 100 ? "#00C96B" : "#00A8CC" }} />
+                  </div>
+                )}
+              </div>
+              {/* Other members */}
+              {MOCK_GROUP_LISTS.map((member, i) => {
+                const visible = member.items.filter(it => !it.isHiddenFromOthers);
+                const packed  = visible.filter(it => it.packed).length;
+                const pct     = visible.length > 0 ? Math.round((packed / visible.length) * 100) : 0;
+                return (
+                  <div key={member.memberId} className="px-4 py-3 flex items-center gap-3"
+                    style={{ borderBottom: i < MOCK_GROUP_LISTS.length - 1 ? "1px solid #333" : "none" }}>
+                    <div className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-black text-white flex-shrink-0"
+                      style={{ backgroundColor: member.color + "33", border: `2px solid ${member.color}55` }}>
+                      {member.initials}
                     </div>
-                  ))}
-                </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-bold text-white">{member.memberName}</p>
+                      {member.isShared ? (
+                        <p className="text-xs font-bold" style={{ color: "#00C96B" }}>{packed}/{visible.length} · shared</p>
+                      ) : (
+                        <p className="text-xs font-bold flex items-center gap-1" style={{ color: "#9CA3AF" }}>
+                          <LockSimple size={9} weight="fill" /> Private
+                        </p>
+                      )}
+                    </div>
+                    {member.isShared && visible.length > 0 && (
+                      <div className="w-12 h-1.5 rounded-full overflow-hidden flex-shrink-0" style={{ backgroundColor: "#3a3a3a" }}>
+                        <div className="h-full rounded-full" style={{ width: `${pct}%`, backgroundColor: pct === 100 ? "#00C96B" : "#00A8CC" }} />
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </DarkCard>
 
-                {/* Blurred premium items */}
-                <div className="relative rounded-[14px] overflow-hidden">
-                  <div className="flex flex-col gap-2 p-3" style={{ filter: "blur(3px)", userSelect: "none", pointerEvents: "none" }}>
-                    {SMART_SUGGESTIONS.slice(2).map((s, i) => (
-                      <div key={i} className="flex items-start gap-3 rounded-[12px] p-3"
+            {/* Japan trip tips */}
+            <DarkCard className="overflow-hidden" style={{ position: "relative" }}>
+              <div style={{ position: "absolute", inset: 0, borderRadius: "18px", background: "radial-gradient(ellipse at 50% 0%, rgba(255,214,0,0.06) 0%, transparent 65%)", pointerEvents: "none" }} />
+              <div className="px-4 py-3 flex items-center justify-between" style={{ borderBottom: "1px solid #3a3a3a" }}>
+                <p className="text-xs font-black uppercase tracking-widest" style={{ color: "#9CA3AF" }}>Japan tips</p>
+                <span className="flex items-center gap-1 text-xs font-black px-2 py-0.5 rounded-full" style={{ backgroundColor: "rgba(255,214,0,0.12)", color: "#FFD600", border: "1px solid rgba(255,214,0,0.3)" }}>
+                  <Crown size={9} weight="fill" /> Premium
+                </span>
+              </div>
+              <div className="p-3 space-y-2">
+                {SMART_SUGGESTIONS.slice(0, 2).map((s, i) => (
+                  <div key={i} className="flex items-start gap-2.5 rounded-xl p-3"
+                    style={{ backgroundColor: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.07)" }}>
+                    <span className="text-base flex-shrink-0 leading-none mt-0.5">{s.icon}</span>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-xs font-black text-white leading-snug">{s.text}</p>
+                      <p className="text-[10px] font-bold mt-0.5" style={{ color: "rgba(255,255,255,0.35)" }}>{s.reason}</p>
+                    </div>
+                    <button type="button"
+                      className="flex items-center gap-1 rounded-full px-2 py-1 text-[10px] font-black flex-shrink-0"
+                      style={{ backgroundColor: "rgba(0,168,204,0.15)", color: "#00A8CC", border: "1px solid rgba(0,168,204,0.3)" }}>
+                      <Plus size={8} weight="bold" /> Add
+                    </button>
+                  </div>
+                ))}
+                <div className="relative rounded-xl overflow-hidden">
+                  <div className="p-3 space-y-2" style={{ filter: "blur(2px)", userSelect: "none", pointerEvents: "none" }}>
+                    {SMART_SUGGESTIONS.slice(2, 4).map((s, i) => (
+                      <div key={i} className="flex items-start gap-2 rounded-xl p-2.5"
                         style={{ backgroundColor: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.07)" }}>
-                        <span className="text-lg flex-shrink-0">{s.icon}</span>
-                        <div>
-                          <p className="text-sm font-black text-white">{s.text}</p>
-                          <p className="text-[10px] font-bold" style={{ color: "rgba(255,255,255,0.35)" }}>{s.reason}</p>
-                        </div>
+                        <span className="text-sm">{s.icon}</span>
+                        <p className="text-xs font-black text-white">{s.text}</p>
                       </div>
                     ))}
                   </div>
-                  {/* Frosted overlay */}
-                  <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 rounded-[14px]"
-                    style={{ backgroundColor: "rgba(30,30,30,0.75)", backdropFilter: "blur(2px)" }}>
-                    <Crown size={28} weight="fill" style={{ color: "#FFD600" }} />
-                    <div className="text-center px-4">
-                      <p className="text-base font-black text-white">6 more suggestions waiting</p>
-                      <p className="text-[11px] font-bold mt-1" style={{ color: "rgba(255,255,255,0.4)" }}>
-                        Destination · Season · Vibe · Group-aware
-                      </p>
-                    </div>
+                  <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 rounded-xl"
+                    style={{ backgroundColor: "rgba(30,30,30,0.80)", backdropFilter: "blur(2px)" }}>
+                    <Crown size={20} weight="fill" style={{ color: "#FFD600" }} />
+                    <p className="text-xs font-black text-white">6 more suggestions</p>
                     <button type="button"
-                      className="flex items-center gap-2 rounded-full font-black text-sm px-5 py-2.5 transition-colors"
-                      style={{ backgroundColor: "#FFD600", color: "#1a1a1a" }}>
-                      <Crown size={14} weight="fill" />
-                      Unlock Smart Suggestions · $5
+                      className="flex items-center gap-1.5 rounded-full font-black text-xs px-4 py-2"
+                      style={{ backgroundColor: "#FFD600", color: "#1a1a1a", boxShadow: "0 3px 0 #b39a00" }}>
+                      <Crown size={10} weight="fill" /> Unlock · $5
                     </button>
-                    <p className="text-[10px] font-bold" style={{ color: "rgba(255,255,255,0.25)" }}>
-                      One-time · Unlocks all premium features forever
-                    </p>
                   </div>
                 </div>
               </div>
             </DarkCard>
 
-            {/* What's included */}
-            <DarkCard className="p-4">
-              <p className="text-[11px] font-black uppercase tracking-widest text-white/30 mb-3">Smart suggestions are powered by</p>
-              <div className="grid grid-cols-2 gap-2">
-                {[
-                  ["🗾", "Destination", "Japan-specific packing needs"],
-                  ["🌸", "Season",      "April weather in Tokyo/Kyoto"],
-                  ["🎒", "Trip vibe",   "City · Sightseeing · Foodie"],
-                  ["👥", "Group",       "4 travelers · mixed needs"],
-                ].map(([icon, title, desc]) => (
-                  <div key={title} className="rounded-[12px] p-3"
-                    style={{ backgroundColor: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.07)" }}>
-                    <p className="text-lg mb-1">{icon}</p>
-                    <p className="text-[12px] font-black text-white">{title}</p>
-                    <p className="text-[10px] font-bold" style={{ color: "rgba(255,255,255,0.35)" }}>{desc}</p>
-                  </div>
-                ))}
-              </div>
-            </DarkCard>
           </div>
-        )}
-
+        </div>
       </div>
     </div>
   );
