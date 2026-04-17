@@ -260,14 +260,16 @@ function formatDate(dateStr: string) {
 function DarkCard({
   children,
   className = "",
+  style,
 }: {
   children: React.ReactNode;
   className?: string;
+  style?: React.CSSProperties;
 }) {
   return (
     <div
       className={`rounded-2xl border ${className}`}
-      style={{ backgroundColor: "#2e2e2e", borderColor: "#3a3a3a" }}
+      style={{ backgroundColor: "#2e2e2e", borderColor: "#3a3a3a", ...style }}
     >
       {children}
     </div>
@@ -823,6 +825,9 @@ export default function TravelDayShell() {
     );
   };
 
+  const totalTasks = days.reduce((s, d) => s + d.tasks.length, 0);
+  const doneTasks = days.reduce((s, d) => s + d.tasks.filter((t) => t.done).length, 0);
+
   // ── Left Panel ────────────────────────────────────────────────────────────
 
   const leftPanel = (
@@ -830,9 +835,7 @@ export default function TravelDayShell() {
       className="flex-shrink-0 border-r flex flex-col"
       style={{
         width: 260,
-        height: "calc(100vh - 56px)",
-        position: "sticky",
-        top: 56,
+        height: "100%",
         backgroundColor: "#252525",
         borderColor: "#333333",
       }}
@@ -842,17 +845,9 @@ export default function TravelDayShell() {
         className="px-4 pt-5 pb-3 border-b flex items-center justify-between"
         style={{ borderColor: "#333333" }}
       >
-        <div>
-          <h2
-            className="text-xl font-semibold text-white leading-tight"
-            style={{ fontFamily: "var(--font-fredoka)" }}
-          >
-            Travel Days
-          </h2>
-          <p className="text-xs font-medium mt-0.5" style={{ color: "#9CA3AF" }}>
-            {days.length} {days.length === 1 ? "day" : "days"} planned
-          </p>
-        </div>
+        <p className="text-xs font-black uppercase tracking-widest" style={{ color: "#9CA3AF" }}>
+          {days.length} {days.length === 1 ? "day" : "days"} planned
+        </p>
         <button
           onClick={() => {
             setAdding(true);
@@ -950,7 +945,7 @@ export default function TravelDayShell() {
           </button>
         </div>
 
-        <div className="p-6 space-y-5 max-w-2xl">
+        <div className="p-6 space-y-5">
           {/* Day header */}
           <div className="flex items-start justify-between gap-4">
             <div>
@@ -1001,6 +996,23 @@ export default function TravelDayShell() {
               </button>
             </div>
           </div>
+
+          {/* Mode description banner */}
+          {viewMode === "planning" ? (
+            <div className="flex items-start gap-2.5 px-3 py-2.5 rounded-xl" style={{ backgroundColor: "#1e1e1e", border: "1px solid #2a2a2a" }}>
+              <PencilSimple size={14} weight="fill" style={{ color: "#9CA3AF", flexShrink: 0, marginTop: 1 }} />
+              <p className="text-xs font-medium leading-snug" style={{ color: "#9CA3AF" }}>
+                <span className="font-bold" style={{ color: "white" }}>Planning mode</span> — Edit and reorder your task list, add custom steps, and get everything set before the travel day arrives.
+              </p>
+            </div>
+          ) : (
+            <div className="flex items-start gap-2.5 px-3 py-2.5 rounded-xl" style={{ backgroundColor: "rgba(255,140,0,0.08)", border: "1px solid rgba(255,140,0,0.25)" }}>
+              <SunHorizon size={14} weight="fill" style={{ color: "#FF8C00", flexShrink: 0, marginTop: 1 }} />
+              <p className="text-xs font-medium leading-snug" style={{ color: "#FF8C00" }}>
+                <span className="font-bold">Day of mode</span> — Editing is locked. Tasks are larger for easier tapping on the go. Work through the list and tap each step to check it off.
+              </p>
+            </div>
+          )}
 
           {/* Transport info card */}
           <DarkCard className="p-4">
@@ -1075,7 +1087,7 @@ export default function TravelDayShell() {
           </DarkCard>
 
           {/* Task timeline */}
-          <DarkCard className="p-4">
+          <DarkCard className="p-4" style={{ borderColor: viewMode === "dayof" ? "rgba(255,140,0,0.4)" : "#3a3a3a" }}>
             {/* Section header */}
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-3">
@@ -1116,20 +1128,6 @@ export default function TravelDayShell() {
               </div>
             </div>
 
-            {/* Day of mode hint */}
-            {viewMode === "dayof" && (
-              <div
-                className="flex items-center gap-2 rounded-xl px-3 py-2 mb-4 text-xs font-medium"
-                style={{
-                  backgroundColor: "rgba(255,140,0,0.1)",
-                  border: "1px solid rgba(255,140,0,0.2)",
-                  color: "#FF8C00",
-                }}
-              >
-                <SunHorizon size={14} weight="fill" />
-                Day of mode — tap any task to check it off. You've got this.
-              </div>
-            )}
 
             {/* Tasks */}
             <div ref={timelineRef}>
@@ -1340,20 +1338,44 @@ export default function TravelDayShell() {
         }
       `}</style>
 
-      <div
-        className="flex"
-        style={{
-          height: "calc(100vh - 56px)",
-          backgroundColor: "#1e1e1e",
-        }}
-      >
-        {/* Left panel */}
-        <div className="td-left hidden md:flex flex-col">{leftPanel}</div>
+      <div className="flex flex-col" style={{ height: "calc(100vh - 56px)", backgroundColor: "#1e1e1e" }}>
 
-        {/* Right panel */}
-        <div className="td-right flex-1 flex flex-col overflow-hidden">
-          {rightContent}
+        {/* Header band */}
+        <div className="flex items-center justify-between px-6 py-4 flex-shrink-0" style={{ backgroundColor: "#282828", borderBottom: "1px solid #333333" }}>
+          <div>
+            <h1 style={{ fontFamily: "var(--font-fredoka)", fontSize: "2rem", color: "white", lineHeight: 1.1 }}>Travel Days</h1>
+            <p className="text-sm font-medium mt-0.5" style={{ color: "#9CA3AF" }}>Apr 1 · Apr 8 · Apr 15</p>
+          </div>
+          <button
+            onClick={() => { setAdding(true); setSelectedId(""); setMobileView("detail"); }}
+            className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold transition-all active:translate-y-0.5"
+            style={{ backgroundColor: "#FF2D8B", color: "white", boxShadow: "0 4px 0 #991b5c" }}
+          >
+            <Plus size={14} weight="bold" />
+            Add travel day
+          </button>
         </div>
+
+        {/* Stats row */}
+        <div className="grid grid-cols-3 gap-3 px-6 py-3 flex-shrink-0" style={{ borderBottom: "1px solid #2a2a2a" }}>
+          {[
+            { value: days.length,  label: "Travel days",  color: "#00A8CC" },
+            { value: totalTasks,   label: "Total tasks",  color: "#FF2D8B" },
+            { value: doneTasks,    label: "Tasks done",   color: "#00C96B" },
+          ].map((s) => (
+            <div key={s.label} className="rounded-2xl px-4 py-3" style={{ backgroundColor: "#2e2e2e", border: "1px solid #3a3a3a" }}>
+              <p style={{ fontFamily: "var(--font-fredoka)", fontSize: "1.75rem", color: s.color, lineHeight: 1 }}>{s.value}</p>
+              <p className="text-xs font-bold uppercase tracking-widest mt-1" style={{ color: "#9CA3AF" }}>{s.label}</p>
+            </div>
+          ))}
+        </div>
+
+        {/* Two-panel area */}
+        <div className="flex flex-1 min-h-0">
+          <div className="td-left hidden md:flex flex-col">{leftPanel}</div>
+          <div className="td-right flex-1 flex flex-col overflow-hidden">{rightContent}</div>
+        </div>
+
       </div>
     </>
   );
