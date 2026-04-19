@@ -16,6 +16,118 @@ Use this format for new entries:
 
 ## Entries
 
+### 2026-04-17 - Primary brand direction shifts to neon-on-dark with pure white text
+
+- Status: accepted (supersedes previous white-first palette as primary brand direction)
+- Context: Current palette was white backgrounds with cyan/yellow/pink/green accents -- friendly but generic in the travel app category. Competitors (TripIt, Wanderlog, Visited) all ship white-first designs. A distinctive dark-with-neon direction separates TripWave visually, makes the trip balls glow dramatically, and reads premium.
+- Decision: TripWave ships primarily dark-mode with neon rainbow accents and pure-white body text. Base dark #0A0A12, elevated surfaces #15162A, card on dark #1D1E36. Text stays pure white (#FFFFFF) -- never muted to gray on dark backgrounds for accessibility and style. Neon palette: cyan #00E5FF, yellow #FFEB00, pink #FF3DA7, green #39FF6B, plus new accents purple #B14DFF (Dream Mode) and orange #FF9236 (urgency). Legacy light-mode palette deprecated for primary use but may appear in specific contexts like printable PDFs. No light-mode toggle in v1 -- the dark neon direction IS the brand.
+- Why: Trip balls glow against dark, turning the product's central visual into a light source. Neon rainbow feels celebratory, fun, and distinctive. White-on-dark eliminates the "accessibility-weak gray text" problem of light mode. Premium indie tools (Linear, Raycast, Framer) validate this direction commercially. Saves OLED battery on mobile.
+- Follow-up: Audit every page in the app for dark-mode compliance. Update existing marketing/auth/app component styles. Retire the #00A8CC primary cyan in favor of neon #00E5FF. Full palette + text + glow spec lives in docs/DESIGN_SYSTEM.md under "Neon-on-Dark Brand Direction".
+
+### 2026-04-17 - Expenses use warm reframe hero + precise ledger + subtle settlement celebration
+
+- Status: accepted (structural balances-first layout locked in section 11; this adds tone + palette + celebration)
+- Context: Money between friends on group trips is emotionally loaded. Standard expense-tracker language ("you owe", "debt", "collect") makes it feel accusatory. The challenge was warming the hero without losing the precision users need for actual reconciliation.
+- Decision: Balances hero uses warm casual language ("Sarah's got you for $18", "You've got Mom for $42", "You and everyone are even ♥"). Ledger below stays precise and factual ("Chris paid $48 for dinner at Tsukiji · split evenly 4-way"). Settlement of a single row triggers a neon-green ripple fade, toast "Settled with Mom. ♥", and one wave-pulse on the nav ball. Whole-trip settlement shows gentle green dot sprinkle rising and fading (subtle, not fireworks). Scan receipt premium-gated with liquid-shimmer loading state. Empty state: ball on a coin, "Log the first expense. Day zero counts." Language rules forbid "debt", "collect", "due" in prose -- may appear only in structured amounts. Easter eggs: rapid-tap settled celebration cascades dots, double-tap category icon in ledger does a wiggle dance.
+- Why: Warm hero language defuses the tension users feel with money. Precise ledger preserves the reconciliation data they actually need. Settlement celebration rewards the resolution moment without trivializing it. No gamification, no credit scores, no alarm states for budget overages.
+- Follow-up: Implement mark-settled flow with ripple animation, whole-trip celebration state, filter-chip cross-fade. Full spec in docs/UX_SPEC.md section 40.
+
+### 2026-04-17 - Vacation Day uses warm-scroll layout plus live "up next" pinned pill
+
+- Status: accepted (structural layout already locked in section 10; this adds fun + palette + live-moment treatment)
+- Context: Vacation Day is a daily in-trip companion. The user wants both a calm morning-coffee feel AND right-now utility when an event is minutes away.
+- Decision: Keep the structural warm-scroll layout and add a live "up next" pinned pill at the top that appears when the next event is within 2 hours. Pill uses the trip color at low saturation and pulses with wet-neon shimmer as the time approaches, tap scrolls to the event, dismissible per-event. Morning briefing gets the neon treatment with a trip-color gradient at the top edge. Today's events river uses itinerary card anatomy with completed events fading to 60% opacity and currently-active events glowing brighter. Activity strip chips get category color dots. Quick action buttons use liquid ripple on tap. Peek-tomorrow link is neon purple. Ball pulses at slower 4s rhythm (vacation glow). Triple-tap greeting easter egg cycles destination-localized greetings.
+- Why: Warm scroll provides stable scaffolding users can scan without surprise. Live pill adds actionable right-now utility without reordering the whole page. Vacation Day should feel like a calm travel buddy, not a live-data dashboard.
+- Follow-up: Implement live "up next" logic (appears within 2h, dismisses per-event), sunrise briefing refresh, destination-language greeting rotation. Full spec in docs/UX_SPEC.md section 39.
+
+### 2026-04-17 - Travel Day focus mode uses calm neon plus encouraging companion
+
+- Status: accepted (structural auto-route + focus mode already locked in section 9; this adds fun-dial calibration)
+- Context: Travel Day focus mode is the one place in the app where the "fun" vibe has to retreat -- users are stressed, at airports, sleep-deprived. But stripping ALL personality makes TripWave feel like a hospital waiting room. The question was how much energy to keep.
+- Decision: Calm neon plus encouraging companion. Sidebar collapses to icons. Top nav becomes minimal status strip with essential info only. Base dark with NO ambient gradient drift. Ball present but small and slowly pulsing. Main view: single up-next task dominates the screen, massive Fredoka task title, two giant tap targets (Done neon green ~72px, Skip smaller). Rotating warm nudge copy above the task ("Take a breath. Next up."). Ball glows brighter for a beat when tasks complete. Segment transitions fade in a "[segment] done ♥" overlay. Swipe-right-to-complete on mobile with haptic. "Leave in X min" chip turns pink when overdue with warm wording. Exit focus mode link always visible. Post-arrival warm landing: "You made it. ♥"
+- Why: Pure grayscale sterility would strip TripWave's character at the most important moment. Pure normal treatment would feel chaotic during stress. Middle path keeps the ball as a quiet companion while dialing energy way down.
+- Follow-up: Implement focus-mode layout switch, swipe-to-complete gesture, segment transition overlay, auto-exit on arrival. Full spec in docs/UX_SPEC.md section 38.
+
+### 2026-04-17 - Liquid motion system: wet neon, oil-flow, water-wave ripples throughout app
+
+- Status: accepted (supersedes ad-hoc motion hints across earlier docs)
+- Context: Neon against dark needs a motion character to feel premium and alive without being busy. The app's name is TripWave -- motion should literally feel like a wave. Previously, motion guidance was scattered across DESIGN_SYSTEM.md, UX_SPEC.md, and various decisions.
+- Decision: Foundational motion system codified. Neon is rendered with "wet paint" treatment: subtle top-light sheen, outer glow, and a slow living shimmer (8-12s cycle) on key elements like CTA buttons, the trip ball, and active navigation. Transitions use oil-flow easing curves -- standard cubic-bezier(0.22, 0.68, 0.28, 1), entrance cubic-bezier(0.3, 1.5, 0.5, 1), exit cubic-bezier(0.6, 0, 0.9, 0.4). No linear or ease-in-out. No spring bounce. Tap / click produces water-ripple from contact point (circular, ease-out, 600ms, 30% opacity of accent color). Page-level transitions use a left-to-right "wave sweep" instead of straight fade (trip creation already does this). Loading states are gentle left-to-right wave shimmers, not pulses or spinners. Ball motion is the archetype: wave-pulse 3.6s, fill animation with 1-2px sine-curve water-level edge, roll with spring settle, celebration bloom 600ms. All animations respect prefers-reduced-motion with specific fallbacks. Travel Day focus mode explicitly reduces liquid motion (calm mode, fewer shimmers).
+- Why: Motion is naming. TripWave literally tells you the motion language. Wet-neon differentiates from flat-neon competitors (Linear, Framer). Oil-flow easing feels premium and organic vs mechanical linear/ease-in-out. Water ripples unify tap feedback across the entire app. Living shimmer makes neon look painted-and-drying rather than static LED. Subtle is the target register -- users should feel it, not notice it.
+- Follow-up: Build centralized CSS custom properties for easing / durations. Build reusable ripple pseudo-element pattern. Performance-test living shimmer to ensure 60fps idle. Full spec in docs/DESIGN_SYSTEM.md under "Liquid Motion System".
+
+### 2026-04-17 - Created PITCH.md as layman's-terms product description, kept in sync with all docs
+
+- Status: accepted
+- Context: The docs are rich and specific, but sometimes you just need to explain the app to your aunt at Thanksgiving. PITCH.md serves that purpose -- a plain-English pitch that describes TripWave the way you'd describe it to a friend, not a stakeholder.
+- Decision: Created docs/PITCH.md. Written in casual conversational voice, organized around common questions ("What kind of app ya buildin'?", "Why does the world need another trip app?", "What do you actually do with it?", etc.). Covers the product tour, what makes it different, monetization, acquisition, vibe, and deliberate non-features. Committed to keeping it in sync with every other doc -- whenever a meaningful decision is made elsewhere, PITCH.md gets updated too. If the pitch falls out of date, the product has drifted from what we meant to build.
+- Why: Founder-level clarity is worth more than a stack of stakeholder docs. If the dev can't explain TripWave to a friend in 30 seconds, the product is off. PITCH.md is the gut-check doc.
+- Follow-up: Every DECISIONS.md / UX_SPEC.md / MONETIZATION.md / DESIGN_SYSTEM.md change should trigger a PITCH.md review. If the new decision changes the pitch, update the pitch. If the new decision doesn't change the pitch, that's fine too -- but check every time.
+
+### 2026-04-17 - Packing uses satisfying check animation plus staged reveal
+
+- Status: accepted (tab structure already locked in section 8; this adds fun + palette)
+- Context: Packing is a checklist, which is inherently repetitive. Users want either deep dopamine hits per check or visual relief that the list is shrinking -- ideally both.
+- Decision: Neon-on-dark tab strip (My / Group / Suggestions). Custom neon-cyan checkbox. On check: glow burst (600ms fade), particle burst (6-8 tiny cyan dots), strike-through, optional haptic on mobile. Checked items collapse into a "Packed (X)" section at the bottom of their category group -- working list shrinks as packing progresses. Sound off by default with an opt-in setting. Claim-for-group uses a small ball-bounce. Complete-category triggers green header glow with "All packed ♥". All-category-complete easter egg: category icon spins and trip ball in nav wave-pulses once. No weight tracking, no streak gamification, no critical-item flagging in v1.
+- Why: Satisfying animation provides per-check dopamine. Staged reveal provides visual relief as the list shortens -- together they make checklist work feel rewarding instead of tedious. Sound off by default respects users who use the app in quiet contexts. Easter egg creates a cross-component "the ball cares about your progress" moment.
+- Follow-up: Custom checkbox component, particle-burst animation, packed-section collapse logic. Full spec in docs/UX_SPEC.md section 37.
+
+### 2026-04-17 - Itinerary uses day-personality theming plus live "you are here" marker
+
+- Status: accepted (structural day-scroll + card anatomy locked earlier; this adds fun + palette + personality)
+- Context: Itinerary is long-form. Many days × many events risks feeling like a spreadsheet. Each day has a different character (travel day, beach day, food day) and the UI should telegraph that.
+- Decision: Apply neon-on-dark treatment. Day header cards take on a personality color based on their dominant event category (flights = neon pink, restaurants = yellow, outdoor = cyan, expense-heavy = green, low-content = neutral dark, multi-category = subtle gradient). Sticky day jumper pills take the day's personality color when selected. During in-progress trips, a live neon-orange "you are here" marker moves through the current day above the next upcoming event with a "next up in X min" label. Between-day separators use dashed cyan with a sleeping-moon icon at midnight. Empty-day placeholder has a hammock-ball illustration with warm "some days need space" copy. Triple-tap day header easter egg bubble-ups events in sequence.
+- Why: Day-personality theming gives each day its own visual moment without asking users to customize anything. Live marker is genuinely helpful mid-trip, not just decorative. Neutral days stay neutral so overbooked days don't all look the same. Gantt charts and analytics pie charts deferred -- they serve a small power-user slice and add complexity.
+- Follow-up: Implement personality-color detection logic (dominant category per day), live "you are here" timing logic, sleeping-moon separator. Full spec in docs/UX_SPEC.md section 36.
+
+### 2026-04-17 - Preplanning hub uses ball-centric layout plus conversational section headlines
+
+- Status: accepted (structural hub layout already locked in section 4; this adds fun + palette + conversational copy)
+- Context: Preplanning is the biggest single feature by time-on-task. Clean grids feel like homework. Gamified badges feel like productivity apps tricking users. The challenge is making long-form data entry feel human.
+- Decision: Ball-centric hub with real-time fill at the top (~180px, glowing in trip color, X% planned label, "Each section fills a little more of your ball" tagline). 8 section cards in a grid with 4 states (empty / in progress / complete / not applicable) each with distinct glow treatment. Conversational headlines on each card ("Who's coming with you?" instead of "Group composition"). Completion feedback: green glow pulse on card + upward-wave ball fill + single warm toast. "Mark this trip as ready to go" CTA appears at 90%. 100% state shows "Look at you. Ready to roll." Double-tap ball easter egg shows translucent cross-section by section. Warm empty-state copy rotation. No badges, no sound effects, no confetti cannon, no time estimates, no scolding language.
+- Why: Ball-as-progress is the core metaphor -- showing it fill in real time IS the reward. Conversational headlines make the work feel like a friend asking, not a tax form. Ball animations on completion provide visceral feedback without gamification. No badges preserves the warm supporter brand tone.
+- Follow-up: Update /app/trips/[id]/preplanning route with new treatment, conversational copy, ball fill animation, section state styling. Full spec in docs/UX_SPEC.md section 35.
+
+### 2026-04-17 - Trip creation fun treatment is calm elegance plus conversational warmth
+
+- Status: accepted (structural 4-step layout already locked in section 3; this adds fun + palette + new Step 0)
+- Context: Users create many trips over time (real trips, dream trips, multiple trips per year). Peak-moment UX needs to feel delightful on first use but not exhausting on repeat use. A dedicated Step 0 for trip type (Real vs Dream) was also needed for Dream Mode.
+- Decision: Calm-elegance-plus-conversational-warmth treatment. New Step 0 asks Real vs Dream with two side-by-side ball-preview cards and auto-advance on selection. Step 1 name step has a cyan ball that pulses in typing cadence and nods on submit. Step 2 dates has sassy no-pressure copy and equally-weighted skip. Step 3 color pick has 5 neon swatches that fill the ball with rising-liquid animation. Step 4 reveal is a full-hero ball with chosen color, "Meet [Trip Name]" greeting, single CTA. Background shifts hue subtly per step. Ball is mascot through the flow. Errors trigger ball sad-shake. No progress bar, no big-fireworks reveal, no skip-all shortcut.
+- Why: Calm elegance scales with repeat creation. Exuberant would exhaust users creating their 15th dream. Ball-as-co-pilot maintains character across the ritual. No-pressure dates honor the vague-intent trip creation. Color fill is the visceral emotional payoff. Meet-greeting celebrates commitment without fireworks overkill.
+- Follow-up: Update /app/trips/new route with new Step 0, neon-on-dark treatment, ball reactivity. Full spec in docs/UX_SPEC.md section 34.
+
+### 2026-04-17 - Dashboard gets neon-on-dark treatment plus three layers of fun
+
+- Status: accepted (structural layout already locked in section 2 of UX_SPEC; this adds fun + palette treatment)
+- Context: Dashboard is the daily home. Static card grids are forgettable. Returning users need small rewarding moments without dashboard clutter or gamification.
+- Decision: Three layers on top of the existing structure. (1) Time-of-day greeting at the top with localized variants (morning / afternoon / evening / late night) in neon cyan Fredoka. (2) Living trip cards where each ball wave-pulses on staggered rhythm, left accent stripe glows, within-7-days countdown flips to neon pink for urgency. (3) Rotating stats flex card between trip list and action center showing daily-refresh reflections ("47 days of adventure planned", "$2,340 tracked", "3 dream trips in your head") in matching neon colors, dismissible. Subtle ambient background gradient drift. Greeting triple-tap easter egg cycles to localized joke variants.
+- Why: Time-of-day greeting feels personal without being fake-personalized. Living cards reward daily return. Stats flex gives dopamine without gamification. Ambient motion adds life without distraction. Easter egg rewards curiosity. All three layers respect users who just want to get in and out.
+- Follow-up: Update /app route to neon-on-dark treatment and add greeting + stats + easter egg. Ambient gradient may need performance tuning. Full spec in docs/UX_SPEC.md section 33.
+
+### 2026-04-17 - Login page is minimal with restrained fun and consistent pattern with signup
+
+- Status: accepted
+- Context: Login is an interruption. Returning users want in quickly, not to be sold to again. A flashy login page wastes their time. But a completely generic login also misses the brand voice.
+- Decision: Neon-on-dark login page with a passive ball above the form (hover wobble + triple-tap easter egg only -- no reactive-to-typing behavior since there's no name field). "Welcome back." / "Your trips are waiting." Copy. Submit button "Log in". Tiny solo-dev footer "Still just me. Still free forever. ♥". Wrong password triggers ball sad-shake and warm "Not quite. Try again." No Remember-me checkbox (remember by default), no social auth, no magic link, no countdown teasers.
+- Why: Consistent pattern with signup (same ball placement, same footer, same easter egg) means users learn the visual language once. Restrained fun respects returning-user time. Privacy-sharing concerns on shared devices rule out pre-auth trip previews.
+- Follow-up: Update /login route to new neon-on-dark treatment, ball placement, and copy. Full spec in docs/UX_SPEC.md section 32.
+
+### 2026-04-17 - Signup page uses ball greeting plus warm dev note plus celebratory submit
+
+- Status: accepted
+- Context: Signup is the commit moment where a visitor becomes a user. Clean minimal forms convert but feel cold. Multi-step signups increase abandonment. The goal is a single-step signup that introduces the ball as a character and delivers the supporter brand warmth in under 30 seconds.
+- Decision: Single-page signup on neon-on-dark. Above the card: an empty dashed ball hovers and reacts to form focus (wobble, rotate away for password, spin during loading, celebration burst on success). Warm italic dev note above first input: "Built by one person. Promise I'm not a corporation trying to harvest your emails. ♥ -- Chris". Form fields: Name, Email, Password with friendly placeholders. Submit button labeled "Let's go" with neon cyan glow. Post-submit: rainbow confetti burst from the ball, welcome toast "Welcome aboard. Let's plan a trip. ♥", fade to /app. No social auth in v1, no newsletter opt-in, no multi-step wizard, no aggressive password strength meter.
+- Why: Ball reactivity introduces the brand character immediately. Solo-dev note defuses "another SaaS" cynicism. Single-step preserves conversion rate. Celebration moment makes completion feel like a win. Social auth deferred to manage OAuth scope for solo dev.
+- Follow-up: Update existing /signup route to new neon-on-dark treatment + ball reactivity + dev note + celebration. Full spec in docs/UX_SPEC.md section 31.
+
+### 2026-04-17 - Landing page is interactive and fun with three layers of delight
+
+- Status: accepted
+- Context: Landing page is the first impression. Static designs read as professional but forgettable. Interactivity and personality on the landing page are the difference between 2% and 6% signup conversion for indie SaaS.
+- Decision: Three layers of fun on the landing page. Layer 1: interactive hero ball responds to hover/tap/drag/hold -- wobbles, rolls, fills on demand. Layer 2: scroll-driven ball storytelling where the ball docks into the corner and reacts to each section (shaking at chaos stats, orbiting feature cards with phase colors, filling in sequence during the ball showcase). Layer 3: three easter eggs (triple-tap sunglasses, double-click slogan wave, triple-scroll-bottom confetti balls). Full neon-on-dark treatment with pure white text and rainbow ball orbit backgrounds. No popups, no fake social proof, no countdown timers, no pricing shown.
+- Why: Trip ball is the brand character -- it must move and play in its own marketing. Interactive layer lifts conversion materially over passive designs. Scroll storytelling rewards engagement. Easter eggs reward playful curiosity. Three-layer approach means every visitor finds some delight regardless of how much they explore.
+- Follow-up: Rebuild the current landing page sections with the new neon palette and interactivity layers. ~15-25 hours solo-dev estimate. Full spec in docs/UX_SPEC.md section 30.
+
 ### 2026-04-17 - Review strategy uses native API at post-moment happiness triggers
 
 - Status: accepted

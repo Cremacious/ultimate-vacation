@@ -350,6 +350,282 @@ Dark bento cells use 24px (p-6) padding on all sides. Do not use 16px or 20px ce
 - ball pulse is ocean wave rhythm -- slow, organic, never mechanical
 - motion should help orientation, not distract from tasks
 
+## Neon-on-Dark Brand Direction
+
+TripWave's visual direction is **neon rainbow accents against near-black backgrounds with pure-white text**. This is the primary brand treatment, not a dark-mode toggle or marketing-only variant. The whole product reads as fun, premium, and distinctive against a sea of white-and-cyan travel apps.
+
+### Why neon on dark
+
+- Trip balls glow dramatically against dark backgrounds -- turns the product's central visual into a light source
+- Neon accents in rainbow feel celebratory and match the "fun" emotional brief
+- Dark + neon reads premium. Every high-end indie tool (Linear, Raycast, Framer, Arc) uses this direction
+- White-on-dark eliminates the "accessibility-weak gray text" problem that plagues light-mode UIs
+- Distinctive from direct competitors (TripIt is blue-on-white, Wanderlog is colorful-on-white, Visited is white)
+
+### Color palette
+
+#### Surfaces
+
+- **Base dark**: `#0A0A12` (near-black with subtle cool tint) -- primary background for almost everything
+- **Elevated dark**: `#15162A` (slightly lighter card surface)
+- **Card on dark**: `#1D1E36` (for layered surfaces)
+- **Border on dark**: `#2A2B45` (subtle dividers)
+
+#### Text
+
+- **Primary text**: `#FFFFFF` pure white, never muted to gray
+- **Secondary text**: `#D1D2E8` soft cool-white (used sparingly, only for truly tertiary metadata)
+- **Disabled text**: `#6C6E8A` (rare use)
+
+#### Neon brand accents (the rainbow)
+
+- **Neon cyan**: `#00E5FF` (replaces the previous `#00A8CC` as the brand primary)
+- **Neon yellow**: `#FFEB00` (replaces `#FFD600` -- brighter under dark)
+- **Neon pink**: `#FF3DA7` (replaces `#FF2D8B`)
+- **Neon green**: `#39FF6B` (replaces `#00C96B`)
+- **Neon purple**: `#B14DFF` (NEW -- fifth rainbow accent, used for Dream Mode and special bonus moments)
+- **Neon orange**: `#FF9236` (NEW -- sixth accent, used for energy/travel-day urgency)
+
+#### Legacy light-mode colors
+
+The previous `#00A8CC` / `#FFD600` / `#FF2D8B` / `#00C96B` palette was designed for white backgrounds. They are deprecated as primary brand colors but may appear in reduced-saturation form inside specific contexts (e.g., printable trip export PDFs that need to work on paper).
+
+### Text rules
+
+- Body and UI text is pure white (`#FFFFFF`)
+- Never use gray-muted body text on dark backgrounds -- readability always beats style
+- Fredoka display headlines stay white with optional neon-color accent on a single key word
+- Nunito body text stays white at 100% opacity; use size and weight for hierarchy instead of color fading
+- Links use the appropriate neon accent color for their context (cyan for generic navigation, phase-color for phase-specific links)
+
+### Glow and shadow behavior
+
+- Neon elements often have a subtle outer glow (CSS `box-shadow: 0 0 24px [neon-color]40`) to suggest light emission
+- Glow intensity scales with importance -- CTA buttons glow more than regular links
+- No glow on body text -- only on accent elements (balls, buttons, icons, active states)
+- On hover: glow strengthens ~25% for a brief 200ms, then settles
+
+### Where neon accents apply
+
+- Trip ball colors (all neon palette now)
+- CTA buttons (neon cyan or yellow background with dark text for contrast)
+- Icons in active navigation states
+- Category indicators (expenses green, packing yellow, travel pink, etc.)
+- Notification badges
+- Ripple logo animations
+- Focus rings on inputs
+
+### What stays neutral
+
+- Base page backgrounds
+- Card surfaces (elevated dark, not neon)
+- Body text
+- Borders and dividers
+- Inactive navigation items (white at reduced opacity, not neon)
+
+### Specific surface treatments
+
+#### Buttons
+
+- Primary CTA: neon cyan background, charcoal text, subtle glow, bold Fredoka label
+- Secondary CTA: transparent background with neon border, white text, glow on hover only
+- Destructive: neon pink background, white text
+- Disabled: charcoal gray background, muted text, no glow
+
+#### Inputs
+
+- Dark elevated background (`#15162A`)
+- White text
+- Border transitions to neon cyan on focus with a soft glow ring
+- Placeholder text at `#6C6E8A`
+
+#### Cards
+
+- Elevated dark background
+- Soft outer shadow for depth (standard `box-shadow: 0 4px 16px rgba(0,0,0,0.4)`)
+- Neon accent strip (left edge, top edge, or icon tint) to signal category when relevant
+
+### Mobile consideration
+
+Dark backgrounds save OLED battery on modern phones. Neon colors may appear slightly more saturated on OLED than on LCD -- the palette is tuned for OLED-first, which is most of the target audience.
+
+### Accessibility
+
+- All white-on-dark combinations pass WCAG AAA (7:1 contrast ratio)
+- All neon-on-dark combinations pass WCAG AA for large text and UI elements
+- Never place neon text on neon background (low contrast, unreadable)
+- Focus states remain highly visible -- neon cyan ring at ≥3px width
+
+### Light-mode fallback
+
+- Not offered in v1. The dark neon direction IS the brand
+- May be added later purely as a user preference for those who insist, but not marketed
+- If added: the neon palette desaturates ~40% and the near-black becomes an off-white (`#FAFAFA`), text becomes `#0A0A12`
+
+---
+
+## Liquid Motion System -- Wet Neon, Oil Flow, Water Waves
+
+The neon in TripWave should feel like **wet paint** -- rich, glossy, capable of dripping. Motion is **oil-slick fluid** -- slippery, never mechanical. Interactions ripple like **water surfaces**. This motion system is foundational: every animation, transition, and state change honors these rules. The name is "TripWave" -- the whole product should move like a wave.
+
+### Core motion principles
+
+1. **Nothing snaps.** No instant state changes. Every transition eases.
+2. **Everything flows.** Motion follows water-like physics -- gravity subtle, settles gentle.
+3. **Edges ripple.** Any contact point (tap, click, focus) produces a soft ripple outward.
+4. **Neon shimmers wet.** Bright accents have the faintest living gradient or shimmer, like paint still drying.
+5. **Subtlety over spectacle.** Motion is ambient. If a user notices the animation itself, it's too loud.
+
+### Neon color treatment (wet paint look)
+
+Neon elements are rendered with subtle depth to suggest wet, glossy paint:
+
+- **Base**: solid neon color
+- **Highlight**: a faint 1-2px inner top-light giving a "wet sheen" (very subtle -- 10-15% lighter than base, gradient from top-20% of the element)
+- **Edge glow**: outer glow at 30-40% opacity of the base color, soft radius
+- **Living shimmer** (on key elements only -- CTA buttons, active states, the trip ball): a slow animated linear gradient that drifts across the neon fill, 8-12 seconds per cycle, barely perceptible unless stared at
+
+Elements that get wet-neon treatment:
+- Primary CTA buttons
+- The trip ball (all states)
+- Active navigation states
+- Focus rings on inputs
+- Progress indicators
+
+Elements that stay flat neon (no shimmer):
+- Small category dot indicators (too small for shimmer to register)
+- Text accents in a single word of a headline
+- Icon tints
+- Border strokes
+
+### Oil-flow transitions (easing curves)
+
+Default easing for all transitions in the app:
+
+- **Standard ease**: `cubic-bezier(0.22, 0.68, 0.28, 1)` -- strong start, long easing tail, settles like oil spreading
+- **Entrance ease** (elements appearing): `cubic-bezier(0.3, 1.5, 0.5, 1)` -- slight overshoot then settle, like a droplet landing
+- **Exit ease** (elements leaving): `cubic-bezier(0.6, 0, 0.9, 0.4)` -- accelerates away, fading like ink dissolving
+- **NEVER use**: linear (mechanical), ease-in-out (too symmetric, feels digital), or spring-bounce (feels toy-like)
+
+Default transition durations:
+
+- **Micro** (focus ring, hover lift): 200ms
+- **Small state change** (checkbox toggle, tab switch): 300ms
+- **Card or modal entrance**: 400-500ms
+- **Page transitions / big reveals**: 600-800ms
+
+### Ripple effect (tap / click feedback)
+
+Every tappable element produces a water-like ripple on interaction:
+
+- Origin: the exact tap / click point
+- Shape: circular, expanding outward
+- Color: the element's accent color at 30% opacity
+- Scale: from 0 to ~2x the element's larger dimension
+- Duration: 600ms
+- Easing: ease-out (starts fast, decelerates as it spreads)
+- Opacity: starts 30%, fades to 0 by end of animation
+
+Elements that produce ripples:
+- Buttons
+- List items
+- Cards
+- Navigation items
+- Checkboxes (ripple plus the particle burst already specced for packing)
+
+Elements that do NOT ripple:
+- Text links (too small, cluttered)
+- Input fields (focus ring glow handles feedback)
+- Disabled states
+
+### Wave / flow transitions (between pages and states)
+
+Page-level and section-level transitions use a **wave sweep** rather than a straight fade:
+
+- **Direction**: left-to-right (or top-to-bottom for vertical contexts)
+- **Shape**: soft diagonal leading edge, ~15-20% of the viewport width
+- **Effect**: old content fades as the wave passes over it; new content fades in behind the wave
+- **Duration**: 600ms
+- **Feel**: like a wave crossing a beach, leaving the new scene behind it
+
+Where wave transitions apply:
+- Trip creation step-to-step wipes (already uses this -- confirmed here)
+- Tab switches within a page
+- Route changes where a visual-hero element persists (e.g., ball docks from landing to corner)
+
+Where simple fade is used instead (lighter weight):
+- Modal open / close
+- Toast appear / dismiss
+- Notification panel open
+
+### Ball motion as the signature movement
+
+The trip ball's motion is the archetypal example of the liquid system:
+
+- **Wave pulse**: 3.6s ease-in-out, scale 1.0 → 1.06 → 1.0, opacity 1.0 → 0.88 → 1.0. Slow, organic, always breathing
+- **Fill animation**: liquid-rising curve, ease-out, 2 seconds from 0% to 100%. Fill edge has a subtle wave shape (1-2px sine curve) as it rises, matching the "water level" metaphor
+- **Roll**: ease-out with spring settle, ball rotates while translating, as if physically rolling across a surface
+- **Celebration pulse**: single ease-out bloom from 1.0 → 1.12 → 1.0 over 600ms, glow doubles briefly at the peak
+
+### Hover / focus glow behavior
+
+All interactive elements brighten slightly on hover or focus:
+
+- **Hover**: glow intensity +25% over 200ms, stays up until cursor leaves, then eases back down over 200ms
+- **Focus** (keyboard navigation): glow intensity +35%, plus the neon cyan focus ring appears with a small ripple from the element's center
+- **Active** (pressed): glow intensity +50% for the pressed moment, then settles back
+
+### Loading states as flowing waves
+
+When content is loading, the placeholder uses a gentle left-to-right wave shimmer:
+
+- Background: dark elevated surface
+- Shimmer: faint neon-cyan gradient (10-15% opacity) sweeps left-to-right every 1.5 seconds
+- Not a pulse, not a spinner -- a flowing wave sweep
+- Used in: skeleton loaders for lists, cards, and detail views
+
+### Scroll physics
+
+- Momentum scrolling standard (native behavior)
+- At viewport edges during bounce scroll (iOS / mobile browsers): a subtle cyan ripple emanates from the scroll boundary, fading as the bounce returns
+- No parallax on background elements (performance cost, and conflicts with the calm ambient direction)
+
+### Exclusions from liquid motion
+
+Focus mode (travel day execution) explicitly *reduces* liquid motion -- users are stressed, and too much ambient animation becomes distracting. Per section 38 of UX_SPEC:
+
+- No background gradient drift
+- Fewer per-element shimmers (static neon instead)
+- Transitions shortened to ≤500ms
+- No idle ambient animation
+
+### `prefers-reduced-motion` behavior
+
+For users who prefer reduced motion:
+
+- Wave pulse on the ball slows to a 6s fade-only cycle (no scale change)
+- Ripples on tap are disabled entirely -- replaced with a 150ms opacity pulse
+- Page transitions become simple fades (no wave sweep)
+- Living shimmer on neon disabled (flat color only)
+- Loading shimmer waves replaced with a calm 2s opacity pulse
+
+### Why the liquid motion system matters
+
+- The app is called **TripWave** -- the motion literally names the brand
+- Ocean / water imagery ties together the logo (ocean ripple), the slogan (*"Get everyone on the same wave"*), the ball (fills like liquid rising), and the motion system
+- "Wet paint / oil flow" neon differentiates TripWave visually from competitors who use flat neon (Linear, Framer) or hard-edged digital glow (Raycast)
+- Subtle liquid motion makes the app feel **alive** without feeling **busy** -- the target emotional register
+
+### Implementation notes
+
+- CSS custom properties for the easing curves and durations (centralized, easy to tune)
+- Pseudo-elements for ripple effects (no extra DOM nodes)
+- `will-change` sparingly -- only during active animations to avoid GPU memory bloat
+- All animations respect `prefers-reduced-motion` via a single media query wrap
+- Performance budget: no page should exceed 16ms per frame during idle ambient animation
+
+---
+
 ## Logo -- Ocean-Ripple Animation
 
 The TripWave logo is a **filled cyan circle with soft ripples radiating outward**. The ripples are ocean-feel, not electronic/radar/sonar. Animation fidelity matters here because the logo IS the brand identity.

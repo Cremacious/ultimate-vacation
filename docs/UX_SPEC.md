@@ -1697,7 +1697,940 @@ Trip settings uses **sub-route pages with secondary navigation** on desktop, and
 
 ---
 
-## 30. Dream Mode -- Public Shareable Trip Planning (Slim Version)
+## 30. Landing Page (`/`) -- Fun and Interactive on Neon-on-Dark
+
+**Status:** locked (2026-04-17)
+
+The landing page uses the **neon-on-dark brand direction** with three layers of delightful interactivity: an interactive hero ball that responds to touch, scroll-driven ball storytelling through the page, and one small easter egg for playful visitors.
+
+### Layer 1: Interactive hero ball (visible to everyone)
+
+- Hero ball sits on the right side of the viewport, glowing neon cyan against the near-black background
+- **Hover (desktop) / tap (mobile)**: ball gently wobbles and emits an extra ripple. Glow intensifies ~25%
+- **Drag (desktop) / long-press (mobile)**: ball rolls softly toward the cursor with a spring animation, showing the rolling animation from the design system
+- **Release**: ball returns to its anchor point with a small settle-boing
+- **Hold >2 seconds**: ball fills from 0% to 100% in real time with the wave-fill animation, then releases back to 0. Visitor can replay as often as they like
+
+### Layer 2: Scroll-driven ball storytelling (rewards curious scroll)
+
+As the visitor scrolls through the page, the hero ball shrinks and docks into the top-left corner, following them down the page like a little mascot.
+
+- **Hero section**: full-size ball, glowing, all neon rainbow circles orbiting lazily in the background
+- **"17 group chats" section**: docked corner ball reacts with a subtle shake at each stat reveal
+- **Features grid**: small balls orbit each feature card in the card's phase color (cyan for itinerary, yellow for packing, green for expenses, pink for travel day)
+- **Ball states showcase**: 4 balls fill in sequence as the visitor scrolls past
+- **Dream Mode teaser**: a second sparkle-ball (neon purple) appears alongside the main docked ball -- *"dreams too"*
+- **CTA section**: docked ball rolls back to center, doubles in size, and sits confidently under the *"Plan the trip. Not the group chat."* headline
+- **Memory section**: ball takes on the nostalgic-fade treatment briefly
+
+### Layer 3: Easter eggs (rewards playful visitors)
+
+- **Triple-tap the hero ball**: ball gets sunglasses (🕶) for 3 seconds, then winks. Gentle bubble-pop sound if sound is enabled. Session counter tracks it (just for fun, not exposed)
+- **Double-click the slogan "Get everyone on the same wave"**: text briefly does a wave motion, letters bob like they're floating on water
+- **Scroll to the bottom and back up 3 times**: ball emits a small burst of rainbow confetti balls that fade out
+
+### Visual treatment
+
+- **Background**: base dark `#0A0A12` throughout with subtle animated radial gradients in neon colors that slowly drift (ocean-surface feel)
+- **Body text**: pure white (`#FFFFFF`) at all times -- no gray-muted text anywhere on the landing page
+- **Display headlines**: Fredoka font, pure white, one word per headline accented in a neon color
+- **Neon accents**: rainbow used across the page with intention -- cyan for ball, yellow for stats impact, pink for the chaos moments, green for settlement/expense references, purple for Dream Mode teaser
+- **Glow**: primary CTAs have subtle `box-shadow: 0 0 32px [neon]60` glows. Hero ball glows at all times. Feature cards glow subtly on hover only
+
+### Motion rules (ocean, not electronic)
+
+- All animations use ease-out curves (soft, water-dissipating)
+- Wobble durations: 400-600ms (slow, organic)
+- Ripple frequency on hover: 1.5s between ripples
+- Scroll-driven animations throttled to 60fps, GPU transforms only
+- `prefers-reduced-motion`: disables drag, wobble, confetti, and scroll-driven animations. Ball becomes a static glow with a very subtle 3.6s fade pulse only
+
+### What to explicitly NOT do
+
+- No parallax ocean gradient through the whole page (performance / distraction)
+- No autoplay video of real trip footage (heavy, compresses poorly, off-brand)
+- No popup on landing (*"Sign up for newsletter!"*) -- kills conversion
+- No live user count or fake "social proof" numbers
+- No countdown timer or scarcity messaging (violates brand rules)
+- No pricing visible on the landing page (per the MONETIZATION.md discoverability rule)
+
+### Page sections (order, top to bottom)
+
+1. **Hero** -- interactive ball, slogan, tagline, signup CTA
+2. **Chaos hook** -- "17 group chats. 4 spreadsheets. 3 people who still don't know the plan." stacked with neon color per line
+3. **One wave** -- slogan reinforcement: *"Get everyone on the same wave."* with a calm ripple animation behind it
+4. **Features grid** -- 4 category cards with orbiting mini-balls (preplanning, travel day, itinerary, expenses)
+5. **Ball showcase** -- 4 filling balls to illustrate progression
+6. **Dream Mode teaser** -- sparkle ball and a taste of the social share
+7. **Memory teaser** -- nostalgic ball, the recap concept
+8. **CTA** -- signup button, warm final pitch, solo-dev ♥ note
+
+### Solo-dev time cost
+
+- Layer 1 (interactive ball): 6-10 hours (drag math is the tricky part)
+- Layer 2 (scroll story): 4-8 hours using CSS `scroll-timeline`
+- Layer 3 (easter eggs): 1-2 hours
+- Visual refresh to neon-on-dark: 4-6 hours of CSS token updates
+- Total: ~15-25 hours for a landing page that doesn't look like anything else in the category
+
+---
+
+## 31. Signup Page (`/signup`) -- Fun First Commit Moment
+
+**Status:** locked (2026-04-17)
+
+Signup is the user's commit moment. The page introduces the ball as a character, delivers the solo-dev supporter framing warmly, and celebrates successful submission with a small fun moment. Single-step form -- no multi-step signup wizards.
+
+### Page layout
+
+- Base dark background (`#0A0A12`) with subtle neon orbital circles in the background (calm ambient, not busy)
+- Centered column, ~400px max width
+- Above the card: TripWave wordmark with small animated ripple logo
+
+### Ball greeting (above the form)
+
+- An empty dashed-outline ball in neon cyan hovers above the signup card
+- Glows softly, does the slow wave-pulse
+- Speech-bubble caption beside it: *"Hey! Let's get you set up."*
+- Ball reacts to form focus:
+  - Name field focus: gentle wobble
+  - Email field focus: straightens up, attentive
+  - Password field focus: subtle rotation away (privacy vibes)
+  - Submit press (loading): slow spin
+  - Success: celebration burst
+  - Error: small sad-shake
+
+### Solo-dev warm note (above first input)
+
+Small italicized text in neon cyan:
+
+> *"Built by one person. Promise I'm not a corporation trying to harvest your emails. ♥ -- Chris"*
+
+### Form fields
+
+- **Name**: placeholder *"What should we call you?"*
+- **Email**: placeholder *"you@email.com"*
+- **Password**: placeholder *"Something strong, please."*
+- All inputs: dark elevated background, neon-cyan focus ring with glow
+- Error states: neon pink text below the offending field
+
+### Primary CTA
+
+- Button label: *"Let's go"*
+- Neon cyan background, bold white text
+- Subtle glow at rest, intensifies on hover
+
+### Post-submit celebration
+
+- Ball emits a tiny rainbow confetti burst (~1 second)
+- Ball fills from dashed to 100% briefly, then settles to a "ready" state
+- Welcome toast slides in: *"Welcome aboard. Let's plan a trip. ♥"*
+- After ~1.5s, smooth fade transition to `/app`
+
+### Below the form
+
+- *"Already have an account? Log in."* link
+- Micro-footer: *"Your data is yours. We don't sell it, ever."*
+
+### Tone rules
+
+- Warm, slightly sassy, solo-dev honest
+- First-person voice from the dev where appropriate
+- No corporate language (*"Register"*, *"Create Account"*, *"Sign up to get started"*)
+
+### What this page explicitly does NOT do
+
+- No multi-step signup (single page, single submit)
+- No "Continue with Google/Apple" social auth in v1 (OAuth scope too high for solo dev -- v1.5 consideration)
+- No visible ReCaptcha (invisible only if needed)
+- No newsletter opt-in checkbox (we do not send promotional emails)
+- No required email verification blocking step (handled silently in background)
+- No aggressive password-strength meter that blocks submission -- gentle warning only
+
+### Accessibility
+
+- Ball animations respect `prefers-reduced-motion`
+- Form fields have proper labels and ARIA attributes
+- Error messages announced by screen readers
+- Tab order: Name → Email → Password → Submit → Login link
+
+---
+
+## 32. Login Page (`/login`) -- Minimal Warm Return
+
+**Status:** locked (2026-04-17)
+
+Login is a quieter moment than signup. Returning users want in quickly -- not to be sold to. The page applies the neon-on-dark treatment with restrained personality, matching the signup page's pattern so users learn the visual language once and recognize it everywhere.
+
+### Page layout
+
+- Base dark background (`#0A0A12`) with the same calm neon orbital ambient circles used on signup
+- Centered column, ~400px max width
+- TripWave wordmark with small animated ripple logo above the card
+
+### Ball above the form
+
+- Empty dashed-outline ball in neon cyan
+- Glows softly, slow wave-pulse
+- NOT interactive to form state (login has no "name" field to listen to, so no wobble-on-type behavior)
+- Responds to hover (wobble) and triple-tap (sunglasses easter egg) -- consistent with landing and signup
+
+### Copy
+
+- **Headline**: *"Welcome back."* -- Fredoka font, pure white
+- **Subtitle**: *"Your trips are waiting."*
+- **Form fields**: Email, Password
+- **Submit button**: *"Log in"* in neon cyan with subtle glow
+- **Below the form**:
+  - *"Forgot password?"* link
+  - *"New here? Sign up free."* link
+  - Small solo-dev footer: *"Still just me. Still free forever. ♥"*
+
+### Error handling
+
+- **Wrong password**: ball does the sad-shake, error text in neon pink: *"Not quite. Try again."* (warm, not scolding)
+- Focus returns to the password field on error
+- All errors are inline -- no blocking dismiss-required dialogs
+
+### Success behavior
+
+- On successful login: ball does the smallest celebration -- one quick brighter wave-pulse
+- Smooth fade transition to `/app`
+
+### What this page explicitly does NOT include
+
+- No "Remember me" checkbox -- users are remembered by default unless they explicitly log out
+- No "Login with Google / Apple" in v1 (deferred with signup social auth)
+- No visible captcha UI
+- No magic link / passwordless login (violates the email-only-for-password-reset scope rule)
+- No countdown teaser or pre-auth trip preview (privacy concerns on shared devices)
+- No rotating "welcome back" messages (login is not a moment for surprises)
+
+### Consistency with signup
+
+Login deliberately mirrors signup's visual pattern -- same ball placement, same wordmark, same solo-dev footer, same easter egg. Users learn the pattern once on signup and recognize it on login.
+
+---
+
+## 33. Dashboard (`/app`) -- Fun Treatment on Neon-on-Dark
+
+**Status:** locked (2026-04-17)
+
+The dashboard's structural layout (Next-up hero + trip list + action center) is already locked in section 2. This section adds the neon-on-dark treatment and three layers of fun that reward the returning user: a time-of-day greeting, a living trip-cards treatment, and a rotating stats flex card.
+
+### Time-of-day greeting (top of page)
+
+- Above the Next-up hero
+- Fredoka font, neon cyan, medium size
+- Format by local time (browser locale, no server round-trip):
+  - **5am-11am**: *"Good morning, Chris."* / *"Rise and plan, Chris."* / *"Morning! Still dreaming?"*
+  - **11am-5pm**: *"Good afternoon, Chris."* / *"Lunch-hour scroll, Chris?"*
+  - **5pm-11pm**: *"Evening, Chris."* / *"Planning tonight?"*
+  - **11pm-5am**: *"Still up, Chris?"* / *"Night owl planning. Respect."*
+- Only one variant per page load
+- Subtitle beneath in white: *"3 trips in the works"* or *"Your next adventure: 42 days"*
+
+### Next-up hero (neon-on-dark treatment)
+
+- Dark elevated card (`#15162A`)
+- Outer glow in the trip's ball color (soft box-shadow, ~24px spread)
+- Ball on the left wave-pulses and emits one gentle ripple every few seconds
+- Countdown text in the trip's phase color
+- Entire card is tap-target, routes to the trip's recommended phase
+
+### Trip cards (living)
+
+- Each card's ball gently wave-pulses on its own staggered rhythm -- not synced, more natural
+- Left accent stripe in the trip's ball color with a soft inner glow
+- Card background: elevated dark (`#15162A`)
+- Hover / tap-preview: card lifts 2px with shadow expansion
+- Countdown text flips to neon pink when the trip is within 7 days of start (urgency cue)
+
+### Stats flex card (between trip list and action center)
+
+- Small card, two-line format
+- Big number in Fredoka with a neon color matching the stat's meaning
+- Daily-refresh rotation of examples:
+  - *"47 days of adventure planned"* (neon cyan)
+  - *"12 travelers across your trips"* (neon pink)
+  - *"$2,340 tracked across trips"* (neon green)
+  - *"3 dream trips in your head"* (neon purple)
+- Tone is warm reflection, not pressure
+- Small "×" dismiss available for users who find it noisy -- dismissal persists for the session only
+
+### Action center (neon treatment)
+
+- Already specced structurally -- apply neon styling here
+- Each item uses its category neon color as a small dot indicator:
+  - Polls yellow (`#FFEB00`)
+  - Expenses green (`#39FF6B`)
+  - Travel pink (`#FF3DA7`)
+  - Blockers pink
+  - Social cyan (`#00E5FF`)
+- New items shimmer briefly when they arrive during the session
+- Tap routes to the source
+
+### Ambient background motion
+
+- Very subtle radial gradient in the background that slowly drifts over minutes (not seconds)
+- Invisible unless the user is looking closely -- adds ambient "aliveness" without distracting
+- Disabled under `prefers-reduced-motion`
+
+### Easter egg
+
+- Tap the greeting text (*"Good morning, Chris."*) three times
+- Greeting cycles through localized joke variants: *"Bonjour, Chris."* → *"Aloha, Chris."* → *"Top of the morning, Chris."*
+- Settles back to default after ~60 seconds
+- Small, silly, rewards curiosity -- not a persistent setting
+
+### What this page explicitly does NOT include
+
+- No achievement badges or gamified planning milestones
+- No overlay tutorial tips for new users
+- No user-configurable dashboard widgets
+- No TripWave-originated trip suggestions ("here are some destinations!") -- not a travel-content platform
+- No fake social proof ("1,247 trips planned today!")
+- No tile to "connect calendars" or OAuth integrations in v1
+
+---
+
+## 34. Trip Creation -- Fun Treatment on Neon-on-Dark
+
+**Status:** locked (2026-04-17)
+
+Trip creation's 4-step structure is already locked in section 3. This section adds the neon-on-dark treatment, a new Step 0 for trip type (Real vs Dream), and the fun-dial calibration: calm elegance with conversational warmth and reactive ball moments. Not exuberant -- users create many trips over time and peak-moment UX should feel proportional to repeat usage.
+
+### Step 0 -- Trip type (new)
+
+- Base dark background
+- Two big side-by-side cards
+  - Left: **Real Trip** with a normal cyan ball preview and a small airplane emoji ✈
+  - Right: **Dream Trip** with a sparkle ball preview and a star emoji ✨
+- Hover / tap: selected ball enlarges and glows
+- Prompt: *"Let's start. Real trip or a dream?"* (Fredoka, white)
+- Secondary: *"You can switch between modes later in trip settings."*
+- Auto-advance on selection (no explicit next button)
+
+### Step 1 -- Name
+
+- Dashed empty ball in upper-center, glowing soft cyan
+- Prompt: *"Let's name your trip!"* (Fredoka, white)
+- Big input with neon-cyan focus ring
+- Typing cadence: ball pulses once every ~3 characters typed
+- On submit: ball does a small nod-forward animation
+- Wipe to Step 2
+
+### Step 2 -- Dates
+
+- Ball moves to center-left, smaller than Step 1
+- Prompt: *"When's the adventure?"* (Fredoka, white)
+- Date range picker with neon-cyan highlights on dark elevated background
+- No-pressure subtitle: *"Not sure yet? No pressure. You can add these later."*
+- *Skip for now* text link equally weighted with submit
+- Wipe to Step 3
+
+### Step 3 -- Pick a color
+
+- Ball centered, dashed outline
+- Prompt: *"Give your trip a color."*
+- Row of 5 glowing swatches: neon cyan, yellow, pink, green, orange (plus purple if Dream)
+- Swatches enlarge and intensify glow on hover
+- Tap a swatch: ball fills with that color in a 2-second rising-liquid animation
+- Subtitle: *"You can change this later."*
+- 1.5s dwell on fill so user enjoys the moment, then wipe to Step 4
+
+### Step 4 -- Reveal
+
+- Base dark with chosen color's soft radial gradient at edges
+- Ball at full hero size, 100% filled, glowing intensely in chosen color
+- Greeting: *"Meet [Trip Name]."* (Fredoka, white)
+- Subtitle: *"Let's plan it."*
+- CTA: **"Let's go"** in neon cyan with glow
+- On submit: one big celebratory wave-pulse, fade to the trip overview
+
+### Cross-step micro-interactions
+
+- Each wipe transition uses horizontal slide with soft easing (300ms)
+- Background color subtly shifts hue per step (~5% saturation change) for each step's mood
+- Ball is always present but changes size and position -- a mascot following the user through
+- Error states (empty name, invalid date): ball does a small sad-shake, error text in neon pink below the field
+
+### Conversational copy examples
+
+- Step 0: *"Let's start. Real trip or a dream?"*
+- Step 1: *"Let's name your trip!"* → on submit brief toast: *"Nice one."*
+- Step 2: *"When's the adventure?"*
+- Step 3: *"Give your trip a color."*
+- Step 4: *"Meet [Trip Name]."*
+
+### What this flow explicitly does NOT do
+
+- No progress bar or step indicator (ritual, not a process)
+- No prominent back button (subtle back in top-left for re-edits, not emphasized)
+- No skip-entire-flow shortcut
+- No full fireworks / confetti parade on reveal (peak-moment UX stays proportional)
+
+### Solo-dev time estimate
+
+~10-15 hours incremental on top of existing scaffold.
+
+---
+
+## 35. Preplanning Hub -- Fun Treatment on Neon-on-Dark
+
+**Status:** locked (2026-04-17)
+
+Preplanning hub's structural layout (8 section cards, section picker) is already locked in section 4. This section defines the fun treatment on neon-on-dark: a ball-centric top with real-time fill, conversational section headlines, and warm completion moments. No gamification badges.
+
+### Top: the ball, big and filling
+
+- Base dark background
+- Large trip ball at the top of the hub, ~180px
+- Ball fills in real time using the trip's chosen neon color with glow
+- Beneath the ball: *"[X]% planned"* in Fredoka white, phase-color accent on the number
+- Small tagline: *"Each section fills a little more of your ball."*
+- Tapping the ball opens the trip ball modal (existing behavior)
+
+### Section cards
+
+- 8 cards in a grid (2-column mobile, 4-column desktop)
+- Each card is an elevated dark surface with a glowing neon icon
+- **Card states**:
+  - **Empty**: dim icon, subtle border, empty progress bar. Copy: *"Haven't touched this one yet."*
+  - **In progress**: fully lit neon icon, progress bar (e.g., 4/9 fields), subtle glowing border. Copy: *"4 of 9 filled."*
+  - **Complete**: bright icon with green checkmark overlay, soft green aura on card, full progress bar. Copy: *"All done. ♥"*
+  - **Not applicable**: desaturated icon, subtle diagonal stripe pattern. Copy: *"Nothing for me to worry about here. ♥"*
+
+### Conversational section headlines
+
+Each section card shows a warm conversational headline with the formal name smaller below:
+
+| Formal name | Card headline |
+|---|---|
+| Group composition | *"Who's coming with you?"* |
+| Transportation | *"How are you getting there?"* |
+| Accommodations | *"Where are you staying?"* |
+| Budget | *"What's the budget looking like?"* |
+| Destination info | *"What should we know about the place?"* |
+| Documents and logistics | *"Any paperwork to sort?"* |
+| Trip character | *"What kind of trip is this?"* |
+| Pre-departure logistics | *"What about before you leave?"* |
+
+### Completion feedback
+
+On return to the hub after finishing a section:
+
+- Just-completed card pulses green glow for ~2 seconds
+- Ball at top fills with upward-wave animation to its new percentage
+- One toast slides in: *"Group composition done. ♥"*
+
+### Ready-to-go CTA
+
+- Appears only when ball hits 90%
+- Centered below the grid
+- Primary button: *"Mark this trip as ready to go"* in neon cyan with glow
+- Subtitle: *"You can still change anything later."*
+
+### Completion state (100%)
+
+- Single warm line below the ball: *"Look at you. Ready to roll."*
+- Ball glows at full intensity
+- All 8 cards show their complete state
+
+### Easter egg
+
+- **Double-tap the ball at the top**: ball briefly becomes translucent showing a cross-section with colored slices per section. Peek-under-the-hood moment. Fades back after 2 seconds
+
+### Micro-interactions
+
+- Hover / tap-preview on a card: 2px lift with shadow expansion
+- Completion animation max 2 seconds end-to-end
+- Ball fill uses wave-fill ease-out curve (not linear)
+- Empty section icons shimmer subtly after the user has been on the hub for >30 seconds -- gentle nudge, never scolding
+
+### Warm empty-state copy rotation
+
+- *"Haven't touched this one yet."*
+- *"When you're ready, this one's here."*
+- *"Skip me if not relevant."*
+
+### What this page explicitly does NOT do
+
+- No achievement badges (*"Budget Boss!"*, *"Trip Master!"*)
+- No sound effects on completion
+- No scolding empty states
+- No "recommended next section" arrow forcing order
+- No time estimates (*"Takes 5 minutes"*)
+- No confetti cannon on 100%
+- No formal progress language (*"0 / 8 complete"* style) at the top -- the ball does that visually
+
+---
+
+## 36. Itinerary Page -- Fun Treatment on Neon-on-Dark
+
+**Status:** locked (2026-04-17)
+
+Itinerary structural layout (day-by-day vertical scroll, sticky day jumper, item cards with category left-stripes) is locked in sections 6 and 7. This section adds the neon-on-dark treatment with day-personality theming and a live "you are here" marker for in-progress trips.
+
+### Sticky day jumper
+
+- Horizontal strip of day pills on dark-elevated background
+- Each pill: *"Day 1 Mon"*, *"Day 2 Tue"*, etc.
+- Active pill: filled with the day's personality color + glow
+- Today pill during in-progress trip: neon-orange border with live pulse animation
+- Tap pill smooth-scrolls to that day
+- Current visible day's pill auto-highlights as user scrolls
+
+### Day header cards (personality-colored)
+
+Each day's content determines its header color:
+
+- Day with flights or travel-day event: **neon pink** (`#FF3DA7`)
+- Day with restaurant reservations dominant: **neon yellow** (`#FFEB00`)
+- Day with outdoor activities dominant: **neon cyan** (`#00E5FF`)
+- Day with expense-heavy content: **neon green** (`#39FF6B`)
+- Day with notes only / low content: neutral elevated dark (no color)
+- Multi-category day: subtle left-to-right gradient of involved colors
+
+Day header content:
+- Big Fredoka text: *"Day 3 · Tuesday"*
+- Date subtitle: *"April 10, 2025"*
+- Weather icon + temp (when weather integration exists later)
+- Tap day header to collapse the day's events
+
+### Event cards
+
+- Apply neon-on-dark treatment to the card anatomy already specced in section 7
+- Left stripe in category color: activity yellow, reservation cyan, transport pink, note gray, expense-linked with green coin badge
+- Card background: elevated dark (`#15162A`)
+- Title in pure white Fredoka
+- Time and location in white (secondary weight, still pure white)
+- Tagged-traveler avatars on the right
+- Tap opens edit modal (mobile) or expanded inline (desktop)
+
+### Live "you are here" marker (in-progress trips only)
+
+- Horizontal neon-orange line in the current day's section
+- Sits above the next upcoming event
+- Moves down as time passes
+- Label: *"You are here -- next up in 45 min"*
+- Absent on pre-trip or post-trip views
+
+### Between-day separators
+
+- Thin dashed neon-cyan line between days
+- Breaks up the infinite-list feel
+- Small sleeping-moon icon at midnight transitions
+
+### Empty day placeholder
+
+- Faded illustration of a hammock with the ball chilling
+- Copy: *"Nothing on this day yet. That's fine. Some days need space."*
+- Subtle *"+ Add something"* link
+
+### Quick-add control
+
+- Mobile: neon-cyan glowing FAB bottom-right
+- Desktop: + button in top-right of page header
+- Tap opens slide-up sheet to add an event
+- Default target day: today during in-progress trips, otherwise the next empty day
+
+### Micro-interactions
+
+- Hover / tap-preview on event card: 2px lift + shadow expansion
+- Completed past events during in-progress trip: card fades to 60% opacity with corner checkmark
+- Day headers sticky-briefly at the top as user scrolls past
+- Day jumper auto-scrolls to keep current day centered
+
+### Easter egg
+
+- **Triple-tap any day header**: that day's events do a bubble-up animation in sequence (each event pops up 200ms after the previous). The day "comes to life."
+
+### What this page explicitly does NOT do
+
+- No Gantt chart or timeline visualization in v1 (alternate calendar view deferred)
+- No weather photo backgrounds until weather integration exists
+- No drag-to-reorder between days in v1 (deferred, mobile complexity)
+- No analytics pie charts
+- No countdown-to-next-event alerts (handled by notifications)
+- No auto-inserted suggestion cards between events
+
+---
+
+## 37. Packing Page -- Fun Treatment on Neon-on-Dark
+
+**Status:** locked (2026-04-17)
+
+Packing structure (3 tabs: My / Group / Suggestions) is already locked in section 8. This section adds the neon-on-dark treatment and two layers of fun: satisfying check animations and staged reveal (checked items collapse into a "Packed" section, shrinking the working list as you pack).
+
+### Tab strip (neon treatment)
+
+- Three tabs: **My list** (default) / **Group list** / **Suggestions**
+- Active tab: neon cyan bottom border with glow, pure white text
+- Inactive tabs: white text at reduced weight, no underline
+- Count badges next to each tab label in small neon-cyan pills
+- Suggestions tab for free users shows a small neon-purple lock icon
+
+### Category groups (My list)
+
+- Collapsible groups: Clothing, Toiletries, Electronics, Documents, Other
+- Group header: Fredoka white with small neon-cyan icon, tap collapses/expands
+- Items:
+  - Custom neon-cyan checkbox on the left
+  - Item name in white (strike-through when checked, but NOT grayed)
+  - Optional quantity chip on the right
+  - Three-dot menu for edit / move / delete / make private
+
+### Satisfying check animation
+
+When a user checks an item:
+
+- Checkbox fills with neon cyan and emits a soft glow burst (~20px radius, fades over 600ms)
+- Small particle burst: 6-8 tiny neon-cyan dots fly outward and fade
+- Item name gets strike-through
+- Haptic tap on mobile (if device supports)
+- Sound: off by default; optional setting for a subtle "pop"
+
+### Staged reveal (shrinking list)
+
+- Checked items collapse upward with a 300ms animation
+- They move into a collapsed **"Packed (X items)"** section at the bottom of that category group
+- Tap *Packed* to expand and see checked items
+- Uncheck restores to the active list
+- The working list shrinks as the user packs -- visual lightening
+
+### Quick-add input per category
+
+- Persistent input pinned at the bottom of each category group
+- Placeholder: *"Add to [Category]..."*
+- Enter submits; focus is kept for chained adds
+- Neon-cyan focus ring
+
+### Group list tab
+
+- Flat list of shared items grouped by category
+- Each item: assigned-bringer avatar on the right
+- Unassigned items show a neon-yellow *Claim* button
+- Claim: assigns the current user with a subtle ball-bounce animation
+- Same check-off behavior as My list
+
+### Suggestions tab
+
+- Premium: grid of suggestion cards with icon + item name + reason, each with *Add to my list* and *Add to group* buttons
+- Free: 3 sample cards visible under a full-tab lock overlay with a cyan support card explaining the premium bonus
+
+### Empty states
+
+- My list empty: ball-in-a-suitcase illustration, *"No items yet. Start with the essentials."*
+- Group list empty: suitcase with colored dots, *"Nothing shared yet. First aid kit? Beach umbrella? Group snacks?"*
+- Suggestions empty (premium): *"Smart suggestions will appear as you add trip details."*
+
+### Micro-interactions
+
+- Tapping category header with >5 items pulses the count badge briefly
+- Long-press item: opens three-dot menu directly (mobile shortcut)
+- Drag item between categories: snaps to target with a soft bounce
+- Category reaches 100%: header briefly glows green with *"All packed. ♥"* for 2 seconds
+
+### Easter egg
+
+- **Check all items in a category**: that category's icon does a celebratory spin and the trip ball in the app nav wave-pulses once in sympathy. Small cross-component nod
+
+### What this page explicitly does NOT do
+
+- No weight-per-item tracking in v1
+- No weather-aware packing suggestions outside the Suggestions tab
+- No "critical items" highlighting
+- No pack-streak gamification or daily goals
+- No imported checklists from other users' trips in v1
+
+---
+
+## 38. Travel Day -- Fun Treatment on Neon-on-Dark (Focus Mode)
+
+**Status:** locked (2026-04-17)
+
+Travel Day's structural behavior (auto-route + focus mode on the day of, normal planning phase otherwise) is already locked in section 9. This section specifies the calm-neon-plus-encouraging-companion treatment for focus mode, plus the neon-on-dark styling for the planning-phase view.
+
+### Planning phase (far from trip)
+
+Standard neon-on-dark treatment like other phases:
+
+- Editor layout for building the travel-day checklist
+- Ordered task groups (pre-departure, at home, at airport, in the air, at arrival)
+- Each task: time, description, responsible traveler
+- Add / edit / reorder freely
+- Neon pink phase color for Travel Day in the sidebar
+
+### T-minus 24 hours (attention state)
+
+- Tab in sidebar gets a neon-pink pulse dot
+- Trip opens to the user's last-visited phase normally
+
+### Focus mode (day of)
+
+Layout stripped down:
+
+- Sidebar collapses to narrow icon strip (still accessible, de-emphasized)
+- Top nav becomes a minimal status strip in white Fredoka: *"Depart at 6:00 PM · Leave home by 3:30 PM · 2 items pending"*
+- Trip switcher, notification bell, and avatar menu hidden -- essentials only
+- Base dark background with NO ambient gradient drift (too busy for focus)
+- Trip ball small in top-left, wave-pulsing slowly
+
+### Main view: single-task-at-a-time
+
+- Current up-next task dominates the screen in a BIG card
+- Task title in massive Fredoka white (larger than anywhere else in the app)
+- Small subtitle: time / location / responsible traveler
+- Two giant tap targets:
+  - **Done** -- neon green, ~72px tall, massive tap surface
+  - **Skip** -- smaller, dark-elevated, for not-applicable tasks
+- Above: horizontal scroll of completed tasks at fading opacity
+- Below: small preview card of the next task
+
+### Encouraging-companion touches
+
+- Ball glows brighter for a beat when a task is completed, then settles back
+- Rotating warm nudge copy above the current task:
+  - *"One more. You got this."*
+  - *"Take a breath. Next up."*
+  - *"Almost at the gate."*
+  - *"Halfway through your checklist."*
+- Never scolds, never urgency-drama
+
+### Segment transitions
+
+- When a user finishes a major segment (pre-departure → at airport, at airport → in the air)
+- Full-screen overlay fades in for ~2 seconds
+- Copy: *"Pre-departure done. On to the airport. ♥"*
+- Ball does one celebratory wave-pulse
+- Fades back to single-task view for the next segment
+
+### Swipe-to-complete
+
+- Mobile gesture: swipe right on a task to mark done
+- Haptic on successful swipe
+- Calm neon-green trail fades
+
+### "Leave in X minutes" chip
+
+- If a task has a time and the user is approaching / past it
+- Small neon-orange chip above the task: *"Leave in 12 min."*
+- Turns neon pink when overdue: *"Should have left 5 min ago."* (warm, not alarmist)
+- Non-blocking, informational
+
+### Exit focus mode
+
+- Small *Exit focus mode* text link in the top-right corner
+- Exiting returns the normal workspace
+- User can re-enter focus mode manually from Travel Day any time
+
+### Post-arrival
+
+- Focus mode exits automatically after the last segment completes
+- Warm landing screen: ball wave-pulses big, copy *"You made it. ♥"*
+- CTA: *Open Vacation Day* routes to today's events
+- Standard workspace returns after this moment
+
+### What focus mode explicitly does NOT do
+
+- No ads visible (already specced as ad-suppression zone)
+- No premium upsells
+- No push notifications firing during focus mode (queued for after)
+- No gamification or point scoring
+- No multi-column mobile layouts -- single column only
+- No sound effects
+- No rapid animations -- all transitions ≤500ms, mostly calm fades
+
+---
+
+## 39. Vacation Day Page -- Fun Treatment on Neon-on-Dark
+
+**Status:** locked (2026-04-17)
+
+Vacation Day structure (morning briefing + today's events + activity strip + quick actions + peek tomorrow) is already locked in section 10. This section adds the neon-on-dark treatment and the live "up next" pinned pill for right-now utility. Warm-scroll + live-moment hybrid.
+
+### Live "up next" pill (top, pinned)
+
+- Appears only when the next event is within 2 hours
+- Background: trip color at low saturation (warm glow, not overwhelming)
+- Content: *"Up next: Breakfast at hotel · 8:00 AM · in 47 min"*
+- Gently pulses (slow wet-neon shimmer) as the time approaches
+- Tap scrolls to the event's card
+- Dismissible per-event via a small × (swipe-away on mobile)
+
+### Morning briefing card (neon treatment)
+
+- Large card, dark elevated background
+- Soft gradient in the trip's ball color at the top edge
+- Greeting in Fredoka white by local time of day: *"Morning! Day 4 in Tokyo."*
+- Summary line in white secondary: *"3 events today · 2 reservations · weather 68° and cloudy"*
+- *Up next: breakfast at hotel · 8:00 AM* highlighted
+- Collapses to a small bar if dismissed; reappears next morning at local sunrise
+
+### Today's events (the river)
+
+- Itinerary-style cards for today, time-sorted
+- Apply neon-on-dark treatment with stronger category-stripe glow
+- **Completed events**: 60% opacity with a subtle checkmark ripple (reuses packing check animation)
+- **Currently-active event**: brighter glow around card border, small pulse
+- Flow down like a river through the day
+
+### Activity strip ("What changed today")
+
+- Horizontal scroll of small chips
+- Each chip: avatar + short action text + timestamp, with a category dot (social cyan, expenses green, polls yellow)
+- Examples: *"Sarah added dinner suggestion · 10min ago"*, *"Mom paid $80 for taxi · 2hr ago"*
+- Tap jumps to the source
+
+### Quick actions row (always visible)
+
+- Three buttons with liquid ripple on tap:
+  - **Add event** (neon cyan) -- quick-add to today
+  - **Log expense** (neon green) -- quick expense entry
+  - **Start poll** (neon yellow) -- quick vote
+- Pinned at bottom on mobile (above the ad banner), in page header on desktop
+
+### Peek tomorrow link
+
+- Small neon-purple text link at page bottom
+- Text: *"Tomorrow: Day 5, hike at Shinjuku Gyoen"*
+- Tap expands tomorrow's events inline or opens itinerary at tomorrow's day
+
+### Ambient touches
+
+- Background has the standard very-subtle gradient drift
+- Trip ball in top-left corner does wave-pulse at a slightly slower 4s rhythm (vacation-glow state instead of 3.6s)
+- Overall page tone is a touch warmer than other phases (slight color-temperature shift)
+
+### Morning briefing auto-refresh
+
+- At local sunrise, a subtle swipe-down-from-top transition reveals the next day's briefing
+- Previous briefing archives to a small *"Yesterday"* link in the footer
+- Overnight cross-timezone check-ins do not re-refresh the briefing mid-flight
+
+### Micro-interactions
+
+- Scroll past a completed event: card fades further (tells user "this is done")
+- Long-press event: opens edit modal (same as itinerary)
+- Swipe-right on a quick action button: triggers action immediately without a modal (fast logging)
+- Tap trip ball in top-left: opens trip ball modal (consistent with other pages)
+
+### Easter egg
+
+- **Triple-tap the greeting** (*"Morning!"* / *"Afternoon!"* / *"Evening!"*): greeting cycles through destination-localized variants. In Tokyo: *"Ohayou, Chris!"* → *"Konnichiwa, Chris!"* → *"Konbanwa, Chris!"* Uses the trip's destination data to pick the language
+
+### What this page explicitly does NOT do
+
+- No map or route view in v1
+- No weather forecast beyond current-day note
+- No transit / live-routing integration in v1
+- No auto-generated photo gallery (Memory does that)
+- No sponsored / affiliate inline content during the trip (ads suppressed during briefing view per spec)
+- No mid-trip recap / statistics (saved for Memory)
+
+---
+
+## 40. Expenses Page -- Fun Treatment on Neon-on-Dark
+
+**Status:** locked (2026-04-17)
+
+Expenses' structural layout (balances-first + trip total + ledger + add FAB) is already locked in section 11. This section adds the neon-on-dark treatment, a warm language reframe in the balances hero, a precise tone in the ledger, and a subtle celebration when balances settle. Money between friends should feel chill, not accusatory.
+
+### Balances hero card (warm reframe language)
+
+- Dark elevated card at the top
+- Trip's ball color as soft outer glow
+- Headline in Fredoka white showing personal net:
+  - You are owed: *"Sarah's got you for $18"*
+  - You owe: *"You've got Mom for $42"*
+  - All settled: *"You and everyone are even. ♥"*
+- Per-person rows:
+  - Avatar + name
+  - Amount in neon green (owed to you) or neon pink (you owe)
+  - *Mark settled* button (if owed to you) or *Mark paid* button (if you owe)
+  - Small hint if a handle is saved: *"Pay Mom via Venmo"* / *"Ask Sarah for $18"*
+
+### Subtle settlement celebration
+
+When a single settlement clears:
+- Row slides up and out
+- Soft neon-green ripple fades across
+- Toast: *"Settled with Mom. ♥"*
+- Trip ball in nav does one slow wave-pulse in sympathy
+
+When the whole trip's balances hit zero:
+- Hero transitions to "all settled" state with soft green aura
+- Headline: *"You and everyone are even. ♥"*
+- Gentle sprinkling of green dots rises from the bottom of the card and fades (subtle, not fireworks)
+
+### Trip total strip
+
+- Thin strip below the hero
+- *"Trip total: $2,340 · Your share: $585 · Budget: 82% used"*
+- Tap expands to budget breakdown with a horizontal bar chart per category in category colors
+
+### Ledger (precise language)
+
+- Full expense list, newest first
+- Filter chips: *All · Yours · By category · By day*
+- Each row: category-colored icon + description in white + amount in bold white + payer avatar + split chip (*"even 4-way"*, *"only Chris & Sarah"*, etc.)
+- Language is precise and factual in the ledger: *"Chris paid $48 for dinner at Tsukiji · April 10 · split evenly 4-way"*
+- Tap opens expense detail / edit
+
+### Add expense FAB
+
+- Mobile: neon-green glowing FAB bottom-right
+- Desktop: green *Add expense* button in page header
+- Slide-up sheet with amount, description, category, who paid, split type
+- Currency converter field visible (premium lock for free users with neon-purple lock icon)
+- Scan receipt button visible with premium support-card for free users
+
+### Scan receipt (premium)
+
+- On tap (premium user): camera opens on mobile, file picker on desktop
+- Loading overlay uses calm liquid shimmer: *"Reading your receipt..."*
+- Fields auto-fill from OCR; user reviews and submits
+- Free users see a cyan support card: *"Scan receipts to auto-fill. Premium thank-you bonus. $7.99."*
+
+### Empty state
+
+- Illustration: ball stamped onto a coin
+- Headline: *"Log the first expense. Day zero counts."*
+- Subtitle: *"TripWave tracks from the first deposit to the final taxi. Fairly split, kindly settled."*
+- CTA: *Add first expense*
+
+### Language rules
+
+- **Hero**: warm casual language (*"You've got Mom for $42"*, *"Sarah's got you for $18"*)
+- **Ledger**: precise factual language
+- **Errors**: non-blaming (*"Split doesn't add up. Let's fix that."*)
+- **Forbidden in prose**: *"debt"*, *"collect"*, *"due"* (they may appear in structured amounts / timestamps but not in conversational copy)
+
+### Micro-interactions
+
+- *Mark paid / Mark settled* button briefly fills with neon green, row slides up
+- Fast-scroll ledger: rows fade-in with subtle staggered liquid animation as they enter viewport
+- Filter chip tap: chip fills with accent color, ledger cross-fades
+- Long-press ledger row: inline edit actions (edit / delete / change split)
+
+### Easter eggs
+
+- **Tap the "all settled" green-dot celebration rapidly**: extra dots cascade. Rewards appreciation of the moment
+- **Double-tap a ledger row's category icon**: icon does a small wiggle dance. Pure-fun, no informational value
+
+### What this page explicitly does NOT do
+
+- No financial-health scoring or credit-score simulations
+- No Stripe / Venmo / Cash App direct integration in v1 (link-outs only with hints)
+- No recurring expenses in v1 (trips are finite)
+- No "budget over!" alarm / shame states
+- No auto-categorization ML -- user picks category at entry
+- No cross-trip lifetime spending total
+
+---
+
+## 41. Dream Mode -- Public Shareable Trip Planning (Slim Version)
 
 **Status:** locked (2026-04-17)
 
