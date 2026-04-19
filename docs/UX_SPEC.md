@@ -1095,25 +1095,36 @@ If only the organizer is in the trip, show their card plus a banner: *"Only you 
 
 **Status:** locked (2026-04-17)
 
-Premium prompts come in two forms -- **inline lock cards** as the default, and **moment cards** elevated at high-intent contextual triggers. Never modal takeovers, never persistent banners, never scarcity tactics.
+Premium prompts come in two forms -- **inline support cards** as the default, and **moment cards** elevated at high-intent contextual triggers. Premium is framed throughout as a **warm thank-you for supporting the app**, not a value-extraction purchase.
 
-### Inline lock card (default state)
+### Brand framing
 
-Appears wherever a premium feature would normally live, replacing the feature's entry point.
+Every premium surface follows the same tone:
 
-- Cyan-tinted card background (noticeable, not alarming)
-- Small lock icon in the top-left (cyan)
+- TripWave is built by one person
+- Ads exist because servers cost money, not because they are good UX
+- Premium is how users *say thanks*; in return they get no ads plus some fun bonus features
+- The sassy-warm vibe: *"Sorry about the ads. Running apps like this costs money and I'm one person."*
+- Never "unlock powerful tools" -- always "support the app and get a thank-you"
+
+### Inline support card (default state)
+
+Appears wherever a premium bonus feature would normally live, replacing the feature's entry point.
+
+- Cyan-tinted card background (warm, not alarming)
+- Small ♥ icon in the top-left (cyan)
 - Feature name in bold
-- 1-sentence value line: e.g., *"Scan receipts to auto-fill expenses. $5 one-time."*
-- Right side: *Unlock* pill button (cyan with yellow shadow)
-- Optional tiny footer: *"Premium is a one-time $5 unlock. No subscriptions."*
+- 1-sentence framing: e.g., *"Receipt scanning is a bonus thank-you for premium supporters. $7.99 once."*
+- Right side: *Support + unlock* pill button (cyan with yellow shadow)
+- Optional tiny footer: *"$7.99 once. No subscriptions. No corporate anything."*
 
 Example placements:
 
-- Expenses: lock card in place of the *Scan receipt* button
-- Currency converter tool: lock card replacing tool UI, with a preview faded behind
-- Offline mode: lock card in Settings next to a disabled toggle preview
-- Smart suggestions: lock card in the Tools hub's *Useful right now* row
+- Expenses: support card in place of the *Scan receipt* button
+- Currency converter tool: support card replacing tool UI, with a preview faded behind
+- Offline mode: support card in Settings next to a disabled toggle preview
+- Smart suggestions: support card in the Tools hub's *Useful right now* row
+- Dream Mode (at the 1-dream cap): support card at creation time
 
 ### Moment card (elevated high-intent state)
 
@@ -1121,17 +1132,17 @@ Appears inline within the relevant phase at specific contextual triggers -- neve
 
 - Larger, full-width card
 - Warm pastel background tinted with the trip's color
-- Context-aware headline: *"Offline mode would be real useful right now."*
-- Explanation: *"You're offline, 30 minutes from the airport. For $5 you can access your itinerary and vault without wifi from now on."*
-- Primary action: *Unlock for $5* (large button)
-- Secondary action: *Not now* (small text link)
+- Context-aware honest headline: *"Sorry about the ads, and about this one."*
+- Explanation that names the solo-dev reality: *"You're offline, 30 minutes from the airport. For $7.99 you can read your itinerary and vault without wifi, forever. You also help the app stay alive. I'm one person running this, and I'd appreciate it."*
+- Primary action: *Support the app -- $7.99* (large button)
+- Secondary action: *Maybe later* (small text link)
 
 Example triggers:
 
 - User opens app offline and isn't premium: moment card on trip overview
 - User taps a currency field in an international expense entry
 - User has logged 5+ expenses without using receipt scan
-- User about to archive a trip: *"Save this as a template"* moment card
+- User about to archive a trip: *"Save this as a template"* moment card (framed as a bonus gift)
 
 ### Ad-free / prompt-free zones
 
@@ -1144,17 +1155,32 @@ Premium prompts never appear during:
 
 ### Tone rules
 
-- Always reference the one-time $5 nature explicitly. Never say *"upgrade to unlock"* without the pricing
-- Acknowledge free is legitimate: *"You can absolutely wing this."*
-- Reference the specific moment when using moment cards: *"You just tried to..."* / *"You're about to..."*
-- Forbidden: scarcity language, *"limited time"*, *"unlock now before..."*
-- The free tier must remain fully useful on its own -- prompts only offer extra
+- Always frame premium as **support + thank-you gift**, never as feature unlock
+- Always acknowledge the ads openly: *"Sorry about the ads."* is acceptable opener copy
+- Always reference the one-time $7.99 nature explicitly
+- Always name the solo-dev reality: *"I'm one person."*
+- The ♥ glyph is the brand signature on premium surfaces
+- The free tier must remain fully useful -- the app genuinely works free
+- Forbidden: *"Unlock powerful tools"*, *"Upgrade to premium"*, *"You'll love what you get"*, *"Save the trip"*, any scarcity-language, any implied-deficiency language
 
 ### Purchase flow
 
-- Tapping an *Unlock* button opens a slide-up sheet on mobile / modal on desktop
-- Sheet contents: benefits list, large *Buy for $5* button, Apple/Google Pay (future native app), Stripe (web)
-- Post-purchase: trip ball does a celebration burst; toast confirms *"Premium unlocked. No ads, ever."*
+- Tapping a *Support* button opens a slide-up sheet on mobile / modal on desktop
+- Sheet has two sections:
+  - **Headline**: *"Sorry about the ads."*
+  - **Body**: *"They exist because servers, databases, and one developer's rent all cost money. Premium is how you say thanks -- no more ads, plus some bonus features as a gift. $7.99, once, forever. No subscriptions, no guilt, no corporate anything. Just me and you. ♥"*
+  - **Bonus reveal**: *"As a thank-you: [list of bonuses]."*
+- Primary button: *Support TripWave -- $7.99*
+- Payment: Apple/Google Pay (native app), Stripe (web)
+- Post-purchase: trip ball does a celebration burst; toast confirms *"You're a supporter now. Thank you ♥"*
+
+### Why the supporter framing
+
+- Emotional purchases (affection, gratitude, support) convert better than rational feature-comparison purchases
+- Reframes ads from "intrusive" to "understandable" -- users stop resenting them once they know the why
+- Differentiates TripWave from corporate-software pricing language in a saturated market
+- Matches the solo-dev reality -- honest, disarming, warm
+- Plays to a specific user psychology: people who would never pay a corporation $7.99 will happily pay a creator they like
 
 ### Why inline plus moment cards
 
@@ -1180,7 +1206,7 @@ The free tier shows ads via two formats -- a **persistent bottom banner** (Cozi-
 - **Background**: white or very light gray with a 1px top border
 - **Ad label**: tiny *"Ad"* text in the top-left corner with an info icon
 - **Close button**: tiny X in the top-right to dismiss for the session
-- **Upsell hint**: small *"Remove ads for $5"* text link on the right side of the banner, opens the Premium sheet on tap
+- **Upsell hint**: small *"Remove ads for $7.99"* text link on the right side of the banner, opens the Premium sheet on tap
 
 ### Native card ads (in long feeds)
 
@@ -1218,7 +1244,7 @@ Banner and native cards are hidden entirely during:
 - Banner delivers baseline impressions at scale
 - Native cards catch eyes in longer feeds where the banner gets banner-blindness
 - Suppression rules protect the moments that matter most
-- Visible *"Remove ads for $5"* hint turns every ad into a conversion opportunity
+- Visible *"Remove ads for $7.99"* hint turns every ad into a conversion opportunity
 - Premium users see neither format
 
 ---
@@ -1668,5 +1694,94 @@ Trip settings uses **sub-route pages with secondary navigation** on desktop, and
 - Deep-linking to a specific category is trivial
 - Clean back-button behavior
 - Scales gracefully as more settings are added without cluttering tab bars or creating long scrolls
+
+---
+
+## 30. Dream Mode -- Public Shareable Trip Planning (Slim Version)
+
+**Status:** locked (2026-04-17)
+
+Dream Mode is a **slim, shareable variant of a regular trip** designed for aspirational play. It is not a full separate product -- most of its content is just a regular trip workspace flagged as a dream, with three real differentiators: public shareability, social reactions from viewers, and a distinct visual identity that signals *"this is for fun."*
+
+### What makes a dream actually different from a regular trip
+
+After honest review, only three things differentiate a dream from a regular trip:
+
+1. **Public shareable** -- regular trips contain private data (confirmations, emergency contacts, real expenses) and cannot be made public. Dreams have nothing real in them and are safe to share
+2. **Social engagement from non-members** -- viewers of a dream can react and comment without being a trip member. Regular trips lock interaction to invited members
+3. **Distinct visual framing** -- the sparkle-ball variant and *"This is a dream"* chip give users psychological permission to play without feeling like they are procrastinating on real planning
+
+Everything else (fantasy activities, celebrity placeholder guests, mood boards, vibe themes) is achievable via regular trip features without a separate mode.
+
+### How a dream is created
+
+- At trip creation, step 1 asks: *Real trip* or *Dream trip?*
+- Remaining 4-step flow (Name → Dates → Color → Reveal) is identical to a real trip
+- Dream reveal moment includes a sparkle animation for visual distinction
+
+### Dream trip limits
+
+- **Free users**: 1 active dream at a time
+- **Premium supporters**: unlimited dreams (framed as a supporter thank-you bonus)
+- Dream slots do NOT count against the 4 free real-trip slots
+
+### Visual differentiators
+
+- **Dream-ball**: shimmer / gradient / sparkle variant of the trip ball. Never hits 100% complete; pulses and glows perpetually
+- **Color picker**: pastels and gradient presets available for dreams but not regular trips
+- **"This is a dream" chip**: persistent small label in cyan italic at the top of every dream page
+
+### Dream workspace
+
+Reuses the standard trip workspace shell (overview, preplanning, itinerary, wishlist, etc.) exactly as regular trips do, with these specific changes:
+
+- Overview hero shows *"Dream of [name]"* and sparkle accents
+- Budget warnings suppressed (fantasy budgets are fine)
+- Memory phase hidden (dreams never end)
+- Travel Day and Vacation Day phases hidden (dreams have no live execution)
+
+### Share and social
+
+- Every dream has a **public read-only share link**
+- Non-authenticated viewers see the full dream
+- Viewers see a warm signup nudge: *"Sign up free to react and plan your own."*
+- Reactions and comments require an account per the account-required rule
+- Reactions: emoji toggles (❤️ 🌴 🥂 ✨ 😍 🤩) per dream item
+- Comments: short text replies, one level deep
+- Native share sheet integration on mobile (WhatsApp, iMessage, Instagram DM)
+
+### "Save to my dreams" action
+
+- Any authenticated viewer can tap *Save to my dreams* on another user's public dream
+- Creates a new dream in their own account, pre-populated from the source
+- Sends a warm in-app notification to the original dreamer: *"[Name] saved your dream!"*
+- Never gamified, never persistent, never repeated
+
+### Premium supporter bonuses inside Dream Mode
+
+Premium is framed as supporting the app; Dream Mode bonuses are the thank-you gifts:
+
+- **Unlimited dreams** (free users hit the 1-dream cap at creation and see an inline support card)
+- **Private dreams** toggle (free dreams are always public; premium unlocks the option to keep one private)
+- **Extra dream-ball visual effects** (premium gets more sparkle styles, pastel gradients)
+
+What is NOT a premium bonus:
+- **Vibe themes** -- all basic themes ship free. Premium does not gate themes. The solo-dev / supporter framing makes it feel petty to gate aesthetic cosmetics
+- **Reality Check** -- removed from scope. Users can use Find-flights / Find-hotels tools manually if they want real prices. Not worth building a dedicated paid feature for a 2-minute UX shortcut
+
+### Guardrails
+
+- Dreams never appear in the dashboard *Next up* hero (reserved for real upcoming trips)
+- Dreams never trigger notifications (no travel-day pulse, no countdown, no anniversary)
+- Dream ball colors cannot exactly match real trip ball colors -- the picker enforces visual distinction
+- Every dream page shows the *"This is a dream"* chip
+- Dream workspace celebrity invitees (if added as regular trip placeholder guests) are flavor data only, never actual trip members
+
+### Why slim Dream Mode earns its place
+
+- Viral acquisition: public share links are naturally viral (*"omg wouldn't this be so fun?"* texted to a best friend)
+- Low dev cost: reuses existing trip workspace with small differentiators, no separate product to maintain
+- Retention: provides a fun low-commitment reason to open the app during quiet months between real trips (partial retention lever; anniversary nudges and Memory artifacts do the heavier retention lifting)
+- Supporter conversion: unlimited dreams and bonus sparkle effects are small, warm, gift-worthy perks for paying supporters -- exactly matching the "thank-you" premium framing
 
 ---

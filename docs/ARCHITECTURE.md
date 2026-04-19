@@ -22,7 +22,7 @@ This document describes the intended technical shape of the product before the b
 - **Azure** — receipt scanning OCR (premium feature only, pay-per-use)
 - **ORM to be decided** — Prisma or Drizzle
 - **Auth provider to be decided** — Better Auth confirmed direction, configuration TBD
-- **Payment processor to be decided** — needed for one-time $5 premium purchase (Stripe likely)
+- **Payment processor to be decided** — needed for one-time $7.99 premium purchase (Stripe likely)
 
 ### What we are NOT using
 

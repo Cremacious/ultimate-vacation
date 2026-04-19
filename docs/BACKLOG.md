@@ -9,6 +9,109 @@ This backlog is meant to stay human-readable. It should help us choose the next 
 
 ---
 
+## Monetization / retention work items (added 2026-04-17)
+
+### Pre-launch audience building (start 6 months before launch)
+
+- [ ] Choose platform for build-in-public (TikTok or Threads)
+- [ ] Establish posting cadence: 2-3 honest-progress posts per week
+- [ ] Pick ONE target niche community (r/solotravel, r/digitalnomad, etc.)
+- [ ] Begin genuine participation in chosen community (answers, trip reports, help) -- no self-promotion
+- [ ] Build pre-launch landing page with email capture, trip-ball demo, warm solo-dev copy
+- [ ] Register on Product Hunt "upcoming" page (free)
+- [ ] List in Indie Hackers showcase
+- [ ] Weekly waitlist email template + content calendar
+- [ ] Launch-day email template: "Founder's access opens in 2 hours. $4.99 forever, 1,000 spots."
+
+### Pricing and launch
+
+- [ ] Update all $5 references across code (marketing, pricing page, account premium page) to $7.99
+- [ ] Private beta recruiting plan (50-150 users)
+- [ ] Beta-user permanent-premium entitlement flag in the account model
+- [ ] Founder's pricing infrastructure ($4.99 tier capped at first 1,000 public sales)
+- [ ] Founder badge visual treatment on account
+- [ ] Marketing site live "founder spots remaining" counter
+- [ ] Price transition logic ($4.99 → $7.99 after founder's cap)
+
+### Viral invite loop
+
+- [ ] Soft cross-promote banner in invitee first-session
+- [ ] Post-trip nudge for invitees who have not started their own trip
+- [ ] Bonus-slot reward when an invitee starts their own trip (cap at +3 slots, max 7 total for free)
+- [ ] In-app notification: "[Name] just started their first trip -- you earned a bonus free slot!"
+
+### Retention
+
+- [ ] Memory page permanent revisitable artifact with public share link
+- [ ] Annual anniversary nudge (once per completed trip, once per year)
+- [ ] Seasonal planning prompts (mid-Feb and mid-Sept, dismissible 90-day snooze)
+
+### Dream Mode (slim version)
+
+- [ ] Dream Mode trip-type picker in the creation flow (Real vs Dream)
+- [ ] Shimmer / gradient / sparkle trip-ball variant for dreams
+- [ ] "This is a dream" persistent chip on every dream page
+- [ ] Public dream share link infrastructure (read-only)
+- [ ] Reactions (emoji toggles) and comments (one-level threaded) on dream items for authenticated viewers
+- [ ] Save-to-my-dreams cross-pollination action with warm in-app notification to original dreamer
+- [ ] Hide Travel Day / Vacation Day / Memory phases for dream workspaces
+- [ ] Dream-slot pool separate from the real-trip 4-slot free limit (free: 1, premium: unlimited)
+- [ ] Private-dream toggle (premium supporter bonus)
+- [ ] Extra sparkle ball visual variants unlocked by premium
+
+### Dropped from Dream Mode scope (do not build)
+
+- ~~Reality Check conversion flow~~ -- replaced by users manually using Find-flights / Find-hotels tools
+- ~~Vibe theme catalog~~ -- aesthetic cosmetics stay free, not premium-gated
+- ~~Mood Board component as a dream-specific feature~~ -- can be a regular trip feature if wanted later
+- ~~Celebrity / character invitee treatment as a dream-specific feature~~ -- placeholder guests can work on regular trips
+
+### Affiliate revenue
+
+- [ ] Sign up for Booking.com and Skyscanner affiliate programs
+- [ ] "How we earn" disclosure modal with solo-dev ♥ note
+- [ ] Organic contextual affiliate chips in Preplanning Accommodations
+- [ ] Organic contextual affiliate chips in Preplanning Transportation
+- [ ] Affiliate chip in Wishlist activity ideas (destination-known trips)
+- [ ] Affiliate chip in Vault Insurance empty state
+- [ ] Find-flights tool (defer decision: v1 or post-1,000 sales)
+- [ ] Find-hotels tool
+- [ ] Find-rentals tool
+- [ ] Find-tours tool
+
+### Contingency levers (build only when behind-target triggers activate)
+
+Tier 2 (do not build until year 2 review indicates 25%+ behind):
+
+- [ ] Family plan SKU ($14.99 covering primary + 3 additional household accounts, full premium each)
+  - [ ] $14.99 SKU in Stripe and platform stores
+  - [ ] Family-member data model (primary + up to 3 secondaries with join/leave state)
+  - [ ] Account → Premium → Manage family page
+  - [ ] Self-leave flow for secondaries (primary cannot kick)
+  - [ ] In-app notifications for add / leave events
+  - [ ] 12-month slot-cooldown enforcement after self-leave
+  - [ ] Refund propagation to all 4 accounts when primary refunds
+- [ ] Curated public Dream Mode landing pages as SEO bait
+- [ ] Editorial pitch template for cold outreach to travel publications
+
+Tier 3 (do not build until year 3 review indicates 40%+ behind):
+
+- [ ] Price-raise infrastructure ($7.99 → $9.99 for new purchases, grandfather existing)
+- [ ] Free-tier slot-count reduction flow (4 → 3 slots with in-app communication)
+- [ ] Rewarded video ad integration for bonus slot earning
+
+### Supporter framing copy (solo-dev honesty)
+
+- [ ] Premium purchase sheet headline + body: "Sorry about the ads. They exist because servers, databases, and one developer's rent all cost money. Premium is how you say thanks -- no more ads, plus some bonus features as a gift. $7.99, once, forever. No subscriptions, no guilt, no corporate anything. Just me and you. ♥"
+- [ ] Premium purchase sheet bonus reveal: "As a thank-you: [dynamic list of bonuses]."
+- [ ] Support card copy: "This one's a premium bonus. Tap to support the app and get it. $7.99 once, no strings."
+- [ ] Moment card copy: "Sorry about the ads, and about this one..." with context-aware explanation and solo-dev acknowledgment
+- [ ] Post-purchase confirmation toast: "You're a supporter now. Thank you ♥"
+- [ ] "How we earn" affiliate disclosure copy: "TripWave is built by one person. If you book through these links, we earn a small commission -- no extra cost to you. It keeps the lights on and the trip ball rolling. ♥"
+- [ ] Account page About section: "Made with ♥ by one person."
+
+---
+
 ## P0 - UX Pass (from recent review, to tackle next)
 
 These items came out of a review of the recent preplanning, itinerary, vacation-days, expenses, polls, and wishlist work. They describe cross-page integrations and a layout parity pass to bring every page up to the bento-box standard already set on preplanning. Each bullet is intended to become its own task.
@@ -71,7 +174,7 @@ Must Do's, wishlist items, and suggestions are unified into a single Proposed la
 - [x] Design and document app logic flow
 - [x] Draft state model and monetization strategy docs
 - [x] Decide free vs premium boundary for core collaboration
-- [x] Lock monetization model (one-time $5, ad-supported free tier)
+- [x] Lock monetization model (one-time $7.99, ad-supported free tier)
 - [x] Confirm tech stack (Vercel, Neon, Azure, Resend)
 - [x] Lock auth requirement (account required for all app features)
 - [x] Confirm permissions model (per-user toggles set by organizer)
@@ -385,7 +488,7 @@ All sections are optional. Sections shown/hidden based on Setup choices.
 
 ## P2 - Monetization
 
-- [ ] Implement premium entitlement (one-time $5 purchase, permanent unlock)
+- [ ] Implement premium entitlement (one-time $7.99 purchase, permanent unlock)
 - [ ] Implement ad slot components with isPremium guard
 - [ ] Define ad placement zones (acceptable and protected locations)
 - [ ] Research ad network options (Google AdSense, Carbon, other)
@@ -486,7 +589,7 @@ All sections are optional. Sections shown/hidden based on Setup choices.
 - [ ] Explore map and place integrations for events
 - [ ] Explore calendar import and export needs
 - [ ] Explore domain and naming availability
-- [ ] Decide payment processor for one-time $5 premium (Stripe likely)
+- [ ] Decide payment processor for one-time $7.99 premium (Stripe likely)
 - [ ] Evaluate free exchange rate data sources for currency converter
 - [ ] Evaluate Azure OCR pricing at expected premium user volume
 - [ ] Explore whether smart suggestions can be built entirely with deterministic rules

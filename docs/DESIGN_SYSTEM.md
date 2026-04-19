@@ -350,6 +350,49 @@ Dark bento cells use 24px (p-6) padding on all sides. Do not use 16px or 20px ce
 - ball pulse is ocean wave rhythm -- slow, organic, never mechanical
 - motion should help orientation, not distract from tasks
 
+## Logo -- Ocean-Ripple Animation
+
+The TripWave logo is a **filled cyan circle with soft ripples radiating outward**. The ripples are ocean-feel, not electronic/radar/sonar. Animation fidelity matters here because the logo IS the brand identity.
+
+### Animation spec
+
+- Filled cyan (`#00A8CC`) circle at the center, static (no pulse on the core)
+- 2 concentric ripple rings expanding outward from the center
+- Each ripple scales from 1.0x to 3.0x while fading opacity from 0.5 to 0
+- Ripple duration: 2.2 seconds (slow and calm)
+- Rings are staggered by 0.8 to 1.1 seconds so a new ring begins as the previous one is mid-expansion
+- Easing: `ease-out` (starts with energy, slows at the edges -- like a water ripple dissipating)
+- Ripple color inherits from the core circle color
+
+### What makes it feel ocean, not electronic
+
+- **Slow timing** (2.2s) -- electronic/sonar pulses are 0.5-1s. Ocean ripples take their time
+- **Soft easing** (ease-out) -- electronic ripples use linear or ease-in-out, which feels mechanical
+- **Soft opacity fade** -- not a hard edge crossing a threshold. The ripple dissolves into the surface
+- **Slight stagger (not perfect metronome)** -- optionally vary delay by ±0.1s for natural rhythm. Electronic ripples fire on exact beat
+- **Cyan + white** color palette matches water; avoid green or high-saturation colors
+- **No glow/bloom** -- clean edges, no electric shimmer
+
+### Where the animated logo appears
+
+- Top navigation (small, next to *TripWave* wordmark)
+- Auth pages (medium, centered above login/signup cards)
+- Marketing footer (small, next to wordmark)
+- Splash screen on app launch (large, full animation cycle)
+- Landing page hero (medium, paired with the trip ball)
+
+### Where the STATIC logo appears
+
+- App Store / Play Store icon (platforms require static)
+- Favicon
+- Social share metadata images
+- Print / email / external contexts where animation is impossible
+
+### Accessibility
+
+- `prefers-reduced-motion`: reduces ripple frequency to one ring every 4 seconds, maintains visibility but minimizes motion
+- Never auto-plays without a subtle loop (no sudden start/stop)
+
 ## Social Layer Visual Rules
 
 The app has a lightweight social layer throughout: comments, likes, and favorites on most content items.

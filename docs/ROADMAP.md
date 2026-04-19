@@ -17,7 +17,7 @@ Goal: create a clear product direction, repo structure, and front-end foundation
 - [x] define brand direction and naming candidates (TripWave working)
 - [x] identify MVP and premium boundaries
 - [x] define trip state and next-action model
-- [x] lock monetization model (one-time $5, ad-supported free, confirmed tech stack)
+- [x] lock monetization model (one-time $7.99, ad-supported free, confirmed tech stack)
 - [x] lock account requirement (full account required for all app features)
 - [x] define trip ball concept as core visual identity
 - [x] lock travel day UI as vertical timeline with auto-scroll (mobile-first)
@@ -89,7 +89,7 @@ Exit criteria:
 
 Goal: fully implement the monetization layer.
 
-- one-time $5 premium purchase flow (Stripe)
+- one-time $7.99 premium purchase flow (Stripe)
 - premium entitlement permanently unlocks ad removal and premium features
 - offline mode for premium users (itinerary, travel-day, packing lists)
 - receipt scanning via Azure OCR (premium)

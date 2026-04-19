@@ -33,7 +33,7 @@ There are four main layers of app logic:
 - a visitor can only access marketing pages, login, signup, legal, and contact — no app features
 - a signed-up user can create trips and join trips
 - an invited participant must create an account before accessing any trip features
-- a premium organizer has purchased the one-time $5 upgrade and unlocked premium features
+- a premium organizer has purchased the one-time $7.99 upgrade and unlocked premium features
 
 ### Auth rule
 
@@ -577,7 +577,7 @@ Users can recolor their trip ball. This is trip personalization and should feel 
 
 ## 16. Premium Logic
 
-Premium is a one-time $5 purchase per account. It removes ads and unlocks:
+Premium is a one-time $7.99 purchase per account. It removes ads and unlocks:
 
 - offline mode (high priority)
 - receipt scanning via Azure OCR

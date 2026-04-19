@@ -76,7 +76,7 @@ At every stage, the app knows what phase the trip is in, what the most important
 - One account per user
 - All app features require an account — no anonymous or guest access
 - Free tier is ad-supported
-- Premium is a one-time $5 purchase per account
+- Premium is a one-time $7.99 purchase per account
 - The paid user is the trip owner and organizer
 - Other people join a trip via invite code or link and must create an account
 
@@ -198,7 +198,7 @@ Completion percentage drives the trip ball fill. Inapplicable fields are exclude
 - ads shown on web and app
 - polls, expense splitting, and settlement free for all users
 
-### Premium — one-time $5
+### Premium — one-time $7.99
 
 - removes all ads permanently
 - offline mode (itinerary, travel-day, packing lists — high priority)
@@ -215,7 +215,7 @@ Completion percentage drives the trip ball fill. Inapplicable fields are exclude
 - Neon: database (shared $25/month plan)
 - Azure: receipt OCR (premium-gated, pay-per-use)
 - Resend: transactional email (password reset, invite notifications)
-- Payment processor: Stripe or equivalent for one-time $5 purchase
+- Payment processor: Stripe or equivalent for one-time $7.99 purchase
 
 TripWave has no image hosting requirement. Data is primarily text, keeping storage costs minimal. Ad revenue is expected to cover Vercel and Neon costs.
 
@@ -318,7 +318,7 @@ Tone should feel like a smart travel-savvy friend who keeps everyone on track.
 - Azure for receipt OCR (premium)
 - ORM: Prisma or Drizzle (decision pending)
 - Auth: Better Auth (configuration pending)
-- Payment: Stripe or equivalent (for one-time $5 premium purchase)
+- Payment: Stripe or equivalent (for one-time $7.99 premium purchase)
 
 Build without paid third-party APIs wherever possible. Smart suggestions use deterministic rules. Currency converter uses a free or self-managed rate source. Time zone info is computed from user data.
 
@@ -466,7 +466,7 @@ Initial user vision captured:
 
 Major product decisions locked:
 
-- monetization: one-time $5 premium, ad-supported free tier
+- monetization: one-time $7.99 premium, ad-supported free tier
 - tech stack confirmed: Vercel, Neon, Azure (OCR), Resend (email)
 - account required for all app features — no anonymous access
 - expense splitting and polls moved to free

@@ -16,6 +16,142 @@ Use this format for new entries:
 
 ## Entries
 
+### 2026-04-17 - Review strategy uses native API at post-moment happiness triggers
+
+- Status: accepted
+- Context: App Store rankings are heavily influenced by star rating and review count, but reviews do not arrive without being asked. Wrong asking -- interrupting mid-task or faking a native prompt -- backfires.
+- Decision: Fire the native iOS SKStoreReviewController / Android in-app review API at peak-emotion moments only: after Memory recap opens for the first time, after ball hits 100% preplanning, after premium purchase, after a successful multi-member invite. Cap at 3 prompts per year per user (Apple limit). Never twice on the same trip. 90-day cooldown after dismissal. Priming toast fires 3 seconds before the native prompt with warm solo-dev voice: "Your trip is wrapped. If you loved TripWave, an App Store review means the world. ♥" Respond personally to every review in year 1 within 72 hours. Never "did you like it?" pre-prompts, never incentivized reviews, never email asks.
+- Why: Post-moment happiness triggers convert 3-5x better than generic time-based prompts. Priming toast sets the emotional frame. Personal responses to reviews improve rankings and signal a real person cares. Forbidden patterns (pre-prompts, incentives, email asks) either damage the brand or violate platform rules.
+- Follow-up: Implement native review API integration in native app phase. Full spec in docs/MONETIZATION.md section 23.
+
+### 2026-04-17 - ASO leans hard into ocean-wave brand and "same wave" slogan
+
+- Status: accepted
+- Context: On mobile the App Store drives 80%+ of organic discovery. A solo dev without ad budget needs ASO to do heavy lifting. The ocean-ripple logo and "Get everyone on the same wave" slogan are the strongest brand signatures TripWave has.
+- Decision: App name "TripWave: Group Trip Planner". Subtitle is the slogan verbatim: "Get everyone on the same wave." (exactly 30 chars, fits iOS limit). 8 story-arc screenshots: pain-point hook → slogan reveal with ripple visual → dashboard → ball showcase → itinerary → expenses → dream mode → supporter close. Screenshots use brand colors and ocean-wave motifs consistently. Category Travel primary + Productivity secondary. Keywords field targets "group travel, trip planner, vacation, itinerary, expense split, packing list, travel together, family trip". App icon is the static trip ball with no text. Developer name reinforces solo-dev story (personal name or "TripWave"). Long description opens with the problem hook, closes with the solo-dev supporter framing.
+- Why: Story-arc screenshots stand out against competitor apps that show plain product shots. Slogan-first subtitle attracts the right user (group organizers tired of chaos), not any user. Category Travel matches search intent. Solo-dev developer name doubles down on the supporter brand.
+- Follow-up: Screenshot asset design is a work item (pre-launch). Seasonal A/B testing of subtitle starts after launch. Full spec in docs/MONETIZATION.md section 22.
+
+### 2026-04-17 - Logo animation is ocean-feel ripple, not electronic
+
+- Status: accepted
+- Context: The logo is the brand signature most users see first. "Ocean, not electronic" is the core vibe call. The earlier implementation used generic ripple CSS; specifics needed to be written down.
+- Decision: Logo is a filled cyan circle with 2 staggered concentric ripple rings. Each ripple scales 1.0x to 3.0x while fading opacity 0.5 to 0 over 2.2 seconds. Rings staggered by 0.8-1.1 seconds with optional ±0.1s natural-rhythm variation. Easing is ease-out (water dissipating, not mechanical linear). Color inherits from core. No glow, no bloom, no bounce. `prefers-reduced-motion` slows to 1 ring per 4 seconds. Static version used for App Store icon, favicon, and print.
+- Why: Ocean feel is slow, soft, organic. Electronic feel is fast, hard-edged, metronome-rhythmed. The distinction is the single strongest brand differentiator from generic tech-product logo animations. Matches the "Get everyone on the same wave" tagline at a motion level.
+- Follow-up: Full animation spec in docs/DESIGN_SYSTEM.md under Logo -- Ocean-Ripple Animation.
+
+### 2026-04-17 - Family plan SKU specced for Tier 2 contingency deployment
+
+- Status: accepted (deferred build -- do not implement until Tier 2 contingency triggers)
+- Context: Family plan is already named as a Tier 2 contingency lever for year 2+ if sales are 25-40% behind target. Specifics committed now so the SKU can be deployed without design-in-panic later.
+- Decision: TripWave Family Supporter at $14.99 one-time (web) / equivalent platform tier on mobile. Covers 1 primary purchaser + up to 3 additional household members = 4 accounts, each getting full premium independently. Primary adds secondaries manually by entering their TripWave account email. Secondaries can self-leave at any time (reverting to free) but primary cannot kick them. Vacated slots do not re-open for 12 months to prevent rotating-scheme abuse. Refund to primary reverts all 4 accounts. Launches only at Tier 2 contingency, not at day one, to preserve the clean $7.99 launch pricing story.
+- Why: 4 is the standard household size (larger invites abuse). Full premium for all accounts is the simplest UX. Self-leave respects autonomy while primary-kick creates ugly family dynamics. Self-leave slot cooldown of 12 months prevents rotating abuse. Economics are accretive: covers families who would not have bought 4 individual premiums.
+- Follow-up: Build only on Tier 2 trigger. Spec ready in docs/MONETIZATION.md section 21. Backlog items updated.
+
+### 2026-04-17 - Refund policy is 30-day no-questions-asked, warm honest framing
+
+- Status: accepted
+- Context: One-time $7.99 premium sales will occasionally trigger refund requests. A missing or vague policy risks chargebacks ($15+ fixed fees plus the refund), bad reviews, and friction. A generous policy costs little at this price point and builds trust.
+- Decision: Web (Stripe) purchases get a 30-day no-questions-asked refund. Policy copy: "Not feeling it? Email me within 30 days of your purchase and I'll refund it, no questions asked. If you're past 30 days and there's a real reason, still email me -- I'll almost always refund anyway." Past 30 days, treat requests with the same generous spirit. Mobile refunds pass through Apple/Google's automatic handling. Response is a one-sentence personal email within 24 hours. Premium entitlement revoked on refund. Founders get the same policy.
+- Why: Easy refunds prevent chargebacks (financial worst case). Low volume is handleable by one person. Generous policy is itself a trust and marketing signal. Abuse risk at $7.99 is negligible.
+- Follow-up: If refund rate exceeds 5% of sales, treat as a product problem (onboarding, expectations, bugs), not a policy problem. Policy language lives in ToS and in the purchase sheet footer. Full spec in docs/MONETIZATION.md section 20.
+
+### 2026-04-17 - Pre-launch audience built via build-in-public + waitlist + one niche community
+
+- Status: accepted
+- Context: Launch day at zero audience means zero sales. Founder's pricing requires a priming audience. A solo dev with no budget must invest time in pre-launch audience building or the 50k target is unreachable.
+- Decision: Three-channel pre-launch strategy starting 6 months before launch. (1) Build in public on ONE platform (TikTok or Threads) with 2-3 honest posts per week about product progress. (2) Email waitlist captured via a landing page with the solo-dev framing; one weekly update email during build period; landing page dropped on Product Hunt upcoming, Indie Hackers, and Reddit posts where the dev has genuinely participated first. (3) Deep participation in ONE niche travel community (r/solotravel, r/digitalnomad, or equivalent) for 6+ months before any self-promotion, with 50+ contributions of value to earn social capital before launching. Total time cost: ~6-7 hours/week. No paid ads, no influencers, no multi-community spam, no press outreach pre-launch.
+- Why: All three channels cost only time, not money. They compound: each reinforces the others. Single-channel strategies are fragile (algorithm changes, community turns). Multi-community spam burns audiences. Pre-launch work is the difference between founder's selling out in 3-8 weeks vs 6-18 months.
+- Follow-up: Landing-page mockup for waitlist capture, selection of target niche community, choice between TikTok vs Threads for build-in-public all TBD. Full spec in docs/MONETIZATION.md section 19.
+
+### 2026-04-17 - Premium reframed as supporter thank-you, not feature unlock
+
+- Status: accepted (supersedes earlier transactional-value framing)
+- Context: Standard "upgrade to unlock powerful features" framing positions TripWave as corporate software extracting value. That's wrong for a solo-dev app. Users who would never pay a corporation $7.99 will happily pay a creator they like.
+- Decision: All premium copy is reframed around supporting the app. Premium is how users say thanks to the solo dev for building a thing they like. In return they get no ads plus fun bonus features as thank-you gifts. Copy examples: "Sorry about the ads. Running apps like this costs money and I'm one person." / "Premium is how you say thanks -- no more ads, plus some bonus features as a gift." / "$7.99, once, forever. No subscriptions, no guilt, no corporate anything. Just me and you. ♥" Forbidden phrases: "unlock powerful tools", "upgrade to premium", "you'll love what you get", "save the trip", any scarcity language, any implied deficiency. The ♥ glyph is the brand signature on premium surfaces.
+- Why: Emotional purchases (affection, gratitude, support) convert better than rational feature-comparison purchases. Reframes ads from "intrusive" to "understandable" once users know the why. Differentiates TripWave from corporate pricing language in a crowded category.
+- Follow-up: Applies to pricing page, premium purchase sheet, all inline lock cards (renamed to "support cards"), moment cards, and the "How we earn" affiliate disclosure. Full spec in docs/MONETIZATION.md section 5 and docs/UX_SPEC.md section 22.
+
+### 2026-04-17 - Dream Mode slimmed down and Reality Check dropped
+
+- Status: accepted (supersedes earlier full Dream Mode scope)
+- Context: Honest review showed most "Dream Mode exclusive features" could live on regular trips without a separate mode. Reality Check was a thin shortcut on top of the Find-flights / Find-hotels tools users already have access to, and charging for it felt petty under the supporter framing.
+- Decision: Slim Dream Mode to its three real differentiators: public shareable read-only link, social reactions/comments from any authenticated viewer, distinct sparkle-ball visual. Drop Reality Check entirely. Vibe themes all ship free. Free users get 1 dream slot, premium supporters get unlimited. Private-dream toggle is the only other premium bonus. Hold the supporter framing throughout -- premium bonuses are thank-you gifts, not withheld value.
+- Why: Slim version captures all the viral and retention benefits with dramatically less dev work. Reality Check was redundant with existing tools. Gating aesthetic cosmetics (themes) violates the "free is genuinely useful" principle and feels petty under the supporter framing.
+- Follow-up: Remove Reality Check items from the backlog. Full slim spec in docs/UX_SPEC.md section 30 and docs/MONETIZATION.md section 14.
+
+### 2026-04-17 - Regional pricing uses USD on web plus platform-native tiers on mobile
+
+- Status: accepted
+- Context: $7.99 USD is impulse-priced in the US but a day's food budget in India or parts of Latin America. Single global USD pricing would lock out emerging markets; manual PPP-adjusted web pricing is accountant-level work for a solo dev.
+- Decision: Web Stripe checkout uses $7.99 USD globally. iOS and Android use Apple/Google platform price tiers (Tier 8 equivalent, ~$7.99 in US, ~₹199 in India, ~R$14 in Brazil, ~$2.99-4.99 in SEA). Founder's tier maps to platform Tier 5 on mobile. Family plan ($14.99 USD web, equivalent mobile tier) stays globally uniform without regional variants. No discount codes, no currency-symbol switching on the marketing site.
+- Why: Apple, Google, and Stripe Tax already handle currency, tax, and regulatory complexity per country. A solo dev does not need to reinvent that. Web buyers skew wealthier and single USD pricing is honest for them. Mobile buyers span every tier and get pricing native to their market.
+- Follow-up: Configure platform price tiers and Stripe Tax at launch. Full spec in docs/MONETIZATION.md section 18.
+
+### 2026-04-17 - Ad revenue planned on dual-track realistic projection
+
+- Status: accepted
+- Context: Earlier ad revenue projection of $200-400k assumed near-ideal conditions (full fill rate, US eCPM, high session frequency). Real-world factors -- ad blockers, iOS ATT, international mix, vacation-app session frequency, premium pool removal -- combine to roughly 0.38x the original number.
+- Decision: Plan ad revenue at the realistic range ($76-152k over 5 years, midpoint ~$100k). Build the ad infrastructure specced (banner + native cards + suppression zones) but do not over-invest in ad optimization early. Celebrate surplus if the actual number exceeds realistic. Revised full 5-year revenue model: ~$280k premium + ~$100k ads + ~$500k affiliate gross = ~$730k combined.
+- Why: Optimistic planning sets expectations that will disappoint and invites over-engineering ad tech for revenue that may not materialize. Defensive "ads cover infra only" planning is too pessimistic and under-invests in a legitimate revenue stream. Dual-track lets us build appropriately while surplus is treated as bonus.
+- Follow-up: Monitor actual ad CPM and fill rate once live. Prioritize affiliate tools development over ad optimization since affiliate is the larger lever. Full spec in docs/MONETIZATION.md section 17.
+
+### 2026-04-17 - Tiered contingency plan for behind-target years, solo-dev safe
+
+- Status: accepted
+- Context: TripWave is built by one person with no startup capital. A behind-target year could trigger panicked decisions (launch paid ads, flip to subscription, drop premium price) that damage the model. Committing to a tiered response plan in advance prevents emotional pivots.
+- Decision: Three tiers tied to how far behind target we are. Tier 1 (10-25% behind): iterate on product and organic content, no money spent. Tier 2 (25-40% behind): editorial email pitching, family plan SKU at $14.99, curated public Dream Mode content as SEO bait -- all zero-cost. Tier 3 (40%+ behind): raise price to $9.99 for new buyers (grandfathered exceptions), tighten free tier to 3 slots, add rewarded video ads for bonus slots. Explicitly reject (even in Tier 3): subscription pivots, ad interstitials, free premium trials, paid featuring, venture-scale paid acquisition, and B2B corporate pivots.
+- Why: Safe-and-realistic levers chosen before pressure hits prevents knee-jerk decisions later. Every lever is either zero-cost or product-side. No response depends on money, a team, or partnerships the solo dev cannot execute. Preserves the "one-time, no subscriptions" brand moat through every tier.
+- Follow-up: Family plan SKU implementation, rewarded ad integration, and editorial pitching list are work items in the backlog. Full spec in docs/MONETIZATION.md section 16.
+
+### 2026-04-17 - Conversion rate baseline set at 3-4% for 50k-sale planning
+
+- Status: accepted
+- Context: The 50k-sales-in-5-years target requires a concrete conversion assumption to determine how many users must be acquired. Without a baseline, marketing, retention, and viral loops cannot be tuned to scale.
+- Decision: Plan for 3-4% premium conversion among cumulative users. Blended target of 1.4M cumulative users over 5 years (3% needs 1.67M; 4% needs 1.25M). Yearly ramp expected as 30k / 130k / 300k / 450k / 490k. First 1,000 sales is the reality-check cohort -- observed conversion rate replaces this assumption for years 2-5. If observed rate is below 2.5% at the 1,000-sale mark, revise the plan (raise price to $9.99, tighten free slot count, or add premium features) rather than "market harder."
+- Why: 3-4% is the honest range for one-time impulse unlocks with genuinely useful free tiers. 8-10% would require mission-critical premium features TripWave does not have. 1-2% is defensive pessimism that forces expensive volume marketing. 3-4% respects the product while being ambitious enough to force real engineering on retention and virality.
+- Follow-up: Track the 6 core metrics during the founder's cohort (observed conversion, time-to-upgrade, organizer vs invitee conversion, feature attribution, dream share rate, affiliate CTR). Full spec in docs/MONETIZATION.md section 15.
+
+### 2026-04-17 - Retention uses Memory-as-artifact plus anniversary nudges plus seasonal prompts plus Dream Mode
+
+- Status: accepted
+- Context: Vacation planning is not a daily app. Users disappear for 6-18 months between real trips. Without an active retention strategy, every cohort is a one-shot and the 50k premium sales target is unreachable.
+- Decision: Four-layer retention. (1) Memory page persists as a revisitable artifact and shareable public recap link. (2) Annual anniversary nudge once per completed trip, on the trip's start-date anniversary, with a warm nostalgic message and soft "plan another" CTA. (3) Seasonal planning prompts twice a year (Feb and Sept) for users with no active trip, dismissible with 90-day snooze. (4) Dream Mode -- a full new feature for aspirational trip planning with sparkle-themed balls, mood boards, celebrity invitees, vibe themes, public share links, reactions, and a Save-to-my-dreams social loop. Dream trips sit in their own slot pool (1 free, unlimited premium), never confuse with real trips.
+- Why: Layered retention compounds. Memory is passive re-engagement. Anniversaries tap nostalgia (the strongest travel emotion). Seasonal prompts tap intent at booking peaks. Dream Mode solves the between-trips quiet months by giving users a fun creative reason to open the app, while its social share mechanics drive viral acquisition in one feature.
+- Follow-up: Dream Mode is a sizeable new feature scope. Individual dream UX details (mood board grid, celebrity invitee UX, vibe theme catalog, Reality Check flow) need further speccing. Full spec in docs/MONETIZATION.md section 13-14 and docs/UX_SPEC.md section 30.
+
+### 2026-04-17 - Affiliate revenue added as third stream via hybrid contextual plus search-tool model
+
+- Status: accepted
+- Context: Premium at $7.99 plus banner ads alone caps 5-year net revenue around $280k. Travel apps naturally sit next to booking decisions. Affiliate commissions (hotels, flights, rentals, tours, insurance) offered a real third revenue stream if done without compromising trust.
+- Decision: Hybrid affiliate model. Organic contextual chips during preplanning (Accommodations / Transportation fields, Wishlist activity ideas, Vault insurance empty state) appear as small optional "↗" links. Dedicated Find-flights / Find-hotels / Find-rentals / Find-tours tools in the Tools hub available to all users regardless of tier. Every affiliate surface includes a "How we earn" disclosure. Affiliate is never counted as ad inventory, never gated behind premium, never passed user data beyond search queries. Solo dev authorship surfaces in three specific places: the "How we earn" disclosure, the premium purchase sheet footer, and the Account About section -- each with a single ♥ glyph and warm honest copy. Never on landing page, never in feeds, never repeated.
+- Why: Affiliate scales with trip planning activity instead of premium conversion. Projected conservative net ~$505k over the 5-year horizon -- nearly 2x premium revenue. Organic placements capture users who already decided; search tools capture users still comparing. Solo dev moments are contextual, not guilt-trip.
+- Follow-up: Select initial affiliate partners (Booking.com + Skyscanner are lowest-friction starts). Decide whether Find-flights / Find-hotels tools ship for v1 or after the first 1,000 founder sales. Full spec in docs/MONETIZATION.md section 12.
+
+### 2026-04-17 - Launch uses private beta plus founder's pricing for first 1,000 sales
+
+- Status: accepted
+- Context: The first 1,000 paying users are the hardest to win with no reviews, no press, no momentum. Early pricing moves compound across 5 years and shape the trajectory to 50k.
+- Decision: Three-phase launch. Phase 1: private beta of 50-150 users receives permanent free premium in exchange for feedback and reviews. Phase 2: founder's pricing of $4.99 one-time for the first 1,000 public sales, grandfathered forever, with a live "spots remaining" counter on the marketing site and a permanent Founder badge on founders' accounts. Phase 3: standard $7.99 one-time pricing indefinitely thereafter.
+- Why: Beta feedback and evangelism cost nothing. Quantity-based founder scarcity ("823 left") outperforms time-based scarcity and creates a press-worthy launch moment. Price jump from $4.99 to $7.99 is natural PR. Foregone revenue from the discount (~$2,100 of the 5-year total) is trivial compared to launch momentum. Avoids free trials, which would erode the "one-time, no subscription" positioning.
+- Follow-up: Beta recruiting channel, Product Hunt launch timing, and founder badge visual treatment TBD. Full spec in docs/MONETIZATION.md section 11.
+
+### 2026-04-17 - Viral loop uses soft cross-promote plus slot rewards
+
+- Status: accepted
+- Context: Hitting 50k lifetime premium sales requires acquiring hundreds of thousands to over a million free users. Paid ads cannot economically deliver that at a $7.99 price point. The built-in trip invite mechanic is the biggest free acquisition lever we have.
+- Decision: Passive invite status quo is abandoned. Instead: (1) invitees see a soft "start your own trip free" cross-promote banner in their first trip session, plus a single post-trip nudge after their trip completes. (2) When an invitee starts their own trip, the original organizer earns a bonus free slot (growing from 4 to a max of 7 via referrals). The loop repeats as new organizers invite travelers who in turn may start their own trips.
+- Why: Slot rewards cost effectively nothing (free users stay free) while tapping the real constraint users feel first. Avoids discounting premium, which would cheapen the $7.99 positioning. Avoids coercive "invite friends to unlock" gating that would violate the "free is genuinely useful" principle. Viral tail adds ~2.6 downstream organizers per initial one.
+- Follow-up: Slot-reward cap (currently 3 bonus slots / 7 total) may need tuning based on actual referral conversion data. Full spec in docs/MONETIZATION.md section 10.
+
+### 2026-04-17 - Premium price raised from $5 to $7.99 one-time
+
+- Status: accepted (supersedes 2026-04-15 decision of $5 one-time)
+- Context: Target is 50,000 lifetime premium sales within 5 years. At $5 and Apple's 30% cut, that caps lifetime net at ~$175k. Market research shows conversion rate is near-identical between $5 and $9 for impulse-buy pricing, meaning per-sale revenue is the cheapest lever to pull.
+- Decision: Raise the premium unlock to $7.99 one-time. Keep the "one-time, no subscription, no guilt" positioning. Update every marketing, in-app, and doc reference from $5 to $7.99.
+- Why: $7.99 is still sub-$10 psychological territory and reads as a cheap one-time unlock. Apple-net per sale goes from $3.50 to $5.59, a 60% lift for identical acquisition cost. 50k sales now nets ~$279k instead of $175k -- a meaningful margin boost without a meaningful drag on conversion.
+- Follow-up: Monitor actual conversion rate vs the $5 baseline assumption once purchase data exists. Revisit after the first 1,000 sales.
+
 ### 2026-04-17 - Trip ball click opens health breakdown modal
 
 - Status: accepted
@@ -187,7 +323,7 @@ Use this format for new entries:
 ### 2026-04-17 - Premium prompts use inline lock cards plus contextual moment cards
 
 - Status: accepted
-- Context: Premium is a one-time $5 unlock covering ad removal, offline mode, receipt scanning, currency converter, advanced smart suggestions, travel-day templates, trip export, and trip duplication. We needed a prompt style that respects free users while converting at the right moments.
+- Context: Premium is a one-time $7.99 unlock covering ad removal, offline mode, receipt scanning, currency converter, advanced smart suggestions, travel-day templates, trip export, and trip duplication. We needed a prompt style that respects free users while converting at the right moments.
 - Decision: Inline lock cards as the default, replacing the feature's normal entry point (cyan-tinted card, lock icon, feature name, one-line value, Unlock button). Moment cards escalate at context-rich triggers (offline mid-trip, tapping a currency field, 5+ expenses without scan, pre-archive). Both are inline -- never modal takeovers, never persistent banners, never scarcity language. Prompt-free zones include travel-day focus mode, vacation day quick actions, the new-trip onboarding overview, and settlement actions. Purchase flow is a slide-up sheet with Stripe (web) and Apple/Google Pay (future native).
 - Why: Modal takeovers are punishing and the docs forbid them. Auto-redirects disrupt flow. Persistent banners erode trust. Inline lock cards respect in-progress work, moment cards catch genuine high-intent conversion windows.
 - Follow-up: Moment-card trigger logic and post-purchase celebration animation still TBD. Full spec in docs/UX_SPEC.md.
@@ -196,7 +332,7 @@ Use this format for new entries:
 
 - Status: accepted
 - Context: The free tier is ad-supported. The docs define ad-hostile zones (travel day execution, checklists, expense entry) and ad-friendly zones (dashboards, between sections). We needed a concrete placement pattern that balances impressions with UX.
-- Decision: Persistent bottom banner (Cozi-style) on most pages, 50 to 60px tall, with an AdMob adaptive unit or AdSense responsive unit. Banner has an "Ad" label, a close-for-session X, and a small "Remove ads for $5" upsell link on the right. Native card ads inject into long content feeds (Itinerary, Notes, Expenses ledger, Polls list) at roughly positions 4, 12, 20 with clear Ad labels. Suppression zones include travel-day focus mode, vacation day briefing view, expense entry modal, trip creation flow, invite join landing, Memory hero recap, trip ball modal, and the first minute of a new user's session.
+- Decision: Persistent bottom banner (Cozi-style) on most pages, 50 to 60px tall, with an AdMob adaptive unit or AdSense responsive unit. Banner has an "Ad" label, a close-for-session X, and a small "Remove ads for $7.99" upsell link on the right. Native card ads inject into long content feeds (Itinerary, Notes, Expenses ledger, Polls list) at roughly positions 4, 12, 20 with clear Ad labels. Suppression zones include travel-day focus mode, vacation day briefing view, expense entry modal, trip creation flow, invite join landing, Memory hero recap, trip ball modal, and the first minute of a new user's session.
 - Why: Banner delivers baseline impressions. Native cards catch attention where banner blindness sets in. Suppression protects high-stakes UX moments. The upsell hint turns every impression into a conversion opportunity.
 - Follow-up: AdMob / AdSense unit IDs, ad fetch timing, and ad-block detection behavior still TBD. Full spec in docs/UX_SPEC.md.
 
@@ -296,12 +432,12 @@ Use this format for new entries:
 - Why: This matches the product mental model, keeps billing simple, and lowers friction for participant adoption.
 - Follow-up: Revisit only if later collaboration complexity or team-style use cases justify a different model.
 
-### 2026-04-15 - One-time $5 premium pricing instead of subscription
+### 2026-04-15 - One-time $7.99 premium pricing instead of subscription
 
 - Status: accepted
 - Context: The app targets trip planners who may only use it heavily around one trip. A recurring subscription creates ongoing billing guilt and churn risk.
-- Decision: Premium is a single one-time $5 payment per account. No monthly or annual subscription.
-- Why: Low-friction for the core user, ad revenue covers operating costs, and premium revenue is additive margin. The $5 price point is low enough to be an impulse buy before a trip.
+- Decision: Premium is a single one-time $7.99 payment per account. No monthly or annual subscription.
+- Why: Low-friction for the core user, ad revenue covers operating costs, and premium revenue is additive margin. The $7.99 price point is low enough to be an impulse buy before a trip.
 - Follow-up: Monitor whether a per-trip purchase option makes sense for users who want premium for one trip without committing their account.
 
 ### 2026-04-15 - Ad-supported free tier with premium ad removal
@@ -334,7 +470,7 @@ Use this format for new entries:
 - Context: Multiple provider options were under consideration.
 - Decision: The confirmed infrastructure stack is Vercel (hosting), Neon (Postgres database), Azure (receipt scanning OCR, premium only), and Resend (transactional email for password reset and invite notifications).
 - Why: Vercel and Neon are already on paid plans shared with another app, reducing marginal cost to near zero. Azure is pay-per-use and only activated for premium receipt scanning. Resend is lightweight and developer-friendly for transactional email.
-- Follow-up: TripWave has no image hosting requirement. Stripe or equivalent still needed for processing the one-time $5 premium payment.
+- Follow-up: TripWave has no image hosting requirement. Stripe or equivalent still needed for processing the one-time $7.99 premium payment.
 
 ### 2026-04-15 - Build features without paid third-party APIs where possible
 
