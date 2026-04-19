@@ -114,6 +114,30 @@ Web app first. Private beta with 50-150 users 6 months before public launch. Fou
 
 Native iOS and Android apps come after the web version proves the model works.
 
+### What ships first (the core loop)
+
+Before anything else, TripWave has to prove one thing: a real user can plan a real trip, take it, and settle up -- all in TripWave -- and it felt good.
+
+The version-one spine is:
+
+1. Sign up
+2. Create a trip
+3. Invite people
+4. Preplan
+5. Build the itinerary
+6. Use Travel Day
+7. Track expenses
+
+That's the only thing that must work beautifully at launch. Everything else (Dream Mode, Wishlist, Notes, Vault, Tools hub, Memory recap, polls, etc.) ships later. Those features are fully designed in the docs but deliberately deferred. The discipline lives in [docs/CORE_LOOP.md](CORE_LOOP.md).
+
+### Why the discipline matters
+
+Solo devs die from scope creep, not from building the wrong thing. Polishing Dream Mode before auth is wired is the classic trap. TripWave's docs are honest about what's MVP vs Later vs Speculative, and the dev sticks to that order.
+
+### How pages get built
+
+Before writing any JSX for a page, TripWave follows a three-step workflow: (1) write down what's on the page -- every field, every action, every state; (2) mock up the UI matching those details; (3) only then write code. This is enforced per CORE_LOOP.md. It keeps the product from drifting and catches "oh I forgot we needed that" moments at the planning layer, not in the middle of implementation.
+
 ---
 
 ## "Okay, but what's the vibe in one sentence?"

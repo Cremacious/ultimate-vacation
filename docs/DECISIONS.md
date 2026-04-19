@@ -16,6 +16,56 @@ Use this format for new entries:
 
 ## Entries
 
+### 2026-04-17 - Grill-Me Session Protocol locked as canonical workflow for all sessions and machines
+
+- Status: accepted
+- Context: The Anthropic Design plugin was wired into the Build Workflow as quality gates, but "should invoke" language leaves room for the user (and future Claude Code sessions) to forget. The solo dev may be running on different computers and different sessions at different times. A canonical protocol doc is needed so every agent on every machine enforces the rules consistently.
+- Decision: Created docs/GRILL_PROTOCOL.md as the canonical rulebook for all grill-me sessions on TripWave. Protocol requires active prompts from the agent at specific moments: `/user-research` if user needs are unclear, `/design-critique` after every mockup description, `/design-system` when a new pattern is introduced, `/design-handoff` when mockup is locked, `/accessibility-review` when implementation or shipping is mentioned, `/research-synthesis` when user feedback is mentioned. Exact inline prompt copy provided for consistency. Every UI decision log entry ends with a "Design skills" line noting which skills were run or skipped. Skipping is allowed only for tiny tweaks / bug fixes, not for new pages or significant rebuilds. The plugin usage language in CORE_LOOP.md upgraded from SHOULD to MUST.
+- Why: Solo dev on multiple machines needs a doc that any session reads first and then enforces. Without active prompting, quality gates get skipped in the moment. The protocol doc becomes the single source of truth referenced from README, CORE_LOOP, and ROADMAP so no session misses it.
+- Follow-up: Future grill-me sessions on UI must follow GRILL_PROTOCOL.md. Decision log entries for new UI work must end with the Design Skills line. README has a top-level pointer so any new agent sees the protocol before grilling. Full protocol in docs/GRILL_PROTOCOL.md.
+
+**Design skills:** this decision was process-level, no mockup or component involved. Skills not invoked (N/A).
+
+### 2026-04-17 - Anthropic Design plugin wired into the Build Workflow as quality gates
+
+- Status: accepted
+- Context: The official Anthropic Design plugin was installed (6 skills: /accessibility-review, /design-critique, /design-handoff, /design-system, /research-synthesis, /user-research). These map cleanly onto the Details → Mockups → Code workflow just locked in CORE_LOOP.md. Using them intentionally at the right workflow points is significant solo-dev leverage.
+- Decision: Each of the 6 skills is assigned to a specific Build Workflow moment. /user-research early in Step 1 when user needs are unclear. /design-critique during Step 2 to pressure-test mockups before locking. /design-system during Step 2 when introducing new components or patterns (and for auditing DESIGN_SYSTEM.md itself). /design-handoff at the end of Step 2 / start of Step 3 to produce implementation-ready specs. /accessibility-review at end of Step 3 before shipping. /research-synthesis post-launch for distilling user feedback. These are quality gates, not optional polish -- grill-me sessions on new pages must invoke /design-critique before locking, pre-implementation must invoke /design-handoff, pre-ship must invoke /accessibility-review. Skipping only allowed for tiny tweaks and bug fixes.
+- Why: Solo devs benefit disproportionately from automated design feedback because there's no team review. /design-critique replicates some of what a design partner would provide. /accessibility-review catches WCAG issues that single-person reviews miss. /design-handoff eliminates the "what did I mean by this?" mid-implementation pain. Using the plugin actively makes TripWave's design quality higher without adding team cost.
+- Follow-up: Plugin usage table lives in docs/CORE_LOOP.md under "Build Workflow → Anthropic Design plugin -- which skill to invoke at each step". Grill-me sessions update to reference these skills at relevant moments.
+
+### 2026-04-17 - Build workflow locked: Details → Mockups → Code for every page
+
+- Status: accepted
+- Context: Fun-treatment UX_SPEC sections have been written for many pages without a documented inventory of what information, actions, states, and edge cases each page contains. This creates risk at implementation time -- details get forgotten, pages drift, work duplicates, scope silently expands. The discipline of defining details before mockups, and mockups before code, is a standard product workflow that was implicit but not documented.
+- Decision: Every new page (and every significant page rebuild) follows a three-step workflow in order. Step 1: Page detail definition -- a written inventory of what information, actions, states, edge cases, and ordering the page contains. Step 2: UI mockup -- ASCII wireframe, Figma, or inline description matching the detail inventory, honoring neon-on-dark palette and liquid motion rules. Step 3: Code -- only after Steps 1 and 2 are locked. Future grill-me sessions on a page must produce Step 1 output first, then Step 2. If a grill jumps straight to visual decisions without a detail inventory, stop and route back to Step 1. Tiny tweaks and bug fixes are exempt.
+- Why: Jumping to code before defining what's on the page produces pages that drift, duplicate work, and leak scope. Defining mockups after details prevents "oh I forgot we needed [X]" mid-build. Solo devs especially benefit because there's no design handoff to force the pause. This also prevents grill-me sessions from producing beautiful fun treatments for pages whose underlying data model is still unwritten.
+- Follow-up: Audit existing UX_SPEC sections for pages without a Step-1 detail inventory. For each, log an inventory task in BACKLOG.md before that page is implemented. Full workflow spec in docs/CORE_LOOP.md under "Build Workflow -- Details → Mockups → Code".
+
+### 2026-04-17 - Core Loop defined as the must-prove spine, scope discipline established
+
+- Status: accepted
+- Context: Docs were expanding faster than the codebase. Fun treatments for 11 pages were specced (landing, signup, login, dashboard, creation, preplanning hub, itinerary, packing, travel day, vacation day, expenses) while auth and trip creation aren't yet wired in code. At this rate, the product risks scope-spiraling into three apps at once before the core loop is even proven.
+- Decision: Defined the 7-step must-prove spine in docs/CORE_LOOP.md: (1) sign up, (2) create a trip, (3) invite people, (4) preplan, (5) build itinerary, (6) use travel day, (7) track expenses. Every feature in the repo is now classified as MVP / Later / Speculative. Dream Mode, Wishlist, Notes, Vault, Tools hub, Memory, polls, and most of the fun-page treatments beyond the spine are classified as Later or Speculative. Future grill-me sessions on deferred topics are queued in ROADMAP.md under "Future Grill-Me Topics" and are NOT revisited until the 7-step spine is implemented and usable end-to-end in code.
+- Why: Design-before-build discipline is only valuable when it stays close to the build horizon. Speccing polished micro-interactions for features that may ship in year 2 creates doc drift, maintenance cost, and a false sense of progress. The spine is what the product has to prove first; everything else is embellishment.
+- Follow-up: All future grill-me sessions start with "is this on the spine?" If no, route the topic to ROADMAP.md deferred queue. Every feature in UX_SPEC, MONETIZATION, and BACKLOG should be tagged MVP / Later / Speculative over time. Full rule set in docs/CORE_LOOP.md.
+
+### 2026-04-17 - Premium framing must be warm but clear, not vague
+
+- Status: accepted (refinement of the supporter-framing decision)
+- Context: The supporter framing ("premium is how you say thanks, here are bonus features as a gift") is warm and differentiates TripWave from corporate pricing language. But "bonus fun stuff" phrasing risks becoming so vague that users don't know exactly what they're buying. Warm is good. Vague is not.
+- Decision: Premium copy must always name the specific bonuses it unlocks. Good: "Premium is how you say thanks. In return: no ads, unlimited dreams, offline mode, receipt scanning. $7.99, once." Bad: "Support the app and get some bonus stuff as a thank-you." Every premium surface (purchase sheet, support cards, moment cards, pricing page) must list concrete benefits. Warmth is tone. Clarity is substance. Both must be present.
+- Why: Users reading the premium sheet need to walk away knowing exactly what they are buying. Vague framing reduces conversion because users do not trust what they cannot see. The $7.99 one-time unlock has to justify itself on specific value, not on generalized goodwill alone.
+- Follow-up: Audit all premium copy across UX_SPEC and MONETIZATION docs, replace any vague "bonus fun stuff" phrasing with specific benefit lists. Premium purchase sheet body text in docs/MONETIZATION.md section 5 is the canonical version.
+
+### 2026-04-17 - Fixed README.md naming drift from "Ultimate Vacation" to "TripWave"
+
+- Status: accepted
+- Context: Repo name is "ultimate-vacation" (historical). Docs have been consistently saying "TripWave" for months. README.md still said "Ultimate Vacation" -- a drift that weakens confidence and confuses anyone arriving via the repo first.
+- Decision: Rewrote README.md to consistently say TripWave throughout. Added pointers to PITCH.md (layman's intro) and CORE_LOOP.md (must-prove spine). Brand section at the bottom names the neon-on-dark direction, ocean-ripple logo, liquid motion, slogan, and supporter framing. Repo folder name (ultimate-vacation) is not renamed for now -- would require git history rewrites -- but every doc surface now reads TripWave.
+- Why: Naming consistency is a confidence signal. Drift between README and docs suggests the team (or solo dev) doesn't know what they're building. Fixing is free.
+- Follow-up: If a rename of the repo root folder is ever needed, handle it as a dedicated migration with git-remote update. For now, internal naming consistency across all docs is sufficient.
+
 ### 2026-04-17 - Primary brand direction shifts to neon-on-dark with pure white text
 
 - Status: accepted (supersedes previous white-first palette as primary brand direction)

@@ -9,6 +9,50 @@ This backlog is meant to stay human-readable. It should help us choose the next 
 
 ---
 
+## Build Workflow Audit (high priority before implementation)
+
+Per CORE_LOOP.md → Build Workflow, every page needs a Step-1 detail inventory before code is written. Many UX_SPEC sections jumped straight to fun treatment without the detail layer. Each page below needs a detail inventory (what information, actions, states, edge cases, ordering) logged in UX_SPEC before implementation begins.
+
+### Spine pages (MVP) -- detail inventory required before code
+
+- [ ] Signup page -- Step-1 detail inventory
+- [ ] Login page -- Step-1 detail inventory
+- [ ] Dashboard (/app) -- Step-1 detail inventory (hero, trip list, action center fields)
+- [ ] Trip creation flow (4 steps + Step 0 Real/Dream picker) -- per-step Step-1 inventory
+- [ ] Trip overview (brand-new) -- Step-1 detail inventory
+- [ ] Trip overview (established) -- Step-1 detail inventory (every stat tile, every card, every state)
+- [ ] Preplanning hub -- Step-1 detail inventory (ball block, 8 section card states, CTA visibility rules)
+- [ ] One preplanning section editor (to pick which one first) -- Step-1 detail inventory
+- [ ] Itinerary page -- Step-1 detail inventory (day header fields, event card fields, filter states)
+- [ ] Invite organizer page -- Step-1 detail inventory
+- [ ] Invitee join landing -- Step-1 detail inventory
+- [ ] Expenses page -- Step-1 detail inventory (balances fields, ledger row fields, budget breakdown)
+- [ ] Travel Day planning-phase page -- Step-1 detail inventory
+- [ ] Travel Day focus mode -- Step-1 detail inventory
+- [ ] Trip ball modal -- Step-1 detail inventory
+
+### Non-spine pages (Later) -- detail inventory required when pulled into active work
+
+- [ ] Vacation Day page
+- [ ] Packing page (My list, Group list, Suggestions)
+- [ ] Polls page
+- [ ] Wishlist page
+- [ ] Notes page
+- [ ] Vault page
+- [ ] Tools hub
+- [ ] Memory / Wrap-up page
+- [ ] Members / permissions page
+- [ ] Settings sub-routes
+- [ ] Account / profile editor
+- [ ] Dream Mode workspace surfaces
+
+### Workflow discipline (ongoing)
+
+- [ ] Before every future grill-me session on a page, confirm the Step-1 detail inventory exists or is being produced in that session
+- [ ] UX_SPEC sections without a detail inventory must add one before implementation begins
+
+---
+
 ## Monetization / retention work items (added 2026-04-17)
 
 ### Pre-launch audience building (start 6 months before launch)
