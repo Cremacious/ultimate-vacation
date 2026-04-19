@@ -16,6 +16,246 @@ Use this format for new entries:
 
 ## Entries
 
+### 2026-04-17 - Trip ball click opens health breakdown modal
+
+- Status: accepted
+- Context: The trip ball is the core visual identity and appears on many screens. We needed a consistent interaction for when a user clicks or taps it inside the trip workspace.
+- Decision: Clicking the ball opens a modal showing the fill breakdown by preplanning category, the current next best action, blockers if any, and a color picker for the ball.
+- Why: Keeps users in context (modal, not navigation), teaches the mental model that preplanning fills the ball, works identically on desktop and mobile, avoids designing another full route.
+- Follow-up: Ball modal spec lives in docs/UX_SPEC.md.
+
+### 2026-04-17 - Dashboard is a hybrid of trip list plus action center
+
+- Status: accepted
+- Context: Users planning 2 or 3 trips need to see their trips emotionally (ball, countdown, progress) but also need a cross-trip queue of things needing attention.
+- Decision: Dashboard has three vertical sections -- "Next up" dark hero at top (tappable, routes to that trip's recommended phase), trip list in the middle, and "Needs your attention" action center at the bottom.
+- Why: Combines emotional pull with practical utility. Single-trip smart redirect was rejected as inconsistent. Pure action center was rejected as cold.
+- Follow-up: Layout spec lives in docs/UX_SPEC.md.
+
+### 2026-04-17 - Trip creation is a 4-step playful flow
+
+- Status: accepted
+- Context: Creating a trip is the commit moment. We want the ritual to feel warm and fun rather than administrative.
+- Decision: Four full-screen steps -- Name (with listening-ball animation), Dates (optional with sassy copy), Pick a Color (fills the ball for instant payoff), Reveal (ball hero moment + "Meet [name]" + CTA). Wipe transitions between steps.
+- Why: Multi-step keeps each moment simple and focused. Color pick makes the trip feel personal before any work is done. Dates are optional to respect vague-intent trips like "summer 2026". The reveal step celebrates the commitment.
+- Follow-up: Full creation flow spec lives in docs/UX_SPEC.md.
+
+### 2026-04-17 - Preplanning uses a section picker hub
+
+- Status: accepted
+- Context: Preplanning has 8 sections and dozens of fields. We had to decide how the user navigates through them all.
+- Decision: A section picker hub. The hub shows 8 cards (one per section) with colored icons, progress indicators, and status badges. The user picks sections in any order. Each card opens a focused editor page for that section. Not-applicable sections can be marked as such and are excluded from the ball fill denominator.
+- Why: Preplanning data rarely comes in a natural order. Linear wizards get abandoned when users hit fields they cannot answer. The hub shows overall progress at a glance. Each section as a focused editor keeps cognitive load low. Matches the ball mental model (each section fills a piece).
+- Follow-up: Individual section editor layouts still TBD. Full hub spec in docs/UX_SPEC.md.
+
+### 2026-04-17 - Preplanning section editor is a single scrollable form
+
+- Status: accepted
+- Context: Each preplanning section has 3 to 20+ fields and some have conditional fields based on primary choices (e.g., flight details only appear if transport mode is "flying").
+- Decision: Each section opens as a single long scrollable form with all fields visible. Conditional fields animate in and out as relevant. Sticky footer offers "Save and return to hub" plus "Save and continue to [next section]". A "Mark not applicable" toggle at the top hides the section from the fill denominator. All fields autosave.
+- Why: User deliberately picked the section from the hub, so wizarding them again inside is redundant. Single scroll keeps focus without hiding work. Conditionals keep the form clean. Consistent pattern across all 8 sections simplifies the design.
+- Follow-up: Full editor spec in docs/UX_SPEC.md.
+
+### 2026-04-17 - Itinerary uses day-by-day vertical scroll as primary view
+
+- Status: accepted
+- Context: The itinerary holds events, reservations, activities, and notes across every trip day. We needed a primary layout that balances trip-wide overview with per-event legibility.
+- Decision: Vertical scroll down through the whole trip, each day a distinct section with a colored header card and event cards stacked beneath sorted by time. Sticky day-pill jumper at the top. Quick-add FAB on mobile, persistent + button on desktop. Optional fold-out compact calendar panel on desktop.
+- Why: Trips are mentally organized by days, not hours. Calendar grids kill legibility. Flat lists lose structure. Horizontal timelines and tab layouts hide trip flow. Vertical scroll scales gracefully and works identically on desktop and mobile.
+- Follow-up: Individual item shape and category differentiation still TBD. Full spec in docs/UX_SPEC.md.
+
+### 2026-04-17 - Itinerary items differentiated by left stripe and header icon
+
+- Status: accepted
+- Context: Itinerary items span several categories (activity, reservation, transport, note, expense-linked). We needed to decide how much visual differentiation to apply per category.
+- Decision: All item cards share a uniform shape. Category is signaled by a 4px colored left stripe plus a matching filled icon in the header row. Expense-linked items add a small green coin badge on top of their base category treatment. Color mapping uses brand language: activity yellow, reservation cyan, transport pink, note gray.
+- Why: Stripes read faster at a glance than icon-only differentiation. Per-category layouts would fragment visual rhythm. Background tints would compete with the day headers. Uniform shape preserves the cohesive feel of a day while the stripe still telegraphs type.
+- Follow-up: Full anatomy spec in docs/UX_SPEC.md.
+
+### 2026-04-17 - Packing uses three tabs for My / Group / Suggestions
+
+- Status: accepted
+- Context: Packing mixes personal items (each user's own), group items (shared responsibility), and smart suggestions (premium feature). We had to decide how to present all three without overwhelming users.
+- Decision: Three tabs at the top of the Packing phase. Default tab is "My list". Second tab "Group list" shows items with traveler assignment. Third tab "Suggestions" is premium-gated -- free users see a preview with an upgrade card. New items default to private. Privacy toggle lives in each item's three-dot menu.
+- Why: Users want a personal-first view without group items leaking in. Group packing is a separate conversation. Premium suggestions get their own tab so the free-tier upgrade prompt has room to breathe. Tabs scale identically across mobile and desktop.
+- Follow-up: Full spec in docs/UX_SPEC.md.
+
+### 2026-04-17 - Travel Day uses auto-route plus focus mode on the day of
+
+- Status: accepted
+- Context: Travel Day is a core differentiator. Outside of the actual travel day it is a normal planning phase, but on the day itself the app should reorder itself to execute the travel plan.
+- Decision: Hybrid behavior. Far from the travel day, Travel Day is a normal editable phase. T-minus 24h adds a pulse dot on the sidebar tab. T-minus 6h triggers auto-route-on-open plus focus mode: sidebar collapses to icons, top bar becomes a minimal status strip, main view becomes a single-task-at-a-time execution checklist with giant tap targets and a live "you are here" marker. Focus mode exits automatically after arrival. Users can exit manually at any time and can manually activate focus mode outside the auto window.
+- Why: Planning weeks before travel should feel calm and flexible. The actual travel day needs focus and stress reduction. Full app takeover would be patronizing and hide useful info. A banner alone does not reorder UI as required.
+- Follow-up: Execution-mode checklist visual details, "leave in X minutes" guidance, and segment transitions to be specced later. Full mode spec in docs/UX_SPEC.md.
+
+### 2026-04-17 - Vacation Day uses a single "Today" feed with morning briefing
+
+- Status: accepted
+- Context: During an in-progress trip, users need daily coordination rather than full planning. The docs specify priorities in the order: today's schedule, next meetup, active reservations, quick add, group activity, today's expenses.
+- Decision: Vacation Day is a single-page scroll feed. Top: warm morning briefing card that updates at local sunrise. Middle: today's events using the itinerary card anatomy. Activity strip: horizontal chips of recent group changes. Quick actions: add event / log expense / start poll. Bottom: peek-tomorrow link. Auto-route to Vacation Day on trip open during in-progress trip days. No focus mode.
+- Why: Users on vacation are distracted and jetlagged -- linear scroll beats widget grids or swipe decks. The morning briefing is a warm daily ritual. Auto-route keeps the user in the right context without locking them out of other phases.
+- Follow-up: Quick-log expense and quick-poll interaction details TBD. Full spec in docs/UX_SPEC.md.
+
+### 2026-04-17 - Expenses uses a balances-first primary view
+
+- Status: accepted
+- Context: Expenses is a dense feature with ledger, splits, settlement, budget, receipt scanning, and currency conversion. We needed the primary view to answer the question users care about most.
+- Decision: Balances hero card at the top showing the user's personal net and per-person breakdown with Mark settled and Mark paid buttons. Trip total strip below. Ledger filtered by chips (All / Yours / By category / By day). FAB for Add expense plus a premium-gated Scan receipt action.
+- Why: The #1 user question is "do I owe / is anyone owed" not "what did we spend on food". Balances-first answers that question immediately and doubles as social pressure to settle. Ledger-only buries the answer. Tabs force users to hunt.
+- Follow-up: Add-expense flow details, split interaction, and settlement state transitions still TBD. Full spec in docs/UX_SPEC.md.
+
+### 2026-04-17 - Polls page uses active-as-big-cards plus closed-as-compact-rows
+
+- Status: accepted
+- Context: Polls live in a dedicated phase but have two clear states -- active (needs your vote, live) and closed (historical reference, possibly convertible to an itinerary item). We needed to decide how to surface both without making users hunt.
+- Decision: Active polls are large cards at the top with the full voting UI inline (one-tap vote on big option pills). Closed polls are compact rows below showing the winner and a Convert-to-itinerary pill if not yet converted. Start-a-poll is a slide-up sheet / modal with an optional "quick vote" mode for in-trip snap decisions.
+- Why: Visual weight follows user action -- active polls need voting, closed ones are reference. Tabs would hide active polls behind a click. Chronological feeds mix live and dead polls awkwardly.
+- Follow-up: Notifications for new polls and quick-vote UI detail in later passes. Full spec in docs/UX_SPEC.md.
+
+### 2026-04-17 - Wishlist uses hot-section plus explicit promote actions
+
+- Status: accepted
+- Context: Wishlists tend to accumulate noise if the path from idea to reality is obscured. We needed to surface the best ideas and make promotion to the itinerary friction-free.
+- Decision: Top section shows "The group is into" (most-liked ideas, horizontally scrollable cards). Below, a full vertical list of idea cards, each with Like and Add-to-itinerary buttons. Promoting an idea removes it from the wishlist with an Undo toast. Restricted mode hides the Add-idea button for non-organizers when the organizer disables participant adds.
+- Why: Wishlists die when ideas get buried. Hot section doubles as social proof. Explicit promote button keeps the action one tap away. Categories and pinboards add unnecessary friction.
+- Follow-up: Full spec in docs/UX_SPEC.md.
+
+### 2026-04-17 - Notes use a social feed with reactions and event link chips
+
+- Status: accepted
+- Context: Notes are shared posts used to communicate reminders, tips, and observations with the group. We had to decide between social-feed, tabbed, categorized, and bulletin layouts.
+- Decision: Chronological social feed, newest first. Each note card shows author, body, optional photo / link, an event-link chip (when attached to an itinerary item), reactions row, and a reply thread preview. Filter chips: All / Mine / Event-linked / Pre-trip / On-trip / Post-trip. Replies are single-level threaded. Reactions are emoji toggles.
+- Why: Notes are communication, not filing. Feed shape matches the mental model. Chronology is essential and would be lost in tabs. Categories over-organize. Bulletin boards get chaotic at volume.
+- Follow-up: Full spec in docs/UX_SPEC.md.
+
+### 2026-04-17 - Vault uses category sections plus search plus "Needed today" strip
+
+- Status: accepted
+- Context: The Vault holds high-stress documents (passports, boarding passes, hotel confirmations). Speed of retrieval matters more than browsing pleasure.
+- Decision: Sticky search bar at the top. Conditional "Needed today" strip surfaces date-relevant docs during in-progress trips. Below that, collapsible category sections (Passports, Flights, Lodging, Insurance, Reservations, Other) with thumbnail grids. Floating upload FAB on mobile, top-right button on desktop. Doc detail view opens full-screen with Download / Share (expiring link) / Mark as expired / Edit / Delete actions. Premium-gated OCR auto-extracts details on upload.
+- Why: At border counters users cannot browse. Categories provide scannable shortcuts. Search is the escape hatch. "Needed today" automates the right-doc-right-moment behavior. Flat grids and traveler-scoped layouts both break down at volume or force premature organization.
+- Follow-up: Sharing link expiration rules and OCR detection heuristics still TBD. Full spec in docs/UX_SPEC.md.
+
+### 2026-04-17 - Tools hub uses phase-aware smart surfacing plus full library
+
+- Status: accepted
+- Context: Tools holds 20+ mini-features split across free and premium tiers. Each tool is most relevant at a specific phase or trip state. A static grid forces users to do the discovery work themselves.
+- Decision: Top of the Tools page shows a "Useful right now" row of 3 to 5 larger cards adapted to the current phase and trip data. Below sits the full categorized library (Planning / Destination / On the trip / Accessibility). Smart surfacing responds to phase, destination, and group composition. Premium tools show lock icons and inline paywalls on the free tier.
+- Why: Users should not have to hunt for a tool when the app knows what phase they are in. Surfacing drives discovery without forcing alphabetical or search-first interaction. Full library remains available below for browsing and power users.
+- Follow-up: Per-tool surface logic refinement in a later doc pass. Full spec in docs/UX_SPEC.md.
+
+### 2026-04-17 - Memory phase uses a two-section stacked layout
+
+- Status: accepted
+- Context: Post-trip wrap-up is simultaneously emotional (celebrate the trip) and practical (settle expenses, close loose ends). The two vibes do not mix cleanly in the same UI block.
+- Decision: "Your trip in review" section on top (hero card with the nostalgic ball, auto-generated stats, highlights carousel, post-trip poll, scavenger hunt, shareable recap). "Loose ends" section below (unsettled expenses, unresolved polls, pending wishlist, archive action). Ball enters nostalgic fade on Memory entry and dimmed state on archive. Shareable recap has a TripWave watermark for free users.
+- Why: The app should celebrate before asking for paperwork. Tabs would hide the celebration. Slideshows force users through an intro. Splitting across phases dilutes the purpose of Memory. Two-section stack lets users linger in the recap and see to-dos without context-switching.
+- Follow-up: Highlight auto-generation heuristics, share-link permissions, and export format still TBD. Full spec in docs/UX_SPEC.md.
+
+### 2026-04-17 - Organizer invite screen uses share-card plus invited-list hybrid
+
+- Status: accepted
+- Context: The invite experience needs to handle initial sharing, permission preset selection, seeing who has joined, resending to pending invitees, and removing people. Scattering these across separate screens adds friction.
+- Decision: One page. Top: share card with invite link, human-readable invite code, QR code, and quick share actions. Middle: permission preset strip to set the default role for new joiners. Bottom: invited list split into Joined (with permission badge and three-dot menu) and Pending (with Resend and Revoke). Regenerate link action in the footer invalidates old links while keeping joined users.
+- Why: Single-link modals cannot handle follow-up. Contact-based flows need phone contacts access and SMS sending infrastructure that we do not have early on. List-only separates sharing from status. A single page covers the whole lifecycle.
+- Follow-up: Per-user permission toggle UI (for custom overrides beyond presets) still TBD. Full spec in docs/UX_SPEC.md.
+
+### 2026-04-17 - Invitee lands on a trip-themed branded Join page before auth
+
+- Status: accepted
+- Context: Invitees tap a link with no prior context. We had to decide whether to route straight to auth, show marketing, or warm them up with the trip itself.
+- Decision: Branded Join landing page themed to the trip's ball color, showing the trip ball, name, dates, destination, organizer name, and traveler avatars. Primary CTA "Sign up and join", secondary "Log in". Only preview fields are visible before auth -- no itinerary, no expenses. Post-auth shows a welcome splash and routes to the trip overview. First-session banner prompts them to fill their traveler profile (dietary, mobility, emergency contact). Invalid links show a warm "expired" message rather than a generic error.
+- Why: The invite is an emotional moment. Cold auth pages kill it. Long marketing interstitials are the wrong timing. Anonymous preview would violate the account-required rule.
+- Follow-up: Traveler profile editor layout TBD. Full spec in docs/UX_SPEC.md.
+
+### 2026-04-17 - Mobile phase nav uses a horizontal scrollable pill bar
+
+- Status: accepted
+- Context: The trip workspace has 14+ phases. The desktop left sidebar does not work on mobile. We needed a pattern that keeps every phase reachable in one tap without buried menus.
+- Decision: On mobile, a horizontal scrollable pill bar sits below the top nav, sticky during scroll. Each pill is a colored circle icon + phase name with bright-background active state and pale inactive state. Active phase auto-scrolls into view. Colored pills match the phase-color language used in the desktop sidebar and dashboard. Desktop keeps the left sidebar unchanged.
+- Why: Bottom tab bars force picking a few "winner" phases that do not match all trip states. Hamburger menus hide the trip map. Dropdowns add friction. Horizontal pills show all phases, teach colors by repetition, and scale gracefully.
+- Follow-up: Pill-bar scroll feel, snapping behavior, and phase-group dots implementation still TBD. Full spec in docs/UX_SPEC.md.
+
+### 2026-04-17 - Permissions use preset-with-override hybrid member management
+
+- Status: accepted
+- Context: Organizers need fine-grained control over what each traveler can do (add items, vote, invite, etc.) without turning the settings page into a spreadsheet.
+- Decision: Member list with per-user preset dropdown (Organizer / Trusted / Standard / View-only / Custom) plus a "Customize" link that expands an inline toggle panel grouped by category (Itinerary / Expenses / Polls / Social / Administrative). Transfer ownership and Remove from trip live in the member card three-dot menu with confirmation modals. Removed members leave anonymized contributions in place.
+- Why: Presets cover the common case with one tap. Customize preserves fine-grained control without exposing it to every organizer. Matrix tables feel cold. Dedicated per-user pages are too heavy for simple cases. Feature-scoped controls spread the mental model across phases.
+- Follow-up: Preset exact definitions and default toggle mapping still need formal lockdown. Full spec in docs/UX_SPEC.md.
+
+### 2026-04-17 - Premium prompts use inline lock cards plus contextual moment cards
+
+- Status: accepted
+- Context: Premium is a one-time $5 unlock covering ad removal, offline mode, receipt scanning, currency converter, advanced smart suggestions, travel-day templates, trip export, and trip duplication. We needed a prompt style that respects free users while converting at the right moments.
+- Decision: Inline lock cards as the default, replacing the feature's normal entry point (cyan-tinted card, lock icon, feature name, one-line value, Unlock button). Moment cards escalate at context-rich triggers (offline mid-trip, tapping a currency field, 5+ expenses without scan, pre-archive). Both are inline -- never modal takeovers, never persistent banners, never scarcity language. Prompt-free zones include travel-day focus mode, vacation day quick actions, the new-trip onboarding overview, and settlement actions. Purchase flow is a slide-up sheet with Stripe (web) and Apple/Google Pay (future native).
+- Why: Modal takeovers are punishing and the docs forbid them. Auto-redirects disrupt flow. Persistent banners erode trust. Inline lock cards respect in-progress work, moment cards catch genuine high-intent conversion windows.
+- Follow-up: Moment-card trigger logic and post-purchase celebration animation still TBD. Full spec in docs/UX_SPEC.md.
+
+### 2026-04-17 - Free-tier ads use a persistent bottom banner plus native cards in long feeds
+
+- Status: accepted
+- Context: The free tier is ad-supported. The docs define ad-hostile zones (travel day execution, checklists, expense entry) and ad-friendly zones (dashboards, between sections). We needed a concrete placement pattern that balances impressions with UX.
+- Decision: Persistent bottom banner (Cozi-style) on most pages, 50 to 60px tall, with an AdMob adaptive unit or AdSense responsive unit. Banner has an "Ad" label, a close-for-session X, and a small "Remove ads for $5" upsell link on the right. Native card ads inject into long content feeds (Itinerary, Notes, Expenses ledger, Polls list) at roughly positions 4, 12, 20 with clear Ad labels. Suppression zones include travel-day focus mode, vacation day briefing view, expense entry modal, trip creation flow, invite join landing, Memory hero recap, trip ball modal, and the first minute of a new user's session.
+- Why: Banner delivers baseline impressions. Native cards catch attention where banner blindness sets in. Suppression protects high-stakes UX moments. The upsell hint turns every impression into a conversion opportunity.
+- Follow-up: AdMob / AdSense unit IDs, ad fetch timing, and ad-block detection behavior still TBD. Full spec in docs/UX_SPEC.md.
+
+### 2026-04-17 - Established trip overview uses one flexible layout with state-aware content
+
+- Status: accepted
+- Context: A trip lives in Planning, Ready, In-progress, and Completed states across most of its existence. The docs require state-aware workspace behavior but building entirely separate layouts per state would be a maintenance burden.
+- Decision: One overview page layout with state-aware content per region. Hero strip shows the ball (state-reactive animation), trip name, dates, destination, countdown. Stats row adapts tiles to state. Primary next-action card routes to the phase that reduces the most trip risk per state. Blockers card is conditional. Recent activity feed shows group actions. Quick jump grid links to the 6 most relevant phases per state. Bottom CTA surfaces only at transitions (ready to advance at 90%, close trip when completed).
+- Why: State-specific layouts would duplicate design work. Widget grids feel corporate. Minimal link pages underserve the trip home. Feed-based overviews bury the primary next action. One flexible layout is easier to build, learn, and maintain.
+- Follow-up: Blocker detection logic and next-action precedence rules still TBD. Full spec in docs/UX_SPEC.md.
+
+### 2026-04-17 - Notifications use in-app surfaces plus future push, no notification emails
+
+- Status: accepted
+- Context: TripWave has many "look at this" moments (polls, expenses, invites, travel day, settlement). We had to decide where notifications surface and which channels we support.
+- Decision: In-app notifications are delivered through three surfaces -- a bell icon in the top nav opening a grouped panel (Today / This week / Earlier), real-time toasts for live events while the user is in the app, and the dashboard action center for actionable items. Push notifications added later when the native app ships, opt-in at the OS level. Email is used only for the password reset flow. No SMS. No phone number collection. No email verification on signup. No digest emails. No invite emails (invites are shared via link, code, or QR).
+- Why: Reduces external dependency scope for the MVP (no email deliverability tuning, no SMS provider contract). Users do not need to hand over a phone number. Push is the right long-term channel for urgency. Email becomes noise for most users.
+- Follow-up: Push notification trigger logic and native-app permission-request timing TBD. Full spec in docs/UX_SPEC.md. MONETIZATION.md, ARCHITECTURE.md, and LOGIC_FLOW.md also updated to reflect the narrower email scope.
+
+### 2026-04-17 - Trip switcher is a top-nav dropdown with mini-balls
+
+- Status: accepted
+- Context: Users with multiple trips need to hop between workspaces without returning to the dashboard each time. The trip-name pill in TopNav is the natural switcher entry point.
+- Decision: Tapping the trip pill opens a dropdown below it. Current trip shown at top grayed out for context. Other trips listed below, each with a small colored ball, name, and subtitle (countdown or dates). Tap routes to that trip's overview or recommended phase. Dropdown footer has All-trips and New-trip links. On mobile, narrow screens expand the dropdown into a full-width sheet.
+- Why: Matches the industry-standard workspace-switcher pattern (Notion, Linear, Slack). Modals and side drawers are overkill. Forcing dashboard returns doubles the taps per switch.
+- Follow-up: Switcher behavior on 20+ trips (long-list scrolling and search) to be refined later. Full spec in docs/UX_SPEC.md.
+
+### 2026-04-17 - Empty states use a unified skeleton with per-feature playful variations
+
+- Status: accepted
+- Context: Empty states appear across every feature (no trips, no events, no expenses, etc.). The docs require them to act like guided onboarding rather than placeholder text.
+- Decision: One shared empty-state skeleton (centered illustration at 96-120px, Fredoka headline max 8 words, Nunito gray description max 25 words, cyan pill CTA, optional collaborative chip). Per-feature illustrations and copy give each feature its own playful variation while the skeleton teaches the pattern. Illustrations use line art and flat shapes in brand colors only with circular ball-motif composition. Tone is warm and never scolding. CTAs always spell out the first action.
+- Why: Consistent skeleton teaches the pattern after 2-3 encounters. Per-feature variations preserve TripWave's warm brand personality. Free-form per feature would break visual consistency. Generic placeholders would fail the guided-onboarding requirement. Separate templates for first-time vs later-empty add complexity with no clear benefit.
+- Follow-up: Actual illustration assets to be designed. Animation treatments (gentle float or pulse) deferred to a later polish pass. Full copy catalog in docs/UX_SPEC.md.
+
+### 2026-04-17 - Traveler profile uses account-level defaults with per-trip overrides
+
+- Status: accepted
+- Context: Traveler profile data (dietary restrictions, allergies, mobility needs, emergency contact) is mostly consistent across trips but occasionally needs to differ. We had to decide whether to make it account-level, per-trip, or hybrid.
+- Decision: Hybrid two-tier model. Account-level profile at /app/account/profile stores defaults. Per-trip profile editor auto-pre-fills from defaults and allows overrides. Overridden fields show labels ("Synced from account" vs "Overridden for this trip"). Reset-to-account-defaults link available. Privacy defaults restrict fields to self and organizer; opt-in per field to share with the group. Emergency contact requires explicit per-trip opt-in to share.
+- Why: Most users have stable info -- single entry at account level saves effort. Per-trip overrides handle edge cases like different emergency contact or dietary changes for a specific trip. Single profile misses nuance. Per-trip only frustrates repeat users.
+- Follow-up: Field-by-field privacy defaults, avatar upload flow, and passport-expiry blocker integration TBD. Full spec in docs/UX_SPEC.md.
+
+### 2026-04-17 - Trip settings uses sub-routes with secondary sidebar on desktop
+
+- Status: accepted
+- Context: Trip settings has distinct concerns (trip info, members, invites, preferences, advanced, danger zone). A single flat page becomes overwhelming; tabs trap the user and complicate deep linking.
+- Decision: Each category is its own sub-route under /app/trips/[tripId]/settings. Mobile shows a card list as the main settings page; desktop shows a secondary sidebar once inside settings. Danger zone is pink-bordered with individual confirmation flows; Delete-trip requires typing the trip name and cannot be dismissed via outside-click.
+- Why: Sub-routes enable deep linking per category, focused pages per concern, clean back-button behavior, and scale as we add more settings without cluttering tabs or creating long scrolls.
+- Follow-up: Trip export format, template save fields, and ball-animation-toggle details still TBD. Full spec in docs/UX_SPEC.md.
+
+### 2026-04-17 - Brand new trip uses a dedicated onboarding overview
+
+- Status: accepted
+- Context: A freshly-created trip has no preplanning, no itinerary, no activity. Using the same overview layout as an established trip would show empty cards and zero stats, which feels broken.
+- Decision: Brand new trips get a dedicated onboarding overview -- huge dashed ball, playful greeting copy referencing the trip by name, ONE primary action card (Start preplanning) and ONE secondary (Invite your crew). Overview transforms into the established-trip layout as soon as any preplanning data is added.
+- Why: Intentional empty state feels like the product cares. Keeps focus on the two things that matter at day zero. Avoids filler UI.
+- Follow-up: Full overview spec lives in docs/UX_SPEC.md.
+
 ### 2026-04-11 - Build web-first before mobile packaging
 
 - Status: accepted

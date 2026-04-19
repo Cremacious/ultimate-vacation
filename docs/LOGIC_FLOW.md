@@ -524,16 +524,16 @@ Polls are free for all users.
 
 ## 13. Notification and Reminder Logic
 
-We should not overbuild notifications early, but the logic should be designed for them. Resend handles email delivery.
+We should not overbuild notifications early, but the logic should be designed for them. TripWave delivers notifications only through in-app surfaces (bell panel, real-time toasts, dashboard action center) and, once the native app ships, push notifications. Resend is used for the password reset email only. No other email or SMS is sent.
 
 ### Highest-value reminder candidates
 
-- trip basics incomplete (email nudge)
+- trip basics incomplete (in-app nudge only)
 - departure is near and packing is incomplete
 - travel day begins tomorrow
 - active travel day task overdue
 - unresolved post-trip settlement
-- invited participant has not joined yet
+- invited participant has not joined yet (surfaced on the invite screen, not via email)
 
 ## 14. Empty State Logic
 
@@ -853,13 +853,15 @@ The social layer keeps group communication inside the app.
 ### Push notifications (native app only)
 
 - same triggers as in-app notifications
-- no email notifications for social or activity events
-- Resend handles transactional email only: password reset and invite delivery
+- opt-in at the OS level, requested only after meaningful first trip activity
+- no email notifications for any event (social, activity, urgency)
+- Resend sends the password reset email only -- no invite emails, no notification emails
 
 ### Web version
 
 - in-app notification bell and list only
 - no push, no email alerts for activity
+- invites are shared via link, code, or QR (copied to clipboard, texted, etc.) -- TripWave does not send invite emails
 
 ## 25. Planning Tools Logic
 

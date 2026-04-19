@@ -18,7 +18,7 @@ This document describes the intended technical shape of the product before the b
 - **Tailwind CSS** — styling
 - **Neon Postgres** — primary database (shared $25/month plan)
 - **Vercel** — hosting and deployment (shared $25/month plan)
-- **Resend** — transactional email (password reset, invite notifications)
+- **Resend** — password reset email only. TripWave does not send invite emails or notification emails.
 - **Azure** — receipt scanning OCR (premium feature only, pay-per-use)
 - **ORM to be decided** — Prisma or Drizzle
 - **Auth provider to be decided** — Better Auth confirmed direction, configuration TBD

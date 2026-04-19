@@ -75,7 +75,7 @@ Infrastructure costs (shared across two apps on the same accounts):
 - Vercel: $25/month shared
 - Neon: $25/month shared
 - Azure: pay-per-use for receipt scanning (premium only, cost passed to premium users)
-- Resend: usage-based for password reset and transactional email
+- Resend: usage-based, password reset only. No notification emails are sent by TripWave -- the app uses in-app notifications and (later) push notifications only.
 
 TripWave requires no image hosting. User data is primarily text, keeping storage costs low.
 
@@ -215,7 +215,7 @@ Profit comes from disciplined scope as much as revenue.
 - keep primary data in Neon (shared with existing subscription)
 - no image hosting — TripWave is text-first
 - use Azure only for receipt scanning (premium-gated)
-- use Resend only for transactional email (password reset, invite notifications)
+- use Resend only for the password reset email. No invite-email, no notification-email, no digest-email will be sent.
 - build tools without paid APIs wherever possible
 - avoid speculative AI infrastructure early
 
@@ -241,7 +241,7 @@ Profit comes from disciplined scope as much as revenue.
 
 - collaborative editing polish
 - offline sync
-- advanced notifications via Resend
+- advanced push notifications via native app push infrastructure (no Resend for notifications)
 
 ### High-cost features to gate behind premium
 
