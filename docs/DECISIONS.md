@@ -16,6 +16,135 @@ Use this format for new entries:
 
 ## Entries
 
+### 2026-04-20 - Implementation planning: grill complete (sequencing + backlog restructure locked)
+
+- Status: **accepted** (grill complete — 6 decisions locked; BACKLOG.md restructured to spine-only; ROADMAP.md updated with Post-MVP Feature Backlog + pricing fixes)
+- Context: Final grill in the stated 11-item sequence. Current state entering this grill: UI shell + setup page in mock-data mode; ORM locked (Drizzle) but not installed; auth direction set (Better Auth) but not wired; DB schema drafted but not applied; 15 spine pages owe Step-1 inventories; no backend routes exist. All product and UX decisions for the spine are now locked across the prior grills.
+- Decision:
+  - **Q1 — True next action: pivot immediately to foundation.** Mock-data frontend accumulates rework as real data shapes land. Correct sequence: ORM install → DB schema → auth → shell wired to real data. Each spine page then gets built full-stack (backend route + frontend) in one pass. No more mock-data accumulation.
+  - **Q2 — Foundation sequencing: ORM → DB schema → auth → app shell polish.** Strict dependency chain. Auth needs the user table; the user table needs the schema; the schema needs ORM. Honoring the chain eliminates "wait, I have to redo this" moments downstream.
+  - **Q3 — Step-1 inventories: just-in-time.** Write the detail inventory immediately before coding that specific page — not in advance, not after. 15-inventory batch would be partly wrong by the time code starts. Enforced at the page level, not the session level.
+  - **Q4 — Backlog discipline: slim to spine, move P2/P3/speculative to ROADMAP.md.** BACKLOG.md restructured to ~200 lines covering only the spine + launch checklist + monetization setup items. All 150+ post-MVP items (social layer, wishlist, notes, vault, tools hub, memory, dream mode, planning tools, destination tools, contingency levers, research queue) moved to ROADMAP.md → Post-MVP Feature Backlog.
+  - **Q5 — Launch milestone: spine + monetization live (v1 floor = B; target = D).** Floor: full spine loop end-to-end + Stripe purchase sheet ($2.99 founder's + $4.99 standard) + ad banner + founder's counter live. Target: all 16 CORE_LOOP.md MVP items. Later features (Polls page, Wishlist page, Vacation Day full build) not required for v1.
+  - **Q6 — Branch strategy: branch from master after first full-stack page (trip creation) is merged and stable.** Existing DECISIONS.md says "branch when foundation is stable." Operationalized: "foundation stable" = first full-stack feature (trip creation flow with real auth + DB) merged to master. After that point, every new page or feature gets its own branch.
+- Why:
+  - **Foundation-first** is the only path without rework. Mock-data pages look finished but are not. Data shapes always shift when the real schema lands. Building foundation first means every subsequent page is one pass: schema → route → UI wired.
+  - **Just-in-time inventories** respect the reality that pages change as they're built. Pre-producing all 15 inventories would produce stale specs. The rule "inventory before code for that page" applied just-in-time is both enforceable and accurate.
+  - **Slim backlog** makes the "what do I work on today?" decision fast and obvious. A 600-line backlog with P2/P3 noise next to P0 blockers is a productivity hazard for a solo dev.
+  - **Spine + monetization as v1 floor** ensures the launch event (founder's pricing window, pre-launch audience campaign) has a real conversion path. Launching the spine with no purchase flow is a wasted acquisition moment.
+  - **Branch after first full-stack feature** gives a concrete, observable trigger that avoids the vague "foundation is done" judgment call.
+- Follow-up: BACKLOG.md restructured to spine-only (~200 lines). ROADMAP.md updated with Post-MVP Feature Backlog (all moved P2/P3 items) + pricing refs fixed ($7.99 → $4.99 throughout; founder's $4.99 → $2.99). Next step: begin foundation phase — ORM install → schema → auth.
+
+**Design skills:** `/user-research` skipped. `/design-system` skipped. `/design-critique` skipped. `/design-handoff` skipped. `/accessibility-review` skipped. — Implementation planning session; no UI decisions made. All six skills remain required at their respective implementation moments per GRILL_PROTOCOL.md.
+
+### 2026-04-20 - Monetization: grill complete (pricing revised downward, upgrade surfaces and ad zones locked)
+
+- Status: **accepted** (grill complete — 6 decisions locked; MONETIZATION.md §§ 2, 11, 15, 17, 18, 19, 21, and new § 25 updated)
+- Context: Tenth grill in stated order. User's stated concern entering the grill: $7.99 standard price may be too high and should be grounded in realistic conversion outcomes and comparable apps. Full monetization spec existed (§§ 1–24). Open questions: standard price validation, founder's price structure given standard price revision, premium feature set confirmation, in-app upgrade discovery surface, canonical ad zone placement, and 5-year revenue target recalibration.
+- Decision:
+  - **Q1 — Standard permanent price: $4.99 (down from $7.99).** Market comps for "supporter thank-you" one-time purchases cluster at $4.99 (Monument Valley 2, Reeder, Carrot Weather). The $7.99 price signals utility-tool positioning incompatible with the existing supporter framing. Emotional purchases convert ~2× better at $4.99 vs $7.99+; at realistic conversion differentials, $4.99 produces more total revenue than $7.99 at lower volume.
+  - **Q2 — Founder's price: $2.99 (down from prior $4.99).** With standard at $4.99, the founder's tier needs a real gap. $2.99 creates a story-worthy $2 delta and a genuine early-adopter moment. Total discount cost: ~$2,000 for 1,000 founder spots — a trivial acquisition cost for 1,000 committed users with Founder badges.
+  - **Q3 — Premium feature set: keep all 8 as-is.** At $4.99, eight features (offline, ad removal, receipt scan, currency converter, smart suggestions, templates, export, trip duplication) is an easy, generous sell. No reason to strip or tier; feature set was previously grilled and locked.
+  - **Q4 — In-app upgrade discovery: one post-trip prompt + account menu.** A single, once-per-lifetime prompt fires after a user's first trip completes (highest gratitude moment in the user journey). After that, premium lives only in the account menu. No persistent dashboard card, no nudge emails, no repeated prompts. Inline paywalls remain at feature gates (offline gate, receipt scan, ad units).
+  - **Q5 — Ad zones: banner + native card hybrid, no interstitials.** Bottom-fixed banner on dashboard idle state and vault; native-styled card after 3rd–4th section in preplanning hub. Permanently ad-free: Travel Day (all phases), Vacation Day, expense entry, polls/voting, all modals and sheets, onboarding, invite flow. Ad format rules: max 50px banner, native card matches tile height, dark-surface-native styling, no animation, *"Sponsored"* label in 10px small-caps.
+  - **Q6 — 5-year revenue target: 70k sales at $4.99 standard.** Net premium: ~$243k (1k founders at $2.99 + 69k standard at $4.99, after Apple/Stripe cuts). Up from prior 50k target; reflects higher expected conversion at $4.99. Combined with ads (~$100k) and affiliate (~$500k gross), 5-year realistic revenue: ~$693k.
+- Why:
+  - **$4.99** is where emotional one-time purchases convert. The "supporter thank-you" framing the doc already commits to is built for this price tier — not for $7.99.
+  - **$2.99 founder's** creates a story-worthy gap and rewards the early cohort who take a bet on an unproven product. The Founder badge plus the $2 price delta is the correct incentive structure.
+  - **Post-trip prompt timing** is the strongest natural conversion moment in the user lifecycle — the gratitude from a successful group trip converts without pressure. Firing it once-ever respects the "no guilt, no pressure" brand posture.
+  - **Banner + native card** balances ad revenue with product integrity. Interstitials are permanently off the table — the brand and long-term retention value of not doing interstitials exceeds any short-term CPM gain.
+  - **70k sales target** is honest at $4.99 given viral invite mechanics. Revenue math still works: premium at ~$243k + ads + affiliate > infra costs by a wide margin.
+- Follow-up: MONETIZATION.md fully updated — §§ 2, 11, 15, 17, 18, 19, 21 revised; § 25 (Upgrade Surfaces and Ad Zones) added. All $7.99 standard price references updated to $4.99; all founder's $4.99 references updated to $2.99. Next grill: **Implementation planning** (grill 11).
+
+**Design skills:** `/user-research` skipped (pricing and business decisions; no novel UI). `/design-system` **required** before implementing the post-trip prompt card and native ad card — both introduce new card patterns. `/design-critique` **required** on the premium purchase sheet before implementation. `/design-handoff` **required** before coding upgrade surfaces. `/accessibility-review` **required** before shipping any paywall or ad surface.
+
+### 2026-04-20 - Polls / Wishlist / Scavenger Hunt: grill complete
+
+- Status: **accepted** (grill complete — 16 decisions locked; UX_SPEC §§ 12, 13, and new § 43 updated)
+- Context: Eighth grill in stated order (user explicitly added Scavenger Hunt to this slot). §§ 12 (Polls) and 13 (Wishlist) were locked 2026-04-17 with layout and promotion mechanics specced. Scavenger Hunt had zero UX_SPEC presence — Step 1 inventory produced from scratch. Gaps: who-can-start-polls was unspecced; poll close notification behavior undefined; tie-breaking undefined; anonymous mode referenced but not specced; blocking flag mentioned but not implemented; self-like counting for hot-section threshold unresolved; wishlist Vaulted persistence unclear; add-permission default not stated; link preview fallback for no-OG-tags unresolved; and all Scavenger Hunt mechanics (suggestion flow, competitive mode, completion types, photo evidence, Vacation Day strip, pre-trip teaser, points system) unspecced.
+- Decision:
+  - **Q1 — Who can start polls: Standard+ by default; organizer can restrict to Trusted+.** Keeps the feature social and participatory. Restricted users see the button hidden with an explanatory note.
+  - **Q2 — Poll close notification: group notification with winner highlighted.** *"[Question] — [Winner] won!"* fires to all members. Closed-poll row updates simultaneously.
+  - **Q3 — Ties: co-winners, group decides organically.** No forced auto-break. Both options shown with equal weight in the closed row. *Convert to itinerary item* appears on each co-winner independently.
+  - **Q4 — Anonymous mode: creator toggles at creation; counts shown, no avatars.** Switch at creation time. Mode locked after first vote. Creator cannot see individual attribution — anonymity is real, not partial.
+  - **Q5 — Blocking flag: creator links poll to specific itinerary item at creation.** Linked item gains an orange flag badge: *"Pending poll decision"*. Badge clears when winner is chosen or organizer dismisses.
+  - **Q6 — No self-likes: only other members' likes count toward hot-section threshold.** Self-expression (heart toggle) still works visually; the count excludes the adder for threshold purposes. Threshold remains 2+ non-self likes.
+  - **Q7 — Wishlist persistence in Vaulted trips: all ideas persist read-only.** Ideas never promoted to itinerary are visible in the vault. No writes on a Vaulted wishlist; header note: *"Trip vaulted — this wishlist is a memory."*
+  - **Q8 — Wishlist default: open (all Standard+ can add ideas).** Organizer can restrict at any time via settings. Switching modes does not remove existing ideas.
+  - **Q9 — Link preview: styled card regardless of OG tag availability.** OG title + image when present. Fallback: domain name + favicon as header, idea title as body. No broken-preview state.
+  - **Q10 — Scavenger Hunt challenge source: member-suggest with organizer approval.** All Standard+ can suggest; suggestions enter a pending queue. Organizer approves / rejects. Approved challenges appear on main list; rejections are silent.
+  - **Q11 — Competitive mode: off by default, organizer opts in.** When off: completion tracked, no leaderboard, points shown as completion weights only. When on: leaderboard strip visible, real-time point totals.
+  - **Q12 — Completion type: organizer sets group vs individual per challenge.** Group: first claim marks it done for everyone. Individual: each member tracks their own claim state.
+  - **Q13 — Photo evidence: optional / required set per challenge at creation.** Required = camera sheet before claim submits. Optional = expandable photo step, skippable. None = one-tap claim. Photos stored in trip Vault.
+  - **Q14 — Vacation Day strip: horizontal scroll of tappable challenge pills.** Pill = name (truncated) + status dot (grey / cyan / green). Strip header: *"Scavenger Hunt · X/Y complete."* Strip hidden when no challenges exist.
+  - **Q15 — Pre-trip teaser: visible to all from Planning; claiming InProgress-only.** Challenge list shows in read-only mode with *"Claiming opens when the trip starts"* on each card. Leaderboard hidden pre-trip.
+  - **Q16 — Points: 1–10 per challenge, organizer-set, default 1 if unset.** Additive totals, no multipliers. Leaderboard ranks by total; ties show co-ranked with equal treatment.
+- Why:
+  - **Member-suggest with approval** keeps the challenge list curated without blocking creativity — members feel ownership, organizer keeps quality control.
+  - **Competitive mode off by default** makes the feature feel lightweight and optional. Groups with strong competitive energy opt in; casual groups use it as a fun checklist.
+  - **Per-challenge completion type** handles both cooperative and individual challenges without a global mode toggle — both styles can coexist in the same hunt.
+  - **Photo evidence per-challenge** avoids all-or-nothing: some challenges need proof, others are trust-based. Granularity at the challenge level is the right scope.
+  - **No self-likes** prevents wishlist gaming where one user inflates their own idea to the hot section unilaterally.
+  - **Wishlist in Vault** preserves the planning artifact as a memory, not just a to-do list. Ideas that didn't make the itinerary are still part of the trip story.
+  - **Open poll creation by default** makes polls a social, participatory tool. Restriction is an escape valve for organizers who need control, not the default posture.
+- Follow-up: UX_SPEC § 12 (updated: who-can-start, close notification, tie-breaking, anonymous mode, blocking flag). UX_SPEC § 13 (updated: self-like rules, Vaulted persistence, default permission, link preview fallback). UX_SPEC § 43 (NEW — full Step 1 inventory + all Scavenger Hunt mechanics). Next grill per stated order: **Monetization / upgrade surfaces / ad zones** (grill 10).
+
+**Design skills:** `/user-research` skipped (feature patterns well-understood from established card/claim conventions and existing poll spec). `/design-system` **required** before any mockup — pill-strip component (Vacation Day), challenge card, pending queue, leaderboard strip, and blocking-flag badge are all new patterns not yet in DESIGN_SYSTEM.md. `/design-critique` **required** after mockup. `/design-handoff` **required** before implementation. `/accessibility-review` **required** before shipping.
+
+### 2026-04-20 - Vacation Day: grill complete
+
+- Status: **accepted** (grill complete — 9 decisions locked; UX_SPEC §§ 10 and 39 updated)
+- Context: Seventh grill in stated order (Vacation Day is Later per CORE_LOOP.md but included in the user's stated grill sequence). §§ 10 and 39 locked 2026-04-17. Layout and visual treatment well-specced. Gaps: event completion had no interaction mechanism, swipe-right quick actions were unspecified, weather line had no fallback plan (weather deferred in itinerary but referenced in Vacation Day briefing), activity strip empty state unresolved, last-day peek-tomorrow unreplaced, personalization scope unclear, ad suppression scope unclear.
+- Decision:
+  - **Q1 — Event completion: auto on time passing + manual override.** Events auto-complete when end time passes (or start + 1 hr). Long-press → *Mark done* for early completion; long-press → *Undo complete* for reversal. Events drift away as the day passes — matches the "river" metaphor.
+  - **Q2 — Completion state shared with itinerary.** One record, one state. Vacation Day and itinerary are two views of the same event data. No separate completion layer.
+  - **Q3 — Swipe-right quick action: minimal one-field capture.** Add event → title only (Note, today). Log expense → amount only (current user, even split, today). Start poll → question only (2 blank options). Consistent "fast capture" pattern across all three.
+  - **Q4 — Add event defaults to today.** Quick action is for right-now moments. Future-day adds go via the itinerary phase.
+  - **Q5 — Activity strip hidden when empty.** No placeholder filler. Strip appears only when there is actual group activity to show.
+  - **Q6 — Weather via Open-Meteo free API, ships v1.** Not deferred. One API call per day (destination + date → current conditions). Cost: free. Effort: minimal. The briefing card without weather is noticeably emptier.
+  - **Q7 — Last day peek tomorrow: travel home link if return leg exists; expenses nudge otherwise.** *"Tomorrow: Travel Day home"* is the most useful context for users with a return leg. *"Last day! Settle up expenses"* is the fallback when no return leg is in the itinerary.
+  - **Q8 — Personalization: greeting only.** *"Morning, Chris!"* is personalized; event list and briefing summary are shared. Group coordination requires shared data.
+  - **Q9 — Ad suppression: full Vacation Day page, all users.** Same treatment as Travel Day focus mode. Highest-emotion in-trip surface. *"No ads while you're actually on your trip"* is a warm, honest free-tier differentiator that costs nothing meaningful in revenue (in-trip sessions are short and frequent — not the primary ad-impression surface).
+- Why:
+  - **Auto-completion** is the right default for a vacation surface — manual tick-off of every event is chore-like and breaks the river metaphor.
+  - **Shared itinerary state** avoids dual-state management and keeps the itinerary's live marker accurate.
+  - **Swipe-right minimal capture** gives the gesture real utility. Without a sensible default, the swipe is meaningless.
+  - **Open-Meteo** costs nothing and takes one afternoon to integrate. The weather line in the briefing is referenced in two sections — shipping without it produces a visibly incomplete card.
+  - **Full-page ad suppression** protects TripWave's strongest retention surface. In-trip users are the most emotionally engaged — they're the most likely to convert to premium and the most likely to invite others. Breaking that moment with an ad is the wrong trade.
+- Follow-up: UX_SPEC § 10 (updated: event completion mechanics, shared state, activity strip empty state, weather API, last-day peek tomorrow, auto-activation conflict resolution, ad suppression, personalization scope, quick-action swipe). UX_SPEC § 39 (updated: status date, long-press action sheet, swipe-right minimal capture spec). Next grill per stated order: **Polls / Wishlist / Group coordination** (step 9).
+
+**Design skills:** `/user-research` skipped. No new visual patterns introduced — all surfaces extend existing § 39 treatment. `/design-critique` pending before implementation of auto-completion animation (time-based dimming + collapse). `/design-handoff` pending before JSX. `/accessibility-review` pending before shipping — auto-completing events must announce to screen readers; reduced-motion fallback for collapse animation required.
+
+### 2026-04-20 - Travel Day: grill complete
+
+- Status: **accepted** (grill complete — 11 decisions locked; UX_SPEC §§ 9 and 38 updated)
+- Context: Sixth grill in stated order. §§ 9 (mode behavior) and 38 (neon-on-dark focus mode) were locked 2026-04-17; § 39 (multi-leg repacking) locked 2026-04-20. Focus mode execution experience is well-specced. Gaps: planning-phase task editor had no anatomy spec ("add / edit / reorder freely" with zero detail), default task population was unspecced, per-member focus mode view was unresolved, Skip semantics were undefined, "We've arrived" trigger was ambiguous between completing the last task and a separate button, and offline behavior for Travel Day on free tier was not addressed.
+- Decision:
+  - **Q1 — Task add/edit: hybrid inline + modal.** Quick-add inline at bottom of each segment group (description + implied segment; *+ More* for time/traveler/notes). Three-dot → Edit opens slide-up modal / side-panel for full field editing. Fast for simple tasks; full fields available.
+  - **Q2 — Default task groups: blank + "Generate checklist from your trip" button.** Opt-in generation derives tasks from transport modes + itinerary Transport events. Users who want to build their own list ignore it. Generated tasks are independently editable.
+  - **Q3 — Segment assignment: user-picks via which group they add under.** Inline add implies segment from the group header. Time-based auto-classification fails on timeless tasks.
+  - **Q4 — Task reorder: drag within segments + segment reorder.** Two-level drag: tasks within a segment, segments themselves. Dragging across segment boundary moves task to new segment. Same pattern as packing categories + items.
+  - **Q5 — Per-member focus mode: your tasks first, everyone else collapsed.** Tasks assigned to you dominate the single-task view. Unassigned tasks appear for all. Other members' tasks visible below as read-only status chips in a collapsed "Everyone else" section.
+  - **Q6 — Skip: per-leg, visual treatment.** Skip collapses task to faded "Skipped" label; can be un-skipped. On multi-leg trips, skipped task reappears fresh on next leg. Does not count toward completion.
+  - **Q7 — Manual add in focus mode: small "+ Add task" link.** Opens minimal inline (description + time). Does not disrupt the single-task layout. Covers "I forgot to add 'text mom when landed'" case.
+  - **Q8 — "We've arrived" trigger: two paths.** Happy path (all tasks done): last task completion triggers post-arrival screen immediately; *Open Vacation Day* tap confirms arrival + transitions state. Early-exit path: *"Mark as arrived"* CTA surfaces on trip overview. Auto-transition at 23:59 regardless.
+  - **Q9 — Partial completion at 23:59: post-arrival record only.** Incomplete tasks archived into read-only Travel Day record. No morning-briefing nag, no guilt callout.
+  - **Q10 — Itinerary → Travel Day connection: reference-only via Generate button.** Generated tasks are seeded from itinerary Transport events but become independent records after creation. No shared data model; no bi-directional sync.
+  - **Q11 — Offline behavior: Travel Day checklist fully functional offline for all users.** Free and premium. Checklist is lightweight, always cached. Paywalling a travel-day checklist offline at the airport is a trust-destroying experience. Premium offline covers itinerary detail and vault; checklist is a safety feature unconditionally.
+- Why:
+  - **Hybrid inline + modal** matches established pattern from packing (inline edit) and itinerary (modal for full fields). Consistent; no new mental model.
+  - **Opt-in generation** respects organizer agency while delivering a marketable magic moment — one tap to a personalized checklist derived from real trip data.
+  - **Segment assignment by group** is the correct model because tasks are often timeless; time-based classification silently misfires.
+  - **Two-level drag** is already established in packing; no new pattern needed.
+  - **Your tasks first** gives personal execution utility without losing the group-awareness that makes Travel Day useful for group trips.
+  - **Per-leg skip** is the only skip model consistent with multi-leg repacking's fresh-per-leg principle.
+  - **Two-path arrival** separates the happy-path celebration from the edge case without blocking either.
+  - **Post-arrival record only** for incomplete tasks avoids jetlagged guilt-trips.
+  - **Travel Day offline always free** — this is a safety feature, not a monetization lever. A frustrated user stranded at the gate is a 1-star review and an uninstall. The trust cost dwarfs any conversion upside.
+- Follow-up: UX_SPEC § 9 (updated: post-arrival two paths, offline behavior, per-member view reference). UX_SPEC § 38 (updated: full planning-phase editor spec — segments, task anatomy, hybrid add flow, generate button, two-level drag; focus mode updated — per-member view, skip semantics, manual add). Next grill per stated order: **Vacation Day** (step 7 of spine).
+
+**Design skills:** `/user-research` skipped. `/design-critique` pending — planning-phase editor (task groups + inline quick-add) has no mockup; produce ASCII wireframe before implementation. `/design-system` pending — "Generate checklist" CTA treatment and two-level segment+task drag are new patterns; confirm fit with DESIGN_SYSTEM.md. `/design-handoff` pending before JSX. `/accessibility-review` pending before shipping — swipe-to-complete needs non-swipe alternative (Done button covers it per § 38); segment transition overlays need reduced-motion fallback.
+
 ### 2026-04-20 - Packing: grill complete
 
 - Status: **accepted** (grill complete — 12 decisions locked; UX_SPEC §§ 8 and 37 updated)

@@ -17,7 +17,7 @@ Goal: create a clear product direction, repo structure, and front-end foundation
 - [x] define brand direction and naming candidates (TripWave working)
 - [x] identify MVP and premium boundaries
 - [x] define trip state and next-action model
-- [x] lock monetization model (one-time $7.99, ad-supported free, confirmed tech stack)
+- [x] lock monetization model (one-time $4.99, ad-supported free, confirmed tech stack)
 - [x] lock account requirement (full account required for all app features)
 - [x] define trip ball concept as core visual identity
 - [x] lock travel day UI as vertical timeline with auto-scroll (mobile-first)
@@ -89,7 +89,7 @@ Exit criteria:
 
 Goal: fully implement the monetization layer.
 
-- one-time $7.99 premium purchase flow (Stripe)
+- one-time $4.99 premium purchase flow (Stripe)
 - premium entitlement permanently unlocks ad removal and premium features
 - offline mode for premium users (itinerary, travel-day, packing lists)
 - receipt scanning via Azure OCR (premium)
@@ -236,7 +236,7 @@ If you are an AI agent picking up this repo and running a grill-me session on UI
 - Affiliate program onboarding checklist and legal compliance
 - Referral slot-reward cooldown tuning
 - Founder's badge visual treatment
-- Founder pricing transition logic ($4.99 → $7.99 cap trigger)
+- Founder pricing transition logic ($2.99 → $4.99 cap trigger)
 - Pre-launch landing page waitlist capture copy iteration
 - Editorial pitch template for travel publications
 - Post-1,000-sale review pass on conversion rate
@@ -252,3 +252,180 @@ If you are an AI agent picking up this repo and running a grill-me session on UI
 ### Scope discipline rule
 
 Grill-me sessions resume on these topics only after the 7-step spine in CORE_LOOP.md is implemented and usable end-to-end. Until then, further design work on speculative features is recorded in this deferred queue -- not added to active UX_SPEC sections.
+
+---
+
+## Post-MVP Feature Backlog
+
+Items moved from BACKLOG.md (2026-04-20). These are Later or Speculative per CORE_LOOP.md. Pull into active backlog only after the spine is live and stable.
+
+### Social Layer
+
+- Add likes/reactions to itinerary events, wishlist items, notes posts, expenses, poll options
+- Add comments to itinerary events, wishlist items, notes posts, expenses
+- Add favorites to itinerary events, wishlist items, notes posts; favorites list view in account area
+- Notification triggers for comments, likes, reactions
+- Push notifications (deferred to native app build)
+
+### Collaboration (beyond spine invite/permissions)
+
+- QR code version of active invite link
+- Per-user permission management UI (trip settings → click user → role selector + individual toggles)
+- Notification settings: per-type push toggle in account settings (all on by default)
+
+### Vacation Day
+
+- Vacation Day page (full build per UX_SPEC § 10 and § 39)
+- Activity strip: horizontal scroll of today's events
+- Scavenger Hunt pill strip embedded in Vacation Day
+- Long-press action sheet on events; swipe-right minimal capture
+- Auto-completion: events drift away when end time passes; long-press override
+
+### Packing Page
+
+- Packing page (full build per UX_SPEC § 8 and § 37)
+- My list + Group list tabs with category behavior
+- Drag-to-reorder categories; inline item edit
+- Cross-member visibility rules
+
+### Polls Page
+
+- Polls page (full build per UX_SPEC § 12)
+- Animated voting pill cards; anonymous mode; blocking flag badge
+- Convert-to-itinerary action on closed polls
+
+### Wishlist Page
+
+- Wishlist page (full build per UX_SPEC § 13)
+- "The group is into" hot section; self-like exclusion
+- Promote to itinerary with undo toast; Vaulted persistence
+
+### Notes
+
+- Notes feed (shared + personal per UX_SPEC § 14)
+- Event-attached notes inline in event detail
+- Likes and comments on shared notes
+
+### Scavenger Hunt (full build)
+
+- Scavenger Hunt page (full build per UX_SPEC § 43)
+- Member-suggest pending queue; organizer approve/reject
+- Competitive mode; group vs individual completion; photo evidence
+- Vacation Day pill strip; pre-trip teaser; points 1–10; leaderboard
+
+### Vault / Memory
+
+- Vault page (confirmation number storage, document shelf per UX_SPEC § 15)
+- Auto-generate memory artifact at trip wrap-up
+- Shareable public link; read-only after 30-day grace period
+
+### Tools Hub
+
+- Tools hub page (smart card surfacing + catalog per UX_SPEC § 16)
+- Time zone info (no API); currency converter (premium); unit converter
+- Quick bill splitter; departure day brief card; meetup point broadcaster
+
+### Premium Features (post-spine implementation)
+
+- Offline mode: service worker + write queue + conflict resolution (premium)
+- Receipt scanning: Azure OCR wired end-to-end (premium stub exists from spine build)
+- Currency converter: live conversion in expense entry and budget views (premium)
+- Smart suggestions engine: vibe-aware + destination-aware deterministic rules (premium)
+- Trip export: itinerary as printable/shareable format (premium)
+- Trip templates: save and reuse a trip structure (premium; speculative per CORE_LOOP)
+- Advanced travel-day templates (premium)
+
+### Dream Mode (slim version — speculative)
+
+- Real vs Dream picker wired in creation flow
+- Shimmer / sparkle ball variant for dreams
+- "This is a dream" persistent chip on every dream workspace page
+- Public share link on by default; reactions + save-to-my-dreams
+- Hide Travel Day / Vacation Day / Memory phases in dream workspaces
+- Dream-slot pool separate from real-trip slots (free: 1, premium: unlimited)
+- Private-dream toggle (premium supporter bonus)
+
+### Trip Duplication (premium — speculative)
+
+- Duplicate trip action (organizer only, premium)
+- Copy: trip type, vibe, packing structure, travel day task groups, permission presets
+- Exclude: dates, participants, expenses, itinerary events, confirmation numbers
+
+### Planning Tools
+
+- Open-Meteo weather integration (free API, ships with Vacation Day)
+- Jet lag calculator (time zone difference, sleep strategy)
+- Packing calculator (trip length + climate + activities → suggested list)
+- Group availability checker (manual date entry, overlap view)
+- Pre-trip shared shopping list (collaborative, assignable, optional expense link)
+
+### Destination Reference Tools
+
+- Language phrasebook (static, curated, offline download for premium)
+- Allergy and medical card generator (pre-built translations, printable)
+- Tipping guide (country-by-country, static lookup)
+- Voltage and adapter guide (plug type, local voltage, converter needed)
+- Driving and transit basics (road side, speed units, IDP requirement)
+- Emergency contacts card (auto-generated per destination, always free + offline)
+- Unit converter (temperature, distance, weight, liquid, speed — no API)
+
+### During-Trip Coordination
+
+- Quick thumbs vote (single yes/no, closes on full vote or organizer close)
+- Departure day brief card (surfaces night before any travel day)
+
+### Memory and Documentation
+
+- Confirmation number vault (label, code, provider, date, notes — per UX_SPEC § 15)
+- Trip statistics generator (auto at wrap-up: days, total spend, events, participants)
+- Post-trip poll (organizer creates or auto-generated)
+
+### Smart and Proactive Tools
+
+- Seasonal warning system (hurricane, monsoon, extreme heat, jellyfish, polar night — deterministic rules)
+- Local public holiday alerts (closure + festival alerts by country and date)
+- Document checklist generator (deterministic rules by destination + trip type)
+- Visa and health entry requirements (deterministic lookup)
+
+### Accessibility and Comfort
+
+- Accessibility needs flags in user profile (mobility, dietary, sensory, service animal)
+- Group-level accessibility summary for organizer
+- Medication reminder (time-based, time zone aware, private to user)
+- Kids and family mode prompts (trigger when children flagged)
+
+### Countdown Widget
+
+- Countdown component (days until departure)
+- Display state changes by threshold (60, 30, 14, 7, 1 days, departure day)
+- "Day X of Y" during trip; nostalgic completed state after
+
+### Read-Only Share Link (always free)
+
+- Organizer generates public read-only itinerary link (no account required to view)
+- Always excludes expenses, packing, private notes, polls
+- TripWave branding + "Plan your trip" CTA; revoke action in settings
+
+### Contingency Levers (build only when behind-target triggers activate)
+
+Tier 2 (25%+ behind by year 2):
+- Family plan SKU ($14.99 one-time: primary + 3 household accounts, all premium)
+- Curated public Dream Mode landing pages as SEO bait
+- Editorial pitch template for travel publications
+
+Tier 3 (40%+ behind by year 3):
+- Price-raise infrastructure ($4.99 → $9.99 for new purchases; grandfather existing)
+- Free-tier slot-count reduction (4 → 3 slots with in-app communication)
+- Rewarded video ad for bonus slot earning (30-second video, capped at +1/year)
+
+### Research Queue
+
+- Evaluate PWA-first mobile strategy vs Capacitor later
+- Explore map and place integrations for itinerary events
+- Explore calendar import and export needs
+- Finalize product name (TripWave is working, not locked)
+- Ad network selection (Google AdSense, Carbon, mediation) and unit ID setup
+- Affiliate program onboarding (Booking.com and Skyscanner as first two)
+- Affiliate legal compliance and disclosure copy
+- Evaluate Azure OCR pricing at expected premium user volume
+- Evaluate whether smart suggestions can be built entirely with deterministic rules

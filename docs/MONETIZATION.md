@@ -27,7 +27,7 @@ Pricing and monetization are **never shown on the landing page or any marketing 
 - The word "free" is used prominently on marketing surfaces to attract signups
 - Premium is surfaced only after account creation, through natural paywalls and a subtle "Get Premium" or "Remove Ads" entry point in the app
 - Users should assume the product is fully free until they encounter a paywall organically
-- The upgrade flow explains premium benefits and the $7.99 price only at that moment
+- The upgrade flow explains premium benefits and the $4.99 price only at that moment
 
 Landing page goal: sell the idea of one app that handles all trip planning details — show off every feature, emphasize free access, drive signups.
 
@@ -49,7 +49,7 @@ This is simpler, more understandable, and better aligned with the user's origina
 
 ## 2. Pricing Model
 
-### One-time $7.99 premium unlock
+### One-time $4.99 premium unlock
 
 Premium is a single one-time purchase per account — not a subscription.
 
@@ -97,7 +97,7 @@ Ad revenue should cover Vercel + Neon costs. Azure receipt scanning costs are ab
 - trip health ball and phase guidance
 - basic tools (time zone info, basic planning prompts)
 
-### Make premium (one-time $7.99)
+### Make premium (one-time $4.99)
 
 - **50 trip slots** — up from 4 (active, stale, and vaulted combined)
 - **Ad removal** — permanent ad-free experience
@@ -205,16 +205,16 @@ This framing is chosen because:
 **Premium purchase sheet (headline + body)**:
 > *"Sorry about the ads."*
 >
-> *"They exist because servers, databases, and one developer's rent all cost money. Premium is how you say thanks -- no more ads, plus some bonus features as a gift for supporting the app. $7.99, once, forever. No subscriptions, no guilt, no corporate anything. Just me and you. ♥"*
+> *"They exist because servers, databases, and one developer's rent all cost money. Premium is how you say thanks -- no more ads, plus some bonus features as a gift for supporting the app. $4.99, once, forever. No subscriptions, no guilt, no corporate anything. Just me and you. ♥"*
 
 **Premium purchase sheet (bonus feature reveal)**:
 > *"As a thank-you: unlimited dreams, Dream Mode pastel themes, and a little Founder-style glow on your trip ball. Not essential. Just fun."*
 
 **Inline lock card (on a premium-only feature)**:
-> *"This one's a premium bonus. Tap to support the app and get it. $7.99 once, no strings."*
+> *"This one's a premium bonus. Tap to support the app and get it. $4.99 once, no strings."*
 
 **Moment card (context-aware)**:
-> *"You're offline, 30 minutes from the airport. For $7.99 you'll never get locked out again, and you'll help the app stay alive. Worth a thought."*
+> *"You're offline, 30 minutes from the airport. For $4.99 you'll never get locked out again, and you'll help the app stay alive. Worth a thought."*
 
 ### What we stop saying
 
@@ -233,7 +233,7 @@ Premium prompts still appear where a user already feels a need -- but framed as 
 Natural moments:
 - User is on a plane and notices the app doesn't work offline -- opportunity to explain ads + server costs + offer premium gift
 - User tries to scan a receipt -- inline card: *"Receipt scanning is a bonus thank-you for premium supporters."*
-- User sees an ad during planning -- the ad itself has the small *"Remove ads for $7.99"* link which opens the supporter pitch
+- User sees an ad during planning -- the ad itself has the small *"Remove ads for $4.99"* link which opens the supporter pitch
 - User browses Dream Mode hits the 1-dream cap -- gentle card: *"Want unlimited dreams? It's one of the bonus gifts for premium supporters."*
 
 ## 6. Profit Strategy
@@ -350,7 +350,7 @@ TripWave's single largest acquisition lever is built into the product: every org
 - Free users hit the 4-slot cap faster than any other constraint -- slots are the genuinely useful perk they want next
 - Costs the business effectively nothing -- a free user with 7 slots is still a free user
 - Once a user hits 7 slots and needs more, premium (50 slots) becomes the natural next step
-- Does not train users to expect discounts on the $7.99 premium itself, preserving pricing integrity
+- Does not train users to expect discounts on the $4.99 premium itself, preserving pricing integrity
 - Clean messaging: *"Every friend who plans their own trip gives you an extra free slot."*
 
 ### Why soft cross-promote instead of aggressive gating
@@ -366,12 +366,12 @@ Assumptions: 30% of invitees start their own trip within 2 years (typical for tr
 - One organizer creates 1.2 new organizers (first-degree)
 - Each of those creates ~1.4 more (second-degree)
 - Per initial organizer, the viral tail is ~2.6 downstream organizers total
-- At 5% premium conversion among organizers, one $7.99 sale produces ~0.13 additional sales from the tail -- real but not magical
+- At 5% premium conversion among organizers, one $4.99 sale produces ~0.13 additional sales from the tail -- real but not magical
 - The tighter engagement from slot rewards (more multi-trip usage) is the compounding win over time
 
 ## 11. Launch Pricing Strategy
 
-TripWave launches with a **beta free-premium cohort** followed by **founder's pricing for the first 1,000 public sales**. Price rises to $7.99 permanently after the founder's cap is hit.
+TripWave launches with a **beta free-premium cohort** followed by **founder's pricing for the first 1,000 public sales**. Price settles to $4.99 permanently after the founder's cap is hit.
 
 ### Phase 1 -- Private beta (pre-launch)
 
@@ -384,17 +384,17 @@ TripWave launches with a **beta free-premium cohort** followed by **founder's pr
 
 ### Phase 2 -- Founder's pricing (first 1,000 public sales)
 
-- Premium priced at **$4.99 one-time** during this phase
+- Premium priced at **$2.99 one-time** during this phase
 - Priced as *"Founder's pricing: lifetime, forever, capped at 1,000 spots"*
 - Live countdown visible on the marketing site: *"823 of 1,000 founder's spots left"*
-- Founders are grandfathered permanently at $4.99 -- the lifetime unlock never raises in price for them
+- Founders are grandfathered permanently at $2.99 -- the lifetime unlock never raises in price for them
 - Founders receive a permanent *Founder* badge on their account as a status marker
 - Marketing angle: launch-day press, Product Hunt hook, Reddit / travel community hook
 
 ### Phase 3 -- Standard pricing (post-1,000 sales)
 
-- Price rises to $7.99 one-time
-- Pre-existing founders keep their $4.99 lifetime pricing (already paid)
+- Price is $4.99 one-time (locked 2026-04-20)
+- Pre-existing founders keep their $2.99 lifetime pricing (already paid)
 - Standard pricing continues indefinitely thereafter
 
 ### Why this phased launch
@@ -402,22 +402,23 @@ TripWave launches with a **beta free-premium cohort** followed by **founder's pr
 - Beta users generate real feedback and early evangelism at zero revenue cost
 - Founder's cap creates genuine urgency (quantity-based, not time-based -- more effective)
 - Status of being a "founder" is a durable non-monetary perk that encourages share-on-social behavior
-- Price jump from $4.99 to $7.99 is a natural press-worthy moment
-- Total cost of the founder's discount: ~$2,100 vs full-price -- a rounding error vs the launch momentum gained
+- Price jump from $2.99 to $4.99 is a natural press-worthy moment; the $2 gap is real and story-worthy
+- Total cost of the founder's discount: ~$2,000 vs full-price -- a rounding error vs the launch momentum gained from 1,000 committed early users
 - Avoids a free trial, which would erode the "one-time, no subscription, no guilt" positioning
 - Quantity-based scarcity ("823 left") outperforms time-based scarcity ("30 days left") for converting the urgency-sensitive early cohort
 
-### Revenue model across the 50k-sale target
+### Revenue model across the 70k-sale target (locked 2026-04-20)
 
-- Founder's sales: 1,000 × $4.99 × 0.70 (after Apple cut) = ~$3,493 net
-- Post-founder sales: 49,000 × $7.99 × 0.70 = ~$274,057 net
-- Total 5-year net: ~$277,550
+- Founder's sales: 1,000 × $2.99 × 0.70 (after Apple cut) = ~$2,093 net
+- Post-founder sales: 69,000 × $4.99 × 0.70 = ~$241,101 net
+- Total 5-year premium net: ~$243,194
+- Note: 70k target (up from prior 50k) reflects higher expected conversion at $4.99 vs prior $4.99 standard; viral invite mechanics at scale support the revision
 
 ### Launch promotion copy examples
 
-- *"1,000 founders. $4.99 lifetime. Everyone else pays $7.99."*
+- *"1,000 founders. $2.99 lifetime. Everyone else pays $4.99."*
 - *"Get in early: TripWave founder's pricing ends when we hit 1,000 unlocks."*
-- *"A one-time $4.99 to own TripWave forever. No subscriptions. No renewals. Limited to the first 1,000 users."*
+- *"A one-time $2.99 to own TripWave forever. No subscriptions. No renewals. Limited to the first 1,000 users."*
 
 ## 12. Affiliate Revenue -- The Third Revenue Stream
 
@@ -464,7 +465,7 @@ TripWave is built and maintained by one person. That context appears in three sp
    > *"TripWave is built by one person. If you book through these links, we earn a small commission -- no extra cost to you. It keeps the lights on and the trip ball rolling. ♥"*
 
 2. **Premium purchase sheet footer**
-   > *"Built by a solo dev. Every $7.99 helps keep TripWave alive. ♥"*
+   > *"Built by a solo dev. Every $4.99 helps keep TripWave alive. ♥"*
 
 3. **Account page -- About section (small, inline)**
    > *"Made with ♥ by one person."*
@@ -612,15 +613,15 @@ Framed as gifts for supporters, not as withheld value:
 - Dream notifications never appear (no travel day, no countdown, no anniversary for dreams)
 - Dream ball color never matches real trip ball color exactly -- visual distinction is enforced at the color-picker level
 
-## 15. Conversion Rate Baseline and 50k-Sale Math
+## 15. Conversion Rate Baseline and 70k-Sale Math (updated 2026-04-20)
 
-TripWave plans for a **3-4% premium conversion rate** among cumulative users. This is the honest mid-market assumption for a "one-time impulse unlock" consumer app where the free tier is genuinely useful. Higher (5-10%) would require premium features users cannot live without; lower (1-2%) is defensive pessimism that would force marketing to scale by pure volume instead of conversion quality.
+TripWave plans for a **3-4% premium conversion rate** among cumulative users. This is the honest mid-market assumption for a "one-time impulse unlock" consumer app where the free tier is genuinely useful. The 70k target (up from prior 50k) reflects the higher expected conversion at the final $4.99 price point vs the originally planned $4.99; market data for emotional supporter purchases clusters strongly at $4.99 with conversion ~2× vs $9.99+ utility-tier pricing.
 
 ### The math at 3-4%
 
-- **3% conversion**: ~1.67M cumulative users needed to hit 50k sales
-- **4% conversion**: ~1.25M cumulative users needed
-- **Blended planning target**: ~1.4M cumulative users over 5 years
+- **3% conversion**: ~2.33M cumulative users needed to hit 70k sales
+- **4% conversion**: ~1.75M cumulative users needed
+- **Blended planning target**: ~2M cumulative users over 5 years
 
 ### Ramp estimate (S-curve)
 
@@ -679,7 +680,7 @@ Indicator: end of year 2 around 80k users with ~2k premium sales vs ~4k target.
 Response: **Low-risk levers that cost near nothing. Still no paid ads. Still no expensive partnerships.**
 
 - **Editorial pitching**: personal email outreach to 5-10 travel publications (Condé Nast Traveler, AFAR, The Points Guy, Thrillist, travel Substack writers). Cost: $0. Time: one afternoon. Worst case: no replies. Best case: one feature drives 10-50k users
-- **Family plan ($14.99)**: one-time dev work, then self-sustaining revenue stream. $14.99 covers one primary account plus 3 secondary household accounts, all premium. Introduces a second SKU without displacing the $7.99 individual unlock. Likely captures ~15-20% of buyers who would otherwise not buy at all
+- **Family plan ($14.99)**: one-time dev work, then self-sustaining revenue stream. $14.99 covers one primary account plus 3 secondary household accounts, all premium. Introduces a second SKU without displacing the $4.99 individual unlock. Likely captures ~15-20% of buyers who would otherwise not buy at all
 - **Dream Mode content push**: create curated public dreams on the TripWave marketing site (*"Dream: a week in Tulum"*, *"Dream: family reunion at Lake Tahoe"*) as SEO and social sharing bait. Each public dream is a landing page that can rank in Google and get screenshot-shared
 - **NOT in Tier 2**: paid ads. The $2k test budget was attractive in a funded scenario but the solo-dev no-cash reality means we do not spend money on acquisition. Paid ads get deferred until revenue exists to fund them
 
@@ -689,10 +690,10 @@ Indicator: end of year 3 with fewer than 200k total users.
 
 Response: **Structural product changes. Still no paid ads. Cost: dev time only.**
 
-- **Raise price to $9.99 for new purchases** -- grandfathered founders keep $4.99, prior $7.99 buyers keep their lifetime unlock. The price-raise moment itself becomes marketing (*"Prices going up Friday. Founder's window closes. Grab $7.99 while it lasts."*)
+- **Raise price to $9.99 for new purchases** -- grandfathered founders keep $2.99, prior $4.99 standard buyers keep their lifetime unlock. The price-raise moment itself becomes marketing (*"Prices going up Friday. Grab $4.99 while it lasts."*)
 - **Tighten free tier to 3 slots** -- requires a polite in-app communication banner explaining: *"Free tier updated: 3 slots now, up to 4 bonus via referrals. Premium unlimited as always."*
 - **Rewarded ads for bonus slots** -- users can watch a 30-second video ad to earn a bonus free slot (capped at +1/year regardless of referrals). 5-10x the eCPM of banners. Only triggers under Tier 3 conditions because building rewarded ad infrastructure is non-trivial
-- **Honest reality-check**: if Tier 3 is reached and the levers do not close the gap within 12 months, the solo-dev economics of TripWave may not support the 50k target. Options at that point: (1) continue as a lifestyle product at whatever scale it finds, accepting lower total revenue, (2) open-source the project and pivot, (3) explore acquisition interest from a larger travel company
+- **Honest reality-check**: if Tier 3 is reached and the levers do not close the gap within 12 months, the solo-dev economics of TripWave may not support the 70k target. Options at that point: (1) continue as a lifestyle product at whatever scale it finds, accepting lower total revenue, (2) open-source the project and pivot, (3) explore acquisition interest from a larger travel company
 
 ### What the tiered plan explicitly rejects (even in Tier 3)
 
@@ -729,12 +730,12 @@ Combined multiplicative haircut: ~0.38
 - Realistic range after haircuts: **$76k to $152k**
 - Planning number: the midpoint, **~$100k over 5 years**
 
-### Revised full revenue model
+### Revised full revenue model (updated 2026-04-20)
 
-- Premium sales: ~$280k net
+- Premium sales: ~$243k net (70k sales at $4.99 standard / $2.99 founder's; see § 11)
 - Ad revenue (realistic): **~$100k net**
 - Affiliate (conservative 10% of aspirational model): ~$500k gross
-- **Combined realistic 5-year revenue: ~$730k**, back-loaded toward years 3 through 5
+- **Combined realistic 5-year revenue: ~$693k**, back-loaded toward years 3 through 5
 
 Affiliate remains the largest revenue stream by a wide margin. Premium is second. Ads are third and primarily serve as baseline cover for infrastructure plus a thin margin.
 
@@ -759,22 +760,22 @@ TripWave uses **USD pricing on the web** (via Stripe) and **platform-native pric
 
 | Platform | US / CA / UK / EU / AU | India | Brazil | Southeast Asia | Rest of world |
 |---|---|---|---|---|---|
-| Web (Stripe) | $7.99 USD | $7.99 USD | $7.99 USD | $7.99 USD | $7.99 USD |
-| iOS / Android | $7.99 (Tier 8 equivalent) | ~₹199 (~$2.40) | ~R$14 (~$2.80) | ~$2.99-4.99 | platform tier |
+| Web (Stripe) | $4.99 USD | $4.99 USD | $4.99 USD | $4.99 USD | $4.99 USD |
+| iOS / Android | $4.99 (Tier 5 equivalent) | ~₹199 (~$2.40) | ~R$14 (~$2.80) | ~$2.99-4.99 | platform tier |
 
 ### Rationale
 
 - Web buyers skew wealthier and higher-intent (credit cards, laptops, stable connections). Single USD pricing is honest and simple
 - Mobile buyers span every economic tier globally. Platform pricing lets Apple and Google handle currency, tax, and regional legal compliance
-- A user in any country can choose either -- web at $7.99 or mobile at their local tier. No one is locked out
+- A user in any country can choose either -- web at $4.99 or mobile at their local tier. No one is locked out
 
 ### Founder's pricing applied
 
-- Web: $4.99 USD for the first 1,000 founders
-- Mobile: Tier 5 equivalent for the first 1,000 founders
+- Web: $2.99 USD for the first 1,000 founders
+- Mobile: Tier 3 equivalent for the first 1,000 founders
   - India: ~₹99 (~$1.20)
   - Brazil: ~R$9 (~$1.80)
-  - US: $4.99
+  - US: $2.99
 - Emerging-market founders are strategically valuable for reviews, word-of-mouth, and downstream referrals even at deeper local discounts
 
 ### What we explicitly do NOT do
@@ -796,7 +797,7 @@ TripWave uses **USD pricing on the web** (via Stripe) and **platform-native pric
 
 ## 19. Pre-Launch Audience Building
 
-Launch day at zero audience = zero sales. The founder's $4.99 pricing only works if someone sees it. Every successful indie app accumulates an audience over 3 to 12 months before launch. TripWave plans a **three-channel pre-launch strategy** that costs only time, not money.
+Launch day at zero audience = zero sales. The founder's $2.99 pricing only works if someone sees it. Every successful indie app accumulates an audience over 3 to 12 months before launch. TripWave plans a **three-channel pre-launch strategy** that costs only time, not money.
 
 ### The three channels (all three run simultaneously for 6 months pre-launch)
 
@@ -822,7 +823,7 @@ Goal: 1,500 to 5,000 addresses by launch day.
 - Landing page at the TripWave domain during pre-launch
 - Shows the product design, the slogan, a demo of the trip ball, a single email capture
 - Headline: *"TripWave is coming. Plan the trip. Not the group chat."*
-- Below the fold: a warm honest paragraph about why the app is being built, the solo-dev reality, and the $4.99 founder pricing
+- Below the fold: a warm honest paragraph about why the app is being built, the solo-dev reality, and the $2.99 founder pricing
 - One weekly email during build period -- short, warm, not marketing-speak
 - Landing page URL dropped in:
   - Product Hunt "upcoming" page (free)
@@ -845,7 +846,7 @@ Goal: become a recognized, trusted member of ONE specific travel community.
 - **T-minus 6 months**: start all three channels
 - **T-minus 3 months**: waitlist ~500, build-in-public ~300 followers, community trust established
 - **Launch week**: waitlist ~1,500-2,000, community primed for beta, build-in-public audience ~1,000-2,000
-- **Launch day**: single email to waitlist, *"Founder's access opens in 2 hours. $4.99 forever, 1,000 spots."*
+- **Launch day**: single email to waitlist, *"Founder's access opens in 2 hours. $2.99 forever, 1,000 spots."*
 
 With this plan, founder's 1,000 spots realistically sell out in 3 to 8 weeks. Without it, sell-out takes 6 to 18 months or never.
 
@@ -910,7 +911,7 @@ TripWave uses a **generous 30-day no-questions-asked refund policy** on web purc
 - **Chargeback prevention**: easy refunds mean users email rather than call their bank. One refund costs $0 operational; one chargeback costs $15 + the refunded amount
 - **Low support volume**: at 2-3% refund rate among 1,000 buyers, that is 20-30 emails total per cohort -- handleable as one short email every few days
 - **Trust signal**: generous refund policy is itself marketing. Users screenshot it, share it, trust the brand more. Reinforces the supporter framing
-- **Abuse risk is negligible at $7.99**: gaming a refund policy for a cheap one-time purchase is not economically rational for bad actors
+- **Abuse risk is negligible at $4.99**: gaming a refund policy for a cheap one-time purchase is not economically rational for bad actors
 
 ### Refund policy checks and balances
 
@@ -928,7 +929,7 @@ TripWave uses a **generous 30-day no-questions-asked refund policy** on web purc
 
 ## 21. Family Plan -- Tier 2 Contingency SKU
 
-Specced now so it is ready to deploy if Tier 2 contingency triggers. Not launched at day one because it would fragment the *"$7.99 one-time"* pricing story.
+Specced now so it is ready to deploy if Tier 2 contingency triggers. Not launched at day one because it would fragment the *"$4.99 one-time"* pricing story.
 
 ### Product
 
@@ -981,12 +982,12 @@ Specced now so it is ready to deploy if Tier 2 contingency triggers. Not launche
 
 - $14.99 covers 4 people = $3.75 per premium seat (~47% of the individual price)
 - Expected to capture 15-20% of buyers who would otherwise not buy at all (net-positive revenue)
-- Loss case: families where all 4 would have bought individually anyway ($31.96 → $14.99 = $16.97 left on table)
+- Loss case: families where all 4 would have bought individually anyway ($19.96 → $14.99 = $4.97 left on table)
 - Expected blended impact: accretive to total revenue at typical family purchase behavior
 
 ### Why ship only at Tier 2 contingency
 
-- Launching with one clean price ($7.99 one-time) is the strongest pricing story
+- Launching with one clean price ($4.99 standard one-time) is the strongest pricing story
 - Introducing Family Plan later can double as a "we listened, more value" marketing moment
 - If the solo plan alone hits 50k target, the family plan may never be needed -- saves dev work
 
@@ -1037,7 +1038,7 @@ Eight screenshots in narrative order. Each has a bold caption in the top third a
    - Expenses balances hero
 7. **"Dream trips too. Share them with your crew."**
    - Dream Mode with sparkle ball and shareable feel
-8. **"$7.99 once. No subscriptions. Built by one person. ♥"**
+8. **"$4.99 once. No subscriptions. Built by one person. ♥"**
    - Warm supporter close; ocean-color background; solo-dev signature
 
 Visual consistency across all screenshots:
@@ -1077,7 +1078,7 @@ Opens with the problem hook, transitions to the solution, closes with the solo-d
 >
 > *Plan itineraries together. Split expenses fairly. Build packing lists. Vote on dinner. Share dream trips with your best friend. All in one calm place.*
 >
-> *Ad-supported free forever. $7.99 one-time unlocks no ads, offline mode, and bonus features as a thank-you. Built by one person. No subscriptions, no guilt, no corporate anything. ♥*
+> *Ad-supported free forever. $4.99 one-time unlocks no ads, offline mode, and bonus features as a thank-you. Built by one person. No subscriptions, no guilt, no corporate anything. ♥*
 
 ### Developer name
 
@@ -1171,3 +1172,72 @@ Non-blocking, dismissible. The solo-dev voice priming personally converts better
 - Should receipt scanning have a usage cap even for premium users, or unlimited?
 - Which affiliate programs to sign up with first (Booking.com and Skyscanner are the easiest / highest-volume starts)?
 - Should the Find-flights / Find-hotels tools be built as a priority for v1 launch, or deferred until after the first 1,000 founder sales?
+
+## 25. Upgrade Surfaces and Ad Zones (locked 2026-04-20)
+
+### In-app premium discovery
+
+Premium is not pushed at the user. It is surfaced once at maximum emotional resonance, then rests in a low-key account setting. No persistent dashboard card, no banner nudges, no repeated prompts.
+
+**Surface 1 — Post-first-trip prompt (fires once per account, lifetime)**
+
+Trigger: the organizer's first trip moves to Vaulted (trip completed) OR the InProgress → Stale transition fires 30 days post-end-date.
+
+- A card appears on the dashboard idle state (not a modal, not a blocker)
+- Copy: *"You just pulled off a whole trip. That's no small thing. Want to support TripWave and get some bonus features as a thank-you?"*
+- CTA: *"Support the app — $4.99 once"*
+- Secondary link: *"Maybe next time"* (card dismisses permanently)
+- Fires once, never again regardless of future trips completed
+
+**Surface 2 — Account menu ("Support the app" entry)**
+
+- A single line in the account / profile dropdown: *"Support TripWave ♥"*
+- Always present, always quiet
+- Taps into the premium purchase sheet
+
+**Surface 3 — Natural inline paywalls (at premium feature gates)**
+
+- Offline access: inline card at the moment a user loses connectivity mid-trip
+- Receipt scan: inline card below the "Scan receipt" button
+- Ad removal: small *"Remove ads — $4.99"* link on the ad unit itself
+- All inline cards use the supporter framing (warm, not salesy)
+
+**What we explicitly do NOT do:**
+
+- Persistent "Get Premium" banner on the dashboard
+- Upgrade nudge emails (we send no marketing emails)
+- Exit-intent or timed popups
+- Any prompt in Travel Day focus mode or Vacation Day (protected surfaces)
+
+### Ad zones — canonical placement (locked 2026-04-20)
+
+**Format: banner + native card hybrid**
+
+**Permitted ad placements (free tier only):**
+
+| Surface | Format | Notes |
+|---|---|---|
+| Dashboard idle state | Bottom-fixed banner | Below the trip card list; hidden when a trip card is actively focused |
+| Preplanning hub | Native card | Inserted after the 3rd or 4th section tile; styled as a section card with small *"Sponsored"* label in the corner |
+| Vault / Memory page | Bottom-fixed banner | User is in a nostalgic, relaxed browsing mode |
+| Between preplanning sections (scrolled past) | Native card | Inserted once per section list when user scrolls past completed sections |
+
+**Permanently ad-free surfaces (all users):**
+
+- Entire Travel Day (all phases — planning editor and focus mode)
+- Entire Vacation Day (all views)
+- Mid-expense entry or expense list
+- Polls, active voting cards
+- Any modal, sheet, or full-screen overlay
+- Onboarding and setup flows
+- Invite flow
+
+**Format rules:**
+
+- No interstitials — ever
+- Banner max height: 50px fixed at bottom (does not scroll)
+- Native card max height: same as a standard section tile; rounded corners matching tile style; *"Sponsored"* label in 10px small-caps in upper right corner
+- Ads never animate (respects Liquid Motion System — only TripWave elements animate)
+- Ad unit background matches the dark surface system; no white-background ad cards
+
+**Premium behavior:** all ad placements permanently hidden on premium accounts. No ads appear anywhere for premium users.

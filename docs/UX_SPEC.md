@@ -538,7 +538,7 @@ Each tab has its own empty-state messaging:
 
 ## 9. Travel Day -- Mode Behavior
 
-**Status:** locked (2026-04-17)
+**Status:** locked (2026-04-20)
 
 Travel Day combines **auto-route-on-open** with a dedicated **focus mode** that activates during the actual travel day. Outside of travel-day windows, Travel Day behaves as a normal planning phase.
 
@@ -546,7 +546,7 @@ Travel Day combines **auto-route-on-open** with a dedicated **focus mode** that 
 
 - **T-minus weeks to days (planning window)**
   - Travel Day is a normal phase in the sidebar
-  - Card-based editor: user builds the checklist (passport, arrive 2 hours before, group meetup at hotel lobby, etc.)
+  - Card-based editor: user builds the checklist using task groups and inline quick-add (see § 38 for full editor spec)
   - No focus mode, no invasive UI
 
 - **T-minus 24 hours**
@@ -558,7 +558,7 @@ Travel Day combines **auto-route-on-open** with a dedicated **focus mode** that 
   - **Focus mode activates automatically**
   - Sidebar collapses to a narrow icon strip (still clickable for navigation)
   - Top bar replaced with a minimal status strip: *"Depart at 6:00 PM · Leave home by 3:30 PM · 2 items pending"*
-  - Main view shifts from card editor to **execution mode**: a single vertical checklist with giant tap targets, sorted by time, with the current "up next" item enlarged and highlighted
+  - Main view shifts from card editor to **execution mode**: single-task-at-a-time with giant Done / Skip targets. Your tasks appear first; others' tasks visible in a collapsed *"Everyone else"* section below (see § 38 per-member view)
   - Other phases dim in the sidebar (still accessible, just de-prioritized)
 
 - **During travel segments (at airport, on plane, at transfer)**
@@ -566,10 +566,16 @@ Travel Day combines **auto-route-on-open** with a dedicated **focus mode** that 
   - Completed items collapse upward
   - Upcoming items expand downward
 
-- **Post-arrival**
-  - Focus mode exits automatically
-  - Normal workspace returns
-  - Travel Day page remains navigable for records
+- **Post-arrival — two paths**
+  - **Happy path (all tasks done or skipped):** completing the final task triggers the post-arrival screen (*"You made it. ♥"*) immediately. Tapping *Open Vacation Day* on that screen confirms arrival and transitions state TravelDay → InProgress.
+  - **Early-exit path (user exits focus mode before completing):** focus mode can be exited at any time. A *"Mark as arrived"* CTA surfaces on the trip overview for users who exited without completing. State transitions at 23:59 local automatically regardless.
+  - Incomplete tasks at 23:59 are archived into the Travel Day post-arrival record (read-only) — they are not surfaced as a guilt-trip or morning-briefing nag. The record shows what was done, skipped, and incomplete for reference only.
+  - Normal workspace returns after arrival confirmation or 23:59 auto-transition.
+  - Travel Day page remains navigable as a read-only record.
+
+### Offline behavior
+
+The Travel Day checklist is **fully functional offline for all users — free and premium.** Checklist data is lightweight and cached on last sync. Free users can view and check off tasks without a connection. This is a safety feature, not a premium differentiator. Paywalling the travel-day checklist offline would be a trust-destroying experience at the highest-stress moment. Premium offline covers richer content (itinerary detail, vault documents); the checklist itself is always accessible.
 
 ### Focus mode design principles
 
@@ -596,7 +602,7 @@ Travel Day combines **auto-route-on-open** with a dedicated **focus mode** that 
 
 ## 10. Vacation Day -- Daily Coordination Shape
 
-**Status:** locked (2026-04-17)
+**Status:** locked (2026-04-20)
 
 Vacation Day is a single-page "Today" feed with a warm morning briefing, today's events, a group activity strip, quick actions, and a peek-tomorrow link at the bottom.
 
@@ -605,36 +611,44 @@ Vacation Day is a single-page "Today" feed with a warm morning briefing, today's
 - **Morning briefing card**
   - Large and warm, color-themed to the trip's ball color
   - Updates once per day at local sunrise
-  - Greeting by time of day: *"Morning! Day 4 in Tokyo."*
-  - Mini-summary: *"3 events today · 2 reservations · weather 68° and cloudy"*
+  - Greeting personalized by user's name and time of day: *"Morning, Chris! Day 4 in Tokyo."*
+  - Mini-summary: *"3 events today · 2 reservations · weather 68° and cloudy"* — weather powered by Open-Meteo free API (destination + date). Not deferred; ships with v1.
   - First thing on the agenda highlighted: *"Up next: breakfast at hotel · 8:00 AM"*
   - Dismissible per day -- collapses to a small bar if user dismisses
 
 - **Today's events**
   - Itinerary-style cards for today only, sorted by time
   - Same card anatomy as the itinerary phase (left stripe, icon, time, location)
-  - Completed events dim and collapse upward
+  - **Event completion:** automatic — events complete when their end time passes (or start time + 1 hr for events without an end time). Completed events dim to 60% opacity and collapse upward with checkmark ripple (per § 39). Users can complete early via long-press → *Mark done*, or undo via long-press → *Undo complete*. Completion state is shared with the itinerary phase — one record, one state.
   - Currently-active event has a subtle live indicator (dot or glow)
+  - All members see the same event list (personalization is greeting-only)
 
 - **"What changed today" strip**
   - Small horizontal scroll of activity chips
   - Examples: *"Sarah added dinner suggestion"*, *"Mom paid $80 for taxi"*, *"Poll started: tonight's bar"*
   - Each chip taps through to its source
+  - **Hidden entirely when no activity has occurred today** — no placeholder, no filler
 
-- **Quick actions row** -- always visible
-  - Add event (to today or upcoming)
-  - Log expense (quick mode: what, how much, paid by whom, split how)
-  - Start poll (quick mode: question, options)
+- **Quick actions row** -- always visible, full page is ad-free (see Ad suppression)
+  - **Add event** — defaults to today. Tap opens standard add modal (§ 7a). Swipe-right opens minimal capture: title field only (today, Note type). No day picker on swipe-right.
+  - **Log expense** — tap opens standard expense modal. Swipe-right opens minimal capture: amount field only, current user as payer, even split, today's date.
+  - **Start poll** — tap opens standard poll flow. Swipe-right opens minimal capture: question field only, 2 blank options pre-added.
 
 - **Peek tomorrow link**
   - Small link at the bottom: *"Tomorrow: Day 5, hike at Shinjuku Gyoen"*
-  - Tap expands tomorrow inline or routes to itinerary
+  - Tap expands tomorrow's events inline or routes to itinerary at tomorrow's day
+  - **On the final day of the trip:** if a return travel leg exists in the itinerary, replaces with *"Tomorrow: Travel Day home."* linking to the return-leg Travel Day. If no return leg, replaces with *"Last day! Settle up expenses before you head home."* linking to Expenses.
 
 ### Auto-activation rules
 
-- During in-progress trip days, opening the trip auto-routes to Vacation Day
+- During InProgress state days, opening the trip auto-routes to Vacation Day
+- TravelDay state overrides Vacation Day auto-route — on travel-leg dates, the app routes to Travel Day (§ 9), not Vacation Day
 - No focus mode -- vacation should feel flexible, not locked-down
 - Users can navigate to other phases anytime without friction
+
+### Ad suppression
+
+The **full Vacation Day page is ad-free** for all users (free and premium). Same treatment as Travel Day focus mode. Vacation Day is TripWave's highest-emotion in-trip surface — the day-in-the-moment experience that drives word-of-mouth and retention. An ad banner while checking "sushi reservation at 7pm" cheapens it. *"No ads while you're actually on your trip"* is a warm, honest free-tier differentiator.
 
 ### Why a single "Today" feed
 
@@ -822,7 +836,7 @@ Two-way linking:
 
 ## 12. Polls -- Page Layout
 
-**Status:** locked (2026-04-17)
+**Status:** locked (2026-04-20, grill extended)
 
 The Polls phase uses **big voteable cards for active polls** stacked on top of a compact row list of closed polls.
 
@@ -874,11 +888,43 @@ The Polls phase uses **big voteable cards for active polls** stacked on top of a
 - Tabs would hide active polls behind a click
 - A chronological feed would mix live and dead polls confusingly
 
+### Who can start polls
+
+- All Standard+ members can start polls by default
+- Organizer can restrict to Trusted+ only via trip settings
+- Small grey label on the *Start a poll* button when restricted: *"Organizer-only"* with button hidden for restricted users
+
+### Poll close behavior
+
+- When a poll closes (expiry hits or organizer closes manually): all members receive a group notification
+- Notification highlights the winning option by name: *"[Question] — [Winner] won!"*
+- Tied polls notify with co-winners: *"[Question] — It's a tie: [A] and [B]"*
+
+### Tie-breaking
+
+- Ties are surfaced as co-winners — both options shown with equal visual treatment in the closed poll row
+- No forced auto-break. The group decides organically (second poll, trip ball, chat)
+- *Convert to itinerary item* action appears for each co-winner option independently so the organizer can choose
+
+### Anonymous mode
+
+- Creator toggles anonymous at poll creation via a labelled switch: *"Anonymous voting"*
+- Anonymous polls show vote counts as a bar but no voter avatars
+- Creator can see counts update in real time; no individual attribution shown to anyone (including creator)
+- Mode cannot be changed after the first vote is cast
+
+### Blocking flag
+
+- Creator links a poll to a specific itinerary item at creation: *"This decision affects: [item name]"*
+- Linked item gains an orange flag badge on its itinerary card: *"Pending poll decision"*
+- Badge clears when the poll closes and the winning option is chosen (or organizer dismisses manually)
+- Blocking flag is optional; non-linked polls behave as before
+
 ---
 
 ## 13. Wishlist -- Layout and Promotion Mechanics
 
-**Status:** locked (2026-04-17)
+**Status:** locked (2026-04-20, grill extended)
 
 Wishlist uses a **hot-section-plus-full-list** layout with explicit *Like* and *Add to itinerary* actions on every idea card.
 
@@ -934,6 +980,32 @@ When the organizer disables participant adds:
 - Explicit *Add to itinerary* button on every card keeps the promote moment one tap away
 - Pinterest-style pinboards assume image-rich content; many wishlist items are just text
 - Categories add friction to a feature that should feel loose and brainstormy
+
+### Like counting rules
+
+- Self-likes do not count toward the "group is into" threshold
+- Only other members' likes move an idea toward the hot section
+- The heart icon still taps/untaps for self-expression; the count display excludes the idea's own author
+- Threshold for hot-section promotion: 2+ non-self likes (unchanged from original spec)
+
+### Wishlist persistence in Vaulted trips
+
+- All wishlist ideas persist read-only in the Vaulted trip record
+- Ideas that were never promoted to the itinerary are visible in the vault alongside the closed itinerary
+- No writes permitted on a Vaulted wishlist; the section shows a *"Trip vaulted — this wishlist is a memory"* header note
+
+### Default add permission
+
+- Open by default: all Standard+ members can add ideas without restriction
+- Organizer may flip to Restricted mode (organizer-only) via trip settings at any time
+- Switching modes does not remove existing ideas; it only gates new additions
+
+### Link preview behavior
+
+- Any idea submitted with a URL renders as a styled link card regardless of whether OG tags are present
+- OG title + image used when available
+- Fallback (no OG tags): domain name + favicon as the card header; title field from the idea form as the card body
+- No broken-preview state: the card always renders with at least the domain name
 
 ---
 
@@ -2744,19 +2816,40 @@ When a user checks an item:
 
 ## 38. Travel Day -- Fun Treatment on Neon-on-Dark (Focus Mode)
 
-**Status:** locked (2026-04-17)
+**Status:** locked (2026-04-20)
 
-Travel Day's structural behavior (auto-route + focus mode on the day of, normal planning phase otherwise) is already locked in section 9. This section specifies the calm-neon-plus-encouraging-companion treatment for focus mode, plus the neon-on-dark styling for the planning-phase view.
+Travel Day's structural behavior (auto-route + focus mode on the day of, normal planning phase otherwise) is locked in section 9. This section specifies the planning-phase editor anatomy, plus the calm-neon-plus-encouraging-companion treatment for focus mode.
 
-### Planning phase (far from trip)
+### Planning phase — task editor
 
-Standard neon-on-dark treatment like other phases:
+Standard neon-on-dark treatment. The editor is built around segment groups and inline quick-add.
 
-- Editor layout for building the travel-day checklist
-- Ordered task groups (pre-departure, at home, at airport, in the air, at arrival)
-- Each task: time, description, responsible traveler
-- Add / edit / reorder freely
-- Neon pink phase color for Travel Day in the sidebar
+**Segment groups (default order, user-reorderable):**
+- Pre-departure · At airport · In the air · At arrival
+- Each segment is a collapsible group header (Fredoka white, neon-pink accent, drag handle for reorder)
+- Segments can be renamed, reordered (drag), and new custom segments added
+- Segment ordering persists server-side per trip
+
+**Task anatomy:** description · segment (implied by group) · optional time · optional responsible traveler · optional notes
+
+**Add task flow (hybrid inline + modal):**
+- *+ Add task* link at the bottom of each segment group opens an inline input row in that group. Description field is focused immediately. Segment is implied by the group.
+- A *+ More* tap inside the inline row expands optional fields: time picker, responsible traveler selector, notes.
+- Three-dot → Edit on an existing task opens a slide-up modal (mobile) / side-panel (desktop) with all fields for full editing.
+- Quick-add on Enter keeps focus for chained task adds within the segment.
+
+**Task reorder:**
+- Drag handle on each task row; tasks reorder within their segment via drag.
+- Segment headers also have a drag handle; segments themselves reorder via drag (two-level drag, same pattern as packing categories + items).
+- Dragging a task across a segment boundary moves it to the new segment.
+
+**Generate checklist button:**
+- Empty editor state shows a *"Generate a checklist from your trip"* primary CTA alongside the blank segment groups.
+- Tapping auto-populates tasks derived from the trip's transport modes and itinerary Transport events (departure times, flight numbers, leg transitions). Users who want a smart start get one tap; users who want to build their own list ignore it.
+- Generated tasks are immediately editable — they're a starting point, not a locked template.
+- Itinerary Transport events referenced during generation remain separate records (no shared data model). After generation, tasks and itinerary items evolve independently.
+
+**Neon pink phase color** for Travel Day in the sidebar and segment headers.
 
 ### T-minus 24 hours (attention state)
 
@@ -2775,14 +2868,18 @@ Layout stripped down:
 
 ### Main view: single-task-at-a-time
 
+**Your tasks first, group context below.**
+Focus mode filters to tasks where the current user is the responsible traveler (or tasks with no responsible traveler assigned, which appear for everyone). These dominate the single-task-at-a-time view. Below the user's task stack, a collapsed *"Everyone else · [N] tasks"* section shows other members' task progress as read-only status chips — enough context without cluttering the execution view.
+
 - Current up-next task dominates the screen in a BIG card
 - Task title in massive Fredoka white (larger than anywhere else in the app)
 - Small subtitle: time / location / responsible traveler
 - Two giant tap targets:
-  - **Done** -- neon green, ~72px tall, massive tap surface
-  - **Skip** -- smaller, dark-elevated, for not-applicable tasks
-- Above: horizontal scroll of completed tasks at fading opacity
+  - **Done** — neon green, ~72px tall, massive tap surface
+  - **Skip** — smaller, dark-elevated. Skip is per-leg: on a multi-leg trip the task reappears fresh on the next leg's Travel Day. Visual treatment: task collapses to faded *"Skipped"* label at the bottom of the segment; can be un-skipped. Does not count toward completion.
+- Above: horizontal scroll of completed + skipped tasks at fading opacity
 - Below: small preview card of the next task
+- **Manual add during focus mode:** a small *"+ Add task"* link at the bottom of the current segment. Opens a minimal inline input (description + time only). Does not disrupt the single-task layout.
 
 ### Encouraging-companion touches
 
@@ -2842,7 +2939,7 @@ Layout stripped down:
 
 ## 39. Vacation Day Page -- Fun Treatment on Neon-on-Dark
 
-**Status:** locked (2026-04-17)
+**Status:** locked (2026-04-20)
 
 Vacation Day structure (morning briefing + today's events + activity strip + quick actions + peek tomorrow) is already locked in section 10. This section adds the neon-on-dark treatment and the live "up next" pinned pill for right-now utility. Warm-scroll + live-moment hybrid.
 
@@ -2908,8 +3005,8 @@ Vacation Day structure (morning briefing + today's events + activity strip + qui
 ### Micro-interactions
 
 - Scroll past a completed event: card fades further (tells user "this is done")
-- Long-press event: opens edit modal (same as itinerary)
-- Swipe-right on a quick action button: triggers action immediately without a modal (fast logging)
+- Long-press event: opens action sheet — *Mark done* / *Undo complete* / *Edit* (same modal as itinerary § 7a) / *Cancel*
+- **Swipe-right on a quick action button**: opens a minimal one-field capture sheet (no full modal). Add event → title only (Note type, today). Log expense → amount only (current user as payer, even split, today). Start poll → question only (2 blank options pre-added). Swipe submits immediately after the single field; user can open the full modal afterward to add detail.
 - Tap trip ball in top-left: opens trip ball modal (consistent with other pages)
 
 ### Easter egg
@@ -3552,6 +3649,119 @@ Dream Mode is still a real workspace with real proposals, itinerary, budget.
 `/design-system` — **required before Step 2 mockup.** The bento-grid, 6-slot fixed outer geometry, large-scale UI type scale (~18px base body), and container-query responsive bands are new patterns not in DESIGN_SYSTEM.md today. Must land into DESIGN_SYSTEM.md before the shell mockup.
 `/design-critique` — **required** after Step 2 mockup, before implementation.
 `/design-handoff` — **required** before coding.
+`/accessibility-review` — **required** before shipping.
+
+---
+
+## 43. Scavenger Hunt -- Page Layout and Mechanics
+
+**Status:** locked (2026-04-20, grill complete)
+
+### Step 1 — Page detail inventory
+
+**Route:** `/app/trips/[tripId]/scavenger-hunt`
+
+**When accessible:**
+- Setup: any time after the trip reaches Planning state (organizer or Trusted members can build the challenge list)
+- Claiming / check-off: InProgress state only (during Vacation Day)
+- Pre-trip teaser: visible to all members from Planning onward (read-only challenge list, no claiming)
+
+**Vacation Day strip integration:**
+- Scavenger Hunt appears as a horizontal scroll strip inside the Vacation Day page during InProgress
+- Each challenge is a tappable pill: challenge name + completion badge (yours / group)
+- Tapping a pill navigates to the full Scavenger Hunt page with that challenge highlighted
+
+**Primary page sections (top to bottom):**
+1. Header: title *Scavenger Hunt* in Fredoka, points summary if competitive mode is on
+2. Challenge list: vertical stack of challenge cards (see anatomy below)
+3. Leaderboard strip (competitive mode only): horizontal scroll of member avatars + point totals
+4. Empty state (no challenges yet): illustration + *"Add the first challenge"* CTA (organizer / Trusted only)
+
+**Challenge card anatomy:**
+- Challenge name (bold)
+- Optional description / context note
+- Points badge (1–10, organizer-set; shown even in non-competitive mode as a completion weight)
+- Completion type chip: *Group* or *Individual*
+- Photo requirement chip: *Photo required* or *Photo optional*
+- Status: unclaimed / your claim (avatar + timestamp) / group-claimed (avatars)
+- Action: *Claim* button (InProgress only); *View evidence* if photo was submitted
+
+**Add challenge flow (organizer / Trusted):**
+- Slide-up sheet on mobile, modal on desktop
+- Fields: challenge name (required), description (optional), points (1–10, default 1), completion type (Group / Individual), photo requirement (none / optional / required)
+- Submit → challenge lands in a **pending queue** visible to organizer; member-suggested challenges require organizer approval before appearing on the main list
+
+**Pending queue (organizer view):**
+- Visible only to organizer (and co-organizers if applicable)
+- Each pending item: challenge name, who suggested it, *Approve* / *Reject* actions
+- Approved challenges appear on the main list immediately; rejected are silently removed
+
+**Permissions matrix:**
+- Organizer / Trusted: add challenges, approve / reject pending, edit any challenge, delete any challenge, toggle competitive mode
+- Standard+: suggest challenges (enter pending queue), claim challenges, submit photo evidence
+- Viewer: read-only (can see challenge list and leaderboard but cannot suggest or claim)
+
+**States:**
+- Planning (pre-trip): editable challenge list; no claiming; "Coming soon" badge on each card for non-editors
+- InProgress (Vacation Day): claiming open; editors can still add/edit
+- Post-trip / Vaulted: read-only; final scores preserved; leaderboard locked
+
+### Competitive mode
+
+- Off by default
+- Organizer opt-in via trip settings or the Scavenger Hunt page header toggle
+- When off: challenge completion is tracked but no leaderboard is shown; points display as completion weights only
+- When on: leaderboard strip visible; point totals update in real time as claims are approved (or auto-approved if no photo required)
+
+### Completion type (group vs individual)
+
+- Organizer sets per challenge at creation
+- **Group challenge:** first member to claim triggers a group notification; one completion marks the challenge done for everyone
+- **Individual challenge:** each member has their own claim state; points awarded independently
+
+### Photo evidence
+
+- Optional / required set per challenge at creation by organizer
+- **Required:** *Claim* button shows a camera sheet; claim is not submitted until a photo is attached
+- **Optional:** *Claim* button has an *Add photo* expander; claim submits immediately if skipped
+- **None:** *Claim* button is a one-tap action; no photo step
+- Photos are stored in the trip's Vault alongside other trip media
+
+### Vacation Day strip design
+
+- Horizontal scroll of tappable pill chips, one per challenge
+- Pill anatomy: challenge name (truncated to ~20 chars) + status dot (unclaimed = grey, your claim = cyan, group done = green)
+- Strip header: *"Scavenger Hunt"* label + *"X/Y complete"* count
+- Strip is hidden when no challenges exist; appears only once the first challenge is approved
+
+### Pre-trip teaser (Planning state)
+
+- Challenge list visible to all members as a read-only preview
+- Each card shows a *"Claiming opens when the trip starts"* label instead of the *Claim* button
+- Leaderboard strip hidden during pre-trip (no scores yet)
+- Purpose: builds anticipation; members can see what they're competing for
+
+### Points system
+
+- Organizer sets point value per challenge: 1–10 (integer)
+- Default: 1 if the organizer does not set a value
+- Points are additive; no multipliers
+- Leaderboard ranks by total points; ties shown as co-ranked with equal visual treatment
+
+### Why this design
+
+- Member-suggest with organizer approval keeps the list curated and prevents junk challenges while giving members creative ownership
+- Competitive mode off by default avoids making the feature feel mandatory; the group opts in when they want stakes
+- Per-challenge completion type (group vs individual) handles both *"find the hidden mural together"* and *"everyone try the spicy dish"* without a mode toggle
+- Photo evidence per-challenge avoids the all-or-nothing problem; some challenges need proof, others are trust-based
+- Vacation Day pill strip keeps the hunt visible without requiring members to navigate away during busy moments
+
+### Design skills
+
+`/user-research` — skipped (new feature, patterns derived from existing card + claim conventions).
+`/design-system` — **required** before Step 2 mockup: pill-strip component in Vacation Day, challenge card anatomy, pending queue pattern, leaderboard strip are all new patterns.
+`/design-critique` — **required** after mockup, before locking.
+`/design-handoff` — **required** before implementation.
 `/accessibility-review` — **required** before shipping.
 
 ---
