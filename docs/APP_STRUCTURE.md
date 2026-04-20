@@ -90,26 +90,23 @@ Purpose:
 - `/app/account`
 - `/app/account/premium` — upgrade prompt and purchase
 
-## Proposed Workspace Layout
+## Workspace Layout
 
-This is a working model — shell design decisions come before implementation.
+**Status:** Superseded 2026-04-20 — see **UX_SPEC.md § 42 Shell Layout and Navigation** for the canonical spec.
 
-### Global app shell
+The canonical shell is the bento-grid full-viewport layout locked in the 2026-04-20 shell grill (20 sub-decisions, 3 conflicts resolved). Summary:
 
-- top navigation bar
-- trip switcher
-- account and premium entry point
+- **Desktop:** full-viewport bento grid with six durable named slots (`nav-column`, `trip-ball`, `context-panel`, `primary`, `quick-add`, `activity-feed`) plus `ad-banner` on the free tier. Large-scale UI (~18px body). No empty space. Container-queries-first responsive strategy.
+- **Mobile:** top bar + horizontal scrollable phase pill bar + stacked content. No hamburger, no drawer, no bottom tab bar.
+- **Phase nav:** flat 11-phase chronology (Overview → Setup → Preplanning → Itinerary → Packing → Travel Day → Vacation Day → Expenses → Polls → Wishlist → Members) with Memory appearing only for Stale/Vaulted trips. Vault, Scavenger Hunt, Tools, and Notes are sub-navigation inside their host phases.
+- **Trip ball:** has its own bento slot on desktop; on mobile it lives in the compact top-bar area. Always visible except during Travel Day focus mode (reduced per § 9) and the five bento overrides.
+- **Five bento overrides:** Travel Day focus mode, Vaulted / Memory view, Invite-landing (unauthenticated), Trip Creation ritual, Zero-trip first-run. All other pages use the bento.
 
-### Trip workspace shell
-
-- trip ball visible in workspace header (always present, compact during travel day active mode)
-- phase navigation: left rail on desktop, collapsible sidebar on mobile (toggled via hamburger button in header)
-- main content area for active phase
-- context panel for recommended action, blockers, and alerts (integrated into workspace header or top of main content area)
+All other shell details — top bar contents, trip switcher, notification bell, account avatar dropdown, global search, context panel behavior, ad placement, premium entry points, breadcrumbs, Dream Mode treatment — are specified in UX_SPEC.md § 42.
 
 ### Trip Ball in workspace
 
-The trip ball sits prominently in the trip workspace header area. Its fill, animation state, and color reflect the trip's current health and phase. Clicking or tapping the ball opens trip health details. It is always visible during active trip planning.
+The trip ball occupies the `trip-ball` bento slot on desktop and the top-bar compact strip on mobile. Its fill, animation state, and color reflect the trip's current health and phase. Tapping opens the trip-health modal per UX_SPEC § 1. Hidden or collapsed only during the five bento overrides.
 
 ## Trip Phase Navigation
 
@@ -456,29 +453,9 @@ Until backend work lands, placeholder UI should explain:
 
 ## Mobile Navigation Pattern
 
-On mobile, the left-rail sidebar is hidden by default and revealed via a toggle. This is the locked navigation pattern -- there is no bottom tab bar.
+**Status:** Superseded 2026-04-20 by UX_SPEC.md § 42 (and specifically § 42.2 and § 20).
 
-### Header bar on mobile
-
-- hamburger toggle button on the left of the header
-- trip name or logo in the center
-- account avatar or notification bell on the right
-- trip ball appears below the header bar in a compact strip, always visible
-
-### Sidebar open state
-
-- slides in from the left with a smooth animation
-- covers approximately 80% of the viewport width (max 300px)
-- a semi-transparent overlay covers the content behind it
-- tapping the overlay or swiping the sidebar left closes it
-- sidebar uses the elevated surface color from the dark UI palette
-
-### Sidebar contents
-
-1. trip name and compact trip ball indicator at the top
-2. full phase navigation list with colored icons (same as desktop)
-3. active phase highlighted, recommended phase badged
-4. trip settings and account at the bottom
+The previous hamburger-to-slide-in-sidebar pattern was deprecated in the shell grill. Canonical mobile nav is a horizontal scrollable phase pill bar pinned below the top bar — see UX_SPEC.md § 42.2 and § 42.3. No hamburger, no drawer, no bottom tab bar.
 
 ## Dream Trip Mode
 

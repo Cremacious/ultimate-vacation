@@ -2965,3 +2965,299 @@ No new SKU, no new paywall copy, no new tier boundary. Premium add-ons use exist
 `/accessibility-review` — **required** before shipping.
 
 ---
+
+## 42. Shell Layout and Navigation — Canonical Spec
+
+**Status:** locked (2026-04-20, via 20-question shell grill)
+**Supersedes:** §§ 2 (Dashboard Layout), 20 (Mobile Phase Navigation), 26 (Trip Switcher), and APP_STRUCTURE.md's "Mobile Navigation Pattern" + "Proposed Workspace Layout" sections. This section is the single source of truth for shell, navigation, dashboard, and top-level chrome.
+
+This section consolidates every shell-and-navigation decision into one implementation-ready spec. If another section of UX_SPEC or APP_STRUCTURE contradicts this one, this section wins.
+
+---
+
+### 42.1 — Desktop shell: bento-grid full-viewport layout
+
+The desktop shell is a full-viewport bento-box grid — **not** a traditional sidebar + main content layout. Designed for the **couch-group use case**: multiple people gathered around a laptop discussing the trip, where every visible pixel earns its keep.
+
+**Principles:**
+- **No empty space.** The grid fills the viewport at every desktop breakpoint (1280 / 1440 / 1920 / 2560+).
+- **Large-scale UI.** Body text ~18px base, phase icons ~32–40px, touch targets 48px+, trip ball dominant.
+- **CSS Grid + container queries**, not media-query breakpoints, drive tile reflow.
+
+**Outer grid has six durable named slots (seven on the free tier):**
+
+| Slot | Purpose | Position |
+|---|---|---|
+| `nav-column` | Stacked phase cards (trip workspace) or trip cards (non-trip pages) | Left, full height |
+| `trip-ball` | Prominent ball card, current trip's ball at fill % | Top of content area |
+| `context-panel` | Next best action + blockers (always present, never disappears) | Fixed position across all pages |
+| `primary` | The largest tile; phase-specific content | Center/right |
+| `quick-add` | Log Expense / Create Poll / Create Scavenger Hunt challenge | Fixed position |
+| `activity-feed` | Recent state-change log | Fixed position |
+| `ad-banner` *(free tier only)* | Native-style sponsored card; premium users see this reclaimed for breathing room | Low-profile placement |
+
+**Outer geometry never changes** when switching phases. The `primary` tile's *inner* sub-layout reshapes per phase.
+
+---
+
+### 42.2 — Mobile shell: top bar + pill bar + stacked content
+
+- **Top bar** (~44px, see § 42.5 for contents).
+- **Phase pill bar** (~44px, sticky below top bar, horizontal scroll, auto-centers active phase, gradient fade on right edge).
+- **Main content** (single column, stacked).
+- **Ad banner** (free tier, 320×50, fixed bottom).
+
+No hamburger menu. No drawer. No bottom tab bar.
+
+---
+
+### 42.3 — Phase navigation (canonical ordering)
+
+Both desktop nav column and mobile pill bar render the same canonical list.
+
+**Flat, 11 phases in trip-chronology order:**
+
+1. **Overview**
+2. **Setup**
+3. **Preplanning**
+4. **Itinerary**
+5. **Packing**
+6. **Travel Day**
+7. **Vacation Day**
+8. **Expenses**
+9. **Polls**
+10. **Wishlist**
+11. **Members**
+
+**Settings** — gear icon pinned at the pill bar's end / bottom of nav column. Not counted in the 11.
+
+**Memory** — a 12th phase, visible only when the trip's lifecycle state is Stale or Vaulted.
+
+**Sub-navigation (not top-level phases):**
+- **Vault** lives inside Preplanning (documents section).
+- **Scavenger Hunt** lives inside Vacation Day (active-challenge strip).
+- **Tools** are surfaced contextually from the phases that need them.
+- **Notes** lives inside each phase as a contextual panel.
+
+Each phase pill/card carries its phase color.
+
+---
+
+### 42.4 — Responsive strategy (container-queries-first)
+
+No hard viewport breakpoints. Layout driven by container queries against the shell root:
+
+- **Below ~900px available width:** compact mode — top bar + pill bar + stacked content.
+- **At or above ~900px:** bento mode — full bento grid per § 42.1.
+- **Internal bento bands:**
+  - 900–1279px (small bento) — compact tile heights.
+  - 1280–1919px (standard bento) — generous tile heights, slightly larger type.
+  - 1920–2559px (wide bento) — 7-slot grid with activity-feed expansion.
+  - 2560px+ (ultra-wide) — 7-slot at max comfortable size; remaining space as padding.
+
+Container-driven, not media-driven.
+
+---
+
+### 42.5 — Top bar contents (form-factor differentiated)
+
+**Desktop top bar (left → right):**
+`[Logo mark]` · `[Trip switcher pill]` · `[Global search]` (Cmd/Ctrl+K) · · · `[Premium status badge]` · `[Notification bell]` · `[Account avatar]`.
+
+**Mobile top bar (left → right):**
+`[Logo mark]` · `[Trip switcher pill]` (smaller) · · · `[Notification bell]` · `[Account avatar]`.
+
+No global search on mobile. No premium badge on mobile top bar (avatar dropdown carries the mobile premium entry).
+
+---
+
+### 42.6 — Trip switcher dropdown
+
+Tap the trip switcher pill to open a dropdown (desktop) or bottom sheet (mobile):
+
+1. **Current trip** (top, grayed, labeled *(current)*).
+2. **Search input** — visible only when the user has 4+ trips. Filters by name in real time.
+3. **Active section** — upcoming (Ready) + in-progress trips. Row: ball, name, countdown. Tap → trip's recommended phase.
+4. **Planning section** — Draft + Planning state trips.
+5. **Archived section** — Stale + Vaulted. Collapsed by default.
+6. **Footer** — *All trips* → `/app` · *New trip* (opens Creation ritual).
+
+Dismisses on outside click / Escape / swipe-down.
+
+---
+
+### 42.7 — Notification bell
+
+Tapping opens a dropdown panel (~380px desktop, full-width bottom sheet mobile):
+
+- **Header:** *"Notifications"* + *"Mark all read"*.
+- **Body:** scrollable list, newest first. Category color dot (per § 25), text, timestamp, optional CTA. Unread rows have a neon-left accent.
+- **Footer:** *"See all activity"* — current trip's activity feed, or cross-trip activity from dashboard.
+
+Unread count badge on the bell; clears as panel opens.
+
+---
+
+### 42.8 — Account avatar dropdown
+
+Tapping the avatar opens a 4-section dropdown:
+
+1. **Header:** avatar + full name + email.
+2. **Account:** *Account* → `/app/account` · *Notifications* → `/app/account#notifications`.
+3. **Premium:** Free — *"Support the app · $7.99 once"* (supporter-framing, never *"Upgrade"* language). Premium — *"Supporter ♥ · Manage"*.
+4. **Solo-dev touch:** *Help & feedback* (mailto: chrismackall3@gmail.com) · *About* → `/app/account#about`.
+5. **Sign out.**
+
+This is the primary premium entry point on mobile.
+
+---
+
+### 42.9 — Global search (desktop only)
+
+Cmd/Ctrl+K opens a centered popover (~520px):
+
+- **Default scope:** current trip. Scope chip: *"Search in [Trip name]"* with *"All trips"* link.
+- **Index coverage:** itinerary items, expenses, notes, proposals, packing items, trip members, vault documents, polls.
+- **Keyboard:** Cmd/Ctrl+K open · Esc close · ↑/↓ navigate · Enter jump · Tab toggle scope · Shift+Enter new tab.
+- **Expanded scope:** results regroup by trip.
+- **Empty state:** *"No matches — try widening to all trips?"*
+
+No global search on mobile — scoped per-phase filters instead.
+
+---
+
+### 42.10 — Context panel: always present
+
+The `context-panel` slot is populated 100% of the time. Content rotates:
+
+- **Blockers exist:** *"2 blockers · Tap to resolve"*.
+- **Next-best-action is clear:** *"Next: finalize flight seats"*.
+- **Healthy trip:** *"You're on track · No blockers · Enjoy the view 🌊"*.
+
+The slot never resizes, never reflows the grid, never disappears.
+
+---
+
+### 42.11 — Hybrid dashboard (`/app`) primary tile
+
+The dashboard's `primary` slot is a **single-purpose Next Up hero**, not a stacked multi-section layout:
+
+- Giant trip ball at fill %, in the trip's ball color.
+- Ball color spills into the tile background as a soft neon gradient.
+- Trip name in Fredoka.
+- Countdown: *"12 days until Japan"* / *"You leave tomorrow"* / *"In progress — Day 3 of 7"*.
+- Dominant CTA button → trip's recommended phase.
+- Preview strip: *"3 blockers · 5 expenses to settle"*.
+
+Your Trips, Needs Your Attention, and Activity live in the outer bento slots per § 42.12 — not duplicated inside `primary`.
+
+**Zero-trip state:** full-shell override (see § 42.14).
+**All-Vaulted state:** primary shows *"Plan your next trip"* + *"Revisit past trips"*.
+
+---
+
+### 42.12 — Non-trip shell (dashboard, account, premium)
+
+Same bento shell. Per-page changes:
+
+- `nav-column` flips from phase cards → **trip cards** (ball, name, countdown, phase-color accent). Footer: *New trip*.
+- `trip-ball` shows a composite grid of small balls.
+- `context-panel` shows cross-trip *"Needs your attention"* aggregate.
+- `primary` = dashboard hero / account page / premium purchase sheet.
+- `quick-add` = *New trip* on dashboard; hidden on account/premium.
+- `activity-feed` = cross-trip activity.
+- Mobile pill bar: *Dashboard · Account · Premium · New trip*.
+
+Shell visual identity stays consistent; only the nav column's *meaning* inverts.
+
+---
+
+### 42.13 — Five shell overrides (bento collapses)
+
+| Override | When | Behavior |
+|---|---|---|
+| **Travel Day focus mode** | T-6 hrs auto or manual activation | Full-viewport timeline; nav column hides; primary fills; top bar thins to ~36px but stays. Ads suppressed. |
+| **Vaulted / Memory view** | Trip lifecycle state = Vaulted | Scrollable article-style Memory layout; top bar stays, every other slot collapses. |
+| **Invite-landing** (`/invite/[code]`) | Unauthenticated invite visitor | Standalone landing-style card; no shell. |
+| **Trip Creation ritual** | `/app/trips/new` 4-step wipe flow | Full-viewport takeover; top bar collapses; dashed ball center stage. |
+| **Zero-trip first-run** | Brand-new user, zero trips, `/app` | Full-viewport centered empty state (see § 42.14). |
+
+Any future page proposing a sixth override must go through GRILL_PROTOCOL.
+
+---
+
+### 42.14 — Zero-trip first-run shell
+
+Brand-new user with zero trips at `/app`:
+
+- Dashed cyan trip ball centered vertically.
+- Fredoka tagline: *"Every great trip starts with a name."*
+- Large *Create your first trip* button → Trip Creation ritual.
+- Secondary link: *"Invited to an existing trip? Paste your code"*.
+- Solo-dev line: *"Made with ♥ by one person."*
+- No top bar, no bento, no pill bar, no ads, no bell.
+
+As soon as the user creates or joins their first trip, the bento activates permanently.
+
+---
+
+### 42.15 — Ad placement (free tier)
+
+| Form factor | Ad treatment |
+|---|---|
+| **Mobile** | Fixed 320×50 IAB banner between content and pill bar. No video, no expandable, no flashing. Restrained visual. |
+| **Desktop** | Native-style sponsored card in the `ad-banner` bento slot. *"Sponsored by [brand]"* label in small caps. One per page view. |
+
+**Ad-free zones (hard-enforced, matches MONETIZATION § 8):** Travel Day focus mode, Expense settlement flow, Premium purchase page, Login / Signup, Trip Creation ritual, Vault Memory view.
+
+**Premium users:** ad slot reclaimed for content breathing room.
+
+Ad network TBD — future pre-launch grill.
+
+---
+
+### 42.16 — Premium entry points
+
+Three categories, all supporter-framed. No dashboard sales tile.
+
+1. **Avatar dropdown** (mobile + desktop) — § 42.8 Section 3.
+2. **Desktop top-bar badge** — subtle neon stripe.
+3. **Targeted in-phase prompts** (UX_SPEC § 22) — Scan receipt lock, currency selector lock, Smart Suggestions premium-preview, Dream Mode cap, PDF expense report, destination-aware repack prompts.
+
+**Hard-banned copy:** *"upgrade to premium"*, *"unlock powerful tools"*, *"save the trip"*, scarcity language (MONETIZATION § 5).
+
+No interstitials, no modals-on-load, no bouncing badges, no countdown timers.
+
+---
+
+### 42.17 — Breadcrumbs and drill-downs
+
+- **No persistent breadcrumb strip.** Phase pill bar / nav column conveys phase context.
+- **Edit/create flows are modals.** Add expense, edit packing item, create poll, invite member, edit note. No new route.
+- **Detail views that benefit from URL sharing are sub-routes.** `/app/trips/[id]/expenses/[expenseId]` etc. Phase header shows drill-down inline. Browser back exits.
+- **Deep settings pages get a contextual back-link** — *"← Back to [Phase]"* for 3+ level flows.
+- **Browser / system back** is always the primary exit affordance.
+
+---
+
+### 42.18 — Dream Mode shell
+
+Dream Mode trips use the full standard bento shell. Visual-only differences:
+
+- Sparkle-ball treatment in `trip-ball` slot.
+- Distinct Dream-ball color state in `nav-column` trip card.
+- Persistent *"This is a dream"* chip pinned in `context-panel`.
+
+Dream Mode is still a real workspace with real proposals, itinerary, budget.
+
+---
+
+### 42.19 — Design skills
+
+`/user-research` — skipped (patterns and direction were clear).
+`/design-system` — **required before Step 2 mockup.** The bento-grid, 6-slot fixed outer geometry, large-scale UI type scale (~18px base body), and container-query responsive bands are new patterns not in DESIGN_SYSTEM.md today. Must land into DESIGN_SYSTEM.md before the shell mockup.
+`/design-critique` — **required** after Step 2 mockup, before implementation.
+`/design-handoff` — **required** before coding.
+`/accessibility-review` — **required** before shipping.
+
+---
