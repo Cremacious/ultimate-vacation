@@ -14,7 +14,8 @@
     "auth:verify": "tsx scripts/verify-auth.ts",
     "trips:verify": "tsx scripts/verify-trips.ts",
     "invites:verify": "tsx scripts/verify-invites.ts",
-    "expenses:verify": "tsx scripts/verify-expenses.ts"
+    "expenses:verify": "tsx scripts/verify-expenses.ts",
+    "balances:verify": "tsx scripts/verify-balances.ts"
   },
   "dependencies": {
     "@base-ui/react": "^1.4.0",

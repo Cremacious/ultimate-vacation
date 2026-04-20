@@ -1,6 +1,13 @@
 import Link from "next/link";
 
-export default function AccountPage() {
+import SignOutButton from "@/components/SignOutButton";
+import { requireUser } from "@/lib/auth/session";
+
+export default async function AccountPage() {
+  const user = await requireUser();
+  const displayName = user.name?.trim() || user.email;
+  const initial = (displayName[0] ?? "?").toUpperCase();
+
   return (
     <div className="max-w-lg mx-auto px-4 py-8">
       <h1
@@ -13,39 +20,14 @@ export default function AccountPage() {
       <div className="space-y-4">
         {/* Profile section */}
         <div className="bg-white rounded-3xl p-6 border border-gray-100">
-          <div className="flex items-center gap-4 mb-6">
+          <div className="flex items-center gap-4">
             <div className="w-14 h-14 rounded-full bg-[#00A8CC] flex items-center justify-center text-white font-bold text-xl flex-shrink-0">
-              C
+              {initial}
             </div>
-            <div>
-              <p className="font-bold text-[#1A1A1A]">Chris</p>
-              <p className="text-sm text-gray-400 font-medium">chris@example.com</p>
+            <div className="min-w-0">
+              <p className="font-bold text-[#1A1A1A] truncate">{displayName}</p>
+              <p className="text-sm text-gray-400 font-medium truncate">{user.email}</p>
             </div>
-          </div>
-
-          <div className="space-y-3">
-            <div>
-              <label className="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-1.5">Name</label>
-              <input
-                type="text"
-                defaultValue="Chris"
-                className="w-full px-4 py-3 rounded-2xl border-2 border-gray-100 bg-[#F8F8FA] text-[#1A1A1A] focus:outline-none focus:border-[#00A8CC] transition-colors text-sm font-medium"
-              />
-            </div>
-            <div>
-              <label className="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-1.5">Email</label>
-              <input
-                type="email"
-                defaultValue="chris@example.com"
-                className="w-full px-4 py-3 rounded-2xl border-2 border-gray-100 bg-[#F8F8FA] text-[#1A1A1A] focus:outline-none focus:border-[#00A8CC] transition-colors text-sm font-medium"
-              />
-            </div>
-            <button
-              className="w-full bg-[#00A8CC] text-white font-bold py-3 rounded-full hover:bg-[#0096b8] transition-colors text-sm"
-              style={{ boxShadow: "0 3px 0 #007a99" }}
-            >
-              Save changes
-            </button>
           </div>
         </div>
 
@@ -55,19 +37,17 @@ export default function AccountPage() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="font-bold text-white">Free plan</p>
-                <p className="text-sm text-gray-400 font-medium mt-0.5">Upgrade for $5 one-time</p>
+                <p className="text-sm text-gray-400 font-medium mt-0.5">Support TripWave for $7.99 one-time</p>
               </div>
               <div className="bg-[#00A8CC] text-white text-xs font-bold px-3 py-1.5 rounded-full">
-                Upgrade
+                Details
               </div>
             </div>
           </div>
         </Link>
 
         {/* Sign out */}
-        <button className="w-full text-sm font-bold text-gray-400 hover:text-[#FF2D8B] transition-colors py-3">
-          Sign out
-        </button>
+        <SignOutButton />
       </div>
     </div>
   );

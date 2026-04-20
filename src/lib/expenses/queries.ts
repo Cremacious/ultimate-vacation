@@ -4,6 +4,13 @@ import { db } from "@/lib/db";
 import { expenseSplits, expenses, tripMembers, users } from "@/lib/db/schema";
 import { isTripMember } from "@/lib/invites/permissions";
 
+import {
+  computeTripBalances,
+  planSettlement,
+  type MemberBalance,
+  type SettlementTransfer,
+} from "./balances";
+
 export type ExpenseListItem = {
   id: string;
   amountCents: number;
@@ -67,4 +74,51 @@ export async function listExpensesForTrip(
   }
 
   return rows.map((r) => ({ ...r, participantCount: counts.get(r.id) ?? 0 }));
+}
+
+export type TripBalancesView = {
+  balances: MemberBalance[];
+  transfers: SettlementTransfer[];
+};
+
+/**
+ * Assemble the balance view for a trip:
+ *   - membership gate
+ *   - fetch members, expenses, splits
+ *   - compute per-member net + settle-up plan
+ *
+ * Non-members get null (caller decides 403 vs empty). Returning null rather
+ * than throwing keeps this a pure read path.
+ */
+export async function getBalancesForTrip(
+  userId: string,
+  tripId: string
+): Promise<TripBalancesView | null> {
+  const member = await isTripMember(userId, tripId);
+  if (!member) return null;
+
+  const [members, expenseRows] = await Promise.all([
+    db
+      .select({ userId: tripMembers.userId, name: users.name })
+      .from(tripMembers)
+      .innerJoin(users, eq(users.id, tripMembers.userId))
+      .where(and(eq(tripMembers.tripId, tripId), isNull(tripMembers.deletedAt)))
+      .orderBy(users.name),
+    db
+      .select({ id: expenses.id, payerId: expenses.payerId, amountCents: expenses.amountCents })
+      .from(expenses)
+      .where(and(eq(expenses.tripId, tripId), isNull(expenses.deletedAt))),
+  ]);
+
+  let splitRows: { userId: string; amountCents: number }[] = [];
+  if (expenseRows.length > 0) {
+    splitRows = await db
+      .select({ userId: expenseSplits.userId, amountCents: expenseSplits.amountCents })
+      .from(expenseSplits)
+      .where(inArray(expenseSplits.expenseId, expenseRows.map((e) => e.id)));
+  }
+
+  const balances = computeTripBalances(members, expenseRows, splitRows);
+  const transfers = planSettlement(balances);
+  return { balances, transfers };
 }
