@@ -150,6 +150,7 @@ This is the most shareable visual the app produces. Design it to be screenshot-w
 - background decorative elements use circles and dots in various sizes and opacities
 - sharp right angles should be rare -- almost everything should have rounding
 - this is not a grid-of-squares app
+- **bento tile outer corners are rounded rectangles with 16--24px border radius** (UX_SPEC § 42) -- circle primacy is preserved **inside** tiles via colored-circle icons, the trip ball, action circles, avatars, pill buttons, and tile-internal background circles
 
 ## Icon System
 
@@ -215,34 +216,76 @@ Circles appear as passive background decoration across the app UI. They are neve
 
 ### Circle placement rules
 
+**Updated 2026-04-20 for bento-grid shell (UX_SPEC § 42).** The shell's no-empty-space rule means the page background is only visible in override states. Background circles now live at the tile level, not the page level:
+
+- **Tier 1** (large atmospheric circles) live inside wide tiles -- primary tile on the dashboard, primary tile in large-screen Preplanning / Itinerary views. Maintain 6--12% opacity on dark; bleed off tile edges for the same atmospheric effect
+- **Tier 2** (medium accent circles) appear only in override states (zero-trip first-run, Invite-landing, Trip Creation, Vaulted / Memory) where the page background is visible. Same 25--45% opacity rule
+- **Tier 3** (small dot patterns) can appear in tile internals where they add texture to a quiet zone -- same 10--20% opacity
+
+### General rules (apply in both tile-level and override-level placements)
+
 - circles sit behind all content -- never in front of readable text or interactive elements
 - the dark base keeps circles from overwhelming the UI -- they glow softly, not loudly
-- use a maximum of two or three circles per surface zone
+- use a maximum of two or three circles per tile or per override surface
 - circles can overlap each other but not overlap primary content areas
-- on app (non-marketing) surfaces, keep circles subtle -- tier 1 only, or restrained tier 2
+- on standard bento pages, keep circles subtle -- tier 1 inside a wide tile is usually enough
 
 ## Page Background Treatment
 
-The authenticated app uses a radial gradient background, not a flat color. White or near-white at the center fades outward to a medium-dark gray at the edges. This creates a natural focal center that draws the eye inward toward the content area while the dark cards sit against a surface that has depth and character.
+**Scoped 2026-04-20 to four override states only.** The bento-grid shell (UX_SPEC § 42) follows a no-empty-space rule -- tiles fill the viewport, so the page background is never visible on standard authenticated pages. The radial gradient applies **only to four of the five bento override states**: Travel Day focus mode, Vaulted / Memory view, Invite-landing (unauthenticated), and Trip Creation ritual. **Zero-trip first-run uses the deep base `#0A0A12` dark background** -- it is the user's first brand impression, and the brand is neon-on-dark.
 
-### Rules
+On standard bento pages, the shell root uses the deep base (`#0A0A12`) as the only visible "background" -- seen only in the thin gaps between tiles -- and the radial gradient does not apply.
+
+### Override-state rules
+
+When the page background is visible (the five override states above):
 
 - the center of the page background is white or very light
 - edges and corners fade to a medium-dark gray (around #787878 or darker)
 - the gradient is radial, centered on the viewport, not directional
-- this background sits beneath dark cards, so it provides contrast and separation without competing with card content
-- never use a flat solid color for the page background in authenticated views
+- this background sits beneath dark cards / content, providing contrast without competing
 - marketing surfaces follow their own background rules
 
-### Why this works
+### Why this works in override states
 
-Dark cards against a light-center gradient feel grounded and intentional. The card surfaces are clearly the content layer, and the background is clearly the floor. The radial fade adds depth without requiring any decorative elements.
+The override states are visually different from the bento by design -- collapsing the shell lets the page background become a legible "floor" where the override's single focused content sits on top. On standard bento pages, the tiles themselves form the floor, and the gradient is not needed.
 
-## Bento Grid Layout
+## Bento Grid System
 
-Data-rich pages use a bento grid layout instead of a vertical list of cards. Bento grids place different-sized cells in a CSS grid, letting important data occupy more space and secondary data occupy less.
+The bento grid is TripWave's canonical layout language at two scales: the **shell-level bento** (the full-viewport desktop shell locked in UX_SPEC § 42) and the **page-level bento** (data-rich views and edit forms inside a tile's primary slot).
 
-### When to use bento grid
+### Shell-level bento (UX_SPEC § 42)
+
+The desktop shell is a full-viewport bento grid with six durable named slots (seven on the free tier). Applies to all authenticated trip workspace and non-trip pages except the five overrides (Travel Day focus mode, Vaulted / Memory, Invite-landing, Trip Creation, Zero-trip first-run).
+
+**Outer slots (fixed geometry, never changes across phases):**
+
+| Slot | Purpose |
+|---|---|
+| `nav-column` | Stacked phase cards (trip workspace) or trip cards (non-trip pages), left full height |
+| `trip-ball` | Prominent ball card at current fill % |
+| `context-panel` | Next best action + blockers, always present, never disappears |
+| `primary` | Largest tile, phase-specific content |
+| `quick-add` | Log Expense / Create Poll / Scavenger Hunt challenge toolbar |
+| `activity-feed` | Recent state-change log |
+| `ad-banner` *(free tier only)* | Native sponsored card; premium users see this reclaimed for breathing room |
+
+**Rules:**
+
+- the outer grid geometry never changes when switching phases -- only the `primary` tile's inner sub-layout reshapes
+- no empty space -- tiles fill the viewport at every desktop size via CSS Grid + container queries
+- large-scale UI throughout (see Large-Scale UI Type Scale section)
+- tile outer corners use 16--24px border radius (preserves circle / roundness vocabulary)
+- interactive tiles use the existing 3D ledge treatment; passive tiles (trip-ball, activity-feed, context-panel) do not
+- all tile motion composes from the Liquid Motion System -- no new primitives needed
+
+See UX_SPEC.md § 42 for full shell spec including mobile pill bar, top bar contents, trip switcher, notification bell, account avatar dropdown, global search, and override states.
+
+### Page-level bento (inside the primary tile)
+
+Data-rich pages use a bento grid inside the `primary` tile instead of a vertical list of cards. Bento grids place different-sized cells in a CSS grid, letting important data occupy more space and secondary data occupy less.
+
+### When to use page-level bento
 
 - any page that shows a summary view of structured trip data (Setup, Preplanning summary, trip overview)
 - any edit form with heterogeneous field types (some fields simple, some multi-select, some numeric steppers)
@@ -321,7 +364,180 @@ Icons inside pill buttons should be at least 16px. Icons inside colored circles 
 
 ### Cell padding
 
-Dark bento cells use 24px (p-6) padding on all sides. Do not use 16px or 20px cell padding as this makes cells feel cramped relative to their content.
+Dark bento cells use 24px (p-6) padding on all sides as the **standard bento band default**. This value scales with the container-query band (see Container-Query Bands section below):
+
+- Compact mode (<900px, page-level bento inside primary tile only): 20px
+- Small bento band (900--1279px): 20px
+- Standard bento band (1280--1919px): 24px (matches original rule)
+- Wide bento band (1920--2559px): 28px
+- Ultra-wide band (2560px+): 32px
+
+Do not use 16px cell padding -- makes cells feel cramped relative to their content.
+
+## Large-Scale UI Type Scale
+
+TripWave's shell uses a larger base type scale than standard productivity apps (which typically use 14--16px body text). The shell targets a **couch-group use case**: multiple people reading from across the room, laptop on a coffee table. Shoulder-readability is the baseline.
+
+### Base shell type rules
+
+- **Shell body text:** 18px Nunito 400 (applies to text inside bento tiles where no other rule takes precedence)
+- **Tile section headers:** 20--24px Nunito 700
+- **Phase card name in nav column:** 18px Fredoka 600
+- **Phase icons in nav column:** 32--40px diameter (colored circle containers)
+- **Trip ball in bento slot:** 140--200px diameter depending on container band
+- **Touch targets everywhere:** 48px+ minimum
+
+### Relationship to existing Card UI Scale Rules
+
+Card UI Scale Rules still apply inside tile internals (stat numbers, pill padding, cell padding, minimum sizes inside dark cards). The shell type scale sets a higher **floor** for plain body content inside tiles -- 18px instead of 16px. Where Card UI Scale specifies 16px for form input text, that minimum still applies for inputs specifically.
+
+### Headline moments
+
+Large display moments (trip names on the dashboard Next Up hero, modal titles, zero-trip first-run tagline) use Fredoka 600 at much larger sizes -- `clamp(40px, 4vw, 72px)` is a good starting pattern for hero trip names, matching the existing clamp() philosophy for stat numbers.
+
+### Why larger type at shell level
+
+- couch-group legibility (2--3 feet viewing distance, multiple readers)
+- neon-on-dark readability benefits from slightly bulkier weights and sizes
+- the bento aesthetic depends on each tile feeling "full" -- small type in a large tile looks empty (reinforces the existing Card UI Scale rule that content must fill the cell)
+
+## Container-Query Bands
+
+TripWave uses **CSS container queries**, not media-query viewport breakpoints, to drive shell and tile layout. The shell root container's available width determines the mode; tiles reflow per band.
+
+### Compact vs bento mode
+
+| Mode | Trigger | Shell |
+|---|---|---|
+| **Compact** | Shell root <900px available width | Top bar + pill bar + stacked content (single column). Applies to phones (portrait + landscape), portrait tablets, and narrow desktop windows |
+| **Bento** | Shell root >=900px available width | Full bento grid per § 42.1. Applies to landscape tablets >900px, laptops, all desktop sizes |
+
+### Internal bento bands (tile-padding scale)
+
+| Band | Width range | Tile padding | Notes |
+|---|---|---|---|
+| Small bento | 900--1279px | 20px | Compact tile heights, denser layout |
+| Standard bento | 1280--1919px | 24px | Generous tile heights, slightly larger type |
+| Wide bento | 1920--2559px | 28px | 7-slot grid, activity-feed expansion |
+| Ultra-wide | 2560px+ | 32px | All tiles at max comfortable size; remaining space as padding, never leaves an empty band |
+
+### Rules
+
+- no hard viewport media queries anywhere in the shell layer
+- the bento activates based on **container width**, not device type -- an iPad in landscape at 1180px gets Standard bento; a desktop user who resizes a window to 850px gets Compact mode
+- page-level bento (inside a primary tile) may use its own container queries against the primary tile's width, nested inside the shell queries
+- Travel Day focus mode override from UX_SPEC § 9 / § 42.13 supersedes these rules -- the override collapses the bento on both modes
+
+## Phase Card Component
+
+Phase cards are the atomic unit of the desktop nav column's stacked-card layout. Each phase (Overview, Setup, Preplanning, Itinerary, Packing, Travel Day, Vacation Day, Expenses, Polls, Wishlist, Members, plus Memory when lifecycle state warrants) is a card, not a thin sidebar row.
+
+### Anatomy
+
+- **Surface:** `#15162A` elevated dark (all states -- active surface is NOT a full neon fill; see States below)
+- **Corner radius:** 16px (preserves roundness vocabulary inside the bento grid)
+- **Padding:** 16px (18px on the left to accommodate the active-state accent bar)
+- **Contents:**
+  - **Phase icon** in a colored circle, scales with container band (see Touch target and height)
+  - **Phase name** in Fredoka 600, 18px -- white on default, neon phase-color on active
+  - **Mini-status chip** in Nunito 600, 14px (e.g., *"Preplanning -- 40%"*, *"2 blockers"*, *"3 new"*)
+  - **Recommended-phase badge** (optional) -- a small neon-yellow dot in the top-right corner, 8px diameter
+
+### States
+
+| State | Visual | Behavior |
+|---|---|---|
+| Default (inactive) | Elevated dark `#15162A` surface, white text, colored icon | Hover glow +25% over 200ms |
+| **Active** | Elevated dark surface retained + **4px left-edge accent bar in the phase color** + phase name in phase-color (neon) + subtle wet-neon shimmer on the accent bar only (12s cycle) + icon's colored circle gains a faint outer glow | No hover change (already emphasized) |
+| Recommended | Default + small neon-yellow dot top-right | As default |
+| Focus (keyboard) | Default + 3px neon cyan focus ring with ripple from card center | Enter activates |
+| Pressed | Water ripple from tap point at 30% opacity | Routes to phase |
+
+**Rationale for left-edge accent over full neon fill:** a full neon-green/cyan/yellow fill on one card among ten dark cards reads as a "notification" rather than "you are here." The left-edge accent + phase-color label + icon glow provides equally strong navigational clarity while honoring the existing `Cards -> Neon accent strip` rule in the Neon-on-Dark section. Full neon fill remains reserved for CTA buttons and the primary-tile color-spill treatment. This change applies uniformly to all phase colors.
+
+### Touch target and height (responsive per container band)
+
+Entire card is tappable, no inner-only hit zones. Height scales with the container-query band so 11 phase cards + Settings icon fit without scrolling on 13" laptops (1280x720 effective):
+
+| Band | Phase card height | Mini-status |
+|---|---|---|
+| Small bento (900--1279px) | **52px** | Compressed: icon + name only OR name + one-word status (e.g., "40%") |
+| Standard bento (1280--1919px) | **64px** | Full: icon + name + mini-status chip |
+| Wide bento (1920--2559px) | **72px** | Full + optional secondary chip |
+| Ultra-wide (2560px+) | **80px** | Full + optional secondary chip |
+
+All heights exceed the 48px accessibility floor. The Small bento compression is required because 11 cards x 64px = 704px and a 13" laptop's usable vertical space (1280x720 minus top bar and ad-banner gap) is ~660px. Scrolling the nav column would break the "map of the trip always visible" virtue of the bento.
+
+Phase icon size also scales with band: 32px at Small, 36px Standard, 40px Wide/Ultra-wide.
+
+### Accessibility
+
+- ARIA role `link`, label reads *"[Phase name], [status chip content]"* -- e.g., *"Preplanning, 40 percent complete, recommended next"*
+- Keyboard: Tab to focus, Enter to activate
+- Active state never relies on color alone -- the filled background + shimmer + white text vs dark text are the distinguishing cues
+- Phase-color icons also use the phase symbol itself (Phosphor fill) so users who can't distinguish the neon colors still parse the phase
+
+### Do / Don't
+
+| Do | Don't |
+|---|---|
+| Use the full phase color as background on active state | Use a thin outline or dot indicator only |
+| Keep mini-status content genuinely informative | Show empty placeholder strings |
+| Keep cards the same height as each other in the column | Vary card heights by content length |
+| Route the whole card to the phase | Put multiple clickable inner zones |
+
+## Color-Spill Tile Background
+
+A micro-pattern used **only on the `/app` dashboard primary tile** to mark the Next Up trip with its ball color.
+
+### Composition
+
+- **Base layer:** `#15162A` elevated dark (standard tile surface)
+- **Gradient layer:** the Next Up trip's ball color (one of the six neon accents -- cyan / yellow / pink / green / purple / orange) applied as a radial gradient at **8--15% opacity**
+- **Gradient position:** radiates from the trip-ball side of the tile, typically top-left or wherever the giant trip ball sits in the layout
+- **Falloff:** soft, extending ~70% across the tile before fading to the base
+- **Optional living shimmer:** 12s cycle, 3--5% max opacity variation -- matches the Liquid Motion wet-neon treatment on key elements
+
+### Rules
+
+- **use only on the dashboard primary tile** -- do not propagate to nav-column trip cards, context-panel, or any other tile
+- gradient opacity may vary per color: less-saturated colors (purple, orange) may need the lower end (8--10%) to avoid reading as "ambient haze" instead of brand moment; cyan / yellow / green can use the upper end (12--15%)
+- white body text remains at 100% opacity -- color-spill never forces text color changes
+- pure white body text on the spill gradient remains WCAG AAA (>=7:1) on all six neon accents at 15% opacity
+
+### Why
+
+The dashboard is where users re-enter the app and pick up their momentum. Marking the Next Up tile with its own trip color creates a visual bridge -- the tile *becomes* the trip the user is about to enter. Tapping the primary CTA flows visually from that color into the trip workspace, reinforcing the brand's liquid continuity.
+
+## Shell Override States
+
+Five override states collapse the bento into a purpose-specific layout. Overrides are exceptional, not routine -- any new page proposing a sixth override must go through GRILL_PROTOCOL.md.
+
+| Override | When | Shell behavior |
+|---|---|---|
+| **Travel Day focus mode** | T-6 hrs auto-activation or manual activation (UX_SPEC § 9) | Full-viewport timeline; nav column hides; primary fills; top bar thins to ~36px but stays; ads suppressed |
+| **Vaulted / Memory view** | Trip lifecycle state = Vaulted | Scrollable article-style Memory layout; top bar stays, every other slot collapses |
+| **Invite-landing** | Unauthenticated visitor at `/invite/[code]` | Standalone landing-style card; no shell at all |
+| **Trip Creation ritual** | `/app/trips/new` 4-step wipe flow | Full-viewport takeover; top bar collapses; dashed ball center stage |
+| **Zero-trip first-run** | Brand-new user with zero trips at `/app` | Full-viewport centered empty state |
+
+### Shared justification
+
+Each override has a fundamentally different job than "plan a group trip inside a workspace":
+
+- **Travel Day:** execution under real stress. Calm > chrome.
+- **Vaulted:** browsing a frozen story. Nostalgic narrative > navigation.
+- **Invite-landing:** converting unauthenticated visitors. Landing-page clarity > workspace chrome.
+- **Trip Creation:** the ritual moment. Stage > frame.
+- **Zero-trip first-run:** no data exists. Focused welcome > empty bento.
+
+On standard bento pages, none of these overrides apply -- the full bento persists.
+
+### Entrance and exit motion
+
+Override transitions use the existing Liquid Motion System wave sweep (600ms) -- same primitive as route changes. On exit, the bento re-inflates with the previous page's slot contents.
+
+
 
 ## Surface Strategy
 
@@ -779,36 +995,9 @@ The app will be built web-first and packaged for native app second. The native a
 - the circle and pill motif works well on mobile without adaptation
 - avoid hover-only states for critical information -- everything must work on touch
 
-### Mobile sidebar navigation
+### Mobile navigation
 
-On mobile, the desktop left-rail phase navigation is replaced by a collapsible sidebar. There is no bottom tab bar.
-
-**Toggle behavior:**
-- a hamburger menu button sits in the top-left of the mobile header bar at all times
-- tapping the button opens the sidebar with a slide-in animation from the left
-- tapping the button again, tapping the overlay behind the sidebar, or swiping the sidebar left closes it
-- the sidebar state (open or closed) does not persist between page navigations -- it starts closed on each new route
-
-**Sidebar layout:**
-- slides in from the left edge of the viewport
-- width is approximately 80% of the viewport, capped at 300px
-- full viewport height, scrollable if the phase list is long
-- sits above the page content with a semi-transparent dark overlay behind it
-- the overlay uses the deep base color at around 70% opacity
-
-**Sidebar contents (top to bottom):**
-1. trip name and ball indicator (compact, at the top)
-2. phase navigation list -- same items and order as the desktop left rail
-3. each phase item shows its colored circle icon and phase label
-4. active phase is highlighted in cyan with a filled background indicator
-5. recommended phase has a subtle badge or dot
-6. a divider, then: trip settings and account links at the bottom
-
-**Visual treatment:**
-- sidebar background uses the elevated surface tone (one step above the raised surface)
-- phase labels use white text; active phase label uses cyan
-- colored phase icons use the same assignments as desktop
-- the sidebar feels continuous with the rest of the dark UI -- not a bright panel interrupting a dark app
+**Superseded 2026-04-20 by UX_SPEC.md § 42.2.** The previous hamburger-toggled slide-in sidebar spec is deprecated. Canonical mobile navigation is a **horizontal scrollable phase pill bar** pinned below the top bar. See UX_SPEC.md § 42.2 and § 42.3 for the full spec (pill anatomy, phase ordering, top-bar contents, active/inactive states, accessibility). No hamburger, no drawer, no bottom tab bar.
 
 ### Travel day mobile UI
 
@@ -849,9 +1038,9 @@ The marketing surfaces (landing page, pricing page) can lean into the full energ
 ## Design Decisions To Lock Soon
 
 - premium lock visual language
-- trip phase iconography (finalize color per phase)
+- **trip phase iconography and per-phase color map** -- working values in Phase color assignments section. The shell grill (UX_SPEC § 42) and Phase Card component make these decisions load-bearing. Lock as part of the shell Step-2 mockup
 - circle decoration density rules per surface type
-- notification panel layout (inline panel vs full page)
+- notification panel layout -- partially resolved via UX_SPEC § 42.7 (dropdown panel pattern). Remaining: detailed notification row anatomy
 - favorites list placement in the UI
 
 ## Approved Reference Direction
@@ -870,5 +1059,6 @@ The current reference style is:
 - **Nunito** across all UI, labels, and body copy
 - Phosphor Icons (fill) in colored circle containers
 - action circles animated into the trip ball on meaningful user actions
-- mobile navigation uses a collapsible left sidebar toggled by a hamburger button -- no bottom tab bar
+- **desktop uses a bento-grid full-viewport shell** with six durable named slots (no traditional sidebar + content) -- see UX_SPEC.md § 42 for the canonical shell spec
+- **mobile uses a horizontal scrollable phase pill bar** pinned below the top bar -- no hamburger, no drawer, no bottom tab bar
 - slogan: "Get everyone on the same wave."

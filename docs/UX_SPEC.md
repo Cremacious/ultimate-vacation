@@ -3003,9 +3003,9 @@ The desktop shell is a full-viewport bento-box grid — **not** a traditional si
 ### 42.2 — Mobile shell: top bar + pill bar + stacked content
 
 - **Top bar** (~44px, see § 42.5 for contents).
-- **Phase pill bar** (~44px, sticky below top bar, horizontal scroll, auto-centers active phase, gradient fade on right edge).
+- **Phase pill bar** (**48px** tall, sticky below top bar, horizontal scroll, auto-centers active phase, gradient fade on right edge). Individual pills inside are 32--36px tall with 48px tap regions extending vertically above and below so the pill itself looks the right size but the hit area meets the accessibility floor.
 - **Main content** (single column, stacked).
-- **Ad banner** (free tier, 320×50, fixed bottom).
+- **Ad banner** (free tier, 320×50, fixed bottom with 12–16px gap to main content and to any floating FAB).
 
 No hamburger menu. No drawer. No bottom tab bar.
 
@@ -3128,13 +3128,28 @@ No global search on mobile — scoped per-phase filters instead.
 
 ### 42.10 — Context panel: always present
 
-The `context-panel` slot is populated 100% of the time. Content rotates:
+The `context-panel` slot is populated 100% of the time. Content rotates based on trip state. The slot never resizes, never reflows the grid, never disappears.
 
-- **Blockers exist:** *"2 blockers · Tap to resolve"*.
-- **Next-best-action is clear:** *"Next: finalize flight seats"*.
-- **Healthy trip:** *"You're on track · No blockers · Enjoy the view 🌊"*.
+**State 1 — Blockers exist (priority):**
+- Header: *"2 blockers"* in neon pink `#FF3DA7` Fredoka 600 18px
+- Row per blocker: icon + short title + "→" chevron
+- CTA: *"Tap to resolve"* in white Nunito 600 14px
+- The slot gets a subtle pink left-edge accent (4px) matching the phase-card active-state pattern from the Phase Card component
 
-The slot never resizes, never reflows the grid, never disappears.
+**State 2 — Next best action (no blockers, something to do):**
+- Small ⚡ icon in neon cyan `#00E5FF`
+- Header: *"Next up"* in cyan Fredoka 600 16px small caps
+- Action text: *"Finalize flight seats"* or similar in white Nunito 700 18px
+- CTA button: inline phase-color pill button that routes to the relevant phase
+
+**State 3 — Healthy (no blockers, nothing urgent):**
+- Small wave icon (🌊 or the app's ocean-ripple motif) in neon cyan, gently animating (3.6s wave pulse from Liquid Motion System)
+- Headline: *"You're on track"* in white Fredoka 600 18px
+- Subline: *"No blockers. Enjoy the view."* in `#D1D2E8` Nunito 400 16px
+- Background: same elevated dark `#15162A` as other tiles -- no accent bar, no pink, no urgency
+- This state is a warm reassurance moment; Pillar 2 calm promise made visible
+
+The slot's footprint (grid position and size) is identical in all three states. Only the internal content changes.
 
 ---
 
@@ -3190,11 +3205,13 @@ Any future page proposing a sixth override must go through GRILL_PROTOCOL.
 
 Brand-new user with zero trips at `/app`:
 
-- Dashed cyan trip ball centered vertically.
-- Fredoka tagline: *"Every great trip starts with a name."*
-- Large *Create your first trip* button → Trip Creation ritual.
-- Secondary link: *"Invited to an existing trip? Paste your code"*.
-- Solo-dev line: *"Made with ♥ by one person."*
+- **Background:** `#0A0A12` deep base dark (neon-on-dark brand). **Not** the light-center radial gradient — that radial is reserved for the other four overrides (Travel Day, Vault, Invite-landing, Trip Creation). Zero-trip first-run is the user's first brand impression, and the brand is neon-on-dark.
+- Tier 2 medium accent circles (cyan, 25--35% opacity) in the upper portion, partially cut off at the viewport edges — adds atmospheric warmth without competing with content.
+- Dashed cyan trip ball centered vertically (~180px diameter, ocean-ripple logo treatment).
+- Fredoka 600 tagline in white: *"Every great trip starts with a name."* (`clamp(40px, 4vw, 72px)`)
+- Large *Create your first trip* button (64px tall pill, neon cyan `#00E5FF` fill, dark text, wet-neon shimmer) → Trip Creation ritual.
+- Secondary cyan link: *"Invited to an existing trip? Paste your code"*.
+- Solo-dev line at the bottom in soft white (Nunito 300, 14px, 60% opacity): *"Made with ♥ by one person."*
 - No top bar, no bento, no pill bar, no ads, no bell.
 
 As soon as the user creates or joins their first trip, the bento activates permanently.
@@ -3205,12 +3222,12 @@ As soon as the user creates or joins their first trip, the bento activates perma
 
 | Form factor | Ad treatment |
 |---|---|
-| **Mobile** | Fixed 320×50 IAB banner between content and pill bar. No video, no expandable, no flashing. Restrained visual. |
-| **Desktop** | Native-style sponsored card in the `ad-banner` bento slot. *"Sponsored by [brand]"* label in small caps. One per page view. |
+| **Mobile** | Fixed 320×50 IAB banner between content and viewport bottom. No video, no expandable, no flashing. Restrained visual — subtle border, muted background, never competes with brand. |
+| **Desktop** | **Native tile card** inside the `ad-banner` bento slot. Styled identically to other bento tiles (20px corner radius, `#15162A` elevated-dark surface, 1px `#2A2B45` border). *"Sponsored by [brand]"* label in Nunito 700 small caps `#D1D2E8` at top-left of the card. Ad content fills the remaining card surface. One per page view. **Not a full-width bottom strip** — the tile is a genuine bento citizen occupying its slot's position. |
 
 **Ad-free zones (hard-enforced, matches MONETIZATION § 8):** Travel Day focus mode, Expense settlement flow, Premium purchase page, Login / Signup, Trip Creation ritual, Vault Memory view.
 
-**Premium users:** ad slot reclaimed for content breathing room.
+**Premium users:** ad slot reclaimed — the bento re-flows the remaining 6 slots to absorb the freed space (typically the `activity-feed` or `primary` tile expands).
 
 Ad network TBD — future pre-launch grill.
 
