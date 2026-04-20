@@ -16,6 +16,71 @@ Use this format for new entries:
 
 ## Entries
 
+### 2026-04-20 - Packing: grill complete
+
+- Status: **accepted** (grill complete — 12 decisions locked; UX_SPEC §§ 8 and 37 updated)
+- Context: Fifth grill in stated order. Three sections already locked: § 8 (three-tab structure), § 37 (neon-on-dark treatment + animations), § 39 (multi-leg repacking). No new surfaces needed — all behavioral interaction details were open. Key gaps: category lifecycle (can users delete defaults?), item ordering, move-to-group semantics (*"Share with group"* vs *"Move to group list"* was ambiguous), group item check semantics (whose check counts?), check-off persistence, cross-member My list visibility, suggestion inputs, suggestion post-add behavior, edit item flow.
+- Decision:
+  - **Q1 — Default categories: seeded but immediately user-owned.** Clothing / Toiletries / Electronics / Documents / Other seeded on first open. Users can rename, delete, reorder — same powers as custom categories. No sacred fixtures.
+  - **Q2 — Category ordering: drag-to-reorder.** Drag handle on category headers. Persists server-side per trip per user. Reuses established drag pattern from itinerary.
+  - **Q3 — Item ordering within category: creation order.** Checked items move to collapsed *Packed (N)* section via staged reveal (§ 37). Unchecked items stay in creation order.
+  - **Q4 — Move to group list: cut + pre-assign mover as bringer.** Item leaves My list, appears in Group list assigned to the person who moved it. No copy, no orphaned unassigned item.
+  - **Q5 — "Share with group" action removed.** Redundant with *Move to group list*. Three-dot simplifies to: Edit / Move to group list / Delete / Make private (toggle). One clear action for cross-tab sharing.
+  - **Q6 — Group item check: bringer-only.** Only the assigned bringer can check a group item. Other members see a read-only filled/empty indicator on the bringer's avatar. One owner, one check — accountability model.
+  - **Q7 — Unassign: bringer + organizer.** Bringer can self-unassign; organizer can override. Covers "Bob dropped out" case without over-granting.
+  - **Q8 — Check persistence: trip-duration server-persisted.** Checks survive relaunches and device switches. Clear automatically at Stale state. Distinct from per-leg repack check (§ 39) which has independent binary state.
+  - **Q9 — Cross-member My list: no visibility.** My list is personal-only. Organizer cannot see other members' items. Group tab is the shared surface. "Your packing list is yours" is a trust feature.
+  - **Q10 — Suggestion inputs: `tripVibe` + transport modes + traveler count.** `tripVibe` (relaxed/packed/spontaneous/structured) and transport modes (flying = lighter suggestions; road trip = different) are already in STATE_MODEL and Setup — zero new data required. Traveler profile integration (dietary/medical) deferred to Later.
+  - **Q11 — Suggestion post-add: slides out with undo toast.** *"Added. Undo?"* for 3 seconds. Prevents re-adding; signals progress without losing recoverability.
+  - **Q12 — Edit item: inline.** Tapping Edit transforms the row into an in-place editable state (name = focused text input, quantity = stepper). Save on blur or Enter. No modal — packing items are simple.
+- Why:
+  - **User-owned defaults** remove the worst kind of friction — invisible arbitrary rules. No one should ask "why can't I delete Documents?" on a road trip.
+  - **Drag-to-reorder categories** is the only ordering model that respects personal habit (*"I always check Electronics first"*). Alphabetical and creation-order both get it wrong for different people.
+  - **Cut not copy on group move** keeps one source of truth per item. Two records for the same item diverge immediately.
+  - **Removing "Share with group"** eliminates the confusion between two similar-sounding actions. Simplification is the decision.
+  - **Bringer-only check** creates clear accountability without surveillance. The group can see *whether* the sunscreen is packed; only the bringer marks it.
+  - **Trip-duration persistence** is essential — packing takes real work and losing check state mid-trip is the kind of bug that generates 1-star reviews.
+  - **No cross-member My list** protects personal space. Medical items, personal hygiene, and anything embarrassing belong to the user alone.
+  - **Inline edit** is the right weight for a checklist item — a modal would be overkill for changing "Socks" to "Socks (3 pairs)."
+- Follow-up: UX_SPEC § 8 (updated: category behavior, move semantics, share-with-group removed, check persistence, cross-member visibility, suggestion inputs). UX_SPEC § 37 (updated: drag-to-reorder categories, inline edit, group check bringer-only, unassign permissions, suggestion slide-out undo). Next grill per stated order: **Travel Day** (step 6 of spine).
+
+**Design skills:** `/user-research` skipped. `/design-critique` pending only if inline-edit row treatment or drag-handle visual requires a new pattern — otherwise existing § 37 neon treatment is sufficient. `/design-handoff` pending before implementation. `/accessibility-review` pending before shipping — check animation particle burst needs reduced-motion fallback (§ 37 already notes this; must verify in implementation).
+
+### 2026-04-20 - Itinerary: grill complete
+
+- Status: **accepted** (grill complete — 15 decisions locked; UX_SPEC §§ 6, 7 updated; new § 7a Add/Edit Item Modal added; § 36 updated; STATE_MODEL anchor event defined)
+- Context: Fourth grill in stated order. Three sections already locked (2026-04-17): § 6 (day-by-day scroll layout), § 7 (card anatomy), § 36 (neon-on-dark treatment). The add/edit item modal was referenced 6+ times across the doc but never specced — the largest gap. C1 (quick-add day targeting) and C2 (desktop inline expansion) were conflicts between §§ 6 and 36. Anchor event was referenced in STATE_MODEL's Planning→Ready trigger but never defined. 10 interaction behaviors unresolved.
+- Decision:
+  - **Q1 — Bonus fields per category: shared base + "More details" expander.** Shared fields always present (title, day, time, all-day, location, notes). Expander reveals: Transport → origin, destination, carrier, confirmation; Reservation → confirmation, party size, booking platform; Activity and Note → no bonus fields. Keeps quick-add fast; details optional.
+  - **Q2 — Duration: derived from end time minus start time.** User sets start + optional end time. Duration label is read-only computed. Natural input; no mental math.
+  - **Q3 — Desktop: side-panel drawer (~340px, right side).** Keeps day-list visible behind drawer. Clicking a different card switches event without closing drawer. Clicking into the day-list closes drawer without saving.
+  - **Q4 — Anchor event: non-Note, non-Free-time item with specific start time set on a real calendar day.** Timed flights, dinners, activities count. All-day placeholders and unscheduled notes do not.
+  - **Q5 — Date-less itinerary: user sets trip duration (number of days) without actual dates.** Numbered Day 1, Day 2... in picker. Soft banner inside modal to add dates. Day numbers remap 1:1 when dates are finally set.
+  - **Q6 — All-day events sort to top of day, before timed events.**
+  - **Q7 — Time conflict detection: soft orange triangle warning.** Non-blocking. Tooltip names the overlapping event. Intentional overlaps (group splits) are common and allowed.
+  - **Q8 — Drag-to-reorder: all-day and time-unset events only within a day.** Drag handle on those cards only. Timed events auto-sort by start time; reorder via time field edit.
+  - **Q9 — Traveler tagging default: all members.** Tagging is cosmetic/social — not functional gating. Members can self-remove. Adder or Trusted+ can manage all tags.
+  - **Q10 — CRUD permission: own items always editable/deletable; others' items require Trusted+.**
+  - **Q11 — Self-untag: any member can remove their own tag. Members cannot self-add to events they weren't tagged on.**
+  - **Q12 — Day collapse persistence: session-only.** Resets to expanded on every page load. Collapse is scroll navigation, not a preference.
+  - **Q13 — Expense badge tap: mini-popover.** Shows description + total + payer + your share. No navigation away from itinerary.
+  - **Q14 — Multi-destination: destination label in day header when destination transitions.** *"Day 4 · Wed — Osaka"*. Derived from Setup destinations + date ranges. Single-destination trips show destination on Day 1 only.
+  - **Q15 / C1 — Quick-add default target: next upcoming day pre-trip, today during in-progress.** User changes in modal. Resolves § 6 / § 36 conflict.
+- Why:
+  - **Expander for bonus fields** matches expense modal's "More options" pattern — consistency over invention.
+  - **Derived duration** is natural; end-time input is how people actually think.
+  - **Side-panel drawer** on desktop is the right list-detail pattern — spatial context is preserved, editing is fast.
+  - **Anchor event definition** needed to be precise enough to implement; all-day items are intentionally excluded because they require no real scheduling commitment.
+  - **Date-less itinerary** unblocks planning before flights are booked — a real and frequent user state.
+  - **Soft conflict warning** respects agency without blocking; group trip splits are routine.
+  - **Drag only for unscheduled events** prevents nonsensical reordering of timed events while still giving ordering control where it's needed.
+  - **Own-item CRUD** is the expected ownership model; surprises users least; protects against accidental cross-editing.
+  - **Expense badge popover** keeps the user in context — mid-itinerary lookups are glances, not navigation events.
+  - **Destination label in day header** is the highest-signal, lowest-clutter solution for multi-leg trips.
+- Follow-up: UX_SPEC § 6 (updated: day sort order, quick-add default, day collapse clarified), § 7 (updated: expense badge tap, conflict indicator, desktop drawer, duration derived, traveler tagging), new § 7a Add/Edit Item Modal (full anatomy), § 36 (updated: drag-to-reorder, destination label, reduced-motion note). STATE_MODEL anchor event definition added. Next grill per stated order: **Packing** (step 5 of spine).
+
+**Design skills:** `/user-research` skipped. `/design-critique` pending — add/edit modal (§ 7a) has no mockup yet; produce ASCII wireframe for mobile sheet + desktop drawer and run before implementation. `/design-system` pending — side-panel drawer and expense-badge mini-popover are new surface patterns; confirm fit with DESIGN_SYSTEM.md. `/design-handoff` pending before any JSX. `/accessibility-review` pending before shipping — live "you are here" marker uses motion; reduced-motion handling is specced but must be verified.
+
 ### 2026-04-20 - Invite & members / permissions: grill complete
 
 - Status: **accepted** (grill complete — 18 decisions locked; UX_SPEC §§ 18 / 19 / 21 updated; MONETIZATION § 10 updated; § 42.6 trip switcher updated)

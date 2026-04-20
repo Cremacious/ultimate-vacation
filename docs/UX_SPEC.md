@@ -322,7 +322,7 @@ All fields autosave as the user types. No unsaved-changes warnings. No explicit 
 
 ## 6. Itinerary -- Primary View Structure
 
-**Status:** locked (2026-04-17)
+**Status:** locked (2026-04-20)
 
 The itinerary uses a **day-by-day vertical scroll** layout as its primary view. Each day of the trip is a distinct section with event cards stacked chronologically beneath. Users scroll through the entire trip top to bottom.
 
@@ -333,14 +333,18 @@ The itinerary uses a **day-by-day vertical scroll** layout as its primary view. 
   - Current day is highlighted
   - Sticks at the top during scroll
 - **Body**: each day is a section containing
-  - Large colored header card -- shows day number, date, and weather icon (weather integration later)
-  - Event cards stacked beneath, sorted by time
+  - Large colored header card -- shows day number, date, destination label when destination changes (see § 36), and weather icon (weather integration later)
+  - Event cards stacked beneath: all-day events first, then timed events sorted by start time
   - Empty day placeholder: pale card with *"Nothing planned for Day 3 yet"* and a subtle inline add button
   - *"+ Add to this day"* button pinned at the bottom of each day block
 - **Quick-add control**
   - Mobile: floating + FAB in bottom-right
   - Desktop: persistent + button in the page header
-  - Asks *"Which day?"* when the target is not obvious
+  - Default target day: **today** during in-progress trips; **next upcoming day** pre-trip (the next calendar day from now if within the trip, or Day 1 if trip hasn't started); **last day with events** if the trip is in the past. User can change the day inside the modal.
+
+### Day collapse
+
+Tapping a day header collapses that day's event cards. Collapse state is **session-only** — always resets to fully expanded on page load or re-entry. Collapse is a scroll-navigation aid, not a persistent preference.
 
 ### Desktop enhancement
 
@@ -364,7 +368,7 @@ A calendar-grid view and a flat-list view are possible **alternate view toggles*
 
 ## 7. Itinerary -- Item Card Anatomy
 
-**Status:** locked (2026-04-17)
+**Status:** locked (2026-04-20)
 
 All itinerary items share a uniform card shape. Visual differentiation between types comes from a **colored left stripe + matching header icon**.
 
@@ -380,12 +384,13 @@ All itinerary items share a uniform card shape. Visual differentiation between t
 
 - **Left stripe**: 4px colored bar matching the category
 - **Header row**: small filled icon in category color + title in bold
-- **Time**: subtle gray text below the title (e.g., *"6:30 PM"*, *"All day"*, *"2h"*)
+- **Time**: subtle gray text below the title (e.g., *"6:30 PM"*, *"All day"*, *"2h 30m"*). Duration is derived: end time minus start time, displayed as a convenience label.
 - **Location** (optional): italic gray with a tiny pin icon
 - **Note** (optional): smaller gray text below location
-- **Right side of card**: avatars of travelers tagged to this item (e.g., "adults only" for this dinner)
-- **Expense badge** (optional): small green coin icon if an expense is linked
-- **Tap behavior**: opens edit modal on mobile, expanded inline view on desktop
+- **Right side of card**: avatars of travelers tagged to this item. Default: all trip members are tagged. Tagging is cosmetic and social (shows who's doing this together) — it does not gate permissions or split expenses. Members can self-remove their own tag (Q11:C); only the adder or Trusted+ can add tags to a card.
+- **Expense badge** (optional): small green coin icon if an expense is linked. **Tapping the badge** opens a mini-summary popover: expense description + total amount + who paid + your share. Tap outside or tap again to dismiss. Does not navigate away from the itinerary.
+- **Conflict indicator** (optional): small orange triangle in the top-right corner when this event's time overlaps with another event on the same day. Tooltip on tap: *"Overlaps with [Event Name]."* Non-blocking — overlaps are often intentional.
+- **Tap behavior**: opens the add/edit item modal (see § 7a) on mobile; opens the side-panel drawer on desktop.
 
 ### Why a stripe + icon instead of per-category layouts
 
@@ -397,42 +402,123 @@ All itinerary items share a uniform card shape. Visual differentiation between t
 
 ---
 
+## 7a. Itinerary -- Add/Edit Item Modal
+
+**Status:** locked (2026-04-20)
+
+The add/edit modal is a **slide-up sheet on mobile** and a **side-panel drawer (~340px, right side) on desktop**. The desktop drawer keeps the day-list visible for spatial context while editing. All create and edit flows use the same surface — the modal opens pre-filled when editing an existing item.
+
+### Shared fields (all categories)
+
+- **Category selector** — icon tabs at top: Activity · Reservation · Transport · Note. Changing category preserves shared fields, clears category-specific bonus fields.
+- **Title** — text input, focused on open (keyboard up immediately on mobile).
+- **Day** — day picker (scrollable list of trip days). Default: next upcoming day pre-trip, today during in-progress. For date-less trips: *"Day 1 · Day 2 · ..."* numbered list without calendar binding.
+- **Time** — start time picker. Optional. Toggle: *"All day"* checkbox (hides time pickers; event sorts to top of day).
+- **End time** — optional. When set, duration label is computed and shown read-only: *"2h 30m."* Hidden when *All day* is active.
+- **Location / venue** — optional text + optional map-pin link (later integration).
+- **Notes** — optional freeform text.
+- **Tagged travelers** — multi-avatar selector. Default: all trip members selected. Any member can deselect themselves; adder or Trusted+ can manage all tags.
+- **More details** expander — reveals category-specific bonus fields (collapsed by default to keep quick-add fast).
+
+### Bonus fields per category (inside "More details")
+
+- **Transport**: origin, destination, carrier / flight or train number, confirmation number.
+- **Reservation**: confirmation number, party size, booking platform (optional).
+- **Activity**: (no required bonus fields — shared fields suffice).
+- **Note / Free time**: (no bonus fields — freeform notes cover it).
+
+### Actions
+
+- **Save / Update** — primary button. Saves and closes.
+- **Delete** — visible only when editing an existing item AND the user has delete permission (own items always; others' items require Trusted+). Triggers a brief *"Delete this event?"* confirm before removing.
+- **Add expense for this** — secondary link. Opens expense add modal pre-filled with item name and date. Available on all categories.
+- **Cancel** — Escape key, tap outside sheet (mobile), or X button. Discards unsaved changes.
+
+### Permission constraints
+
+- **Add**: requires *add items* toggle enabled for the user's preset.
+- **Edit**: own items always editable regardless of preset. Others' items require *edit items* toggle (Trusted preset and above by default).
+- **Delete**: own items always deletable. Others' items require *delete items* toggle (Trusted+ by default).
+- **View-only users**: tapping a card opens the modal in read-only state — all fields visible, no Save/Delete actions.
+
+### Pre-filled variants
+
+The same modal handles three inbound flows with pre-populated fields:
+
+- **From Wishlist** (*Add to itinerary* tap): title, notes, and tagged travelers pre-filled from the idea card. Category defaults to Activity. User selects day and time.
+- **From Poll** (*Convert to itinerary item*): title and notes pre-filled from winning option. User selects day, time, and category.
+- **From expense outbound** (*Add expense for this*): pre-fills expense modal, not the itinerary modal (that direction is inverted).
+
+### Date-less trip behavior
+
+When the trip has no dates set (Setup incomplete or dates skipped), the day picker shows *"Day 1 · Day 2 · ..."* with a stepper for total days. A soft banner inside the modal reads: *"Add dates in Setup to see real calendar days."* Events saved without dates are stored as day-number-relative and remap automatically when dates are set.
+
+### Desktop side-panel drawer
+
+- Slides in from the right over the itinerary; does not push content.
+- ~340px wide; scrollable if form is tall.
+- Day-list remains visible and scrollable behind the drawer.
+- Clicking a different event card while the drawer is open switches to that event's detail without closing the drawer.
+- Clicking outside the drawer (into the day-list area) closes it without saving.
+
+### Why this modal design
+
+- Fast-add flow (title + day + time) requires only 3 taps on mobile before saving — bonus fields are behind an expander
+- Side-panel drawer on desktop preserves spatial context (you can see where in the day the event sits while editing it)
+- Unified modal for add/edit/pre-fill reduces surface area and keeps behavior consistent whether creating fresh or promoting from Wishlist or Poll
+
+---
+
 ## 8. Packing -- Personal vs Shared Visibility
 
-**Status:** locked (2026-04-17)
+**Status:** locked (2026-04-20)
 
 Packing uses **three tabs** at the top of the phase to separate personal, group, and suggested content.
 
 ### Tab structure
 
 - **My list** (default tab)
-  - Grouped by user-defined categories (Clothing, Toiletries, Electronics, etc.) with custom groups supported
+  - Grouped by categories (see Category behavior below)
   - Each item: checkbox + label + optional quantity + three-dot menu
-    - Menu actions: Edit, Move to group list, Delete, Make private / Share with group
+    - Menu actions: Edit (inline — see § 37), Move to group list, Delete, Make private (toggle)
   - New items default to **private** (personal only)
   - Quick-add input pinned at the bottom of each category
-  - Count badge on tab shows total items
+  - Count badge on tab shows total unchecked items
 
 - **Group list**
   - Flat list grouped by category
   - Each item: checkbox + label + avatar of the assigned bringer + three-dot menu
-    - Menu actions: Edit, Unassign, Remove
-  - Items can be assigned to a specific traveler (the person responsible for bringing it)
-  - Prominent "Add item" button at the top
+    - Menu actions: Edit (inline), Unassign (bringer or organizer only), Remove
+  - Items can be assigned to a specific traveler (the bringer — responsible for bringing it)
+  - Unassigned items show a *Claim* button; tapping assigns the current user as bringer
+  - Prominent *Add item* button at the top
   - Count badge on tab
 
 - **Suggestions**
-  - **Premium users**: list of smart-suggested items based on destination, duration, vibe, and group composition
-    - Each suggestion card: icon + item name + reason (*"Because your trip is to Tokyo in April"*)
-    - Tap to add to My list or Group list
-  - **Free users**: 3 sample suggestions visible with a lock overlay and a friendly upgrade card
+  - **Premium users**: list of smart-suggested items based on destination, duration, `tripVibe` (`relaxed / packed / spontaneous / structured`), transport modes (flying = pack lighter; road trip = different suggestions), and traveler count. Each suggestion card: icon + item name + reason. Two actions: *Add to my list* · *Add to group*. On add: item slides out with a brief *"Added. Undo?"* toast.
+  - **Free users**: 3 sample cards visible under a full-tab lock overlay with a cyan support card
   - Badge on tab: count for premium, small lock icon for free
 
-### Privacy defaults
+### Category behavior
 
-- Personal items are private by default
-- Making an item private prevents it from appearing to other travelers anywhere
-- Privacy toggle lives in each item's three-dot menu
+- **Defaults seeded on first open**: Clothing, Toiletries, Electronics, Documents, Other.
+- Defaults are immediately user-owned — same powers as custom categories: rename, delete, reorder.
+- Users can create additional custom categories. Custom categories can be renamed, deleted, and reordered.
+- **Ordering**: categories are drag-to-reorder (drag handle on category header). Default order is seeded order; user-defined order persists server-side per trip per user.
+- **Item ordering within a category**: creation order. Checked items move to the collapsed *Packed (N)* section at the bottom per § 37's staged reveal. Unchecked items stay in creation order.
+
+### Moving items between My list and Group list
+
+- **Move to group list** (from My list three-dot): **cut** — item leaves My list and appears in Group list pre-assigned to the moving user as bringer. No copy; the item has one home.
+- **Make private** toggle (from My list three-dot): hides the item from all other members everywhere. Toggling off restores visibility. This is the only privacy control — there is no separate "Share with group" action (redundant with Move to group list).
+
+### Check-off persistence
+
+Check state on My list and Group list is **persisted server-side for the duration of the trip**. Checks survive app relaunches, device switches, and background sessions. Checks clear automatically when the trip enters Stale state (end of trip + 24h grace), so the next trip starts fresh. This is distinct from the per-leg repack check in § 39, which has independent binary state per travel leg.
+
+### Cross-member visibility
+
+My list is personal — visible only to its owner. Even the organizer cannot see other members' My list items. The Group tab is the shared surface. This is intentional: packing is personal (medical items, hygiene products, personal preferences) and cross-visibility would create a surveillance dynamic that makes members self-conscious.
 
 ### Empty states per tab
 
@@ -2467,7 +2553,7 @@ On return to the hub after finishing a section:
 
 ## 36. Itinerary Page -- Fun Treatment on Neon-on-Dark
 
-**Status:** locked (2026-04-17)
+**Status:** locked (2026-04-20)
 
 Itinerary structural layout (day-by-day vertical scroll, sticky day jumper, item cards with category left-stripes) is locked in sections 6 and 7. This section adds the neon-on-dark treatment with day-personality theming and a live "you are here" marker for in-progress trips.
 
@@ -2494,8 +2580,9 @@ Each day's content determines its header color:
 Day header content:
 - Big Fredoka text: *"Day 3 · Tuesday"*
 - Date subtitle: *"April 10, 2025"*
+- **Destination label**: shown when a destination transition occurs (trip's first destination on Day 1; each subsequent destination on the day it begins). Single-destination trips show the destination on Day 1 only. Example: *"Day 4 · Wed — Osaka"*. Derived from Setup destinations + their optional date ranges.
 - Weather icon + temp (when weather integration exists later)
-- Tap day header to collapse the day's events
+- Tap day header to collapse the day's events (session-only, see § 6)
 
 ### Event cards
 
@@ -2534,12 +2621,18 @@ Day header content:
 - Tap opens slide-up sheet to add an event
 - Default target day: today during in-progress trips, otherwise the next empty day
 
+### Drag-to-reorder
+
+All-day events and time-unset events (Notes / Free time without a start time) can be **dragged to reorder within a day**. A drag handle appears on the left side of these cards only. Timed events auto-sort by start time and are not draggable — reorder by changing the time in the edit modal. Drag across days is not supported.
+
 ### Micro-interactions
 
 - Hover / tap-preview on event card: 2px lift + shadow expansion
 - Completed past events during in-progress trip: card fades to 60% opacity with corner checkmark
 - Day headers sticky-briefly at the top as user scrolls past
 - Day jumper auto-scrolls to keep current day centered
+- Conflict indicator (orange triangle) on overlapping events: appears without animation, removed as soon as times no longer overlap
+- Reduced-motion: the live "you are here" marker position updates on page focus rather than animating in real-time (respects `prefers-reduced-motion`)
 
 ### Easter egg
 
@@ -2558,7 +2651,7 @@ Day header content:
 
 ## 37. Packing Page -- Fun Treatment on Neon-on-Dark
 
-**Status:** locked (2026-04-17)
+**Status:** locked (2026-04-20)
 
 Packing structure (3 tabs: My / Group / Suggestions) is already locked in section 8. This section adds the neon-on-dark treatment and two layers of fun: satisfying check animations and staged reveal (checked items collapse into a "Packed" section, shrinking the working list as you pack).
 
@@ -2572,13 +2665,15 @@ Packing structure (3 tabs: My / Group / Suggestions) is already locked in sectio
 
 ### Category groups (My list)
 
-- Collapsible groups: Clothing, Toiletries, Electronics, Documents, Other
+- Collapsible groups: Clothing, Toiletries, Electronics, Documents, Other (seeded defaults; all user-owned and reorderable — see § 8)
 - Group header: Fredoka white with small neon-cyan icon, tap collapses/expands
+- **Drag-to-reorder categories**: drag handle on the left of each group header (visible on long-press on mobile, always visible on desktop). Reordering persists server-side.
 - Items:
   - Custom neon-cyan checkbox on the left
   - Item name in white (strike-through when checked, but NOT grayed)
   - Optional quantity chip on the right
   - Three-dot menu for edit / move / delete / make private
+  - **Inline edit**: tapping Edit in the three-dot menu transforms the item row into an inline editable state — item name becomes a focused text input, quantity becomes a stepper. Save on blur or Enter. No modal needed for packing items.
 
 ### Satisfying check animation
 
@@ -2609,13 +2704,15 @@ When a user checks an item:
 
 - Flat list of shared items grouped by category
 - Each item: assigned-bringer avatar on the right
-- Unassigned items show a neon-yellow *Claim* button
-- Claim: assigns the current user with a subtle ball-bounce animation
-- Same check-off behavior as My list
+- Unassigned items show a neon-yellow *Claim* button — tapping assigns the current user as bringer with a subtle ball-bounce animation
+- **Check-off**: only the **assigned bringer** can check the item (marks it as *Brought*). Other members see the bringer's avatar with a filled or empty checkmark — read-only. This is the accountability model: one owner, one check.
+- **Unassign**: available to the bringer (self-unassign) and the organizer (override). Tap three-dot → *Unassign*. Returns item to unclaimed state with *Claim* button visible to all.
+- Inline edit available via three-dot (same as My list)
 
 ### Suggestions tab
 
-- Premium: grid of suggestion cards with icon + item name + reason, each with *Add to my list* and *Add to group* buttons
+- Premium: grid of suggestion cards with icon + item name + reason (*"Because you're flying to Tokyo in April"*), each with *Add to my list* and *Add to group* buttons. On tap: item slides out with a brief *"Added. Undo?"* toast — prevents re-adding and keeps the list from feeling static.
+- Suggestion input signals (per § 8): destination, trip duration, `tripVibe` field, and transport modes. Traveler profile integration (dietary/medical) deferred to Later when that feature ships.
 - Free: 3 sample cards visible under a full-tab lock overlay with a cyan support card explaining the premium bonus
 
 ### Empty states

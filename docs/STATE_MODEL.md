@@ -55,6 +55,16 @@ All transitions are deterministic: given a trip object and the current timestamp
 | `Planning` | `Dreaming` | Only if trip is flagged as Dream Mode at creation; one-way | Auto-forward |
 | `Dreaming` | `Planning` | Manual via "Make it real" — converts to a regular trip, new dates required | Manual only |
 
+### Anchor event definition
+
+An **anchor event** (referenced in the Planning → Ready transition) is any itinerary item that meets all of the following:
+
+- Category is **not** Note / Free time
+- Has a **specific start time** set (not all-day, not time-unset)
+- Belongs to a real calendar day (not a date-less numbered day)
+
+In practice: a booked dinner at 7pm, a flight at 6am, a museum visit at 10am. A *"chill morning"* note or an all-day *"beach day"* placeholder does not count. At least one such item anywhere in the trip's itinerary satisfies the anchor requirement.
+
 ### Travel-leg date definition
 
 A **travel-leg date** is any date that triggers TravelDay state:
