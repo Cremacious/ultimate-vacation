@@ -6,6 +6,50 @@ Implementation sequencing rule (locked 2026-04-20): foundation first (ORM → DB
 
 ---
 
+## 🎯 Canonical 12-step build order (locked 2026-04-20 — implementation-order grill)
+
+**Two rules that override everything:**
+1. **Nothing ships without being full-stack real.** No mock-data spine pages. Scaffold → wire is rework; full-stack in one pass is not.
+2. **Chunk 4 is the pivot.** Anything that delays reaching Chunk 4 does not ship in beta.
+
+**The 12 steps:**
+
+| # | Step | Chunk | Pivot? |
+|---|---|---|---|
+| 1 | Install Drizzle · connect Neon (dev branch) | 1 | |
+| 2 | Write full 10-table spine schema + apply migration | 1 | |
+| 3 | Install Better Auth · wire to users/sessions tables | 2 | |
+| 4 | Build sign-up / log-in / password-reset / logout / delete-account | 2 | |
+| 5 | Build trip creation + in-trip Overview page (full-stack, real DB) | 3 | |
+| 6 | **Build invite flow (create link · accept · join)** | 4 | 🔴 **PIVOT — test with a second real human here** |
+| 7 | Build expenses end-to-end (multi-currency · split · settle · Venmo/Zelle deep-link · integer-cents) | 5 | |
+| 8 | Build itinerary CRUD + soft-conflict toast pattern | 6 | |
+| 9 | Build Basics hub with budget section only (other sections "coming soon") | 7 | |
+| 10 | Build Travel Day checklist + notifications bell + **static** trip ball | 8 | |
+| 11 | Build Home (app-level) + between-trips state + trip switcher | 9 | |
+| 12 | Wire PostHog to funnel events (emitted since step 7) · onboard 20 personal-network users | 10 | |
+
+**Spine schema (all 10 tables defined in step 2):** `users · sessions · trips · trip_members · invites · expenses · expense_splits · itinerary_events · preplan_budgets · notifications`. Every table: `id (uuid) · created_at · updated_at · deleted_at` · indices on `trip_id` and `user_id` where applicable · `trip_members.role` column exists from day one · money columns stored as integer cents.
+
+**What explicitly waits until Public MVP or later** (do NOT build these in beta): Dream Mode, affiliate chips, Stripe/Supporter purchase sheet, ad banner, OCR/receipt scanning, Vacation Day / Today full, Afterglow, Vault, Tools, Polls, Wishlist, Notes, Scavenger Hunt, trip ball modal, Travel Day focus mode, motion/ripples/easing curves, remaining Basics sections, QR code for invites, OAuth, email verification, 2FA, CRDT-based collab, admin/debug UI.
+
+**Top sequencing mistakes to avoid:**
+1. Schema drip-feed — do all 10 tables in step 2, not as features need them
+2. Auth before schema
+3. Expenses before invites (fake demo without 2+ members)
+4. Itinerary before expenses (ships the moat later)
+5. Motion / ball animation / ripples before CRUD works
+6. Full Basics hub before one section works
+7. Building admin UI (psql + a SQL GUI is enough for 20 users)
+8. Deferring analytics *emission* past step 7 (emit early, wire late)
+9. Skipping soft-delete + timestamps + indices in step 2
+
+Full rationale: DECISIONS.md *2026-04-20 — Implementation order: 12-step canonical build sequence locked (Chunk 4 = beta pivot).*
+
+---
+
+---
+
 ## In Progress
 
 - App shell and navigation (desktop bento-grid + mobile pill-bar)

@@ -1,5 +1,34 @@
 # Core Loop -- The Must-Prove Spine
 
+> **2026-04-20 Naming Audit — see docs/NAMING.md**
+>
+> Canonical renames applied forward: Vacation Day → **Today** · Preplan / Preplan Hub → **Basics** · Tools Hub → **Tools** · Memory recap → **Afterglow** · Dashboard → **Home** · Premium (user-facing) → **Supporter** · In-progress (phase) → **Active**. Kept as-is: TripWave, Overview, Itinerary, Expenses, Packing, Travel Day, Budget, Invite, Wishlist, Polls, Scavenger Hunt, Dream Mode, Vault. Historical references in this file are not retroactively rewritten — NAMING.md is the source of truth for forward work.
+
+> **2026-04-20 Roadmap Grill Revision (supersedes portions below)**
+>
+> The roadmap grill split the prior monolithic "MVP" into two distinct milestones: **90-day private beta** (spine validation) and **Public MVP** (weeks 13–24, acquisition + revenue live). The 16-item MVP list from earlier grills is collapsed into these two tiers. Where revision conflicts with older sections, revision wins.
+>
+> **Spine reframed as 3 arenas (not a linear 7-step waterfall):**
+> **Plan** (trip, invite, preplan-budget, itinerary) · **Pay** (expenses) · **Go** (travel day checklist). The arenas support non-linear *intra-app* routing — a non-organizer member invited to a trip may skip straight to the expense tab — but they are not separate cold-acquisition wedges. The only acquisition vector is the organizer.
+>
+> **Expenses is the moat (Splitwise-killer).** Sequenced immediately after trip creation and polished to screenshot-worthy quality. Itinerary ships after expenses.
+>
+> **Beta-tier spine (ship in 90 days):** auth · trip creation · invite flow · expenses (polished) · itinerary CRUD · one preplan section (budget) · Travel Day checklist · trip ball (static) · notifications bell · between-trips home state · soft-conflict toast on concurrent edits.
+>
+> **Public-MVP additions (weeks 13–24):** stripped Dream Mode · affiliate chips in itinerary · Stripe premium sheet (2 features: ad removal + receipt scanning) · ad banner · founder's pricing tier · legal/contact/App Store assets · native wrap scoped.
+>
+> **Deferred from prior MVP → Post-MVP:** Vacation Day, Memory recap, Travel Day focus mode, Tools hub, Polls, Wishlist, trip-ball modal, advanced preplan sections, 6 of 8 premium features, CRDT collab.
+>
+> **Success metric:** *settled trips with ≥2 expense-logging members.* Year-1 target: 1,000. Supersedes any WAU/MAU framing.
+>
+> **Real-time collab:** optimistic UI + last-write-wins + soft conflict toast on field-level concurrent edits within 10s. Yjs/CRDTs are Post-MVP.
+>
+> **Retention philosophy:** episodic, not daily. 2–4 trips/year per organizer. Dream Mode serves as *ambient availability* between trips — never pushed, never streaked, never notified.
+>
+> Full rationale: DECISIONS.md entry *2026-04-20 — Roadmap grill: 11 decisions locked (re-grill corrected).*
+
+---
+
 This is the single most important doc in the repo. It defines **what TripWave has to prove first** and what is explicitly deferred.
 
 If the docs, code, or design decisions drift away from this spine, the product is at risk of scope-spiraling into three apps at once. Every grill-me session, every feature spec, and every implementation task should answer: *"Is this on the spine, or is it a later-phase embellishment?"*

@@ -1,5 +1,116 @@
 # Roadmap
 
+> **2026-04-20 Naming Audit — see docs/NAMING.md**
+>
+> Forward-work renames: Vacation Day → **Today** · Preplan → **Basics** · Tools Hub → **Tools** · Memory recap → **Afterglow** · Dashboard → **Home** · Premium (user-facing) → **Supporter**. Post-MVP list items below reference these new names going forward.
+
+> **2026-04-20 Roadmap Grill — Canonical Doctrine (supersedes all prior phasing)**
+>
+> This block is the authoritative scope hierarchy. Prior sections of this file describe the decision history and remain as context, but when any conflict arises, this doctrine wins.
+
+---
+
+## 🎯 Beachhead user
+
+22–28-year-old friend-group organizers planning bachelorette / birthday / ski / girls-trip / Tulum-style group vacations. The product's copy, defaults, example flows, and aesthetic all assume this archetype.
+
+## 🪝 Acquisition vector
+
+**One vector only: the organizer.** Members arrive via invite link. There is no cold "Splitwise-style" entry. Every non-spine feature is evaluated against: *does this make the organizer more likely to send the invite?*
+
+## 🛡 Moat
+
+**Integrated expenses.** Once two members log against each other inside TripWave, the ledger is sticky and the group can't leave. Expenses ships polished to screenshot-worthy quality — it is not bolted on last.
+
+## 🔁 Retention philosophy
+
+**Episodic, not daily.** 2–4 trips/year per organizer. No streaks, no daily pushes, no feed. Dream Mode serves as *ambient availability* between trips — available if the user opens the app, never pushed to pull them back.
+
+## 📏 Success metric
+
+**Settled trips with ≥2 expense-logging members.** One metric. One funnel (sign-up → trip created → invite accepted → first expense → second expense by second member → trip end date passed → marked settled).
+
+Targets:
+- **Beta (Month 3):** 10 settled trips
+- **Public launch (Month 6):** 100 settled trips
+- **Year 1:** 1,000 settled trips
+
+---
+
+## 🏗 90-Day Private Beta Scope (weeks 1–12, ~20 personal-network users)
+
+*Goal: prove the spine loop works end-to-end with a real group. Acquisition and revenue are out of scope here.*
+
+> **Canonical build order: see BACKLOG.md → "12-step build order."** Locked 2026-04-20. **Chunk 4 (invite flow) is the beta pivot** — the first moment TripWave is testable by real users. Anything that delays Chunk 4 does not ship in beta.
+
+| Weeks | Scope |
+|---|---|
+| 1–2 | **Foundation** — ORM install (Drizzle) · DB schema applied · Better Auth wired · app shell connected to real data |
+| 3–4 | **Trip creation** (real trips only; dream toggle stubbed) · trip overview · **invite flow** (create link, accept, join) |
+| 5–6 | **Expenses polished to moat-quality** — balances hero · add expense · split (equal / by-share / by-amount) · multi-currency · settle via Venmo/Zelle deep-links · manual receipt attachment |
+| 7–8 | **Itinerary day-by-day CRUD** · one preplan section (budget only) · soft-conflict toast on field-level concurrent edits within 10s |
+| 9–10 | **Travel Day checklist** (no focus mode) · notifications bell (in-app only) · trip ball (static, no modal) · **between-trips home state** (minimal: "Start a new trip" / "Duplicate past trip") |
+| 11–12 | Beta onboarding of ~20 personal-network users · analytics funnel implementation · bug-bash · observability |
+
+**Explicitly NOT in beta:** Dream Mode, affiliate, Stripe, premium sheet, ads, Vacation Day, Memory recap, Vault, Tools hub, polls, wishlist, scavenger hunt, notes, trip-ball modal, Travel Day focus mode, additional preplan sections.
+
+---
+
+## 🚀 Public MVP Scope (weeks 13–24 — public launch window)
+
+*Goal: acquisition engine + revenue online. Everything in beta, polished with beta feedback, plus:*
+
+- **Stripped Dream Mode** — create dream trip (real-trip creation flow with one toggle) · hero image (Unsplash picker) · public shareable URL (`/d/{slug}`) · title · destination · vibe tag · 3–5 placeholder itinerary items. **No** reactions, comments, save-to-dreams, mood boards, vibe themes.
+- **Affiliate chips in itinerary** — Booking.com, Skyscanner, Viator. Live affiliate IDs. This is the primary revenue lever.
+- **Stripe premium purchase sheet** — 2 features only at v1: **ad removal** + **receipt scanning**. Framed as supporter thank-you per MONETIZATION.md.
+- **Ad banner** (AdMob or AdSense) — permitted zones only (dashboard idle, vault, 3rd-4th preplan section). Never in Travel Day, expense entry, onboarding, invite flow, modals.
+- **Founder's pricing tier** — $2.99 for first 1,000 buyers; $4.99 standard thereafter.
+- **Legal · contact · App Store assets** — privacy policy, terms, contact stub, App Store copy, story-arc screenshots.
+- **Native wrap scoped** — Expo / React Native decision made; may not ship at launch but is actively in progress.
+
+---
+
+## 📦 Post-MVP Scope (priority-ordered, post-launch)
+
+1. **Native iOS + Android ship** (target Month 3–6 post-launch)
+2. Vacation Day (full: morning briefing, ambient polish)
+3. Travel Day focus mode (airport phases, calm layout)
+4. Memory / wrap-up recap
+5. Trip-ball modal (breakdown + color picker)
+6. Remaining preplan sections (travel, stay, vibe, who's coming)
+7. Dream Mode full (reactions · comments · save-to-dreams · mood boards · vibe themes)
+8. Polls
+9. Wishlist
+10. Notes feed
+11. Tools hub
+12. Vault
+13. Remaining 6 premium features (offline mode · smart suggestions · trip templates · export · duplication · currency converter)
+14. Advanced permission toggles
+15. CRDT-based real-time collab (replace last-write-wins)
+16. Scavenger Hunt
+
+---
+
+## 🧭 Net changes this doctrine locks
+
+- "MVP" split into **Beta (90d)** + **Public MVP (wk 13–24)**. Prior 16-item MVP list collapses into these tiers.
+- Expenses moves ahead of itinerary in sequence (weeks 5–6 vs 7–8).
+- Dream Mode reclassified Speculative → stripped in Public MVP.
+- Premium feature count reduced 8 → 2 at v1; other 6 move Post-MVP.
+- Affiliate promoted to spine-tier (ships at Public MVP, not post-launch polish).
+- "Pay-arena-as-cold-wedge" framing killed. One acquisition vector: organizer.
+- "Between-trips engagement" reworded to "ambient availability." No pushes.
+- Between-trips home state added to beta scope (new).
+- Success metric locked: settled trips with ≥2 expense-logging members.
+- Real-time collab: last-write-wins + conflict toast; CRDTs Post-MVP.
+- Native wrap: scoped in Public MVP, ships Month 3–6 post-launch.
+
+Full rationale: DECISIONS.md entry *2026-04-20 — Roadmap grill: 11 decisions locked (re-grill corrected).*
+
+---
+
+## Legacy phasing (pre-grill context; superseded by doctrine above)
+
 This roadmap is intentionally phased so we can build a stable, differentiated web product before chasing every advanced feature at once.
 
 ## Branching Strategy

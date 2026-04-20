@@ -1,5 +1,25 @@
 # Pitch -- TripWave in Layman's Terms
 
+> **2026-04-20 Naming Audit — see docs/NAMING.md**
+>
+> Forward-work renames: Vacation Day → **Today**, Preplan → **Basics**, Memory recap → **Afterglow**, Dashboard → **Home**, Premium (user-facing) → **Supporter**, Tools Hub → **Tools**. Branded flagship surfaces: TripWave · Dream Mode · Afterglow · Vault.
+
+> **2026-04-20 Roadmap Grill Revision (supersedes portions below)**
+>
+> - **Beachhead user:** 22–28-year-old friend-group organizers planning bachelorette / birthday / ski / Tulum-style group vacations. Highest trip-planning frequency, highest social-media density, highest tolerance for trying a new app. Copy, defaults, and example flows assume this archetype.
+> - **The moat = integrated expenses.** Aesthetic and trip ball are brand; expenses is the switching cost. Once two members log against each other in TripWave, the group can't leave. Expenses ships polished to screenshot-worthy quality, not bolted on last.
+> - **One acquisition vector: the organizer.** Members arrive via invite link, not cold discovery. Every non-spine feature is judged by "does this make the organizer more likely to send the invite?"
+> - **Two milestones, not one:**
+>   - **90-day private beta** (20 personal-network users): spine validation only. No Dream Mode, no affiliate, no premium, no ads.
+>   - **Public MVP (weeks 13–24):** adds stripped Dream Mode + affiliate chips + Stripe + founder's pricing. This is the real launch.
+> - **Premium at launch = 2 features only:** ad removal + receipt scanning. Other 6 premium features move to Post-MVP. Affiliate commissions are the real revenue lever.
+> - **Retention is episodic, not daily.** 2–4 trips/year per organizer. No streaks, no daily pushes, no feed. Dream Mode is *ambient availability* for dead months — pulled, never pushed.
+> - **Native iOS/Android** scoped during public MVP, ships Month 3–6 post-launch.
+>
+> Full rationale: DECISIONS.md entry *2026-04-20 — Roadmap grill: 11 decisions locked (re-grill corrected).*
+
+---
+
 This doc explains TripWave the way you'd describe it to a friend at a bar. No product jargon, no marketing-speak. Just real talk about what it is, why it exists, and why anyone should care.
 
 **Rule**: this doc is kept in sync with every other doc. Whenever a meaningful decision is made elsewhere (DECISIONS.md, UX_SPEC.md, MONETIZATION.md, DESIGN_SYSTEM.md), this pitch is updated too. If the pitch falls out of date, the product has drifted from what we meant to build.

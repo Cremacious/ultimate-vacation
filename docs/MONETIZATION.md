@@ -1,5 +1,21 @@
 # Monetization
 
+> **2026-04-20 Naming Audit — see docs/NAMING.md**
+>
+> **"Premium" is a dev shorthand only.** All user-facing surfaces use **"Supporter"**: purchase sheet CTA *"Become a Supporter · $4.99 once"*, account menu *"Supporter status"*, badge *"♥ Supporter"*. Older sections of this doc still say "Premium" — those are historical context; copy-ready user strings use Supporter.
+
+> **2026-04-20 Roadmap Grill Revision (supersedes portions below)**
+>
+> - **Premium at v1 = 2 features only:** ad removal + receipt scanning. The prior 8-feature premium bundle was over-scoped for a solo dev. Remaining 6 features (offline · smart suggestions · templates · export · duplication · currency converter) move to Post-MVP and may re-enter premium as they ship.
+> - **Affiliate is the primary revenue lever, not premium.** ~$500k gross projected over 5 years vs ~$243k net from premium. Affiliate chips (Booking.com, Skyscanner, Viator) ship at **Public MVP (weeks 13–24)** as a spine-tier feature — they are not a post-launch add-on.
+> - **Beta ships with no monetization surfaces.** No Stripe, no premium sheet, no ads. Beta is spine validation with ~20 personal-network users; monetization arrives at public launch.
+> - **Pricing locked from prior grill holds:** $2.99 founder's (first 1,000 buyers) → $4.99 standard thereafter.
+> - **Post-trip upgrade prompt locked from prior grill holds:** one-time after first completed trip, plus account-menu entry point. No persistent nudge.
+>
+> Full rationale: DECISIONS.md entry *2026-04-20 — Roadmap grill: 11 decisions locked (re-grill corrected).*
+
+---
+
 This document defines how the app should make money while staying genuinely useful. The goal is not just to add a paywall. The goal is to build a product that people feel relieved to pay for.
 
 ## Business Goal

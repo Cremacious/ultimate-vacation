@@ -1,5 +1,16 @@
 # Architecture
 
+> **2026-04-20 Roadmap Grill Revision (supersedes portions below)**
+>
+> - **Real-time group collaboration:** optimistic UI + last-write-wins at the field level. When two members edit the same field within 10 seconds, show a soft conflict toast to the losing writer (*"Sara also edited this — your change was saved. Refresh to see the latest."*). CRDT-based collab (Yjs or similar) is explicitly **Post-MVP** — not in beta, not in Public MVP. Beta groups (~20 users) will hit edge cases here; document them, don't pre-solve them.
+> - **Native wrap:** Expo or React Native. **Scoped during Public MVP (weeks 13–24)**, ships Month 3–6 post-launch. Travel Day is meaningfully worse in mobile browsers (no lock-screen info, no reliable push, no offline-by-default). Web-first stays for planning phase; native becomes the Travel/Vacation Day surface.
+> - **Stack confirmed:** Next.js · Drizzle ORM · Better Auth. No changes from prior decisions.
+> - **Beta uses mock affiliate/Stripe links.** UI surfaces exist (to validate layout) but point at non-affiliate URLs; Stripe replaced with a placeholder sheet. Live integrations wire up at Public MVP.
+>
+> Full rationale: DECISIONS.md entry *2026-04-20 — Roadmap grill: 11 decisions locked (re-grill corrected).*
+
+---
+
 This document describes the intended technical shape of the product before the backend is fully implemented.
 
 ## Architecture Goals

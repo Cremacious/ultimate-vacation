@@ -1,5 +1,9 @@
 # Design System Direction
 
+> **2026-04-20 Naming Audit — see docs/NAMING.md**
+>
+> **"Trip ball" is internal docs vocabulary only.** It does not appear in user-facing copy. Color picker label: simply "Color." First-run poetic framing may reference *"glow"* (*"every trip has its own glow"*) but never *"ball"*. The ball is a visual, not a named thing, from the user's perspective. See NAMING.md for the full rename table.
+
 This is not a final visual spec. It is the set of early design rules that keep the product coherent while we build.
 
 ## Design Goals
