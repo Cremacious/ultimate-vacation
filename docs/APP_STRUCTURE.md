@@ -161,50 +161,72 @@ The workspace should not act like a flat folder of pages. It should respond to t
 
 ## Trip Lifecycle States
 
-Trips move through a defined set of states. The workspace UI, trip ball behavior, and overview page content all respond to the current state automatically — with one manual exception.
+**Status:** Canonical rules live in **STATE_MODEL.md** (rewritten 2026-04-20 via the lifecycle grill, 18 decisions locked). This section summarizes; STATE_MODEL is the source of truth.
 
-| State | Condition | Overview page focus |
+Trips have **7 primary states** plus **1 terminal state** for Dream Mode trips. State transitions are deterministic functions of trip data + current timestamp.
+
+| State | Meaning | Primary dashboard focus |
 |---|---|---|
 | **Draft** | Created, setup incomplete | Push to complete setup |
-| **Planning** | Setup done, pre-departure | Preplanning progress, next best action, unscheduled Must Dos |
-| **Ready** | Preplanning complete, departure approaching | Travel day readiness, unresolved blockers |
-| **Travel Day** | Manually triggered by organizer on departure day | Group checklist status, everyone's progress, departure tasks |
-| **In Progress** | Trip active (between departure and return dates) | Today's highlights, coming up today, recent polls, activity feed |
-| **Stale** | Return date passed, not closed out | Wrap-up summary, unsettled expenses, close-out CTA |
-| **Vaulted** | Closed out by organizer | Memory vault — read-only, browsable, shareable |
+| **Planning** | Setup complete, not yet Ready | Preplanning progress, next-best-action, unscheduled Must Dos |
+| **Ready** | Meets Ready threshold (composite rule — see STATE_MODEL § 2) | Travel-day readiness, itinerary summary, blockers |
+| **TravelDay** | A travel-leg date is active | Travel-day timeline (shell override — UX_SPEC § 42.13) |
+| **InProgress** | Trip live between travel legs (vacation days) | Today's highlights, coming up today, recent polls, activity feed |
+| **Stale** | `endDate` has passed + 24h grace, not yet closed out | Wrap-up summary, unsettled expenses, close-out CTA |
+| **Vaulted** | Closed out (manual or 90-day auto) | Memory vault — read-only, browsable, shareable (shell override) |
+| **Dreaming** | Dream Mode trips only; terminal state | Dream workspace + "Make it real" upsell surface |
 
-Phase transitions are date-driven and automatic. The Travel Day state is the only manually triggered transition — organizers tap "We're off" because real-world departures can be delayed and the app shouldn't assume.
+**Transitions:** mostly auto-forward (Draft to Planning, Planning to Ready, time-driven progression). TravelDay is auto at 04:00 local on any travel-leg date, with a manual "We're off early" option. Stale to Vaulted is manual primary with a 90-day auto fallback. Full transition triggers in STATE_MODEL § 2.
 
-Stale trips can still be edited (add forgotten expenses, update notes). No nudge is sent for stale trips — the slot limit creates natural pressure. Users who want to create a new trip eventually have to close one out.
+**Multi-leg cycling:** A trip cycles between TravelDay and InProgress across its duration — each travel-leg date (start, any accommodation change, end) triggers TravelDay; between legs the state is InProgress.
+
+**Stale trips remain fully editable** (add forgotten expenses, update notes). No repeated nudges — a single banner fires at T+14 days if unsettled balances remain; otherwise silent. The slot limit creates natural pressure for free users to eventually close out.
+
+**Dream Mode trips** go Draft → Planning → Dreaming and never progress further. "Make it real" converts a Dream back to Planning with new dates.
 
 ## Trip Creation Flow
 
-Trip creation follows an invite-first, async-collaborative flow:
+**Status:** Canonical flow lives in UX_SPEC.md § 3 (rewritten 2026-04-20 via the creation grill, 18 decisions locked). This section summarizes; UX_SPEC is the source of truth.
 
-1. **Create blank trip** — organizer enters the trip name and at least one destination to create the shell
-2. **Invite participants** — organizer adds friends immediately, before setup is complete; all participants can begin contributing their Must Dos and reacting to proposals from the start
-3. **Async collaborative setup** — organizer and participants fill in preplanning details at their own pace; changes appear when others refresh or re-open the app; no real-time sync required
-4. **Trip workspace** — everyone lands in the full workspace; preplanning remains editable at any time
+Trip creation is a two-phase flow:
 
-Participants join before the plan solidifies so they can add their Must Dos and vote on early proposals. The invite step is the second screen after trip creation — not an afterthought.
+1. **The ritual** — a 5-step full-screen emotional commitment moment (Step 0 Real/Dream → Step 1 Name → Step 2 Dates → Step 3 Color → Step 4 Reveal). Captures 4 fields only: type, name, dates, color. Ball color defaults to neon cyan if skipped; dates are skippable.
+2. **The Setup page** — `/app/trips/[tripId]/setup` in the bento shell. Captures the remaining 3 required fields (destinations, traveler count, transport modes) plus 4 optional fields (trip type + vibe, ball color editable, budget, invite mode).
 
-**Participant first action:** When a participant joins (via invite link or code), their first screen is a focused prompt — "What are your Must Dos for this trip?" — before they reach the full workspace. This seeds the Proposed queue with input from everyone on day one and immediately makes them a contributor rather than a viewer.
+**State transitions:**
+- Trip row is created on ritual Step 1 submit (name). Trip state is `Draft`.
+- Ritual Step 4 *"Let's go"* CTA routes to Setup page, **not** the trip overview.
+- Trip exits Draft and enters Planning when all 5 required fields exist (per STATE_MODEL § Minimum Setup Requirements).
+- If `travelerCount > 1`, invite prompt fires right after Setup completes — NOT during the ritual.
+- If `travelerCount = 1` (solo), invite prompt is skipped entirely.
 
 Setup captures only the high-level skeleton of the trip. All granular details (flight numbers, lodging confirmations, group member info, documents, etc.) live in Preplanning.
 
-### Setup form fields
+### Setup fields (9 total — 5 required, 4 optional)
 
+**Required (block Draft → Planning transition):**
 - trip name
-- one or more destinations (city + country, with rough arrival/departure dates)
+- one or more destinations (city + country, optional arrival/departure)
 - start date and end date
-- transport mode multi-select (fly, drive, train, cruise — multiple allowed)
-- traveler count
-- trip type and vibe
-- ball color picker
-- budget target, currency, type (total or per-person)
-- invite mode
+- traveler count (stepper, default 1)
+- transport mode multi-select (fly, drive, train, cruise — >= 1 required)
 
-After completing setup, the user lands on the Setup view page. A prompt guides them to continue into Preplanning to fill in the details.
+**Optional:**
+- trip type and vibe (two dropdowns)
+- ball color (editable post-ritual)
+- budget target, currency, type (total or per-person)
+- invite mode (private / invite-only / public-link, default invite-only)
+
+### Invitee first action (joining an existing trip)
+
+Invitees skip the ritual entirely. When they join (via invite link or code), their first screen is a full-screen Must Dos prompt with contextual copy (*"The things you can't miss on this trip. [Organizer] and [N-1] others will see these."*). This seeds the Proposed queue with input from everyone on day one and immediately makes them a contributor rather than a viewer. Submit or skip lands them in the trip workspace at the current recommended phase.
+
+### Persistence and edge cases
+
+- Trip row persists in Draft if ritual is abandoned mid-flow. User resumes from the step they left via a *"Finish creating [Trip Name]"* CTA in the nav column.
+- Draft trips with no activity for 30 days are silently soft-deleted.
+- Ritual is online-only; blocks with a warm retry modal if user is offline.
+- Editing required Setup fields post-completion can regress `Planning` → `Draft` (the one allowed regression per STATE_MODEL § 2), with a warning banner.
 
 ### Preplanning is dynamically shaped by Setup
 

@@ -1,18 +1,90 @@
 # State Model
 
-This document turns the app logic into concrete product state rules. It defines the core trip object shape, the lifecycle and readiness model, and how the app should compute the recommended phase and next best action.
+This document defines the canonical trip lifecycle, state transitions, readiness computation, blocker taxonomy, and next-best-action algorithm for TripWave. Locked 2026-04-20 via the lifecycle grill (18 decisions). Any conflict with APP_STRUCTURE.md or UX_SPEC.md is resolved in favor of this document.
 
 ## Goal
 
 The app should know:
 
-- what state a trip is in
-- how ready the trip is
-- what phase deserves attention now
-- what action best reduces risk right now
-- how complete the preplanning is (drives the trip ball fill)
+- what state a trip is in (deterministic, computable from trip data + now)
+- how ready the trip is (6-dimension composite score, 0-100)
+- what phase deserves attention now (auto-computed)
+- what action best reduces risk right now (one primary + up to three secondary)
+- what blockers exist (exactly 7 defined types, no ad-hoc blockers)
+- how complete preplanning is (drives the trip ball fill)
 
-## 1. Core Trip Object Shape
+---
+
+## 1. Canonical Lifecycle States
+
+TripWave has **7 primary lifecycle states** for real trips plus **1 terminal state** for Dream Mode trips.
+
+| State | Meaning |
+|---|---|
+| `Draft` | Trip created, setup incomplete |
+| `Planning` | Setup complete, trip is not yet ready for execution |
+| `Ready` | Trip meets the Ready threshold (preplanning + itinerary + travel-day or near departure) |
+| `TravelDay` | A travel-leg date is active (departure day, accommodation change, or return day) |
+| `InProgress` | Trip is live between travel legs (vacation days) |
+| `Stale` | Trip end date has passed, not yet closed out by organizer |
+| `Vaulted` | Trip closed out; rendered as Memory vault |
+| `Dreaming` | Dream Mode trips only; terminal state, does not progress |
+
+**Naming notes:** `Stale` is preferred over `Completed` because it captures the "you haven't closed this out" nuance. `Vaulted` is preferred over `Archived` because it matches the Memory Vault brand metaphor.
+
+---
+
+## 2. State Transitions
+
+All transitions are deterministic: given a trip object and the current timestamp, the correct state is a pure function.
+
+### Transition triggers
+
+| From | To | Trigger | Classification |
+|---|---|---|---|
+| `Draft` | `Planning` | Setup complete: `name` + >=1 destination with city + `startDate` + `endDate` + `travelerCount >= 1` + >=1 `transportMode` | Auto-forward |
+| `Planning` | `Draft` | Any required setup field is cleared | Auto-backward |
+| `Planning` | `Ready` | **(preplanningCompletionPct >= 60 AND itinerary has >=1 anchor event AND travel-day has partial plan AND daysToDeparture <= 14)** OR **(daysToDeparture <= 2 AND setup complete)** | Auto-forward |
+| `Ready` | `Planning` | **Not allowed.** If Ready conditions are broken, show warning banner but do not regress | — |
+| `Ready` | `TravelDay` | Auto at **04:00 local time** on any travel-leg date. OR manual organizer "We're off early" | Auto-forward + manual |
+| `TravelDay` | `InProgress` | Auto at **23:59 local time** end of the travel-leg day. OR manual user "We've arrived" | Auto-forward + manual |
+| `InProgress` | `TravelDay` | Re-fires Ready to TravelDay rule for any subsequent travel-leg date | Auto-forward (cycle) |
+| `InProgress` | `Stale` | Auto at **midnight local of `endDate` + 1 day** (24-hour grace) | Auto-forward |
+| `Stale` | `Vaulted` | Manual via organizer "Close out trip". OR auto at **day 90 past `endDate`** if not closed | Manual + auto fallback |
+| `Vaulted` | `Stale` | Manual via user "Reopen trip" (supports late-arriving receipts, etc.) | Manual only |
+| `Planning` | `Dreaming` | Only if trip is flagged as Dream Mode at creation; one-way | Auto-forward |
+| `Dreaming` | `Planning` | Manual via "Make it real" — converts to a regular trip, new dates required | Manual only |
+
+### Travel-leg date definition
+
+A **travel-leg date** is any date that triggers TravelDay state:
+
+- Trip `startDate` (depart home)
+- Any overnight-accommodation-change date derived from the itinerary
+- Trip `endDate` (return home)
+
+Between travel-leg dates (during a stay), the trip returns to `InProgress`.
+
+### Regression rules
+
+Only `Draft` to `Planning` is fully bidirectional. All other states enforce forward-only progression, with these exceptions:
+
+- Date-driven regressions are blocked (you cannot un-start a trip).
+- If trip data changes break a forward condition (e.g., preplanning data deleted), show a **warning banner**, not a state regression. Example: *"You removed 3 itinerary events. This trip is Ready but approaching the Planning threshold."*
+- `Vaulted` to `Stale` is the only manual reverse transition — deliberate user action.
+
+### Date slip handling
+
+If `startDate` or `endDate` changes:
+
+1. State recomputes from scratch against the new dates.
+2. If the change causes a **backward transition** (e.g., trip pushed 3 months out, no longer Ready), show a confirmation modal: *"You've moved this trip. It's now X days out — switch back to Planning?"* User chooses.
+3. If the change causes a **forward transition** (trip moved up, now hits Ready threshold), auto-promote without prompt.
+4. The 90-day Stale to Vaulted auto-transition always honors the current `endDate` — moving the end date forward extends the Stale window.
+
+---
+
+## 3. Core Trip Object Shape
 
 This is a product-facing model, not a final database schema.
 
@@ -21,8 +93,6 @@ This is a product-facing model, not a final database schema.
 **Setup** captures the high-level skeleton of the trip. It answers: what is this trip, when, where, who, and roughly how are we getting there. Setup should take 5 minutes. Every field is broad and high-level. No booking references, no flight times, no confirmation numbers.
 
 **Preplanning** captures all the small details that make the trip actually work. It is dynamically scaffolded by the choices made in Setup — the sections shown to the user and the questions asked are determined by what was entered in Setup. A user who selected Flying + Driving will see flight detail sections and car rental sections. A domestic trip will not be asked about visas. A solo trip skips group composition. All fields in preplanning are optional so power planners can go deep while casual planners are never overwhelmed.
-
----
 
 ### Trip (Setup fields only)
 
@@ -33,15 +103,16 @@ These are the fields collected during Setup. They define the trip identity.
 - `name`
 - `startDate`
 - `endDate`
-- `status`
+- `status` (enum: `Draft` | `Planning` | `Ready` | `TravelDay` | `InProgress` | `Stale` | `Vaulted` | `Dreaming`)
 - `recommendedPhase`
 - `tripType` (beach, city, adventure, road trip, family, romantic, group, honeymoon, etc.)
 - `tripVibe` (relaxed, packed, spontaneous, structured)
 - `transportModes` (array — user selects one or more: fly, drive, train, cruise. Multiple allowed e.g. fly + drive)
 - `travelerCount`
 - `inviteMode` (private, invite_only, public_link)
+- `isDreamMode` (boolean)
 - `isPremiumTrip` (organizer has premium unlock)
-- `readinessScore`
+- `readinessScore` (computed 0-100, never shown to user as a number)
 - `ballColor` (user-selected from brand palette or custom hex — core trip personalization)
 - `budgetTarget` (numeric amount, optional)
 - `budgetCurrency` (ISO 4217 currency code, e.g. USD, EUR, JPY)
@@ -63,175 +134,72 @@ A trip has one or more destinations. Destinations are ordered and define the rou
 
 The first destination's arrival date and the last destination's departure date drive the trip start/end dates. Intermediate destinations represent a multi-city trip.
 
----
-
 ### Preplanning — detailed data models
 
 All preplanning data is optional. Sections are surfaced dynamically based on Setup choices.
 
-### TransportDetail (Preplanning — one per transport mode selected in Setup)
+#### TransportDetail (Preplanning — one per transport mode selected in Setup)
 
-Each mode selected in Setup gets its own detailed section in Preplanning.
-
-#### Flying detail
+##### Flying detail
 
 - `id`, `tripId`
-- One or more `FlightLeg` entries (outbound, return, and any connections or separate flights during the trip)
+- One or more `FlightLeg` entries
 
 Each `FlightLeg`:
-- `originAirportCode` (IATA, e.g. SRQ)
-- `originAirportName` (optional)
-- `destinationAirportCode` (IATA, e.g. FRA)
-- `destinationAirportName` (optional)
+- `originAirportCode` (IATA), `originAirportName` (optional)
+- `destinationAirportCode` (IATA), `destinationAirportName` (optional)
 - `departureDate`, `departureTime`
 - `arrivalDate`, `arrivalTime`
-- `flightNumber` (optional, e.g. LH 401)
-- `airline` (optional)
-- `confirmationRef` (optional)
-- `seatClass` (economy, premium_economy, business, first)
-- `isConnection` (boolean)
-- `notes` (optional)
+- `flightNumber` (optional), `airline` (optional), `confirmationRef` (optional)
+- `seatClass`, `isConnection` (boolean), `notes` (optional)
 
-Airport transfer notes (how getting to/from each airport) stored as free text per leg.
-
-#### Driving detail
+##### Driving detail
 
 - `id`, `tripId`
-- `isCarRental` (boolean)
-- `rentalCompany` (optional)
-- `rentalConfirmationRef` (optional)
-- `rentalPickupLocation` (optional)
-- `rentalPickupDate`, `rentalPickupTime` (optional)
-- `rentalReturnLocation` (optional)
-- `rentalReturnDate`, `rentalReturnTime` (optional)
-- `estimatedTotalDriveHours` (optional)
-- `keyStops` (array of location strings — waypoints, optional)
-- `notes` (optional)
+- `isCarRental` (boolean), `rentalCompany`, `rentalConfirmationRef` (optional)
+- `rentalPickupLocation`, `rentalPickupDate`, `rentalPickupTime` (optional)
+- `rentalReturnLocation`, `rentalReturnDate`, `rentalReturnTime` (optional)
+- `estimatedTotalDriveHours`, `keyStops` (array of waypoints), `notes`
 
-#### Train detail
+##### Train detail
 
 - `id`, `tripId`
-- One or more `TrainLeg` entries
+- One or more `TrainLeg` entries with origin/destination stations, times, service label, confirmation ref, seat class
+- Rail pass (if used): `railPassUsed`, `railPassName`, `railPassConfirmationRef`
 
-Each `TrainLeg`:
-- `originStation`, `destinationStation`
-- `departureDate`, `departureTime`
-- `arrivalDate`, `arrivalTime`
-- `trainNumber` (optional)
-- `serviceLabel` (optional, e.g. Shinkansen Nozomi)
-- `confirmationRef` (optional)
-- `seatClass` (optional)
-- `notes` (optional)
-
-Rail pass (if used):
-- `railPassUsed` (boolean)
-- `railPassName` (optional)
-- `railPassConfirmationRef` (optional)
-
-#### Cruise detail
+##### Cruise detail
 
 - `id`, `tripId`
-- `cruiseLine`
-- `shipName` (optional)
-- `portOfEmbarkation`, `embarkationDate`, `embarkationTime`
-- `portOfDisembarkation`, `disembarkationDate`, `disembarkationTime`
-- `cabinNumber` (optional)
-- `cabinClass` (optional)
-- `confirmationRef` (optional)
-- `notes` (optional)
+- `cruiseLine`, `shipName`, ports of embarkation/disembarkation, dates, times, cabin, confirmation ref
 
----
+#### LodgingEntry (Preplanning — one per place stayed)
 
-### LodgingEntry (Preplanning — one per place stayed)
+Shown in Preplanning regardless of transport mode.
 
-Shown in Preplanning regardless of transport mode. Number of suggested entries is informed by the number of destinations in Setup.
+- `id`, `tripId`, `order`
+- `propertyName`, `type` (hotel, airbnb, hostel, resort, camping, vacation_rental, friends_family, other)
+- `city`, `address`
+- `checkInDate`, `checkInTime`, `checkOutDate`, `checkOutTime`
+- `confirmationRef`, `contactNumber`, `notes`
 
-- `id`
-- `tripId`
-- `order` (integer, 1-based for display)
-- `propertyName`
-- `type` (hotel, airbnb, hostel, resort, camping, vacation_rental, friends_family, other)
-- `city`
-- `address` (optional)
-- `checkInDate`, `checkInTime` (optional)
-- `checkOutDate`, `checkOutTime` (optional)
-- `confirmationRef` (optional)
-- `contactNumber` (optional)
-- `notes` (optional)
+#### GroupMember (Preplanning — one per traveler)
 
----
+Shown when `travelerCount > 1`.
 
-### GroupMember (Preplanning — one per traveler)
+- `id`, `tripId`, `userId` (nullable)
+- `displayName`, dietary/mobility/medical notes, emergency contact
 
-Shown when `travelerCount > 1`. Number of entries matches `travelerCount` from Setup.
+#### DestinationDetail (Preplanning — one per TripDestination)
 
-- `id`
-- `tripId`
-- `userId` (nullable — may not be a registered user yet)
-- `displayName`
-- `dietaryNeeds` (array of tags: vegetarian, vegan, gluten-free, halal, kosher, nut allergy, shellfish allergy, other)
-- `mobilityNeeds` (free text, optional)
-- `medicalNotes` (free text, private to organizer, optional)
-- `emergencyContactName` (optional)
-- `emergencyContactPhone` (optional)
-- `emergencyContactRelation` (optional)
+- `id`, `tripId`, `destinationId`
+- `timezone`, `localCurrency`, `languageNotes`
+- `visaRequired`, `visaNotes`, `healthEntryRequirements`
+- `powerAdapterNeeded`, `adapterType`, `drivingRules`
+- `emergencyNumbers`, `seasonalWarnings`, `localHolidayNotes`
 
----
-
-### DestinationDetail (Preplanning — one per TripDestination)
-
-Shown for each destination added in Setup.
-
-- `id`
-- `tripId`
-- `destinationId` (links to TripDestination)
-- `timezone` (optional, IANA timezone string)
-- `localCurrency` (optional, ISO 4217)
-- `languageNotes` (optional)
-- `visaRequired` (boolean, nullable — null means not yet checked)
-- `visaNotes` (optional)
-- `healthEntryRequirements` (optional — vaccinations, tests, etc.)
-- `powerAdapterNeeded` (boolean, nullable)
-- `adapterType` (optional)
-- `drivingRules` (optional — road side, speed units, IDP required)
-- `emergencyNumbers` (optional — local police, hospital, embassy)
-- `seasonalWarnings` (optional — weather risks, closures, peak season notes)
-- `localHolidayNotes` (optional)
-
-Shown only for international trips: visa, health entry, adapter, emergency numbers, embassy.
-Shown only for driving trips: driving rules, IDP.
-
----
-
-### DocumentEntry (Preplanning — one per traveler per document type)
-
-- `id`
-- `tripId`
-- `travelerId` (links to GroupMember)
-- `type` (passport, visa, travel_insurance, vaccination_record, international_driving_permit, other)
-- `expiryDate` (optional)
-- `notes` (optional — reference numbers, issuing country, etc.)
-
----
-
-### PreDepartureItem (Preplanning — checklist of home logistics)
-
-Shown when trip is more than a few days and/or trip type suggests it (family trips, longer trips).
-
-Examples of items surfaced:
-- Airport parking or transport to airport arranged
-- House sitter / key left with neighbour
-- Pet care arranged
-- Mail hold requested
-- Plants watered / arranged
-- Out-of-office set
-- Medication supply checked (shown when medical needs flagged)
-- School absence arranged (shown when children flagged in group)
-- Car maintenance checked (shown when driving mode selected)
+#### DocumentEntry, PreDepartureItem (details per sections above)
 
 ### Preplanning completeness fields
-
-These track section-level completion and drive the trip ball fill percentage.
 
 - `preplanningTransportComplete` (only counted if transport modes were selected in Setup)
 - `preplanningAccommodationComplete`
@@ -240,7 +208,7 @@ These track section-level completion and drive the trip ball fill percentage.
 - `preplanningDestinationInfoComplete`
 - `preplanningDocumentsComplete` (only counted for international trips)
 - `preplanningPreDepartureComplete`
-- `preplanningCompletionPct` (computed 0–100)
+- `preplanningCompletionPct` (computed 0-100)
 
 ### Dynamic preplanning section rules
 
@@ -256,191 +224,146 @@ Sections are shown or hidden based on Setup choices. Hidden sections are exclude
 | Group composition | travelerCount > 1 |
 | Budget breakdown | budgetTarget set in Setup |
 | Destination info | always shown |
-| Visa and health entry | destination country is international (not home country) |
+| Visa and health entry | destination country is international |
 | Power adapter | destination country uses different plug/voltage |
 | Driving rules and IDP | drive selected in transportModes |
 | Documents | always shown |
 | Pre-departure logistics | always shown |
 | Medication reminder | medical needs flagged in group composition |
-| Pet/house logistics | trip length >= 3 days (suggested, not forced) |
+| Pet/house logistics | trip length >= 3 days |
 | School absence | children flagged in group composition |
 
 ### Trip readiness support fields
 
-- `setupComplete`
-- `preplanningComplete`
-- `itineraryCoverageLevel`
+- `setupComplete` (boolean)
+- `preplanningComplete` (boolean)
+- `itineraryCoverageLevel` (none | partial | good | complete)
 - `packingCoverageLevel`
 - `travelDayCoverageLevel`
 - `expenseTrackingEnabled`
 - `hasOutstandingSettlement`
 
-### Suggested supporting enums
+### Minimum Setup Requirements
 
-#### Trip status
+The trip counts as setup-complete only when these fields exist:
 
-- `draft`
-- `planning`
-- `ready`
-- `in_progress`
-- `completed`
-- `archived`
+- `name`
+- At least one destination (city required)
+- `startDate` and `endDate`
+- `travelerCount >= 1`
+- At least one transport mode selected
 
-#### Recommended phase
+Optional but shown in Setup form: additional destinations, trip type and vibe, ball color, budget target/currency/type.
 
-- `setup`
-- `preplanning`
-- `itinerary`
-- `packing`
-- `travel_day`
-- `vacation_day`
-- `expenses`
-- `wrap_up`
+Everything else (flight numbers, lodging details, group info, documents) belongs in Preplanning and is never required for setup-complete status.
 
-#### Coverage level
+---
 
-- `none`
-- `partial`
-- `good`
-- `complete`
+## 4. Readiness Score
 
-## 2. Minimum Setup Requirements
+The readiness score is a composite 0-100 number computed deterministically from trip data. **Users never see the raw number** — it is exposed only as the trip ball fill, a status chip label, and blocker visibility.
 
-The trip should count as setup-complete only when these fields exist:
+### Dimensions and weights
 
-- trip name
-- at least one destination (city required)
-- start date and end date
-- travelerCount >= 1
-- at least one transport mode selected
+| Dimension | Weight | Computation |
+|---|---|---|
+| **Setup** | 25 | Binary — 25 if setup complete (all required fields), 0 otherwise |
+| **Itinerary** | 20 | 4 per day of trip that has >=1 scheduled event, capped at 20 |
+| **Packing** | 15 | 5 for personal list exists, 5 for group list exists (if travelerCount > 1), 5 for personal list has >=80% of suggested items |
+| **Travel Day** | 20 | 10 for departure travel-day has a plan, 10 for return travel-day has a plan. Partial plan (>=1 task) counts |
+| **Collaboration** | 10 | 5 for any invite sent, 5 for all invitees joined (or 5 automatically if travelerCount = 1) |
+| **Finance** | 10 | 5 if budget set in Setup, 5 for >=1 expense logged OR expense tracking is explicitly opted out |
 
-Optional but shown in Setup form and encouraged:
+Total is clamped 0-100.
 
-- additional destinations (for multi-city trips)
-- trip type and vibe
-- ball color (defaults to brand cyan if not set)
-- budget target, currency, and type
+### Status bands
 
-Everything else (flight numbers, lodging details, group member info, documents, etc.) belongs in Preplanning and is never required for setup-complete status.
+| Score | Band label (shown to user as status chip) |
+|---|---|
+| 0-34 | Fragile |
+| 35-64 | Getting there |
+| 65-84 | Ready-ish |
+| 85-100 | Locked in |
 
-## 3. Trip Status Rules
+### Readiness visibility to user
 
-### Draft
+The raw score is **never displayed as a number**. Three derived signals surface the readiness:
 
-Stay in `draft` when setup is incomplete.
+1. **Trip ball fill %** — visual representation (see Section 5).
+2. **Status chip** on trip cards in the dashboard nav column (*"Fragile" / "Getting there" / "Ready-ish" / "Locked in"*). Uses the band label, never the number.
+3. **Blocker list** in the context panel — the actionable surface.
 
-### Planning
+### Preplanning completion visibility
 
-Move to `planning` when setup is complete but the trip is not yet ready for execution.
+The preplanning completion percentage IS shown, but only in specific places:
 
-### Ready
+- **Inside the Preplanning phase header** (*"Preplanning — 40% complete"*)
+- **In the nav-column phase card mini-status** for Preplanning (*"40%"*)
+- **Visualized on the trip ball** (fill percentage)
 
-Move to `ready` when:
-
-- setup is complete
-- departure is near enough to require execution focus, or planning essentials are adequately covered
-- the trip has at least partial itinerary
-- the trip has at least partial packing support
-- the departure travel day is at least partially modeled
-
-### In Progress
-
-Move to `in_progress` when:
-
-- today is between trip start and trip end inclusive
-
-### Completed
-
-Move to `completed` when:
-
-- trip end date has passed
-- but the trip is still visible for settlement and wrap-up
-
-### Archived
-
-Move to `archived` only by explicit user action or later automation.
-
-## 4. Readiness Model
-
-Readiness should not be all-or-nothing. It should be a composited measure used for UX guidance.
-
-## Readiness dimensions
-
-- setup readiness
-- itinerary readiness
-- packing readiness
-- travel-day readiness
-- collaboration readiness
-- financial readiness
-
-### Suggested scoring model
-
-Not final, but good enough for MVP logic planning:
-
-- setup: 0 to 25 points
-- itinerary: 0 to 20 points
-- packing: 0 to 15 points
-- travel day: 0 to 20 points
-- collaboration: 0 to 10 points
-- finance: 0 to 10 points
-
-Total:
-
-- `0-34`: fragile
-- `35-64`: getting there
-- `65-84`: ready-ish
-- `85-100`: locked in
+It is explicitly NOT shown on the dashboard hero, trip cards, or any other surface.
 
 ### Why a score matters
 
-The score should not become a vanity number. It should support:
+The score drives:
 
-- trip ball fill and animation state
-- health/status cards
-- blocker highlighting
-- smart nudges
-- premium upsell moments later
+- Trip ball fill and animation state
+- Status chips on trip cards
+- Blocker highlighting
+- Recommended-phase computation
+- Next-best-action ranking
+
+It is never a vanity number for the user.
+
+---
 
 ## 5. Trip Ball State Model
 
-The trip ball is the visual representation of the trip's health and progress. Its state should be computed from the trip object.
+The trip ball is the visual representation of the trip's health and progress. Its state is computed from the trip object.
 
 ### Ball fill rules
 
-Ball fill (0–100%) is driven by `preplanningCompletionPct` until preplanning is complete, then by overall readiness score.
+Ball fill (0-100%) is driven by `preplanningCompletionPct` until preplanning is complete, then by overall readiness score.
 
 | Preplanning pct | Ball state |
 |---|---|
 | 0% | Empty — dotted outline only |
-| 1–49% | Partial fill — preplanning in progress |
-| 50–89% | Mostly filled — strong progress |
-| 90–100% | Full — preplanning complete |
+| 1-49% | Partial fill — preplanning in progress |
+| 50-89% | Mostly filled — strong progress |
+| 90-100% | Full — preplanning complete |
 
 ### Ball animation state rules
 
 | Trip state | Ball animation |
 |---|---|
-| new trip, no data | Calm, expectant, dotted outline |
-| preplanning in progress | Slow ocean-wave pulse |
-| preplanning complete | Bouncy, confident, full fill |
-| blocker present | Subtle agitation micro-animation |
-| milestone hit | Brief celebration burst |
-| travel day active | Alert, faster pulse rhythm |
-| on vacation | Slow, warm, relaxed pulse |
-| trip completed | Soft nostalgic fade |
-| archived | Dimmed, still |
+| Draft, no data | Calm, expectant, dotted outline |
+| Planning | Slow ocean-wave pulse |
+| Ready | Bouncy, confident, full fill |
+| TravelDay | Alert, faster pulse rhythm |
+| InProgress | Warm, relaxed pulse |
+| Stale | Soft nostalgic fade |
+| Vaulted | Dimmed, still |
+| Dreaming | Sparkle overlay on Dream-color ball |
+
+A blocker-present override can apply to Planning and Ready states: subtle agitation micro-animation on top of the state's default animation.
 
 ### Ball color
 
-`ballColor` is user-set per trip. Default colors are drawn from the brand palette. Users can recolor at any time from trip settings.
+`ballColor` is user-set per trip. Default colors are drawn from the brand palette. Users (organizer only) can recolor at any time from trip settings.
 
-## 6. Recommended Phase Rules
+### Trip ball visibility
 
-The app should compute one recommended phase for the workspace header and the main call to action.
+All participants see the ball — in the shell, nav column, and dashboard. Ball fill % and animation state are the same for everyone (trip readiness is a shared fact, not per-user progress). Ball color is set by organizer; participants see the chosen color but cannot change it.
+
+---
+
+## 6. Recommended Phase
+
+The app computes one recommended phase for the workspace header and the primary call-to-action.
 
 ### Phase priority order
 
-When multiple phases could apply, use this priority:
+When multiple phases could apply, use this priority (highest-priority wins):
 
 1. `travel_day`
 2. `setup`
@@ -453,194 +376,282 @@ When multiple phases could apply, use this priority:
 
 ### Rules
 
-#### Recommend `travel_day` when:
+- Recommend **`travel_day`** when state is `TravelDay` OR departure is tomorrow and travel-day setup is weak.
+- Recommend **`setup`** when state is `Draft`.
+- Recommend **`wrap_up`** when state is `Stale` AND there are wrap-up tasks or unresolved settlement.
+- Recommend **`expenses`** when there are unresolved balances, budget overages, or the user is explicitly working in finance tasks.
+- Recommend **`vacation_day`** when state is `InProgress` AND no current travel-day flow is active.
+- Recommend **`packing`** when departure is close AND packing coverage is still partial or none.
+- Recommend **`preplanning`** when preplanning questions remain unresolved, especially for transport, mobility, special needs, or long-drive logistics.
+- Recommend **`itinerary`** when the trip still lacks meaningful schedule structure.
 
-- there is an active travel day today
-- or departure is tomorrow and travel-day setup is weak
+---
 
-#### Recommend `setup` when:
+## 7. Next Best Action Algorithm
 
-- minimum setup is incomplete
+Each trip surfaces exactly one `primaryAction` and up to three `secondaryActions` plus a list of `blockers`.
 
-#### Recommend `wrap_up` when:
+### Algorithm (deterministic, 3-step pipeline)
 
-- trip is completed
-- and there are wrap-up tasks or unresolved settlement
+```
+function computeNextAction(trip: Trip, now: Date):
+  # Step 1: Severe-blocker override
+  blockers = computeBlockers(trip, now)
+  if blockers.length >= 5:
+    primary = resolveAction(blockers[0])     # highest-urgency blocker first
+    secondary = blockers.slice(1, 4).map(resolveAction)
+    return { primary, secondary }
 
-#### Recommend `expenses` when:
+  # Step 2: State-driven candidate generation
+  state = computeState(trip, now)
+  candidates = stateCandidateMap[state].filter(action => action.isApplicable(trip))
 
-- there are unresolved balances
-- budget overages
-- or the user is explicitly working in finance tasks
+  # Step 3: Urgency-weighted ranking
+  candidates = candidates.sort((a, b) => urgency(b, trip) - urgency(a, trip))
 
-#### Recommend `vacation_day` when:
+  primary = candidates[0]
+  secondary = candidates.slice(1, 4)
+  return { primary, secondary }
+```
 
-- trip is in progress
-- and there is no current travel-day flow active
+### State candidate map
 
-#### Recommend `packing` when:
+| State | Candidate actions |
+|---|---|
+| `Draft` | `completeSetup` |
+| `Planning` | `addDestinationDetails`, `buildItinerary`, `inviteGroup`, `setBudget`, `buildTravelDayPlan` |
+| `Ready` | `buildTravelDayPlan`, `confirmPacking`, `reviewItinerary`, `resolveBlockers` |
+| `TravelDay` | `openTravelDayTimeline` (always primary) |
+| `InProgress` | `viewTodaysSchedule`, `checkOffVacationDayTasks`, `logRecentExpense` |
+| `Stale` | `settleExpenses`, `writeMemoryRecap`, `closeOutTrip` |
+| `Vaulted` | `revisitMemory` |
+| `Dreaming` | `invitePeopleToDream`, `setBudget`, `buildFantasyItinerary`, `makeItReal` |
 
-- departure is close
-- and packing coverage is still partial or none
+### Urgency weighting
 
-#### Recommend `preplanning` when:
+Candidate urgency is a weighted sum:
 
-- preplanning questions remain unresolved
-- especially for transport, mobility, special needs, or long-drive logistics
+- `+10` if the action resolves a blocker (only evaluated when `blockers.length < 5` — the >=5 branch handles severe cases)
+- `+5` if the action is in the current recommended phase (see Section 6)
+- `+3` if days-to-action is small (e.g., *"build travel-day plan"* surges at T-48 hours)
+- `+2` if the action is in a phase the user hasn't touched yet
+- `+0` baseline
 
-#### Recommend `itinerary` when:
+### Action categories (for UI color / icon mapping)
 
-- the trip still lacks meaningful schedule structure
+- `setup`, `invite`, `preplanning`, `itinerary`, `packing`, `travel_day`, `vacation_day`, `expenses`, `premium_upgrade`
 
-## 7. Next Best Action Model
+---
 
-Each trip should surface:
+## 8. Blocker Taxonomy
 
-- one `primaryAction`
-- up to three `secondaryActions`
-- a list of `blockers`
+TripWave has **exactly 7 blocker types**. Any issue not on this list is a warning or suggestion, not a blocker.
 
-## Action categories
+### The 7 blocker types
 
-- setup
-- invite
-- preplanning
-- itinerary
-- packing
-- travel_day
-- vacation_day
-- expenses
-- premium_upgrade
+| # | Type | Fires when |
+|---|---|---|
+| 1 | Missing setup field | Any required setup field becomes empty (`name`, destination, dates, transport, traveler count). Also auto-clears Draft state. |
+| 2 | Missing travel document for international trip | `DestinationDetail.visaRequired = true` for any international destination AND no `DocumentEntry` of type `passport` or `visa` exists. Only fires at T-30 days or less. |
+| 3 | No itinerary anchor for multi-day trip near departure | Trip duration >=3 days AND `daysToDeparture <= 14` AND zero scheduled itinerary events. |
+| 4 | No travel-day plan near departure | `daysToDeparture <= 2` AND departure travel-day plan has zero tasks. |
+| 5 | Unresolved poll blocking a scheduled event | A poll tagged as blocking an itinerary choice is still open AND `daysToDeparture <= 7`. |
+| 6 | Unsettled balance past trip end | Trip is Stale AND any expense split is unsettled AND `daysPastEndDate >= 14`. |
+| 7 | Expired or expiring document | Any `DocumentEntry` of type `passport` has `expiryDate` within 6 months of the trip's `endDate`. |
 
-## Risk-first action ranking
+### Explicitly NOT blockers
 
-The app should prioritize tasks by consequence.
+These are warnings or suggestions, not blockers:
 
-### Example ranking logic
+- Budget not set
+- Group composition details missing (dietary, emergency contacts)
+- Packing list under 80%
+- Missing field for optional features (vibe, trip type, ball color)
+- "You haven't done preplanning yet" when `daysToDeparture > 14`
 
-#### Highest urgency
+### Blocker UI treatment
 
-- no travel-day plan and departure is tomorrow
-- no required travel docs captured and departure is imminent
-- unresolved active-day tasks during travel day
+| Count | UI treatment | Context panel state |
+|---|---|---|
+| 0 | Healthy state | *"You're on track · No blockers · Enjoy the view."* |
+| 1 | Full detail visible: icon + title + *"Tap to resolve"* CTA | Blockers |
+| 2 | Both visible, compact (icon + short title) | Blockers |
+| 3+ | Summary: *"3 blockers"* headline + first blocker title + *"Tap to see all"* link | Blockers |
+| 5+ | Same UI + next-best-action algorithm prioritizes blocker resolution over phase priority | Blockers |
 
-#### High urgency
+### Tone rules
 
-- trip setup incomplete
-- no itinerary anchor events close to departure
-- no packing list close to departure
+- Pink accent, not red (*Red = error; Pink = needs attention*)
+- Headline: *"N blockers"* not *"N errors"* or *"N problems"*
+- CTA: *"Tap to resolve"* not *"Fix these"*
+- Blocker row verbs: *"Add a passport"* not *"Missing passport"*
 
-#### Medium urgency
+---
 
-- no invite sent yet
-- no group schedule refinement
-- unresolved poll tied to important event choice
+## 9. Per-State Behavior
 
-#### Lower urgency
+### Dashboard and workspace
 
-- optional optimization tasks
-- polish actions
-- upsell prompts
+| State | Dashboard `Next Up` hero | Workspace overview primary content |
+|---|---|---|
+| `Draft` | *"Finish setting up [Trip Name]"* CTA; ball empty | Setup form with remaining fields highlighted |
+| `Planning` | *"[Trip Name] · N days away · X% ready"* + recommended-phase CTA | Preplanning progress + next-best-action card + blockers (if any) |
+| `Ready` | *"You leave [Trip] in N days · Check your plan"* + travel-day CTA | Travel-day readiness checklist + itinerary summary + blockers |
+| `TravelDay` | Hero collapses — shell override activates (UX_SPEC § 42.13) | Full-viewport travel-day timeline (focus mode) |
+| `InProgress` | *"Day N of your [Trip]"* + today's schedule CTA | Today's itinerary + scavenger hunt (if any) + expense quick-log |
+| `Stale` | *"[Trip] ended N days ago · Settle up"* + expenses CTA | Wrap-up summary + unsettled balances + *"Close out trip"* action |
+| `Vaulted` | *"Revisit [Trip]"* with memory-vault preview | Memory vault layout (shell override § 42.13) |
+| `Dreaming` | *"[Dream] · your someday trip"* + *"Make it real"* upsell (free) or *"Continue dreaming"* (premium) | Dream workspace — itinerary + Must Dos + *"This is a dream"* chip |
 
-## 8. MVP Blocker Rules
+### Notifications
 
-Blockers should be explicit and scary in a helpful way.
+All notifications are in-app bell only (no push, no email beyond password reset).
 
-### Candidate blockers
+| State | Notifications fired |
+|---|---|
+| `Draft` | None |
+| `Planning` | Weekly summary at 7+ days dormant. All collaboration notifications (per UX_SPEC § 25) |
+| `Ready` | Departure countdown at T-14d, T-7d, T-48h. Blocker-specific nudges as they arise |
+| `TravelDay` | T-24h pre-departure bell. T-6h focus-mode activation. Flight delay alerts (future) |
+| `InProgress` | Morning briefing at 7 AM local each day. Scavenger hunt unlocks. Expense notifications per shell Q13 |
+| `Stale` | Single nudge at T+14 days if unsettled balances remain. Nothing else |
+| `Vaulted` | Anniversary nudge at +1 year (*"A year ago today you were in Kyoto."*). Opt-out in account settings |
+| `Dreaming` | *"Someone reacted to your dream"* only. No countdowns, no reminders |
 
-- missing dates
-- no destination set
-- no departure travel day
-- no itinerary anchor for a multi-day trip
-- unresolved settlement after trip
+### Ad suppression (free tier)
 
-## 9. Example Logic Scenarios
+| State | Ads shown |
+|---|---|
+| `Draft` | Yes |
+| `Planning` | Yes |
+| `Ready` | Yes |
+| `TravelDay` | **No** (shell override + MONETIZATION § 8) |
+| `InProgress` | Yes (muted treatment) |
+| `Stale` | Yes, except during active expense-settlement flow |
+| `Vaulted` | **No** (nostalgic moment) |
+| `Dreaming` | **No** (aspirational brand moment; Dream public share links also ad-free) |
+
+---
+
+## 10. Edge Cases
+
+| Edge case | Handling |
+|---|---|
+| Invited user joins via link before setup-complete | Skips Draft entirely; lands in Planning with read/vote permissions |
+| Trip created with no `endDate` | Defaults to `startDate + 3 days`; subtle banner *"We assumed 3 days — change this anytime."* No blocker |
+| Trip with past dates (created for last month) | Lands in Stale state immediately; banner *"This trip's dates are in the past — update dates to plan a future trip, or close out."* User can edit or vault |
+| Trip with `startDate` in more than 5 years | No state impact; Ready threshold just never triggers naturally. No banner |
+| Trip with `travelerCount = 1` (solo) | Collaboration readiness auto-scores 5/10 instead of requiring invitees. Group composition preplanning section hidden. Member page renders *"Just you."* |
+| Organizer deletes account | All their trips transfer ownership to the first joined participant (alphabetical by join date). If no other participants, trips are soft-deleted for 30 days then hard-deleted |
+
+---
+
+## 11. Example Logic Scenarios
 
 ### Scenario A: newly created trip
 
-- status: `draft`
+- state: `Draft`
 - recommended phase: `setup`
-- primary action: `Add dates and destination`
+- primary action: *"Add dates and destination"*
 - ball: empty dotted outline
 
 ### Scenario B: trip is three weeks away with no travel details
 
-- status: `planning`
+- state: `Planning`
 - recommended phase: `preplanning`
-- primary action: `Answer travel planning questions`
+- primary action: *"Answer travel planning questions"*
 - ball: partial fill, slow pulse
 
 ### Scenario C: trip is five days away, itinerary exists, no packing list
 
-- status: `planning`
+- state: `Ready` (because `daysToDeparture <= 14` AND preplanning+itinerary+travel-day thresholds met)
 - recommended phase: `packing`
-- primary action: `Create packing list`
+- primary action: *"Create packing list"*
 - ball: mostly full, slightly faster pulse
 
 ### Scenario D: departure is tomorrow, no travel-day checklist
 
-- status: `ready`
+- state: `Ready`
 - recommended phase: `travel_day`
-- primary action: `Build departure checklist`
+- primary action: *"Build departure checklist"* (this is also Blocker Type #4)
 - ball: full, alert state
 
-### Scenario E: trip is live
+### Scenario E: it is the departure day
 
-- status: `in_progress`
-- recommended phase: `vacation_day` or `travel_day`
-- primary action: `Review today's schedule`
+- state: `TravelDay` (auto-transitioned at 04:00 local)
+- recommended phase: `travel_day`
+- primary action: *"Open travel-day timeline"*
+- ball: faster alert pulse
+- Shell: focus mode override activates (UX_SPEC § 42.13)
+
+### Scenario F: trip is live, mid-trip day (vacation day)
+
+- state: `InProgress`
+- recommended phase: `vacation_day`
+- primary action: *"Review today's schedule"*
 - ball: warm relaxed pulse
 
-### Scenario F: trip ended yesterday with unresolved expenses
+### Scenario G: trip ended yesterday with unresolved expenses
 
-- status: `completed`
+- state: `Stale` (auto at midnight of endDate + 1 day)
 - recommended phase: `wrap_up`
-- primary action: `Settle shared expenses`
+- primary action: *"Settle shared expenses"*
 - ball: soft nostalgic fade
 
-## 10. Suggested MVP Defaults
+### Scenario H: organizer closes out the trip
 
-- compute status automatically when possible
-- allow manual navigation across phases
-- visually emphasize only one recommended phase
-- allow organizer override later, not necessarily in v1
-- preplanning completion percentage drives ball fill
-- ball color defaults to brand palette, user can change anytime
+- state: `Stale` to `Vaulted` (manual)
+- recommended phase: none (vault view)
+- primary action: none
+- Shell: Memory vault layout (override)
 
-## 11. Expense State Model
+---
 
-Expenses are tracked from day 0 (preplanning) through trip end and into wrap-up.
+## 12. Expense State Model
+
+Expenses are tracked from day 0 (preplanning, for deposits) through trip end and into wrap-up. See the 2026-04-20 Expenses grill entry in DECISIONS.md and UX_SPEC § 11 for the full expense spec.
 
 ### Expense object shape
 
-- `id`
-- `tripId`
-- `description`
-- `amount`
-- `currency`
-- `date`
-- `category`
-- `payerUserId`
-- `relatedEventId` (nullable — links to calendar event if entered from there)
+- `id`, `tripId`
+- `description`, `amount`, `currency`, `date`, `category`
+- `payerUserId`, `relatedEventId` (nullable — links to itinerary event)
 - `includeInDefaultReport` (default true)
 - `splits` (array of user IDs and amounts)
-- `settlementStatus` per split (pending, payer_marked, payee_marked, settled)
+- `settlementStatus` per-pair (soft settlement, reversible — see Expenses grill Q2)
 - `createdAt`
 
-### Settlement status rules
+### Settlement status
 
-A split is settled when:
+Per-pair, reversible. When a user marks a balance settled, the pair is resolved immediately; undoable at any time. See Expenses grill for full settlement flow.
 
-- the user who owes has marked their side as paid
-- AND the user who is owed has marked they received payment
+---
 
-Marking is independent — both parties confirm in the app. Settlement happens outside the app.
+## 13. Closed Questions
 
-## 12. Open State Model Questions
+The following previously-open questions were resolved in the 2026-04-20 lifecycle grill:
 
-- Should `ready` be time-based, completeness-based, or both?
-- Should readiness score be user-visible from day one?
-- Should a trip ever regress from `ready` to `planning` if critical data is removed?
-- How many unresolved blockers should appear before the UI feels scolding?
-- Should the trip ball be visible only to the organizer or all participants?
-- Should preplanning completion be visible as a number, a label, or only through the ball?
+- **Should Ready be time-based, completeness-based, or both?** Both — composite rule in § 2.
+- **Should readiness score be user-visible from day one?** No, never as a raw number. Shown as ball + chip + blockers only.
+- **Should trips regress from Ready to Planning if critical data is removed?** No. Show warning banner only; state stays at Ready.
+- **How many unresolved blockers before the UI feels scolding?** Never scolding regardless of count. UI treatment scales by count (1-2 inline, 3+ summary, 5+ flips next-action priority). Tone rules enforced (pink not red, "tap to resolve" not "fix these").
+- **Should the trip ball be visible only to organizer or all participants?** All participants. Color is organizer-only to change.
+- **Should preplanning completion be visible as a number, a label, or only through the ball?** Shown as a number ONLY inside the Preplanning phase header and the nav-column phase card mini-status. Elsewhere, shown only through the ball fill and status chip band label.
+
+---
+
+## 14. Suggested MVP Defaults
+
+- Compute status automatically when possible (deterministic per § 2).
+- Allow manual navigation across phases regardless of recommended phase.
+- Visually emphasize only one recommended phase at a time.
+- Preplanning completion percentage drives ball fill.
+- Ball color defaults to brand palette; user can change any time.
+
+---
+
+## Provenance
+
+- **Locked:** 2026-04-20 via the lifecycle grill (see DECISIONS.md entry of same date).
+- **Supersedes:** previous STATE_MODEL.md draft (6-state enum, open questions), APP_STRUCTURE.md § Trip Lifecycle States table.
+- **Related:** UX_SPEC.md § 42 (shell), UX_SPEC.md § 11 (expenses), MONETIZATION.md § 8 (ad-free zones), MONETIZATION.md § 14 (Dream Mode).

@@ -62,49 +62,177 @@ The dashboard is a hybrid: trip list + unified action center + "Next up" hero. I
 
 ---
 
-## 3. Trip Creation Flow
+## 3. Trip Creation + Setup Flow
 
-**Status:** locked (2026-04-17)
+**Status:** locked (2026-04-17, rewritten 2026-04-20 via creation grill). Reconciles the ritual spec here with STATE_MODEL.md Minimum Setup Requirements and APP_STRUCTURE.md Trip Creation Flow.
 
-A **4-step full-screen flow** with playful animations and wipe transitions between steps. Feels like an app moment, not a form.
+Trip creation has two phases:
+1. **The ritual** — a 5-step full-screen emotional commitment moment (captures 4 fields: type, name, dates, color)
+2. **The Setup page** — a workspace page that captures the remaining required fields (destinations, traveler count, transport modes) plus optional fields
 
-### Step 1 -- Name
+Post-ritual, the user lands on the **Setup page**, not the trip overview. The trip sits in `Draft` state until Setup is complete; it then auto-transitions to `Planning` (per STATE_MODEL § 2).
 
+### Phase 1 — The Ritual (5 steps, full-screen override)
+
+The ritual is a full-viewport shell override per UX_SPEC § 42.13 — top bar collapses, no bento, no ads. Visual treatment specced in § 34 (neon-on-dark, wet-neon, ocean-ripple reveal).
+
+#### Step 0 — Real or Dream
+
+- Two large side-by-side cards: **Real trip** (cyan ball + ✈) and **Dream trip** (sparkle ball + ✨)
+- Prompt: *"Let's start. Real trip or a dream?"*
+- Auto-advance on tap (no explicit next button)
+- Sets `isDreamMode` — Dream trips exit the normal state machine at `Dreaming` per STATE_MODEL § 1
+
+#### Step 1 — Name
+
+- Dashed cyan ball in upper-center, soft glow
 - Prompt: *"Let's name your trip!"*
-- Empty **dashed-outline ball** hovers in upper-center of screen
-- Big Fredoka-font input field below the ball
-- As the user types, the ball **gently pulses** as if listening
-- On submit: the ball does a small shake (like a nod of approval)
-- Transition: wipe-left to step 2
+- Big Fredoka input with neon-cyan focus ring
+- Typing cadence: ball pulses every ~3 characters typed
+- **Trip row is created on Step 1 submit** — if user backs out or closes the browser from here, trip persists in Draft state
+- On submit: ball does a small nod-forward; wipe to Step 2
 
-### Step 2 -- Dates
+#### Step 2 — Dates
 
-- Prompt: *"When are you going?"*
-- Date range picker
-- Sassy/funny copy makes the optionality clear: *"Not sure yet? No pressure -- you can add these later."*
-- Skip button is prominent and equally weighted
-- Transition: wipe-left to step 3
+- Ball shifts to center-left, smaller
+- Prompt: *"When's the adventure?"*
+- Date range picker on neon-cyan dark-elevated background
+- *Skip for now* link, equally weighted with submit — skipping leaves `startDate` and `endDate` null; user fills on Setup page
+- Wipe to Step 3
 
-### Step 3 -- Pick a Color
+#### Step 3 — Pick a color
 
+- Ball centered, dashed outline
 - Prompt: *"Give your trip a color."*
-- Row of 4 to 5 big color swatches (brand cyan, yellow, pink, green, plus a neutral)
-- Tapping a swatch fills the still-visible ball with that color for instant visual payoff
-- Copy hints personalization: *"You can change this later."*
-- Transition: wipe-left to step 4
+- Row of 5 (or 6 if Dream) glowing swatches: neon cyan, yellow, pink, green, orange (plus purple for Dream)
+- Tap fills the ball with the color in a 2-second rising-liquid animation
+- *Skip for now* link — skipping defaults to neon cyan `#00E5FF`
+- 1.5s dwell, then wipe to Step 4
 
-### Step 4 -- Reveal
+#### Step 4 — Reveal
 
-- Full-screen moment
-- Ball animates to center at full hero size, color settling in
-- Text reads: *"Meet [Trip Name]. Let's plan it."*
-- Single CTA button: "Let's go" -- drops user into the trip overview
+- Base dark with chosen color's soft radial gradient at edges
+- Ball at full hero size, 100% filled, glowing in chosen color
+- *"Meet [Trip Name]."* (Fredoka 600 white) + *"Let's plan it."*
+- CTA: **"Let's go"** in neon cyan with glow
+- One big celebratory wave-pulse on tap, then wave-sweep to the Setup page (NOT trip overview)
 
-### Transition behavior
+#### Skippable + required matrix
 
-- All inter-step transitions use a horizontal wipe (<300ms)
-- No per-step numbering or progress bar -- the flow should feel like a fun ritual, not a process
-- Back button available in the top-left to re-edit previous steps (subtle)
+| Step | Skippable? | Default if skipped |
+|---|---|---|
+| Step 0 — Type | No | n/a |
+| Step 1 — Name | No | n/a |
+| Step 2 — Dates | Yes | `startDate = null`, `endDate = null` (fill on Setup) |
+| Step 3 — Color | Yes | Neon cyan `#00E5FF` |
+| Step 4 — Reveal | n/a | Always shown |
+
+#### Ritual transition behavior
+
+- All inter-step transitions use a horizontal wipe at 300ms, standard easing
+- No per-step numbering or progress bar — the flow should feel like a fun ritual, not a process
+- Subtle back button top-left to re-edit previous steps
+- Unobtrusive *Cancel* affordance in a corner — routes to `/app` dashboard without creating a trip (or if the Draft trip was already created on Step 1 submit, trip persists in Draft for later resumption)
+
+### Phase 2 — The Setup page
+
+Ritual's *"Let's go"* CTA routes to `/app/trips/[tripId]/setup` (per APP_STRUCTURE.md route map). The Setup page lives inside the bento shell as a workspace phase — `primary` tile dominates with the Setup form; other bento slots surface contextually (nav column, trip-ball slot, context panel, etc.).
+
+#### Setup page anatomy
+
+- **Header:** *"Setup — [Trip Name]"* + trip ball small, fill % live-updating as fields complete
+- **Sub-header:** Progress chip: *"3 of 5 required fields"* → flips to *"All set!"* on completion. Sticky *"Continue to Preplanning →"* button appears at 100%.
+- **Body:** single long scrollable form, no pagination. Required fields above optional. All autosave.
+- **Footer:** autosave indicator — no explicit save button.
+
+#### Required fields (5)
+
+These must be filled before the trip exits Draft state (per STATE_MODEL § Minimum Setup Requirements):
+
+1. **Name** — pre-filled from the ritual; editable
+2. **Destinations** — multi-add list. Each = city (required) + country (required) + optional rough arrival/departure dates. At least one required. City autocomplete via a city-search service (decide at implementation).
+3. **Start date + End date** — pre-filled from the ritual if captured; required
+4. **Traveler count** — stepper (+/-), default 1
+5. **Transport modes** — chip multi-select (fly / drive / train / cruise). At least one required. Selections drive which Preplanning sections appear (per STATE_MODEL § Dynamic preplanning section rules).
+
+#### Optional fields (4)
+
+Shown below the required fields, visually distinct (subtler section header):
+
+1. **Trip type + vibe** — two dropdowns. Type: beach / city / adventure / road trip / family / romantic / group / honeymoon / other. Vibe: relaxed / packed / spontaneous / structured.
+2. **Ball color** — color picker (same swatches as ritual Step 3). Editable post-ritual even if color was set in the ritual.
+3. **Budget** — target amount + currency selector (locale default) + type (total or per person).
+4. **Invite mode** — private / invite-only / public-link. Default: invite-only. Editable here or later in Trip Settings.
+
+#### Excluded from Setup (lives in Preplanning)
+
+Flight numbers, lodging confirmations, group member details, documents, visa info, destination-detail fields (timezone, local currency, visa/health, adapter, driving rules, seasonal warnings), pre-departure logistics items. Setup is the shape; Preplanning is the details.
+
+### Setup completion flow
+
+When all 5 required fields are filled:
+
+1. Trip auto-transitions `Draft` → `Planning` (per STATE_MODEL § 2). Ball fill jumps to 25% (Setup dimension = 25 of readiness score).
+2. **If `travelerCount > 1`:** invite prompt fires as a warm modal/sheet:
+   - Title: *"Great — now who's coming?"*
+   - Options: *"Send invite link"* (primary — generates link, opens system share sheet) / *"Add from contacts"* (deferred feature — disabled with tooltip *"Coming soon"*) / *"I'll do this later"*
+   - Dismissing keeps trip in Planning; invite entry persists in the Members phase
+3. **If `travelerCount = 1`:** modal skipped, user lands on workspace overview directly.
+
+### Invitee first-action flow (joining an existing trip)
+
+Invitees skip the ritual entirely. Their first-action flow:
+
+1. Invitee taps invite link (authenticated or unauthenticated entry).
+2. Unauthenticated: lands on invite-landing page per UX_SPEC § 42.13 (standalone card — no shell). After signup, proceeds to step 3.
+3. Authenticated: immediately enters step 3.
+4. **Must Dos prompt** — full-screen moment (similar pattern to Zero-trip first-run, scoped to "first trip-joined moment"):
+   - Background: neon-on-dark with trip's ball color as accent
+   - Headline: *"What are your Must Dos for [Trip Name]?"* (Fredoka 600 large)
+   - Subline with context: *"The things you can't miss on this trip. [Organizer] and [N-1] others will see these."*
+   - Textarea — each line becomes a Must Do. Placeholder examples: *"A real ramen in Tokyo"*, *"Fushimi Inari at sunrise"*, *"Any teamLab museum"*
+   - Buttons: *"Add these"* (primary) / *"Skip — I'll add later"*
+5. After submit or skip, user lands in the trip workspace (current recommended phase).
+
+### Edit behavior after Setup completion
+
+Setup fields remain editable anytime from the Setup phase page (nav column → Setup). Edits save immediately (autosave). Two state-related behaviors:
+
+- **If an edit removes a required field** (e.g., deleting the last destination): auto-regresses `Planning` → `Draft` (the one allowed regression per STATE_MODEL § 2). Warning banner: *"You removed the last destination. Add one back to keep planning."*
+- **If an edit changes dates:** state recomputes against new dates per STATE_MODEL § 2 date-slip rules — possibly triggering confirmation modal on backward transitions.
+
+### Persistence rules
+
+- **Trip row created at Step 1 submit.** Back-out / browser-close preserves the Draft with whatever ritual fields were captured.
+- **Draft trip resumption:** on next dashboard visit, the incomplete trip appears in the nav column (Draft) with *"Finish creating [Trip Name]"* CTA that resumes the ritual at the step the user left.
+- **Abandoned-Draft cleanup:** Draft trips with no activity for 30 days are silently soft-deleted. No user notification.
+
+### Online-only constraint
+
+The ritual is online-only. If the user is offline:
+- Ritual start: blocking modal *"You're offline. TripWave needs a connection to create trips. We'll wait with you."* with retry affordance.
+- Mid-ritual: already-captured fields persist locally (IndexedDB); submit queues to the server when connection returns.
+- Mid-ritual submit failure (server error, not network): inline error on the current step, retry available, no ritual reset.
+
+### Silent defaults at creation
+
+These fields auto-populate on Step 1 submit without prompting:
+
+| Field | Default |
+|---|---|
+| `ballColor` | `#00E5FF` neon cyan (until Step 3 sets it) |
+| `travelerCount` | `1` (user adjusts on Setup page) |
+| `isPremiumTrip` | Inherited from user's premium status |
+| `inviteMode` | `invite_only` (editable in Setup or Trip Settings) |
+| `budgetCurrency` | User's locale default (USD / EUR / JPY / etc.) |
+| `budgetType` | `total` |
+| `isDreamMode` | `true` if Step 0 = Dream; else `false` |
+
+### Zero-trip first-run → ritual handoff
+
+Brand-new users land on the Zero-trip first-run shell (§ 42.14) — centered dashed ball, *"Every great trip starts with a name"*, *Create your first trip* CTA. The CTA transitions with a wave-sweep directly into the ritual at Step 0. No additional welcome step, no tutorial. The ritual IS the welcome.
+
+For users creating a second+ trip, the ritual entry comes from the *+ New trip* affordance in the nav column footer or the trip switcher dropdown. Same ritual every time — no quick-create path, no per-user-familiarity compression.
 
 ---
 
