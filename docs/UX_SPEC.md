@@ -434,7 +434,7 @@ Vacation Day is a single-page "Today" feed with a warm morning briefing, today's
 
 ## 11. Expenses -- Primary View
 
-**Status:** locked (2026-04-17)
+**Status:** locked (2026-04-17, expanded 2026-04-20 with full Step 1 page detail inventory via 14-question grill)
 
 Expenses uses a **balances-first** layout. The primary question users ask is *"Do I owe anyone? Does anyone owe me?"* -- that answer dominates the page.
 
@@ -460,22 +460,133 @@ Expenses uses a **balances-first** layout. The primary question users ask is *"D
   - Primary: *Add expense*
   - Secondary: *Scan receipt* (premium -- free users see a cyan lock icon and upgrade card on tap)
 
-### Add expense flow (summary)
+### Add expense flow (full spec — locked 2026-04-20)
 
-Quick entry fields: amount, description, category, paid by (defaults to current user), split type.
+**Friction model:** minimal first, details later. The modal opens with the amount field focused (keyboard up immediately) plus a description field. Everything else is auto-filled by smart defaults and hidden behind a *More options* expander.
 
-Supported split types:
-- Even across the whole group
+**Default fields visible on open:**
+- Amount (focused, large, formatted as the trip's display currency)
+- Description (text, single line)
+
+**Silent defaults that fire before *More options* is tapped:**
+- **Category:** auto-detected from description keywords (e.g., "taxi" → Transport, "ramen" → Food, "hotel" → Accommodation)
+- **Paid by:** current user
+- **Split type:** even across all active trip members
+- **Currency:** trip's display currency
+- **Date:** today (editable to any date on or after trip creation — pre-trip deposits are supported natively)
+
+**Inside *More options* (expander):**
+- Category picker (overrides auto-detect)
+- Paid-by selector (any active or historical member with balances)
+- Split-type selector: even-all / even-selected / custom amounts / single person
+- Per-person include/exclude toggles with manual amount entry for custom splits
+- Currency selector (premium — free users see lock icon; tapping shows the existing premium hint)
+- Date picker
+- *Link to itinerary* — optional attach to an existing itinerary event, lodging entry, or transportation entry (produces the green coin badge on the linked item)
+
+**Supported split types:**
+- Even across the whole group (default)
 - Even across selected travelers
-- Custom amounts
+- Custom amounts (must sum to total)
 - Single person (not split)
 
-Full add-expense interaction spec deferred to a later question.
+### Edit + delete permissions
 
-### Premium surfaces on this page
+- **Logger** can edit any field of their own expenses and delete them.
+- **Organizer** can edit and delete any expense.
+- **All other members** are read-only on existing expenses.
+- Any edit displays a small *"edited"* chip on the ledger row.
+- Deletion fires a brief *"Expense deleted by [Name]"* toast to all active members and removes the row permanently (no soft-delete, no undo).
 
-- *Scan receipt* button always visible, with lock icon for free users
-- Currency conversion appears inline in the add-expense flow with a premium hint next to the currency field
+### Settlement flow
+
+- Tapping *Mark settled* / *Mark paid* immediately resolves that pair's balance — no confirmation step, no amount re-entry, no bilateral confirmation.
+- The row moves to a collapsible *"Settled"* section in the balances hero.
+- A small chip (*"Settled · just now"* → timestamp) appears on the row.
+- Reversible via session undo or long-press → *"Unsettle"* at any later time.
+- Settlement is per-pair; settling with one person does not affect balances with others.
+- Settlements are not expenses — they do not appear in the ledger.
+
+### Debt simplification
+
+The balances hero displays the **minimum set of person-to-person transactions** needed to zero out all debts. Users see e.g. *"You owe Sarah $10 · You owe Mom $20"* instead of three or four raw per-pair balances. A *"How was this calculated?"* affordance below the hero expands the raw per-pair math for transparency and dispute resolution.
+
+When new expenses are logged after partial settlements, the simplified path recomputes from the remaining open balances.
+
+### Multi-currency
+
+- Each trip has **one display currency** set at creation.
+- All balances, trip-total strip, and ledger totals show in that currency.
+- The currency selector in *More options* lets users pick the currency they actually paid in.
+- Foreign-currency entries convert via a cached exchange rate, shown inline before save: *"¥4,800 ≈ $32 USD."*
+- Exchange rate lookup is **premium**. Free users see the currency field locked with the existing premium hint.
+- The CSV export includes both the source currency/amount and the display-currency amount for multi-currency expenses.
+
+### Budget
+
+- Organizer sets **one overall trip budget** at creation (or later in Preplanning § Budget).
+- All expenses count against that single number.
+- Trip-total strip displays: *"Trip total: $X · Your share: $Y · Budget: Z% used."*
+- Tapping the strip expands an auto-category breakdown (Food / Transport / Accommodation / Activities / Other / custom) showing the spending distribution — not per-category budgets, just spending share.
+- Over-total budget: strip turns neon pink. No modal. No block. No nagging.
+
+### Member lifecycle in splits
+
+- New members appear in the default "even split across all members" pool only for expenses logged **from their join timestamp onward**.
+- Departed or removed members remain included in the splits of expenses logged **before their departure** — their balances persist until settled (grayed-out anonymized avatar per § 10).
+- Logger can manually include or exclude any member (active or historical) on any expense via *More options*.
+- No retroactive prompts. No silent balance rewrites.
+
+### Pre-trip deposits
+
+- No UI distinction between pre-trip and in-trip expenses — they share the ledger, sorted by date.
+- The existing *By day* filter chip provides date-based visual separation for users who want it.
+- Trip-total strip, balances hero, and budget calculations include pre-trip expenses by default.
+
+### Post-trip lifecycle
+
+- The Expenses phase never closes, never archives, never locks.
+- **14-day nudge:** if open balances remain 14 days past the trip's end date, a single in-app banner at the top of the Expenses phase reads *"Still owed $X from [Name] — nudge them?"* Tapping triggers an existing share-style invite.
+- Banner is dismissible; re-fires after 14 more days if still relevant.
+- No push notifications, no emails, ever, for expense events.
+
+### Export
+
+- **CSV (free for all):** *"Export"* link at the bottom of the Expenses page. Columns: date, description, amount, currency, source currency/amount (for multi-currency), category, paid-by, split breakdown, settled-status. Plain text, no branding.
+- **PDF "Trip expense report" (premium):** a formatted neon-on-dark branded document with trip name, date range, summary totals, per-person breakdown, category chart, and the trip's ball color as accent. Suitable for accountants, spouses, work reimbursement.
+
+### Notifications (bell, in-app only)
+
+Three events only:
+1. *"[Name] logged [description] · your share $X"* — to every member included in the split.
+2. *"[Name] marked your $X balance as settled"* — to the person owed (not the settler).
+3. *"Trip budget is 90% used"* — organizer-only, fires once per trip at the 90% threshold.
+
+All green (financial) per § 29. No push, no email, no overdue nudges, no edit notifications.
+
+### Receipt scan (premium)
+
+- *Scan receipt* button (always visible, lock icon for free users).
+- Opens the camera → user photographs the receipt → image is uploaded to **Azure AI Document Intelligence** (`prebuilt-receipt` model — **not Google Vision**).
+- The response's `Total` field auto-fills the amount; `MerchantName` auto-fills the description and seeds category auto-detect.
+- User confirms or corrects before saving.
+- Receipt image attaches to the expense as a thumbnail in the ledger row; tapping opens full-screen.
+- Low-confidence fields (< ~0.7) show a subtle *"check this"* hint next to the auto-filled value.
+- `Items[]` extraction is available from the same Azure response but is not used in v1; reserved for a potential v2 itemized-split feature.
+
+### Integration with other trip features
+
+Two-way linking:
+- **Outbound:** itinerary events, lodging entries, and transportation entries show an optional *"Add expense for this"* affordance that pre-fills the add-expense modal (item name → description, item date → expense date, item type → suggested category).
+- **Inbound:** any expense can be attached to an existing itinerary / lodging / transportation entry after the fact via *More options* → *Link to itinerary*.
+- Linked expenses display the green coin badge on the source item.
+- Unlinking is supported — removing the link leaves the expense intact and removes the badge.
+
+### Free tier posture
+
+- **No caps** on the core expense engine: unlimited expenses, all split types, unlimited settlements, unlimited history.
+- **Premium** is purely additive: *Scan receipt* (Azure OCR), currency conversion inline hint, Smart Suggestions / destination-aware nudges, PDF expense report export.
+- Honors `MONETIZATION.md`'s "free should prove the product" principle.
 
 ### Why balances-first
 
@@ -484,6 +595,14 @@ Full add-expense interaction spec deferred to a later question.
 - Ledger-only treats expenses like a bank statement and misses the group coordination angle
 - Tabs would force users to hunt for the info they care about most
 - Day-grouped and category-grouped views are secondary concerns that live behind filter chips
+
+### Design skills
+
+`/user-research` — offered and skipped (14-question grill captured user-need direction).
+`/design-critique` — **required** before any mockup locks.
+`/design-system` — **required** if mockup introduces new motion or layout patterns not in DESIGN_SYSTEM.md.
+`/design-handoff` — **required** before any implementation begins.
+`/accessibility-review` — **required** before shipping.
 
 ---
 
@@ -2716,5 +2835,133 @@ What is NOT a premium bonus:
 - Low dev cost: reuses existing trip workspace with small differentiators, no separate product to maintain
 - Retention: provides a fun low-commitment reason to open the app during quiet months between real trips (partial retention lever; anniversary nudges and Memory artifacts do the heavier retention lifting)
 - Supporter conversion: unlimited dreams and bonus sparkle effects are small, warm, gift-worthy perks for paying supporters -- exactly matching the "thank-you" premium framing
+
+---
+
+## 39. Multi-leg Repacking -- Per-Leg Repack Check in Travel Day
+
+**Status:** locked (2026-04-20)
+**Extends:** § 8 Packing List, §§ 9, 38 Travel Day Focus Mode
+**Phase:** Later (core repack check free; premium add-ons ride the Smart Suggestions track)
+
+The multi-leg repack check gives users a calm, structured way to confirm everything is re-packed before each travel leg throughout the trip — including the return home — so nothing gets left at the hotel.
+
+---
+
+### Step 1 — Page detail inventory
+
+#### What page / surface does this live on?
+
+The repack check is **not a new surface**. It extends the existing Travel Day focus mode page (`/app/trip/:id/travel-day`, focus mode activated). It appears as an additional section inside the existing checklist, auto-shown on leg-triggering travel days only.
+
+#### What is a leg?
+
+A leg is auto-derived from the itinerary — no user setup required:
+
+- **Trip start** — the day the user departs from home
+- **Any overnight-accommodation change** — a day where the user moves from one lodging to another (detected via Preplanning § Accommodations data)
+- **Trip end (return home)** — the final travel day
+
+**Not a leg:** day-trips returning to the same accommodation, layovers without an accommodation change, rest days.
+
+#### What information does the repack check section show?
+
+- **Section header:** *"Repack essentials"* with a count badge — *"5 categories · 3 checked"*
+- **Status strip** (same vocabulary as existing Travel Day status strip): *"Repack essentials · N items pending"* — updates live as categories are checked
+- **One row per category** from the user's personal packing list (Clothing, Toiletries, Electronics, Documents, Other, plus any custom user categories)
+  - Each category row shows: category name, item count, ✓ / unchecked state, expand caret
+  - Checking the category header bulk-checks all items inside it
+  - Tapping the expand caret reveals individual items for finer control
+  - Individual items can be checked without bulk-checking the category
+- **Group items** (items from the Group packing tab with an assigned-bringer avatar) appear inside their category row only for the assigned bringer — nobody else's check shows them. Bringer checks them the same as personal items.
+- **Private items** (per existing packing spec's `is_private` flag) remain private — only their category's count contributes to the status strip; the item label is hidden from all other members.
+- **Audit trail chip** (small, below the section): *"Leg 2 — Tokyo → Kyoto: confirmed 10:42 AM"* — shown after the current leg is fully checked. Feeds the Memory recap.
+
+#### What actions can the user take?
+
+| Action | Result |
+|---|---|
+| Tap category header ✓ | Bulk-checks all items in that category |
+| Tap expand caret | Reveals individual items in the category |
+| Tap individual item ✓ | Checks that item; partial category = indeterminate state on header |
+| Tap checked category | Unchecks the whole category |
+| Long-press an item (three-dot menu) | Opens existing item menu + new option: *"Left behind / used up / donated"* |
+| Tap *"Left behind / used up / donated"* | Removes item from all future leg checks; retains in audit trail |
+
+#### What states does the section have?
+
+| State | When | What it looks like |
+|---|---|---|
+| **Active (leg day, T-6 hrs+)** | Focus mode auto-activated on a leg-triggering travel day | Section visible at top of checklist; categories listed |
+| **Preview (T-24 hrs, notification tap)** | User taps the T-24 hrs bell notification | Routes to Travel Day page; repack section shows in preview mode (read-only until T-6 hrs triggers focus mode, or user manually activates focus mode) |
+| **Completed** | All categories checked | Section header turns neon green; status strip reads *"All repacked ✓"*; audit trail chip appears |
+| **Hidden** | Non-leg travel days (e.g., day-trips returning to same hotel) | Section does not appear at all |
+| **Skipped** | User didn't open Travel Day on a leg day | Next leg's check starts fresh; no nagging, no guilt callout |
+| **Return home** | Final leg (trip end) | Same behavior as any other leg; no punitive "items unconfirmed" callout if user doesn't complete |
+
+#### What triggers does this feature add?
+
+| Trigger | When fires | Content | Routes to |
+|---|---|---|---|
+| **T-24 hrs bell notification** | 24 hours before a leg-triggering travel day | *"Tomorrow you leave [location] — 5 categories to repack."* | Travel Day page (repack section preview) |
+| **T-6 hrs focus-mode activation** | Existing trigger (§ 9) | Existing focus mode activation | Travel Day page with repack section live |
+
+No T-12 hrs bedtime nudge. No user-configurable notification timing. Respects `UX_SPEC.md` § 29's restrained notification philosophy.
+
+#### What items appear per leg?
+
+- All items currently on the user's personal packing list at the time of the leg check
+- Items added mid-trip auto-appear in future leg checks (no action required)
+- Items marked *"Left behind / used up / donated"* are excluded from future leg checks (but retained in audit trail)
+- Group items: only appear for the assigned bringer
+
+#### State model across legs
+
+Each leg has its own **independent** ✓/✗ state. When a leg closes (travel day ends), the next leg's check starts with everything unchecked. No cross-leg state inheritance.
+
+A minimal audit trail is retained per leg: *"Leg N — [From] → [To]: N/N categories confirmed at HH:MM"* — surfaced in the Memory recap as a nostalgic summary (*"You successfully repacked 7 times across 4 cities"*).
+
+#### Edge cases
+
+- **Items added mid-trip:** auto-appear in future leg checks. No backfill into completed leg trails.
+- **Items discarded / left behind:** user long-presses → three-dot menu → *"Left behind / used up / donated"* → removed from future legs, retained in audit.
+- **Skipped leg:** silent. Next leg starts fresh. No nagging.
+- **Return home leg:** same binary check; no punitive callout for unchecked items.
+- **No itinerary / no accommodations data:** repack check does not appear. Feature requires at least one leg-triggering travel day derivable from the itinerary.
+
+---
+
+### Free vs Premium
+
+| Layer | Tier | What it is |
+|---|---|---|
+| Core repack check (category rows, check/uncheck, audit trail) | **Free** | Forgetfulness prevention — paywalling this breaks *"free should prove the product"* |
+| T-24 hrs notification | **Free** | Uses existing notification bell infrastructure |
+| Destination-aware leg prompts | **Premium** | *"Kyoto is rainy — keep umbrella accessible"* — rides Smart Suggestions premium track |
+| Climate-aware category reshuffles | **Premium** | Moves down jacket to top when heading to Hokkaido |
+| Weather/activity context injected into category rows | **Premium** | Contextual nudges sourced from itinerary + weather data |
+
+No new SKU, no new paywall copy, no new tier boundary. Premium add-ons use existing monetization infrastructure.
+
+---
+
+### Why this approach
+
+- Forgetfulness prevention is the universally relatable travel pain point. Marketing hook: *"Never forget your charger at the hotel again."*
+- Auto-derived legs reuse existing Preplanning § Accommodations data with zero user setup. Solo-dev win.
+- Zero new UI surface — extends Travel Day focus mode, TripWave's highest-attention moment. Reuses existing big-checkbox vocabulary, status strip, and calm-neon visual treatment.
+- Category-level rows map to how people physically scan a hotel room (*"bathroom = Toiletries, nightstand = Electronics, drawers = Clothing, safe = Documents"*). Five taps to clear the common case; item-level expand available for thoroughness.
+- Binary per-leg state keeps offline sync, conflict resolution, and multi-device edits cheap.
+- Free core + premium destination-aware layer = one feature, two marketing stories. Free repack hook feeds the invite loop; premium destination layer is a warm supporter bonus gift.
+
+---
+
+### Design skills
+
+`/user-research` — offered and skipped (user-need direction was clear from concrete framing).
+`/design-critique` — **required** before any mockup locks.
+`/design-system` — **required** if mockup introduces new motion or layout patterns not in DESIGN_SYSTEM.md.
+`/design-handoff` — **required** before any implementation begins.
+`/accessibility-review` — **required** before shipping.
 
 ---

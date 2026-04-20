@@ -22,7 +22,7 @@ Per CORE_LOOP.md → Build Workflow, every page needs a Step-1 detail inventory 
 - [ ] Trip overview (brand-new) -- Step-1 detail inventory
 - [ ] Trip overview (established) -- Step-1 detail inventory (every stat tile, every card, every state)
 - [ ] Preplanning hub -- Step-1 detail inventory (ball block, 8 section card states, CTA visibility rules)
-- [ ] One preplanning section editor (to pick which one first) -- Step-1 detail inventory
+- [ ] Lodging preplanning section editor (locked 2026-04-20 as first section — see DECISIONS.md) -- Step-1 detail inventory
 - [ ] Itinerary page -- Step-1 detail inventory (day header fields, event card fields, filter states)
 - [ ] Invite organizer page -- Step-1 detail inventory
 - [ ] Invitee join landing -- Step-1 detail inventory
@@ -243,7 +243,8 @@ Must Do's, wishlist items, and suggestions are unified into a single Proposed la
 
 ### Technical foundation
 
-- [ ] Choose ORM: Prisma vs Drizzle
+- [x] Choose ORM: Drizzle (locked 2026-04-20 — see DECISIONS.md and SCHEMA_DRAFT.md)
+- [ ] Install drizzle-orm + drizzle-kit + postgres, create src/lib/db/schema.ts and drizzle.config.ts
 - [ ] Define initial database schema draft
 - [ ] Model trip status, readiness, and next-action fields
 - [ ] Model preplanning fields and completion tracking

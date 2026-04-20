@@ -20,7 +20,7 @@ This document describes the intended technical shape of the product before the b
 - **Vercel** — hosting and deployment (shared $25/month plan)
 - **Resend** — password reset email only. TripWave does not send invite emails or notification emails.
 - **Azure** — receipt scanning OCR (premium feature only, pay-per-use)
-- **ORM to be decided** — Prisma or Drizzle
+- **Drizzle ORM** — TypeScript-native, SQL-first, lightweight runtime (locked 2026-04-20, see DECISIONS.md). Schema at `src/lib/db/schema.ts`. Initial schema draft at docs/SCHEMA_DRAFT.md.
 - **Auth provider to be decided** — Better Auth confirmed direction, configuration TBD
 - **Payment processor to be decided** — needed for one-time $7.99 premium purchase (Stripe likely)
 
@@ -248,7 +248,6 @@ Per-user toggleable capabilities (examples):
 
 ## Open Architecture Questions
 
-- Which ORM better fits our pace and deployment preferences (Prisma vs Drizzle)?
 - How much app state should live server-side vs client-side?
 - When should we introduce background jobs (departure reminders, expense nudges)?
 - Should currency rates be fetched server-side on a schedule or on-demand client-side?
