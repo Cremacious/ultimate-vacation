@@ -13,7 +13,8 @@
     "db:studio": "drizzle-kit studio",
     "auth:verify": "tsx scripts/verify-auth.ts",
     "trips:verify": "tsx scripts/verify-trips.ts",
-    "invites:verify": "tsx scripts/verify-invites.ts"
+    "invites:verify": "tsx scripts/verify-invites.ts",
+    "expenses:verify": "tsx scripts/verify-expenses.ts"
   },
   "dependencies": {
     "@base-ui/react": "^1.4.0",
