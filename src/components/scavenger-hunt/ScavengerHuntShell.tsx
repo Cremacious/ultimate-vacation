@@ -16,6 +16,7 @@ import {
   Plus,
   ArrowRight,
 } from "@phosphor-icons/react";
+import type { Icon as PhosphorIcon } from "@phosphor-icons/react";
 
 type ChallengeType = "photo" | "location" | "trivia" | "qr" | "text";
 type ChallengeStatus = "locked" | "available" | "completed";
@@ -46,7 +47,7 @@ interface Participant {
   isMe: boolean;
 }
 
-const TYPE_META: Record<ChallengeType, { label: string; Icon: React.ComponentType<{ size?: number; weight?: string; style?: React.CSSProperties }>; color: string; bg: string }> = {
+const TYPE_META: Record<ChallengeType, { label: string; Icon: PhosphorIcon; color: string; bg: string }> = {
   photo:    { label: "Photo",    Icon: Camera,   color: "#FF2D8B", bg: "rgba(255,45,139,0.12)" },
   location: { label: "Location", Icon: MapPin,   color: "#00A8CC", bg: "rgba(0,168,204,0.12)" },
   trivia:   { label: "Trivia",   Icon: Question, color: "#FFD600", bg: "rgba(255,214,0,0.12)" },

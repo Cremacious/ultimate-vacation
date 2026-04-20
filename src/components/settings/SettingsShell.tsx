@@ -6,11 +6,12 @@ import {
   Lock, LockOpen, Users, CheckCircle, Warning, Trash,
   Vault, Moon, FloppyDisk,
 } from "@phosphor-icons/react";
+import type { Icon as PhosphorIcon } from "@phosphor-icons/react";
 
 type ApprovalMode = "open" | "vote" | "gated";
 type TripVibe = "adventure" | "beach" | "city" | "family" | "food" | "relaxation";
 
-const APPROVAL_OPTIONS: { key: ApprovalMode; label: string; desc: string; Icon: React.ComponentType<{ size?: number; weight?: string; style?: React.CSSProperties }>; color: string }[] = [
+const APPROVAL_OPTIONS: { key: ApprovalMode; label: string; desc: string; Icon: PhosphorIcon; color: string }[] = [
   { key: "open",   label: "Open",     desc: "Anyone can add, edit, or remove items",              Icon: LockOpen,     color: "#00C96B" },
   { key: "vote",   label: "Vote",     desc: "Changes require majority support before landing",    Icon: Users,        color: "#00A8CC" },
   { key: "gated",  label: "Gated",    desc: "All changes require organizer approval",              Icon: Lock,         color: "#A855F7" },

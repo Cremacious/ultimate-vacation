@@ -6,6 +6,7 @@ import {
   Crown, ShieldStar, User, Link as LinkIcon, Plus,
   UserMinus, Users, Clock,
 } from "@phosphor-icons/react";
+import type { Icon as PhosphorIcon } from "@phosphor-icons/react";
 
 type Role = "organizer" | "admin" | "participant";
 type MemberStatus = "active" | "pending";
@@ -25,7 +26,7 @@ const PERMISSIONS: Permission[] = [
   { key: "logExpenses",  label: "Log expenses",      color: "#00C96B" },
 ];
 
-const ROLE_META: Record<Role, { label: string; color: string; bg: string; Icon: React.ComponentType<{ size?: number; weight?: string; style?: React.CSSProperties }> }> = {
+const ROLE_META: Record<Role, { label: string; color: string; bg: string; Icon: PhosphorIcon }> = {
   organizer:   { label: "Organizer",   color: "#FFD600", bg: "rgba(255,214,0,0.15)",   Icon: Crown      },
   admin:       { label: "Admin",       color: "#A855F7", bg: "rgba(168,85,247,0.15)",  Icon: ShieldStar },
   participant: { label: "Participant", color: "#9CA3AF", bg: "rgba(156,163,175,0.12)", Icon: User       },
