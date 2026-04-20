@@ -16,6 +16,42 @@ Use this format for new entries:
 
 ## Entries
 
+### 2026-04-20 - Invite & members / permissions: grill complete
+
+- Status: **accepted** (grill complete — 18 decisions locked; UX_SPEC §§ 18 / 19 / 21 updated; MONETIZATION § 10 updated; § 42.6 trip switcher updated)
+- Context: Third grill in the stated order (lifecycle → creation → invite). Going in, §§ 18 / 19 / 21 were marked locked (2026-04-17) but contained three conflicts with the 2026-04-20 Trip Creation grill and multiple open questions: inviteMode values were undefined operationally; post-join sequence had a Must Dos vs splash vs overview conflict; slot-reward trigger timing and invite-sender identity were ambiguous; member cap, self-leave, demotion behavior, removed-member experience, and pending-list visibility were unspecced.
+- Decision:
+  - **Q1 — inviteMode: three operationally distinct modes.** `invite_only` (default) = link + code active, join-gated. `private` = link dormant, no one can join until organizer flips on. `public_link` = anyone with link gets read-only preview + can join — the marketing/viral surface.
+  - **Q2 — Link expiration: trip-bound** (`endDate + 7 days`). No reason to join a completed trip; existing expired-link state in § 19 covers it.
+  - **Q3 — Regenerate: confirmation modal** warning how many pending invitees will lose access. Both link and code invalidated instantly on confirm.
+  - **Q4 — "Join a trip" in trip switcher footer** (alongside *All trips* · *New trip*). Covers returning users invited to a second trip via text message rather than a tappable link.
+  - **Q5 — Post-join sequence: Splash → Must Dos prompt → workspace + profile banner.** Must Dos intercepts before overview (viral-loop magnifier). Profile banner persists in workspace. Resolves conflict between § 19 (overview-first) and Trip Creation grill Q12 (Must Dos full-screen).
+  - **Q6 — Must Dos skip is always available.** *"Skip for now"* link always visible — no mechanical pressure on top of the social nudge copy.
+  - **Q7 — 5 presets kept as-is** (Organizer / Trusted / Standard / View-only / Custom). *Trusted* name retained (warmer than *Co-organizer*).
+  - **Q8 — Demotion: future-only.** Past contributions keep full authorship after demotion; only future actions are constrained by the new preset.
+  - **Q9 — Self-leave always allowed.** Any non-organizer can leave via their own member card three-dot. Open balances persist anonymized until settled.
+  - **Q10 — Slot rewards are per-invite-sender, not per-organizer role.** Organizer transfer does not affect referral history or future reward eligibility. Rewards are a permanent identity tied to who sent the link.
+  - **Q11 — Who can invite: Organizer + Trusted** (via *Administrative: invite others* toggle in § 21). Standard / View-only / Custom cannot unless toggle explicitly enabled.
+  - **Q12 — Removed member: read-only of own contributions only.** No notification sent; trip silently disappears from their active workspace. They retain access to their own past items, expenses, and notes in a read-only view.
+  - **Q13 — Pending invitees visible to all joined members** on the Members page. *Resend* / *Revoke* actions remain organizer-only.
+  - **Q14 — No member cap on any tier.** Trip slots (4 / 50) are the economic lever. Member caps create bad invite moments without meaningfully driving upgrades.
+  - **Q15 — Traveler count mismatch: auto-sync up + nag on shortfall.** Joined-exceeds-planned increments `travelerCount` silently. Joined-below-planned after 7 days surfaces a Collaboration-dimension nag with resend-invite link.
+  - **Q16 — Slot reward fires on invitee's setup-complete** (Draft → Planning). Real commitment signal; not gameable; reward arrives within minutes of invitee finishing setup (vs weeks/months for later states).
+  - **Q17 — Slot cap: lifetime 3 bonus slots** (4 base → 7 max). Matches existing MON § 10. Per-year resets would confuse returning users.
+  - **Q18 — Reward goes to invite-sender** (whoever's link the invitee used). Not the current organizer. Not split. Rewards the emotional labor of the person who actually did the inviting.
+- Why:
+  - **Three invite modes** give organizers real control without complexity — private covers small-trust groups, public-link creates a second viral channel (shareable trip previews as social content).
+  - **Trip-bound link expiration** is intuitive and closes a long-lived dormant-link surface.
+  - **Regenerate modal** prevents accidental invite invalidation — the most likely mistake in the invite flow.
+  - **Must Dos before overview** compounds viral engagement: every invitee seeds the Proposed queue in the first 60 seconds, across all perspectives.
+  - **Invite-sender earns reward** (not organizer role) makes the Trusted preset's invite permission feel meaningful and rewards the right behavior.
+  - **No member cap** keeps the free tier genuinely useful — a trip with 7 friends shouldn't feel crippled.
+  - **Read-only exit for removed members** avoids the hostile "you've been cut" UX moment; bad removal experiences generate 1-star reviews.
+  - **Pending list for all members** answers "is Kelly coming?" socially without routing through the organizer every time.
+- Follow-up: UX_SPEC §§ 18 (updated: invite modes, link behavior, who-can-invite), 19 (updated: post-join sequence), 21 (updated: demotion, self-leave, removed member, pending list visibility, member cap, traveler count), § 42.6 (updated: Join a trip footer item). MONETIZATION § 10 (updated: slot-reward trigger, invite-sender identity). Next grill per stated order: **Itinerary** (step 4 of the Core Loop spine).
+
+**Design skills:** `/user-research` skipped (needs well-established from existing spec and Trip Creation grill). `/design-critique` pending — Members page (§ 21) and Invitee landing (§ 19) have not been mocked with neon-on-dark bento treatment; run before implementation. `/design-system` pending — Must Dos full-screen prompt is a new pattern (shared with zero-trip first-run override); confirm fit. `/design-handoff` pending before any JSX. `/accessibility-review` pending before shipping — Invite landing is unauthenticated and must pass WCAG AA.
+
 ### 2026-04-20 - Trip creation + setup flow: grill complete
 
 - Status: **accepted** (grill complete — 18 decisions locked; UX_SPEC § 3 rewritten; APP_STRUCTURE § Trip Creation Flow aligned)

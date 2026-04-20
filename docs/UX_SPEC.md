@@ -1106,16 +1106,26 @@ If a trip is marked complete with effectively no activity, show: *"Short trip, h
 
 ## 18. Invite Flow -- Organizer's Side
 
-**Status:** locked (2026-04-17)
+**Status:** locked (2026-04-20)
 
 The organizer's invite screen combines **share options plus invited-list dashboard** on a single page. Handles initial sharing, follow-up, and permission management all in one place.
+
+### Invite modes
+
+The trip's `inviteMode` field (set during Setup, editable in Trip Settings) controls who can find and join the trip:
+
+- **`invite_only`** (default): link + code + QR are active. Only people with the link or code can join. Subtitle reads: *"Only people with the link or code can join."*
+- **`private`**: link and code exist but are dormant. No one can join via link; organizer manages access manually. Subtitle reads: *"This trip is private. Share the link only when ready."* Share card is shown but share-action row is replaced with a *"Turn on invite link"* button.
+- **`public_link`**: anyone with the link can view the trip in read-only preview (trip name, ball, dates, destination, member count) without joining, and can join with one tap. Subtitle reads: *"Anyone with the link can preview and join."* Useful for family reunions, open group trips, or shareable social content.
+
+Organizer can switch modes at any time from the share card header or Trip Settings.
 
 ### Page structure
 
 - **Header**
   - Back arrow to the trip overview
   - Title *Invite your crew* in Fredoka
-  - Subtitle: *"Only people with the link or code can join."*
+  - Subtitle: dynamic per invite mode (see Invite modes above)
 
 - **Share card** (top) -- pastel cyan background with trip name echoed
   - **Invite link** in a monospace text box with *Copy* button
@@ -1123,6 +1133,7 @@ The organizer's invite screen combines **share options plus invited-list dashboa
   - **QR code** -- centered, large enough to scan
   - **Share action row**: *Text message · Email · WhatsApp · Copy link · More...*
   - Note: *"Link and code are the same thing -- one to paste, one to type."*
+  - **Mode chip** in the card's top-right corner: *Private · Invite-only · Public link* — tapping opens a mode-picker sheet
 
 - **Permission preset strip**
   - Subtle row: *"New joiners get the [Standard] preset"*
@@ -1133,10 +1144,20 @@ The organizer's invite screen combines **share options plus invited-list dashboa
   - *Joined* sub-list: avatars + names + permission badges + three-dot menu (Change permissions, Remove from trip)
   - *Invited but not joined* sub-list: placeholder avatars + optional name + *Resend* + *Revoke*
   - Totals line: *"3 of 5 have joined"*
+  - This page is organizer-only; joined members see the full list (including pending) on the Members page (§ 21)
 
 - **Footer**
   - Secondary action: *Regenerate invite link / code*
   - Note: *"Regenerate if someone who shouldn't have it got the link."*
+
+### Link behavior
+
+- **Expiration:** invite links and codes expire at `endDate + 7 days`. Trip-lifecycle-bound — there is no reason to join a trip that has ended. The expired state per § 19 covers this case.
+- **Regeneration:** tapping *Regenerate* opens a confirmation modal before acting: *"The old link and code will stop working. [N] people haven't joined yet — they'll need the new one. Regenerate?"* Primary: *"Yes, regenerate"*. Dismiss: *"Cancel."* Already-joined members are unaffected.
+
+### Who can send invites
+
+Organizer and Trusted-preset members can send invites (controlled by the *Administrative: invite others* toggle in § 21). Standard, View-only, and Custom members cannot unless the toggle is explicitly enabled for their account.
 
 ### Copy tone
 
@@ -1155,7 +1176,7 @@ The organizer's invite screen combines **share options plus invited-list dashboa
 
 ## 19. Invitee Join Flow -- Landing Experience
 
-**Status:** locked (2026-04-17)
+**Status:** locked (2026-04-20)
 
 Invitees tapping a TripWave invite link land on a **branded Join page themed to the trip** before any authentication. The page honors the emotional moment before asking for an account.
 
@@ -1190,11 +1211,11 @@ Itinerary, expenses, and internal planning details are **not** visible until the
 
 ### Post-auth join moment
 
-After signup or login completes:
-- Brief confirmation splash: *"Welcome to [Trip Name]"* with one ball pulse
-- Routes to the trip overview (established layout, not brand-new onboarding)
-- First-session banner at top: *"You're in! Add your dietary needs, mobility, and emergency contact in your traveler profile."* -- tap opens profile editor
-- Banner disappears permanently once dismissed or completed
+After signup or login completes, the sequence is:
+
+1. **Splash** — brief full-screen moment: *"Welcome to [Trip Name]"* with one ball pulse (~1.5s, auto-advances).
+2. **Must Dos prompt** — full-screen moment (same pattern as zero-trip first-run override; ball-color accent; see Trip Creation grill Q12). Contextual subline: *"The things you can't miss on this trip. [Organizer] and [N-1] others will see these."* Textarea for line-by-line Must Do entry. *"Skip for now"* link always visible. Submitting or skipping advances immediately.
+3. **Workspace** — trip overview (established layout, not brand-new onboarding). Persistent first-session banner at top: *"You're in! Add your dietary needs, mobility, and emergency contact in your traveler profile."* Tap opens profile editor. Banner disappears permanently once dismissed or completed.
 
 ### Invalid or revoked links
 
@@ -1276,7 +1297,7 @@ Quick-jump dots above the pill bar (like carousel dots) representing phase group
 
 ## 21. Permissions -- Organizer Member Management
 
-**Status:** locked (2026-04-17)
+**Status:** locked (2026-04-20)
 
 The member management page uses a **preset-with-override hybrid** -- per-user preset dropdowns that expand into individual toggles on demand. Power and simplicity in one page.
 
@@ -1320,12 +1341,43 @@ Each toggle has a short description below it. Panel includes *Save* and *Reset t
 
 ### Member card menu (three-dot)
 
+**Organizer's view of other members:**
 - *Transfer ownership to [name]* -- triggers a confirmation modal
-- *Remove from trip* -- triggers a confirmation modal explaining the action. Removed members lose access, but their contributions (itinerary items, expenses, notes) remain with an anonymized grayed-out avatar
+- *Remove from trip* -- triggers a confirmation modal explaining the action
+
+**Non-organizer's view of their own card only:**
+- *Leave trip* -- triggers a confirmation modal: *"You'll lose access to this trip. Your past contributions will remain, visible to you in read-only. Leave anyway?"*
+
+### Demotion behavior
+
+Demoting a member (e.g., Trusted → View-only) takes effect immediately for future actions. Past contributions (itinerary items, expenses, notes) retain full authorship and are not retroactively restricted. The member remains visible in the contributor history.
+
+### Self-leave
+
+Any non-organizer member may leave the trip at any time via *Leave trip* on their own member card. On leaving:
+- Member loses access to the trip workspace.
+- Their past contributions (items, expenses, notes) persist with a grayed-out anonymized avatar, consistent with removed-member treatment.
+- Open balances remain on the ledger and resolve normally (other members can still mark them settled).
+- Organizer receives a standard in-app notification: *"[Name] left [Trip Name]."*
+
+### Removed member experience
+
+A member removed by the organizer retains **read-only access to their own past contributions only** — their itinerary items, expenses they logged, and their notes. They cannot view other members' content, the live workspace, or any planning details added after removal. No *"you were removed"* notification is sent; the trip silently disappears from their active workspace. Their past contributions display with a grayed-out anonymized avatar to other members.
+
+### Invited list visibility
+
+The invited-but-not-joined list is visible to **all joined members** on the Members page. This answers the perpetual *"is Kelly coming?"* question without routing through the organizer. Actions (*Resend* · *Revoke*) are organizer-only.
+
+### Member cap and traveler count
+
+- **No member cap** on any tier. Trip slots (4 free / 50 premium) are the economic lever; capping group size creates bad invite moments and doesn't meaningfully drive upgrades.
+- **Traveler count mismatch** (`travelerCount` field vs actual joined members):
+  - If joined members exceed `travelerCount`, auto-increment `travelerCount` silently.
+  - If joined members fall short of `travelerCount` after 7 days, a nag surfaces in the Collaboration readiness dimension: *"[N] of [travelerCount] have joined. Remind them?"* with a resend-invite link. Fires once per shortfall period.
 
 ### Empty state
 
-If only the organizer is in the trip, show their card plus a banner: *"Only you here! Invite your crew to start collaborating."*  with an *Invite more* CTA.
+If only the organizer is in the trip, show their card plus a banner: *"Only you here! Invite your crew to start collaborating."* with an *Invite more* CTA.
 
 ### Why preset-plus-override
 
@@ -3208,7 +3260,7 @@ Tap the trip switcher pill to open a dropdown (desktop) or bottom sheet (mobile)
 3. **Active section** — upcoming (Ready) + in-progress trips. Row: ball, name, countdown. Tap → trip's recommended phase.
 4. **Planning section** — Draft + Planning state trips.
 5. **Archived section** — Stale + Vaulted. Collapsed by default.
-6. **Footer** — *All trips* → `/app` · *New trip* (opens Creation ritual).
+6. **Footer** — *All trips* → `/app` · *New trip* (opens Creation ritual) · *Join a trip* (opens invite-code entry sheet — covers returning users invited to a second trip via text, not a tappable link).
 
 Dismisses on outside click / Escape / swipe-down.
 

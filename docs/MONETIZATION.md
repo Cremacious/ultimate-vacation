@@ -335,13 +335,15 @@ TripWave's single largest acquisition lever is built into the product: every org
 
 ### Loop design
 
-1. Organizer creates a trip and invites travelers via link, code, or QR
+1. Organizer (or any Trusted member with invite permission) sends invite via link, code, or QR
 2. Invitees join. During their first session in the trip, a **soft cross-promote banner** appears: *"Loving TripWave? Start your own trip free."*
 3. After the trip completes (weeks or months later), invitees receive a single in-app nudge: *"Plan your next trip? You already know how this works."*
-4. When an invitee starts their own trip, the original organizer earns a **bonus free slot reward**:
+4. When an invitee completes setup on their own trip (Draft → Planning), **whoever sent the specific invite link** earns a **bonus free slot reward**:
    - Toast and in-app notification: *"Sarah just started her first trip -- you earned a bonus free slot!"*
-   - Free tier bonus slot cap: organizer can grow from 4 base slots to a maximum of 7 via referrals (3 bonus slots total)
-5. Invitees-turned-organizers trigger the same slot reward for their invitees who start their own trips
+   - Reward fires on invitee's setup-complete (not bare Draft creation, not trip completion) — real commitment signal, not gameable.
+   - Reward goes to the invite-sender, not necessarily the trip organizer. If Alice (Trusted) sent the link and Alice is later demoted or the organizer role transfers, Alice still earns the reward.
+   - Free tier bonus slot cap: invite-sender can grow from 4 base slots to a maximum of 7 via referrals (3 bonus slots total, lifetime).
+5. Invitees-turned-organizers trigger the same slot reward for whoever invited their own invitees
 
 ### Why slots as the referral reward (not premium or cash)
 
