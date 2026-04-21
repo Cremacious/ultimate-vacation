@@ -1,57 +1,51 @@
 import Link from "next/link";
+import { and, eq, isNull } from "drizzle-orm";
 import {
-  MapPin, Lightning, ArrowRight, CheckCircle, Star,
-  CalendarBlank, Receipt, Backpack, ChartBar,
-  Airplane, ForkKnife, Binoculars,
+  ArrowRight, CalendarBlank, Receipt, Backpack, ChartBar,
 } from "@phosphor-icons/react/dist/ssr";
 
-const trip = {
-  name: "Japan Spring 2025",
-  startDate: "Apr 1, 2025",
-  endDate: "Apr 15, 2025",
-  daysUntil: 42,
-  memberCount: 4,
-  fillPct: 72,
-  ballColor: "#FF2D8B",
-  phase: "Planning",
-  destinations: [
-    { city: "Tokyo", country: "Japan", color: "#FF2D8B" },
-    { city: "Kyoto", country: "Japan", color: "#FFD600" },
-    { city: "Osaka", country: "Japan", color: "#00C96B" },
-  ],
-};
+import { db } from "@/lib/db";
+import { tripMembers, trips, users } from "@/lib/db/schema";
+import { requireUser } from "@/lib/auth/session";
+import { getTripById } from "@/lib/trips/queries";
+import { notFound } from "next/navigation";
 
-const MEMBERS = [
-  { name: "Chris",  color: "#FF2D8B" },
-  { name: "Sarah",  color: "#00A8CC" },
-  { name: "Mike",   color: "#FFD600" },
-  { name: "Jordan", color: "#00C96B" },
+// Deterministic palette for member initials — cycles if there are more members than colors.
+const MEMBER_COLORS = [
+  "#FF2D8B", "#00A8CC", "#FFD600", "#00C96B",
+  "#A855F7", "#FF8C00", "#00E5FF", "#FF3DA7",
 ];
 
-const ACTIVITY = [
-  { who: "Sarah",  action: "voted yes on",     subject: "teamLab Planets",  time: "2h ago",     color: "#FF2D8B" },
-  { who: "Mike",   action: "proposed",          subject: "Ramen at Ichiran", time: "4h ago",     color: "#00A8CC" },
-  { who: "You",    action: "added to Must Dos", subject: "Tsukiji Market",   time: "Yesterday",  color: "#FFD600" },
-  { who: "Sarah",  action: "joined the trip",   subject: "",                 time: "2 days ago", color: "#00C96B" },
-];
+function formatDate(dateStr: string | null): string {
+  if (!dateStr) return "TBD";
+  const [year, month, day] = dateStr.split("-");
+  const d = new Date(Number(year), Number(month) - 1, Number(day));
+  return d.toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" });
+}
 
-const MUST_DOS = [
-  { title: "Tsukiji Fish Market",   who: "You",   scheduled: false },
-  { title: "teamLab Planets",       who: "Mike",  scheduled: false },
-  { title: "Fushimi Inari Shrine",  who: "Sarah", scheduled: true  },
-];
+function daysUntilDate(dateStr: string | null): number | null {
+  if (!dateStr) return null;
+  const start = new Date(`${dateStr}T00:00:00Z`).getTime();
+  const today = new Date();
+  const todayUtc = Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate());
+  return Math.round((start - todayUtc) / (1000 * 60 * 60 * 24));
+}
 
-const COMING_UP = [
-  { date: "Day 1 · Apr 1", title: "Arrive at Narita Airport", color: "#FF8C00", Icon: Airplane   },
-  { date: "Day 2 · Apr 2", title: "Shinjuku walking tour",    color: "#FF2D8B", Icon: Binoculars },
-  { date: "Day 3 · Apr 3", title: "Tsukiji Outer Market",     color: "#FFD600", Icon: ForkKnife  },
-];
+function tripPhaseLabel(lifecycle: string, startDate: string | null, endDate: string | null): string {
+  if (lifecycle === "vaulted") return "Settled";
+  const daysUntil = daysUntilDate(startDate);
+  const daysUntilEnd = daysUntilDate(endDate);
+  if (daysUntil === null) return "Planning";
+  if (daysUntil > 0) return "Planning";
+  if (daysUntilEnd !== null && daysUntilEnd >= 0) return "In Progress";
+  return "Completed";
+}
 
 const QUICK_ACTIONS = [
-  { label: "Add to itinerary", href: "itinerary", color: "#00A8CC", shadow: "#0087a3", Icon: CalendarBlank },
   { label: "Log an expense",   href: "expenses",  color: "#00C96B", shadow: "#00944f", Icon: Receipt       },
   { label: "Check packing",    href: "packing",   color: "#FFD600", shadow: "#c9aa00", Icon: Backpack      },
   { label: "View polls",       href: "polls",     color: "#A855F7", shadow: "#7c3aed", Icon: ChartBar      },
+  { label: "Itinerary",        href: "itinerary", color: "#00A8CC", shadow: "#0087a3", Icon: CalendarBlank },
 ];
 
 export default async function TripOverviewPage({
@@ -60,8 +54,37 @@ export default async function TripOverviewPage({
   params: Promise<{ tripId: string }>;
 }) {
   const { tripId } = await params;
+  await requireUser();
+
+  const trip = await getTripById(tripId);
+  if (!trip) notFound();
+
+  const memberRows = await db
+    .select({ userId: tripMembers.userId, name: users.name, role: tripMembers.role })
+    .from(tripMembers)
+    .innerJoin(users, eq(tripMembers.userId, users.id))
+    .where(and(eq(tripMembers.tripId, tripId), isNull(tripMembers.deletedAt)));
+
   const base = `/app/trips/${tripId}`;
-  const unscheduledCount = MUST_DOS.filter((m) => !m.scheduled).length;
+  const daysUntil = daysUntilDate(trip.startDate);
+  const phase = tripPhaseLabel(trip.lifecycle, trip.startDate, trip.endDate);
+
+  // Countdown display: days remaining, "Today", "In Progress", or "Completed"
+  let countdownNumber: string;
+  let countdownLabel: string;
+  if (daysUntil === null) {
+    countdownNumber = "—";
+    countdownLabel = "No dates set";
+  } else if (daysUntil > 0) {
+    countdownNumber = String(daysUntil);
+    countdownLabel = daysUntil === 1 ? "Day Away" : "Days Away";
+  } else if (daysUntil === 0) {
+    countdownNumber = "🎉";
+    countdownLabel = "Trip Day!";
+  } else {
+    countdownNumber = String(Math.abs(daysUntil));
+    countdownLabel = "Days Ago";
+  }
 
   return (
     <>
@@ -72,9 +95,7 @@ export default async function TripOverviewPage({
           gap: 10px;
         }
         .og-hero     { grid-column: 1 / 3; }
-        .og-activity { grid-column: 1 / 3; }
-        .og-mustdos  { grid-column: 1 / 3; }
-        .og-upcoming { grid-column: 1 / 3; }
+        .og-members  { grid-column: 1 / 3; }
         .og-actions  { grid-column: 1 / 3; }
 
         @media (min-width: 768px) {
@@ -84,10 +105,7 @@ export default async function TripOverviewPage({
           .og-members     { grid-column: 3;     grid-row: 1;     }
           .og-progress    { grid-column: 2;     grid-row: 2;     }
           .og-nextaction  { grid-column: 3;     grid-row: 2;     }
-          .og-activity    { grid-column: 1 / 3; grid-row: 3;     }
-          .og-mustdos     { grid-column: 3;     grid-row: 3;     }
-          .og-upcoming    { grid-column: 1 / 4; grid-row: 4;     }
-          .og-actions     { grid-column: 1 / 4; grid-row: 5;     }
+          .og-actions     { grid-column: 1 / 4; grid-row: 3;     }
         }
 
         .action-btn {
@@ -110,14 +128,14 @@ export default async function TripOverviewPage({
             {trip.name}
           </h1>
           <p className="text-xs font-semibold text-white/50 uppercase tracking-widest">
-            {trip.phase} · {trip.daysUntil} days away
+            {phase}{daysUntil !== null && daysUntil > 0 ? ` · ${daysUntil} days away` : ""}
           </p>
         </div>
         <div
           className="px-3 py-1.5 rounded-full text-xs font-black text-[#1a1a1a]"
           style={{ backgroundColor: trip.ballColor }}
         >
-          {trip.phase}
+          {phase}
         </div>
       </div>
 
@@ -137,37 +155,31 @@ export default async function TripOverviewPage({
             <div className="relative">
               <div className="text-[10px] font-black uppercase tracking-[3px] text-white/30 mb-1">Your Trip</div>
               <div
-                className="text-3xl md:text-4xl font-semibold text-white leading-tight mb-3"
+                className="text-3xl md:text-4xl font-semibold text-white leading-tight mb-4"
                 style={{ fontFamily: "var(--font-fredoka)" }}
               >
                 {trip.name}
               </div>
-              <div className="flex flex-wrap gap-x-3 gap-y-1 mb-4">
-                {trip.destinations.map((d, i) => (
-                  <div key={i} className="flex items-center gap-1">
-                    <MapPin size={11} weight="fill" style={{ color: d.color }} />
-                    <span className="text-sm font-bold text-white/70">{d.city}, {d.country}</span>
+              {(trip.startDate || trip.endDate) && (
+                <div
+                  className="inline-flex items-center gap-3 rounded-xl px-4 py-2.5"
+                  style={{ backgroundColor: "rgba(0,168,204,0.10)", border: "1px solid rgba(0,168,204,0.22)" }}
+                >
+                  <div>
+                    <div className="text-[9px] font-black uppercase tracking-widest text-white/40">Depart</div>
+                    <div className="font-semibold text-base text-white leading-none" style={{ fontFamily: "var(--font-fredoka)" }}>
+                      {formatDate(trip.startDate)}
+                    </div>
                   </div>
-                ))}
-              </div>
-              <div
-                className="inline-flex items-center gap-3 rounded-xl px-4 py-2.5"
-                style={{ backgroundColor: "rgba(0,168,204,0.10)", border: "1px solid rgba(0,168,204,0.22)" }}
-              >
-                <div>
-                  <div className="text-[9px] font-black uppercase tracking-widest text-white/40">Depart</div>
-                  <div className="font-semibold text-base text-white leading-none" style={{ fontFamily: "var(--font-fredoka)" }}>
-                    {trip.startDate}
-                  </div>
-                </div>
-                <div className="text-white/25 text-sm">→</div>
-                <div>
-                  <div className="text-[9px] font-black uppercase tracking-widest text-white/40">Return</div>
-                  <div className="font-semibold text-base text-white leading-none" style={{ fontFamily: "var(--font-fredoka)" }}>
-                    {trip.endDate}
+                  <div className="text-white/25 text-sm">→</div>
+                  <div>
+                    <div className="text-[9px] font-black uppercase tracking-widest text-white/40">Return</div>
+                    <div className="font-semibold text-base text-white leading-none" style={{ fontFamily: "var(--font-fredoka)" }}>
+                      {formatDate(trip.endDate)}
+                    </div>
                   </div>
                 </div>
-              </div>
+              )}
             </div>
           </div>
 
@@ -180,9 +192,9 @@ export default async function TripOverviewPage({
               className="font-semibold text-[#1a1a1a] leading-none"
               style={{ fontFamily: "var(--font-fredoka)", fontSize: "clamp(48px, 6vw, 88px)" }}
             >
-              {trip.daysUntil}
+              {countdownNumber}
             </div>
-            <div className="text-[13px] font-black uppercase tracking-[2px] text-black/50 mt-2">Days Away</div>
+            <div className="text-[13px] font-black uppercase tracking-[2px] text-black/50 mt-2">{countdownLabel}</div>
           </div>
 
           {/* ── MEMBERS ──────────────────────────────────────────────── */}
@@ -194,20 +206,30 @@ export default async function TripOverviewPage({
               className="font-semibold text-[#1a1a1a] leading-none"
               style={{ fontFamily: "var(--font-fredoka)", fontSize: "clamp(40px, 5vw, 72px)" }}
             >
-              {trip.memberCount}
+              {memberRows.length}
             </div>
-            <div className="text-[13px] font-black uppercase tracking-[2px] text-black/50">Travelers</div>
-            <div className="flex gap-1.5">
-              {MEMBERS.map((m) => (
+            <div className="text-[13px] font-black uppercase tracking-[2px] text-black/50">
+              {memberRows.length === 1 ? "Traveler" : "Travelers"}
+            </div>
+            <div className="flex gap-1.5 flex-wrap justify-center">
+              {memberRows.slice(0, 8).map((m, i) => (
                 <div
-                  key={m.name}
+                  key={m.userId}
                   className="w-7 h-7 rounded-full flex items-center justify-center text-[11px] font-black text-[#1a1a1a]"
-                  style={{ backgroundColor: m.color, boxShadow: "0 1px 3px rgba(0,0,0,0.3)" }}
+                  style={{ backgroundColor: MEMBER_COLORS[i % MEMBER_COLORS.length], boxShadow: "0 1px 3px rgba(0,0,0,0.3)" }}
                   title={m.name}
                 >
-                  {m.name[0]}
+                  {m.name.trim().charAt(0).toUpperCase()}
                 </div>
               ))}
+              {memberRows.length > 8 && (
+                <div
+                  className="w-7 h-7 rounded-full flex items-center justify-center text-[11px] font-black text-[#1a1a1a]"
+                  style={{ backgroundColor: "rgba(0,0,0,0.15)" }}
+                >
+                  +{memberRows.length - 8}
+                </div>
+              )}
             </div>
           </div>
 
@@ -216,156 +238,46 @@ export default async function TripOverviewPage({
             className="og-progress rounded-[20px] border p-5 flex flex-col justify-center"
             style={{ backgroundColor: "#2e2e2e", borderColor: "#3a3a3a" }}
           >
-            <div className="text-[10px] font-black uppercase tracking-[2px] text-white/35 mb-2">Planned</div>
-            <div
-              className="font-semibold text-[#00C96B] leading-none mb-3"
-              style={{ fontFamily: "var(--font-fredoka)", fontSize: "clamp(30px, 4vw, 52px)" }}
-            >
-              {trip.fillPct}%
-            </div>
-            <div className="h-2 rounded-full overflow-hidden mb-3" style={{ backgroundColor: "#1e1e1e" }}>
-              <div
-                className="h-full rounded-full"
-                style={{ width: `${trip.fillPct}%`, backgroundColor: "#00C96B" }}
-              />
-            </div>
+            <div className="text-[10px] font-black uppercase tracking-[2px] text-white/35 mb-2">Add People</div>
             <Link
-              href={`${base}/preplanning`}
+              href={`${base}/invite`}
               className="text-[11px] font-black text-[#00A8CC] hover:underline flex items-center gap-1"
             >
-              Continue planning <ArrowRight size={10} weight="bold" />
+              Invite link <ArrowRight size={10} weight="bold" />
             </Link>
-          </div>
-
-          {/* ── NEXT BEST ACTION ─────────────────────────────────────── */}
-          <div
-            className="og-nextaction rounded-[20px] border p-5 flex flex-col justify-center items-center text-center"
-            style={{ backgroundColor: "#2e2e2e", borderColor: "#3a3a3a" }}
-          >
-            <div className="text-[10px] font-black uppercase tracking-[2px] text-white/35 mb-3">Next Step</div>
-            <div
-              className="w-11 h-11 rounded-full flex items-center justify-center mb-3"
-              style={{ backgroundColor: "rgba(0,168,204,0.15)" }}
-            >
-              <Lightning size={20} weight="fill" style={{ color: "#00A8CC" }} />
-            </div>
-            <div className="text-sm font-bold text-white leading-snug mb-1">Add your flight details</div>
-            <div className="text-[11px] text-white/40 font-semibold mb-3">Preplanning → Transport</div>
+            <div className="mt-3 text-[10px] font-black uppercase tracking-[2px] text-white/35 mb-2">Settle Up</div>
             <Link
-              href={`${base}/preplanning`}
-              className="flex items-center gap-1 text-[11px] font-black text-[#00A8CC] hover:underline"
+              href={`${base}/balances`}
+              className="text-[11px] font-black text-[#00A8CC] hover:underline flex items-center gap-1"
             >
-              Go there <ArrowRight size={10} weight="bold" />
+              View balances <ArrowRight size={10} weight="bold" />
             </Link>
           </div>
 
-          {/* ── ACTIVITY FEED ────────────────────────────────────────── */}
+          {/* ── MEMBERS LIST ─────────────────────────────────────────── */}
           <div
-            className="og-activity rounded-[20px] border p-5"
+            className="og-nextaction rounded-[20px] border p-5 flex flex-col justify-center"
             style={{ backgroundColor: "#2e2e2e", borderColor: "#3a3a3a" }}
           >
-            <div className="text-[10px] font-black uppercase tracking-[2px] text-white/35 mb-4">Recent Activity</div>
-            <div className="flex flex-col gap-3">
-              {ACTIVITY.map((item, i) => (
-                <div key={i} className="flex items-center gap-3">
+            <div className="text-[10px] font-black uppercase tracking-[2px] text-white/35 mb-3">Who&apos;s in</div>
+            <div className="flex flex-col gap-2">
+              {memberRows.slice(0, 4).map((m, i) => (
+                <div key={m.userId} className="flex items-center gap-2">
                   <div
-                    className="w-7 h-7 rounded-full flex-shrink-0 flex items-center justify-center text-[11px] font-black text-[#1a1a1a]"
-                    style={{ backgroundColor: item.color }}
+                    className="w-5 h-5 rounded-full flex-shrink-0 flex items-center justify-center text-[9px] font-black text-[#1a1a1a]"
+                    style={{ backgroundColor: MEMBER_COLORS[i % MEMBER_COLORS.length] }}
                   >
-                    {item.who[0]}
+                    {m.name.trim().charAt(0).toUpperCase()}
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <span className="text-sm font-bold text-white">{item.who}</span>
-                    <span className="text-sm text-white/50"> {item.action}</span>
-                    {item.subject && (
-                      <span className="text-sm font-bold text-white"> {item.subject}</span>
-                    )}
-                  </div>
-                  <div className="text-[11px] font-semibold text-white/30 flex-shrink-0 whitespace-nowrap">
-                    {item.time}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* ── MUST DOS ─────────────────────────────────────────────── */}
-          <div
-            className="og-mustdos rounded-[20px] border p-5"
-            style={{ backgroundColor: "#2e2e2e", borderColor: "#3a3a3a" }}
-          >
-            <div className="flex items-center justify-between mb-4">
-              <div className="text-[10px] font-black uppercase tracking-[2px] text-white/35">Must Dos</div>
-              {unscheduledCount > 0 && (
-                <div
-                  className="text-[10px] font-black px-2 py-0.5 rounded-full"
-                  style={{ backgroundColor: "rgba(255,45,139,0.15)", color: "#FF2D8B" }}
-                >
-                  {unscheduledCount} unscheduled
-                </div>
-              )}
-            </div>
-            <div className="flex flex-col gap-3">
-              {MUST_DOS.map((item, i) => (
-                <div key={i} className="flex items-start gap-2.5">
-                  <div className="mt-0.5 flex-shrink-0">
-                    {item.scheduled
-                      ? <CheckCircle size={15} weight="fill" style={{ color: "#00C96B" }} />
-                      : <Star size={15} weight="fill" style={{ color: "#FFD600" }} />
-                    }
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className={`text-sm font-bold leading-tight ${item.scheduled ? "text-white/35 line-through" : "text-white"}`}>
-                      {item.title}
-                    </div>
-                    <div className="text-[10px] font-semibold text-white/30">{item.who}&apos;s Must Do</div>
-                  </div>
-                  {!item.scheduled && (
-                    <Link
-                      href={`${base}/itinerary`}
-                      className="text-[10px] font-black text-[#00A8CC] hover:underline flex-shrink-0 mt-0.5"
-                    >
-                      Schedule
-                    </Link>
+                  <span className="text-xs font-semibold text-white/80 truncate">{m.name}</span>
+                  {m.role === "organizer" && (
+                    <span className="text-[9px] font-black text-white/30 uppercase tracking-wide ml-auto">Org</span>
                   )}
                 </div>
               ))}
-            </div>
-          </div>
-
-          {/* ── COMING UP ────────────────────────────────────────────── */}
-          <div
-            className="og-upcoming rounded-[20px] border p-5"
-            style={{ backgroundColor: "#2e2e2e", borderColor: "#3a3a3a" }}
-          >
-            <div className="flex items-center justify-between mb-4">
-              <div className="text-[10px] font-black uppercase tracking-[2px] text-white/35">Coming Up</div>
-              <Link
-                href={`${base}/itinerary`}
-                className="text-[10px] font-black text-[#00A8CC] hover:underline flex items-center gap-1"
-              >
-                Full itinerary <ArrowRight size={10} weight="bold" />
-              </Link>
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-              {COMING_UP.map((item, i) => (
-                <div
-                  key={i}
-                  className="rounded-[14px] p-4 flex gap-3 items-start"
-                  style={{ backgroundColor: "#1e1e1e" }}
-                >
-                  <div
-                    className="w-8 h-8 rounded-full flex-shrink-0 flex items-center justify-center mt-0.5"
-                    style={{ backgroundColor: item.color }}
-                  >
-                    <item.Icon size={14} weight="fill" color="#fff" />
-                  </div>
-                  <div className="min-w-0">
-                    <div className="text-[10px] font-black uppercase tracking-[1px] text-white/30 mb-0.5">{item.date}</div>
-                    <div className="text-sm font-bold text-white leading-tight">{item.title}</div>
-                  </div>
-                </div>
-              ))}
+              {memberRows.length > 4 && (
+                <p className="text-[10px] text-white/30 font-semibold">+{memberRows.length - 4} more</p>
+              )}
             </div>
           </div>
 

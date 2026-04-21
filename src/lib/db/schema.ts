@@ -157,7 +157,7 @@ export const trips = pgTable(
     deletedAt: timestamp("deleted_at", { withTimezone: true }),
   },
   (t) => [
-    uniqueIndex("trips_slug_unique").on(t.slug),
+    uniqueIndex("trips_slug_owner_unique").on(t.ownerId, t.slug),
     index("trips_owner_id_idx").on(t.ownerId),
     index("trips_lifecycle_idx").on(t.lifecycle),
   ]

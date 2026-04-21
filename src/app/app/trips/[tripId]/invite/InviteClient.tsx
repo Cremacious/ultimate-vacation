@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useMemo } from "react";
+import { useActionState, useMemo, useState } from "react";
 
 import { createInviteAction, type CreateInviteFormState } from "./actions";
 
@@ -22,12 +22,20 @@ export default function InviteClient({
   existing: ActiveInvite[];
 }) {
   const [state, formAction, pending] = useActionState(createInviteAction, initialState);
+  const [copiedCode, setCopiedCode] = useState<string | null>(null);
 
   const baseUrl = typeof window === "undefined" ? "" : window.location.origin;
   const newLink = useMemo(
     () => (state.createdCode ? `${baseUrl}/join/${state.createdCode}` : null),
     [state.createdCode, baseUrl]
   );
+
+  function copyLink(link: string, code: string) {
+    navigator.clipboard.writeText(link).then(() => {
+      setCopiedCode(code);
+      setTimeout(() => setCopiedCode(null), 2000);
+    });
+  }
 
   return (
     <>
@@ -46,12 +54,19 @@ export default function InviteClient({
             {state.error}
           </p>
         )}
-        {newLink && (
+        {newLink && state.createdCode && (
           <div className="mt-4 rounded-xl bg-[#1e2a2e] border border-[#00A8CC]/40 px-4 py-3">
             <p className="text-xs font-bold text-[#00A8CC] uppercase tracking-wide mb-1">
               New invite link
             </p>
             <code className="text-sm text-white break-all">{newLink}</code>
+            <button
+              type="button"
+              onClick={() => copyLink(newLink, state.createdCode!)}
+              className="mt-2 text-xs font-bold px-3 py-1.5 rounded-lg bg-[#00A8CC] text-white hover:bg-[#0096b8] transition-colors"
+            >
+              {copiedCode === state.createdCode ? "Copied!" : "Copy link"}
+            </button>
           </div>
         )}
       </form>
@@ -71,11 +86,20 @@ export default function InviteClient({
               <code className="text-sm text-white break-all">
                 {baseUrl}/join/{inv.code}
               </code>
-              <p className="text-xs text-gray-500 mt-1">
-                Uses: {inv.usedCount}
-                {inv.maxUses !== null && ` / ${inv.maxUses}`}
-                {inv.expiresAt && ` · expires ${new Date(inv.expiresAt).toLocaleDateString()}`}
-              </p>
+              <div className="flex items-center gap-3 mt-2">
+                <button
+                  type="button"
+                  onClick={() => copyLink(`${baseUrl}/join/${inv.code}`, inv.code)}
+                  className="text-xs font-bold px-3 py-1.5 rounded-lg bg-[#2e3a3e] border border-[#00A8CC]/40 text-[#00A8CC] hover:bg-[#1e2a2e] transition-colors"
+                >
+                  {copiedCode === inv.code ? "Copied!" : "Copy"}
+                </button>
+                <p className="text-xs text-gray-500">
+                  Uses: {inv.usedCount}
+                  {inv.maxUses !== null && ` / ${inv.maxUses}`}
+                  {inv.expiresAt && ` · expires ${new Date(inv.expiresAt).toLocaleDateString()}`}
+                </p>
+              </div>
             </li>
           ))}
         </ul>

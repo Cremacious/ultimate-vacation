@@ -16,6 +16,7 @@
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 
+import { vaultTripAction } from "@/app/app/trips/[tripId]/balances/actions";
 import { ConfirmationSheet } from "@/components/ConfirmationSheet";
 import {
   buildVenmoDeepLink,
@@ -103,17 +104,12 @@ export function SettleUpClient({
   async function markTripSettled() {
     setError(null);
     startTransition(async () => {
-      try {
-        await fetch("/api/analytics/emit", {
-          method: "POST",
-          headers: { "content-type": "application/json" },
-          body: JSON.stringify({ type: "trip_settled", tripId }),
-        });
-        setTripSettledConfirm(false);
-      } catch {
-        // Analytics emission failure is non-blocking for the user action.
-        setTripSettledConfirm(false);
+      const result = await vaultTripAction(tripId);
+      if (!result.ok) {
+        setError(result.error);
       }
+      setTripSettledConfirm(false);
+      router.refresh();
     });
   }
 
