@@ -67,7 +67,7 @@ async function main() {
   assert(tripRow, "trip row persisted");
   assert(tripRow.ownerId === userRow.id, "trip ownerId = creator");
   assert(tripRow.name === tripInput.name, "trip name persisted");
-  assert(tripRow.status === "planning", `trip status defaults to planning (${tripRow.status})`);
+  assert(tripRow.lifecycle === "active", `trip lifecycle defaults to active (${tripRow.lifecycle})`);
   assert(tripRow.ballColor === "#7C5CFF", "trip ball color defaulted");
   assert(tripRow.displayCurrency === "USD", "trip display currency defaulted");
   assert(String(tripRow.startDate) === tripInput.startDate, "start date persisted");

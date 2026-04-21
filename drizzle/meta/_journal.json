@@ -8,6 +8,13 @@
       "when": 1776722072146,
       "tag": "0000_initial_spine",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1776776697519,
+      "tag": "0001_silent_giant_girl",
+      "breakpoints": true
     }
   ]
 }

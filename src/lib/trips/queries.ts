@@ -17,7 +17,7 @@ export async function listTripsForUser(userId: string) {
       startDate: trips.startDate,
       endDate: trips.endDate,
       ballColor: trips.ballColor,
-      status: trips.status,
+      lifecycle: trips.lifecycle,
       createdAt: trips.createdAt,
       role: tripMembers.role,
     })

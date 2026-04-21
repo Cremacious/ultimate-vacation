@@ -15,13 +15,16 @@ import {
 } from "drizzle-orm/pg-core";
 
 /**
- * TripWave spine schema — 12 tables.
+ * TripWave spine schema — 14 tables (post migration 0001 / 2026-04-21).
  *
- * Canonical order (per DECISIONS.md 2026-04-20 Implementation Order grill):
- *   users, sessions, accounts, verifications,
- *   trips, trip_members, invites,
- *   expenses, expense_splits,
- *   itinerary_events, preplan_budgets, notifications
+ * Canonical order:
+ *   Auth       : users, sessions, accounts, verifications
+ *   Trip       : trips, trip_members, invites
+ *   Pay        : expenses, expense_splits, settlements
+ *   Supporter  : supporter_entitlements
+ *   Receipts   : expense_receipts
+ *   Plan       : itinerary_events
+ *   System     : notifications
  *
  * Conventions:
  *   - Primary keys: uuid, default gen_random_uuid() (requires pgcrypto; Neon has it by default).
@@ -30,7 +33,10 @@ import {
  *   - Money: integer cents, never floats. Currency stored ISO 4217.
  *   - Timezones: UTC in DB; trip has primary_timezone IANA string.
  *   - Enums: text + application-level validation (easier to evolve than pg_enum).
- *   - accounts + verifications exist to satisfy Better Auth requirements in Chunk 2.
+ *   - accounts + verifications exist to satisfy Better Auth requirements.
+ *   - Trip state: only `trips.lifecycle` (active | vaulted | dreaming) is stored.
+ *     The 8-state runtime enum is computed via src/lib/trip/state.ts → computeState().
+ *   - Settlement: per-pair via `settlements` ledger; `expense_splits.settled_at` removed.
  */
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -134,8 +140,18 @@ export const trips = pgTable(
     ballColor: text("ball_color").notNull().default("#7C5CFF"),
     primaryTimezone: text("primary_timezone"), // IANA string; null until destination set
     displayCurrency: text("display_currency").notNull().default("USD"), // ISO 4217
-    // Phase per NAMING.md: planning | active (formerly in_progress) | vaulted
-    status: text("status").notNull().default("planning"),
+    // User-durable lifecycle: active | vaulted | dreaming.
+    // The detailed 8-state enum (Draft/Planning/Ready/TravelDay/InProgress/Stale/Vaulted/Dreaming)
+    // is computed via src/lib/trip/state.ts → computeState(trip, now). Never stored.
+    lifecycle: text("lifecycle").notNull().default("active"),
+    // Budget — inline field (Basics hub collapsed to trip-level per 2026-04-21 launch-scope grill).
+    budgetCents: integer("budget_cents"),
+    budgetNotes: text("budget_notes"),
+    // Retention: set by daily cron when T+14d unsettled-balance reminder has fired for this trip.
+    // Null = not yet sent. Never reset — reminder fires once per trip.
+    unsettledBalanceReminderSentAt: timestamp("unsettled_balance_reminder_sent_at", {
+      withTimezone: true,
+    }),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
     updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
     deletedAt: timestamp("deleted_at", { withTimezone: true }),
@@ -143,7 +159,7 @@ export const trips = pgTable(
   (t) => [
     uniqueIndex("trips_slug_unique").on(t.slug),
     index("trips_owner_id_idx").on(t.ownerId),
-    index("trips_status_idx").on(t.status),
+    index("trips_lifecycle_idx").on(t.lifecycle),
   ]
 );
 
@@ -157,9 +173,9 @@ export const tripMembers = pgTable(
     userId: uuid("user_id")
       .notNull()
       .references(() => users.id, { onDelete: "cascade" }),
-    // Beta ships with one effective role; column exists from day one for forward-compat.
-    role: text("role").notNull().default("member"), // organizer | co_organizer | member | viewer
-    permissions: jsonb("permissions").notNull().default(sql`'{}'::jsonb`),
+    // Role-only permission model at launch (per 2026-04-21 architecture grill Q4).
+    // Values: organizer | trusted | member. Per-user capability overrides deferred post-launch.
+    role: text("role").notNull().default("member"),
     joinedAt: timestamp("joined_at", { withTimezone: true }).notNull().defaultNow(),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
     updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
@@ -244,14 +260,106 @@ export const expenseSplits = pgTable(
     userId: uuid("user_id")
       .notNull()
       .references(() => users.id, { onDelete: "restrict" }),
-    amountCents: integer("amount_cents").notNull(), // participant's share in trip display currency
-    settledAt: timestamp("settled_at", { withTimezone: true }), // null = open
+    // Participant's share in the expense's amount_cents currency (= trip display_currency).
+    amountCents: integer("amount_cents").notNull(),
+    // No settled_at — settlement is per-pair via the settlements ledger, not per-split.
+    // Per 2026-04-21 architecture grill Q5. Balance formula in src/lib/trip/balance.ts.
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   },
   (t) => [
     uniqueIndex("expense_splits_expense_user_unique").on(t.expenseId, t.userId),
     index("expense_splits_user_id_idx").on(t.userId),
   ]
+);
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Settlements (per-pair soft-settlement ledger)
+// Balance = sum(splits owed by user) − sum(splits paid by user)
+//         − sum(settlements from_user) + sum(settlements to_user).
+// Append-only with soft-delete; edits = new settlement row.
+// No unique(from, to) — multiple settlements between the same pair are legitimate.
+// ─────────────────────────────────────────────────────────────────────────────
+
+export const settlements = pgTable(
+  "settlements",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    tripId: uuid("trip_id")
+      .notNull()
+      .references(() => trips.id, { onDelete: "cascade" }),
+    fromUserId: uuid("from_user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "restrict" }),
+    toUserId: uuid("to_user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "restrict" }),
+    amountCents: integer("amount_cents").notNull(),
+    currency: text("currency").notNull(), // ISO 4217; typically trip display_currency
+    settledAt: timestamp("settled_at", { withTimezone: true }).notNull(),
+    note: text("note"),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    deletedAt: timestamp("deleted_at", { withTimezone: true }),
+  },
+  (t) => [
+    index("settlements_trip_id_idx").on(t.tripId),
+    index("settlements_pair_idx").on(t.fromUserId, t.toUserId),
+  ]
+);
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Supporter entitlements (audit ledger)
+// users.supporter_entitled_at is the hot-path read; this table is the cold-path
+// source of truth for refunds and disputes. Per 2026-04-21 architecture grill Q7.
+// Partial unique (source, external_id) where external_id IS NOT NULL allows
+// null external_id for beta_grant / founder rows without collision.
+// ─────────────────────────────────────────────────────────────────────────────
+
+export const supporterEntitlements = pgTable(
+  "supporter_entitlements",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    userId: uuid("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    source: text("source").notNull(), // stripe_web | apple | google | beta_grant | founder
+    externalId: text("external_id"), // Stripe charge id, Apple transaction id, etc.
+    amountCents: integer("amount_cents"),
+    currency: text("currency"), // ISO 4217
+    purchasedAt: timestamp("purchased_at", { withTimezone: true }).notNull(),
+    refundedAt: timestamp("refunded_at", { withTimezone: true }),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [
+    index("supporter_entitlements_user_id_idx").on(t.userId),
+    uniqueIndex("supporter_entitlements_source_external_unique")
+      .on(t.source, t.externalId)
+      .where(sql`${t.externalId} IS NOT NULL`),
+  ]
+);
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Expense receipts (functional attachments — Vercel Blob storage)
+// Per 2026-04-21 architecture grill Q6. "No image hosting" stance refined:
+// no user profile/trip photos; expense receipts are functional attachments.
+// ─────────────────────────────────────────────────────────────────────────────
+
+export const expenseReceipts = pgTable(
+  "expense_receipts",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    expenseId: uuid("expense_id")
+      .notNull()
+      .references(() => expenses.id, { onDelete: "cascade" }),
+    blobUrl: text("blob_url").notNull(),
+    mimeType: text("mime_type").notNull(),
+    sizeBytes: integer("size_bytes").notNull(),
+    uploadedBy: uuid("uploaded_by")
+      .notNull()
+      .references(() => users.id, { onDelete: "restrict" }),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    deletedAt: timestamp("deleted_at", { withTimezone: true }),
+  },
+  (t) => [index("expense_receipts_expense_id_idx").on(t.expenseId)]
 );
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -282,31 +390,12 @@ export const itineraryEvents = pgTable(
   (t) => [index("itinerary_events_trip_date_idx").on(t.tripId, t.eventDate)]
 );
 
-/**
- * Basics hub — budget section (single row per trip; other sections defer).
- * Per NAMING.md, "Preplan Hub" → "Basics."
- */
-export const preplanBudgets = pgTable(
-  "preplan_budgets",
-  {
-    id: uuid("id").primaryKey().defaultRandom(),
-    tripId: uuid("trip_id")
-      .notNull()
-      .references(() => trips.id, { onDelete: "cascade" }),
-    totalBudgetCents: integer("total_budget_cents"),
-    currency: text("currency").notNull().default("USD"), // ISO 4217
-    notes: text("notes"),
-    createdBy: uuid("created_by")
-      .notNull()
-      .references(() => users.id, { onDelete: "restrict" }),
-    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
-    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
-  },
-  (t) => [uniqueIndex("preplan_budgets_trip_unique").on(t.tripId)]
-);
+// Basics hub collapsed to trips.budget_cents + trips.budget_notes per 2026-04-21 launch-scope grill.
+// preplan_budgets table removed in migration 0001. Full Basics hub returns post-launch month 2+.
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Notifications (in-app only at beta)
+// Notifications (in-app bell only; intra-session awareness, not re-engagement.
+// Re-engagement happens via transactional emails — see MONETIZATION.md.)
 // ─────────────────────────────────────────────────────────────────────────────
 
 export const notifications = pgTable(
