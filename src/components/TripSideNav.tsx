@@ -96,7 +96,7 @@ export default function TripSideNav({
   const renderPhase = (phase: Phase) => {
     const active = isActive(phase.href, phase.key);
     return (
-      <Link key={phase.key} href={phase.href} onClick={closeSidebar}>
+      <Link key={phase.key} href={phase.href} onClick={closeSidebar} aria-current={active ? "page" : undefined}>
         <div
           className={`flex items-center gap-2.5 px-3 py-2 rounded-xl transition-all ${
             active

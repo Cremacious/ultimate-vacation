@@ -164,7 +164,7 @@ export default function DuplicateSheet({ trip, onClose }: DuplicateSheetProps) {
             </div>
 
             {error && (
-              <p className="text-red-400 text-sm text-center">{error}</p>
+              <p role="alert" className="text-red-400 text-sm text-center">{error}</p>
             )}
 
             {/* CTA */}

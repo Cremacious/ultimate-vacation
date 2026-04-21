@@ -125,7 +125,7 @@ export default function ExpensesClient({
           </p>
         )}
         {state.ok && (
-          <p className="text-sm font-semibold text-[#00C96B]">Expense added.</p>
+          <p role="status" className="text-sm font-semibold text-[#00C96B]">Expense added.</p>
         )}
 
         <button

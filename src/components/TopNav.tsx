@@ -48,9 +48,9 @@ export default function TopNav() {
       <div className="flex items-center gap-2">
         <NotificationBell />
 
-        <Link href="/app/account">
+        <Link href="/app/account" aria-label="Account">
           <div className="w-9 h-9 rounded-full bg-[#00A8CC] flex items-center justify-center hover:bg-[#0096b8] transition-colors">
-            <User size={16} weight="fill" className="text-white" />
+            <User size={16} weight="fill" className="text-white" aria-hidden="true" />
           </div>
         </Link>
       </div>
