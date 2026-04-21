@@ -73,10 +73,9 @@ export default async function ToolsPage({
             </h2>
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
               {cat.tools.map((tool) => (
-                <a
+                <div
                   key={tool.key}
-                  href={`/app/trips/${tripId}/tools/${tool.key}`}
-                  className="bg-white rounded-2xl p-4 border border-gray-100 hover:border-[#00A8CC]/30 hover:shadow-sm transition-all group relative"
+                  className="bg-white rounded-2xl p-4 border border-gray-100 relative opacity-60"
                 >
                   {tool.premium && (
                     <span className="absolute top-2 right-2 text-[10px] font-bold text-[#FF2D8B] bg-[#FF2D8B]/10 px-1.5 py-0.5 rounded-full">
@@ -87,10 +86,10 @@ export default async function ToolsPage({
                     className="w-2 h-2 rounded-full mb-2"
                     style={{ backgroundColor: cat.color }}
                   />
-                  <p className="text-sm font-semibold text-[#1A1A1A] group-hover:text-[#00A8CC] transition-colors leading-snug">
+                  <p className="text-sm font-semibold text-[#1A1A1A] leading-snug">
                     {tool.label}
                   </p>
-                </a>
+                </div>
               ))}
             </div>
           </div>

@@ -25,7 +25,7 @@ export default function LandingPage() {
       tag: "Itinerary",
       tagColor: "#FFD600",
       title: "Everyone builds the plan together.",
-      desc: "Add activities, vote on options, log expenses, and promote wishlist ideas to real plans.",
+      desc: "Add activities, vote on options, log expenses, and promote proposals to real plans.",
     },
     {
       tag: "Expenses",

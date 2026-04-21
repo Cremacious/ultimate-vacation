@@ -8,7 +8,7 @@ export default function PricingPage() {
     "Preplanning and polls",
     "Expense tracking and splitting",
     "Packing lists",
-    "Wishlist and notes",
+    "Proposals and notes",
     "Trip vault",
     "Smart packing suggestions",
     "Group memory tools",

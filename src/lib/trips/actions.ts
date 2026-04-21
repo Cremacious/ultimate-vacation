@@ -1,11 +1,13 @@
 "use server";
 
 import { and, eq, isNull } from "drizzle-orm";
+import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
 
 import { requireUser } from "@/lib/auth/session";
 import { db } from "@/lib/db";
 import { itineraryEvents, tripMembers, trips } from "@/lib/db/schema";
-import { isTripMember } from "@/lib/invites/permissions";
+import { isTripMember, isTripOrganizer } from "@/lib/invites/permissions";
 
 import { getTripById, listTripsForUser } from "./queries";
 import { buildTripSlug } from "./slug";
@@ -138,4 +140,39 @@ export async function duplicateTripAction(
   }
 
   return { ok: true, newTripId: newTrip.id };
+}
+
+export async function updateTripAction(
+  tripId: string,
+  _prev: { error?: string },
+  formData: FormData,
+): Promise<{ error?: string }> {
+  const user = await requireUser();
+
+  const canEdit = await isTripOrganizer(user.id, tripId);
+  if (!canEdit) return { error: "Only organizers can edit trip details." };
+
+  const name = (formData.get("name") as string | null)?.trim() ?? "";
+  if (!name) return { error: "Trip name is required." };
+
+  const startDate = (formData.get("startDate") as string | null)?.trim() || null;
+  const endDate = (formData.get("endDate") as string | null)?.trim() || null;
+  const budgetRaw = (formData.get("budget") as string | null)?.trim() ?? "";
+  const budgetNotes = (formData.get("budgetNotes") as string | null)?.trim() || null;
+  const ballColor = (formData.get("ballColor") as string | null)?.trim() || "#7C5CFF";
+
+  let budgetCents: number | null = null;
+  if (budgetRaw) {
+    const parsed = parseFloat(budgetRaw);
+    if (isNaN(parsed) || parsed < 0) return { error: "Budget must be a valid positive number." };
+    budgetCents = Math.round(parsed * 100);
+  }
+
+  await db
+    .update(trips)
+    .set({ name, startDate, endDate, budgetCents, budgetNotes, ballColor })
+    .where(eq(trips.id, tripId));
+
+  revalidatePath(`/app/trips/${tripId}/setup`);
+  redirect(`/app/trips/${tripId}/setup`);
 }

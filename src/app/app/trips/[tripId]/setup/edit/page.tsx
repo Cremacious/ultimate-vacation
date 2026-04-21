@@ -1,31 +1,12 @@
 import Link from "next/link";
+import { notFound } from "next/navigation";
 import { ArrowLeft } from "@phosphor-icons/react/dist/ssr";
-import SetupForm from "@/components/setup/SetupForm";
 
-// Mock data — replace with DB fetch
-const mockSetup = {
-  name: "Japan Spring 2025",
-  destinations: [
-    { id: "1", city: "Tokyo, Japan" },
-    { id: "2", city: "Kyoto, Japan" },
-    { id: "3", city: "Osaka, Japan" },
-  ],
-  startDate: "2025-04-01",
-  endDate:   "2025-04-14",
-  tripTypes: ["City"],
-  vibes:     ["Relaxed"],
-  transportModes:  ["fly", "drive"],
-  customTransport: [],
-  travelers: 4,
-  lodging: [
-    { id: "1", name: "Hotel Gracery Shinjuku" },
-    { id: "2", name: "Airbnb Gion District" },
-  ],
-  budget:     "5000",
-  budgetType: "per-person" as const,
-  currency:   "USD",
-  ballColor:  "#FF2D8B",
-};
+import { requireUser } from "@/lib/auth/session";
+import { getTripById } from "@/lib/trips/queries";
+import { updateTripAction } from "@/lib/trips/actions";
+import { isTripOrganizer, isTripMember } from "@/lib/invites/permissions";
+import SetupForm from "@/components/setup/SetupForm";
 
 export default async function SetupEditPage({
   params,
@@ -33,6 +14,19 @@ export default async function SetupEditPage({
   params: Promise<{ tripId: string }>;
 }) {
   const { tripId } = await params;
+  const user = await requireUser();
+
+  const trip = await getTripById(tripId);
+  if (!trip) notFound();
+
+  const [canView, canEdit] = await Promise.all([
+    isTripMember(user.id, tripId),
+    isTripOrganizer(user.id, tripId),
+  ]);
+
+  if (!canView) notFound();
+
+  const boundAction = updateTripAction.bind(null, tripId);
 
   return (
     <div>
@@ -56,14 +50,36 @@ export default async function SetupEditPage({
             Edit Setup
           </h1>
           <p className="text-xs font-semibold text-white/50 uppercase tracking-widest">
-            Changes are saved when you click Save
+            {trip.name} · Changes saved on submit
           </p>
         </div>
       </div>
 
-      {/* Form body — full width with padding */}
+      {/* Body */}
       <div className="p-3 md:p-6">
-        <SetupForm initialData={mockSetup} />
+        {canEdit ? (
+          <SetupForm
+            tripId={tripId}
+            action={boundAction}
+            initialData={{
+              name: trip.name,
+              startDate: trip.startDate,
+              endDate: trip.endDate,
+              budgetCents: trip.budgetCents ?? null,
+              budgetNotes: trip.budgetNotes ?? null,
+              ballColor: trip.ballColor,
+            }}
+          />
+        ) : (
+          <div
+            className="rounded-2xl border p-6 text-center"
+            style={{ backgroundColor: "#2e2e2e", borderColor: "#3a3a3a" }}
+          >
+            <p className="text-sm font-semibold text-white/50">
+              Only trip organizers can edit setup details.
+            </p>
+          </div>
+        )}
       </div>
     </div>
   );

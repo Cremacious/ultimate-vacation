@@ -48,7 +48,7 @@ const phaseColor: Record<string, string> = {
   "vacation-days": "#00A8CC",
   expenses: "#00C96B",
   polls: "#FFD600",
-  wishlist: "#00A8CC",
+  proposals: "#00A8CC",
   "scavenger-hunt": "#FF8C00",
   notes: "#FFD600",
   tools: "#00A8CC",
@@ -80,7 +80,7 @@ export default function TripSideNav({
 
   const extraPhases: Phase[] = [
     { key: "polls",           label: "Polls",         href: `${base}/polls`,          icon: <ChartBar size={14} weight="fill" />,  color: phaseColor.polls },
-    { key: "wishlist",        label: "Proposals",     href: `${base}/wishlist`,       icon: <Star size={14} weight="fill" />,      color: phaseColor.wishlist },
+    { key: "proposals",       label: "Proposals",     href: `${base}/proposals`,      icon: <Star size={14} weight="fill" />,      color: phaseColor.proposals },
     { key: "scavenger-hunt",  label: "Scavenger Hunt",href: `${base}/scavenger-hunt`, icon: <Compass size={14} weight="fill" />,   color: phaseColor["scavenger-hunt"] },
     { key: "notes",    label: "Notes",   href: `${base}/notes`,   icon: <Note size={14} weight="fill" />,      color: phaseColor.notes },
     { key: "tools",    label: "Tools",   href: `${base}/tools`,   icon: <Wrench size={14} weight="fill" />,    color: phaseColor.tools },

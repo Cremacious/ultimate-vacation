@@ -1,10 +1,10 @@
-import WishlistShell from "@/components/wishlist/WishlistShell";
+import { redirect } from "next/navigation";
 
 export default async function WishlistPage({
   params,
 }: {
   params: Promise<{ tripId: string }>;
 }) {
-  await params;
-  return <WishlistShell />;
+  const { tripId } = await params;
+  redirect(`/app/trips/${tripId}/proposals`);
 }

@@ -1,11 +1,11 @@
 import Link from "next/link";
-import { and, eq, isNull } from "drizzle-orm";
+import { and, eq, isNull, sql } from "drizzle-orm";
 import {
   ArrowRight, CalendarBlank, Receipt, Backpack, ChartBar,
 } from "@phosphor-icons/react/dist/ssr";
 
 import { db } from "@/lib/db";
-import { tripMembers, trips, users } from "@/lib/db/schema";
+import { expenses, tripMembers, trips, users } from "@/lib/db/schema";
 import { requireUser } from "@/lib/auth/session";
 import { getTripById } from "@/lib/trips/queries";
 import { notFound } from "next/navigation";
@@ -48,22 +48,162 @@ const QUICK_ACTIONS = [
   { label: "Itinerary",        href: "itinerary", color: "#00A8CC", shadow: "#0087a3", Icon: CalendarBlank },
 ];
 
+// ─── Next-step state ──────────────────────────────────────────────────────────
+
+type OverviewState = "settled" | "no-dates" | "solo" | "no-expenses" | "has-expenses";
+
+function NextStepContent({
+  state,
+  isOrganizer,
+  base,
+}: {
+  state: OverviewState;
+  isOrganizer: boolean;
+  base: string;
+}) {
+  const label = (text: string) => (
+    <div className="text-[10px] font-black uppercase tracking-[2px] text-white/35 mb-2">
+      {text}
+    </div>
+  );
+  const actionLink = (href: string, text: string) => (
+    <Link
+      href={href}
+      className="text-[11px] font-black text-[#00A8CC] hover:underline flex items-center gap-1"
+    >
+      {text} <ArrowRight size={10} weight="bold" />
+    </Link>
+  );
+  const muted = (text: string) => (
+    <p className="text-[11px] font-semibold text-white/25">{text}</p>
+  );
+
+  if (state === "settled") {
+    return (
+      <>
+        {label("Trip Status")}
+        <p className="text-[11px] font-black" style={{ color: "#00C96B" }}>Settled ✓</p>
+      </>
+    );
+  }
+
+  if (state === "no-dates") {
+    if (isOrganizer) {
+      return (
+        <>
+          {label("Set Dates")}
+          {actionLink(`${base}/setup/edit`, "Edit setup")}
+          <div className="mt-3">{label("Add People")}</div>
+          {actionLink(`${base}/invite`, "Invite link")}
+        </>
+      );
+    }
+    return (
+      <>
+        {label("Dates")}
+        {muted("Not set yet")}
+        <div className="mt-3">{label("Expenses")}</div>
+        {actionLink(`${base}/expenses`, "Log an expense")}
+      </>
+    );
+  }
+
+  if (state === "solo") {
+    return (
+      <>
+        {label("Add People")}
+        {actionLink(`${base}/invite`, "Invite first traveler")}
+        <div className="mt-3">{label("Expenses")}</div>
+        {muted("Invite a traveler first")}
+      </>
+    );
+  }
+
+  if (state === "no-expenses") {
+    if (isOrganizer) {
+      return (
+        <>
+          {label("Expenses")}
+          {actionLink(`${base}/expenses`, "Log first expense")}
+          <div className="mt-3">{label("Add People")}</div>
+          {actionLink(`${base}/invite`, "Invite link")}
+        </>
+      );
+    }
+    return (
+      <>
+        {label("Expenses")}
+        {actionLink(`${base}/expenses`, "Log an expense")}
+        <div className="mt-3">{label("Status")}</div>
+        {muted("No expenses yet")}
+      </>
+    );
+  }
+
+  // has-expenses
+  if (isOrganizer) {
+    return (
+      <>
+        {label("Settle Up")}
+        {actionLink(`${base}/expenses`, "View expenses")}
+        <div className="mt-3">{label("Add People")}</div>
+        {actionLink(`${base}/invite`, "Invite link")}
+      </>
+    );
+  }
+  return (
+    <>
+      {label("Settle Up")}
+      {actionLink(`${base}/expenses`, "See who owes what")}
+      <div className="mt-3">{label("Status")}</div>
+      {muted("Expenses logged")}
+    </>
+  );
+}
+
+// ─── Page ─────────────────────────────────────────────────────────────────────
+
 export default async function TripOverviewPage({
   params,
 }: {
   params: Promise<{ tripId: string }>;
 }) {
   const { tripId } = await params;
-  await requireUser();
+  const user = await requireUser();
 
   const trip = await getTripById(tripId);
   if (!trip) notFound();
 
-  const memberRows = await db
-    .select({ userId: tripMembers.userId, name: users.name, role: tripMembers.role })
-    .from(tripMembers)
-    .innerJoin(users, eq(tripMembers.userId, users.id))
-    .where(and(eq(tripMembers.tripId, tripId), isNull(tripMembers.deletedAt)));
+  const [memberRows, expenseCountRow] = await Promise.all([
+    db
+      .select({ userId: tripMembers.userId, name: users.name, role: tripMembers.role })
+      .from(tripMembers)
+      .innerJoin(users, eq(tripMembers.userId, users.id))
+      .where(and(eq(tripMembers.tripId, tripId), isNull(tripMembers.deletedAt))),
+    db
+      .select({ n: sql<string>`count(*)` })
+      .from(expenses)
+      .where(and(eq(expenses.tripId, tripId), isNull(expenses.deletedAt))),
+  ]);
+
+  const isOrganizer = memberRows.some(
+    (m) => m.userId === user.id && m.role === "organizer",
+  );
+  const hasExpenses = Number(expenseCountRow[0]?.n ?? 0) > 0;
+  const isSolo = memberRows.length === 1 && isOrganizer;
+
+  let overviewState: OverviewState;
+  if (trip.lifecycle === "vaulted") {
+    overviewState = "settled";
+  } else if (!trip.startDate) {
+    overviewState = "no-dates";
+  } else if (isSolo) {
+    overviewState = "solo";
+  } else if (!hasExpenses) {
+    overviewState = "no-expenses";
+  } else {
+    overviewState = "has-expenses";
+  }
 
   const base = `/app/trips/${tripId}`;
   const daysUntil = daysUntilDate(trip.startDate);
@@ -224,7 +364,7 @@ export default async function TripOverviewPage({
               ))}
               {memberRows.length > 8 && (
                 <div
-                  className="w-7 h-7 rounded-full flex items-center justify-center text-[11px] font-black text-[#1a1a1a]"
+                  className="w-7 h-7 rounded-full flex-shrink-0 flex items-center justify-center text-[11px] font-black text-[#1a1a1a]"
                   style={{ backgroundColor: "rgba(0,0,0,0.15)" }}
                 >
                   +{memberRows.length - 8}
@@ -233,25 +373,16 @@ export default async function TripOverviewPage({
             </div>
           </div>
 
-          {/* ── PLANNING PROGRESS ────────────────────────────────────── */}
+          {/* ── NEXT STEP (role + state aware) ───────────────────────── */}
           <div
             className="og-progress rounded-[20px] border p-5 flex flex-col justify-center"
             style={{ backgroundColor: "#2e2e2e", borderColor: "#3a3a3a" }}
           >
-            <div className="text-[10px] font-black uppercase tracking-[2px] text-white/35 mb-2">Add People</div>
-            <Link
-              href={`${base}/invite`}
-              className="text-[11px] font-black text-[#00A8CC] hover:underline flex items-center gap-1"
-            >
-              Invite link <ArrowRight size={10} weight="bold" />
-            </Link>
-            <div className="mt-3 text-[10px] font-black uppercase tracking-[2px] text-white/35 mb-2">Settle Up</div>
-            <Link
-              href={`${base}/balances`}
-              className="text-[11px] font-black text-[#00A8CC] hover:underline flex items-center gap-1"
-            >
-              View balances <ArrowRight size={10} weight="bold" />
-            </Link>
+            <NextStepContent
+              state={overviewState}
+              isOrganizer={isOrganizer}
+              base={base}
+            />
           </div>
 
           {/* ── MEMBERS LIST ─────────────────────────────────────────── */}
