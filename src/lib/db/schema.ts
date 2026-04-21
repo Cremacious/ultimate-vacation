@@ -394,6 +394,54 @@ export const itineraryEvents = pgTable(
 // preplan_budgets table removed in migration 0001. Full Basics hub returns post-launch month 2+.
 
 // ─────────────────────────────────────────────────────────────────────────────
+// Travel days (planning-phase transit checklists — migration 0002)
+// transport_mode values: flight | drive | train | cruise | bus
+// ─────────────────────────────────────────────────────────────────────────────
+
+export const travelDays = pgTable(
+  "travel_days",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    tripId: uuid("trip_id")
+      .notNull()
+      .references(() => trips.id, { onDelete: "cascade" }),
+    date: date("date").notNull(),
+    label: text("label").notNull(),
+    transportMode: text("transport_mode").notNull().default("flight"),
+    createdBy: uuid("created_by")
+      .notNull()
+      .references(() => users.id, { onDelete: "restrict" }),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+    deletedAt: timestamp("deleted_at", { withTimezone: true }),
+  },
+  (t) => [
+    uniqueIndex("travel_days_trip_date_unique").on(t.tripId, t.date),
+    index("travel_days_trip_id_idx").on(t.tripId),
+  ]
+);
+
+export const travelDayTasks = pgTable(
+  "travel_day_tasks",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    travelDayId: uuid("travel_day_id")
+      .notNull()
+      .references(() => travelDays.id, { onDelete: "cascade" }),
+    text: text("text").notNull(),
+    done: boolean("done").notNull().default(false),
+    sortOrder: integer("sort_order").notNull().default(0),
+    createdBy: uuid("created_by")
+      .notNull()
+      .references(() => users.id, { onDelete: "restrict" }),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+    deletedAt: timestamp("deleted_at", { withTimezone: true }),
+  },
+  (t) => [index("travel_day_tasks_day_id_idx").on(t.travelDayId)]
+);
+
+// ─────────────────────────────────────────────────────────────────────────────
 // Notifications (in-app bell only; intra-session awareness, not re-engagement.
 // Re-engagement happens via transactional emails — see MONETIZATION.md.)
 // ─────────────────────────────────────────────────────────────────────────────
