@@ -144,7 +144,7 @@ export function SettleUpClient({
           <div className="rounded-xl bg-[#1e1e1e] border border-[#3a3a3a] px-4 py-4 mb-4 text-center">
             <p className="text-xs font-bold uppercase tracking-wide text-gray-500 mb-1">Final step</p>
             <p className="text-sm text-gray-400 mb-3">
-              Mark all {transfers.length} payment{transfers.length === 1 ? "" : "s"} above as done to settle this trip.
+              Mark all {transfers.length} payment{transfers.length === 1 ? "" : "s"} below as done to settle this trip.
             </p>
             <button
               disabled

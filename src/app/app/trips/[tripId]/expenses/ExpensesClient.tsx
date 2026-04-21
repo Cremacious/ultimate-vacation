@@ -204,7 +204,7 @@ export default function ExpensesClient({
       </div>
 
       {/* ── Balances ─────────────────────────────────────────────────── */}
-      {balances.length > 0 && (
+      {hasExpenses && (
         <div>
           <h2 className="text-lg font-semibold text-white mb-3">Balances</h2>
           <ul className="space-y-2 mb-6">
