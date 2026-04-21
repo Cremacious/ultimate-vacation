@@ -1,13 +1,27 @@
-import VacationDayShell from "@/components/vacation-days/VacationDayShell";
-
 export default async function VacationDaysPage({
   params,
-  searchParams,
 }: {
   params: Promise<{ tripId: string }>;
-  searchParams: Promise<{ date?: string }>;
 }) {
-  const { tripId } = await params;
-  const { date } = await searchParams;
-  return <VacationDayShell tripId={tripId} initialDate={date} />;
+  await params;
+  return (
+    <div className="px-6 py-8 max-w-3xl">
+      <h1
+        className="text-3xl font-semibold text-[#1A1A1A] mb-2"
+        style={{ fontFamily: "var(--font-fredoka)" }}
+      >
+        Vacation Days
+      </h1>
+      <p className="text-gray-400 font-medium text-sm mb-8">
+        Your day-by-day companion while the trip is in progress — schedule, meetup points, quick votes, and more.
+      </p>
+      <div className="bg-white rounded-3xl border border-gray-100 text-center py-16">
+        <div
+          className="w-14 h-14 rounded-full mx-auto mb-4"
+          style={{ border: "2px dashed #FF2D8B" }}
+        />
+        <p className="text-sm font-semibold text-gray-400">Day-by-day view coming soon.</p>
+      </div>
+    </div>
+  );
 }
