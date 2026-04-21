@@ -1,5 +1,6 @@
 import { eq } from "drizzle-orm";
 
+import { emit } from "@/lib/analytics/events";
 import { db } from "@/lib/db";
 import { tripMembers, trips } from "@/lib/db/schema";
 
@@ -62,5 +63,6 @@ export async function createTripForUser(
     throw err;
   }
 
+  emit({ type: "trip_created", userId, tripId: trip.id });
   return trip;
 }

@@ -1,5 +1,6 @@
 import { and, eq, isNull, sql } from "drizzle-orm";
 
+import { emit } from "@/lib/analytics/events";
 import { db } from "@/lib/db";
 import { invites, tripMembers, trips, users } from "@/lib/db/schema";
 import { emitNotificationBulk } from "@/lib/notifications/emit";
@@ -83,6 +84,8 @@ export async function acceptInviteByCode(
     userId,
     role: "member",
   });
+
+  emit({ type: "first_invite_accepted", userId, tripId: trip.id });
 
   // Notifications: notify organizers that a new member joined. Best-effort.
   try {

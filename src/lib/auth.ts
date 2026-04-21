@@ -4,6 +4,7 @@ import { nextCookies } from "better-auth/next-js";
 
 import { db } from "./db";
 import * as schema from "./db/schema";
+import { emit } from "./analytics/events";
 
 /**
  * Better Auth — server instance.
@@ -46,6 +47,15 @@ export const auth = betterAuth({
   advanced: {
     database: {
       generateId: false,
+    },
+  },
+  databaseHooks: {
+    user: {
+      create: {
+        after: async (user) => {
+          emit({ type: "signup_completed", userId: user.id });
+        },
+      },
     },
   },
   plugins: [nextCookies()],

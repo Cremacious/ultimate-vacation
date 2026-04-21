@@ -1,16 +1,14 @@
 /**
  * Typed analytics event emission.
  *
- * Stub implementation — writes to server console. Replaced at Chunk 10 with
- * the PostHog client. Per BACKLOG.md Chunk 10: "emit early, wire late" — call
- * sites should be added starting in Chunk 2 so historical funnel data exists
- * by the time PostHog is wired.
+ * Wired to PostHog server SDK at Chunk 9. Falls back to console.log when
+ * POSTHOG_API_KEY is absent (local dev, misconfigured envs).
  *
- * Canonical event list per STATE_MODEL.md 2026-04-21 conversion-loop grill
- * (PostHog funnel events + supplementary). Do not invent new event types ad
- * hoc; add them to the discriminated union below with typed props so the
- * eventual PostHog migration is trivial.
+ * Canonical event list per STATE_MODEL.md 2026-04-21 conversion-loop grill.
+ * Do not invent new event types ad hoc; extend the discriminated union below.
  */
+
+import { getPostHogClient } from "./posthog-server";
 
 export type TripWaveEvent =
   // Linear funnel events (STATE_MODEL.md § Public MVP canonical list)
@@ -36,11 +34,32 @@ export type TripWaveEvent =
     };
 
 /**
- * Emit an event. Stub: server-side console log, one line JSON, grep-friendly.
- * Replace implementation at Chunk 10 with PostHog client call; keep the
- * function signature stable so call sites never change.
+ * Emit a TripWave analytics event to PostHog.
+ *
+ * distinctId resolution:
+ *   - events with userId     → userId (identified event)
+ *   - events with only tripId → `trip_{tripId}` (group-level event)
+ *   - anonymous events        → "$server"
+ *
+ * Swallows all errors — analytics must never break writes.
  */
 export function emit(event: TripWaveEvent): void {
-  const { type, ...props } = event;
-  console.log(`[analytics] ${type} ${JSON.stringify(props)}`);
+  try {
+    const { type, ...rest } = event as TripWaveEvent & Record<string, unknown>;
+    const userId = typeof rest.userId === "string" ? rest.userId : undefined;
+    const tripId = typeof rest.tripId === "string" ? rest.tripId : undefined;
+    const distinctId = userId ?? (tripId ? `trip_${tripId}` : "$server");
+
+    const properties: Record<string, unknown> = { ...rest };
+    if (userId) delete properties.userId;
+
+    const client = getPostHogClient();
+    if (client) {
+      client.capture({ distinctId, event: type, properties });
+    } else {
+      console.log(`[analytics] ${type}`, properties);
+    }
+  } catch {
+    // swallow — analytics must never throw into callers
+  }
 }
