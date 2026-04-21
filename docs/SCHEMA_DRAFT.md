@@ -36,6 +36,7 @@
 > 6. Create `settlements` table with indices on `(trip_id)`, `(from_user_id, to_user_id)`.
 > 7. Create `supporter_entitlements` table with unique `(source, external_id) where external_id is not null`.
 > 8. Create `expense_receipts` table with index on `(expense_id)`.
+> 9. **(Retention grill addition 2026-04-21)** Add `trips.unsettled_balance_reminder_sent_at timestamptz nullable` — used by the daily cron to ensure the T+14d reminder fires once per trip.
 >
 > **Code action owed alongside migration 0001:**
 > - Add `src/lib/trip/state.ts` exporting `computeState(trip, now): TripState` — pure function returning the 8-state enum from `lifecycle + start_date + end_date + itinerary counts + preplan completeness`. Every UI surface that renders "trip state" reads this function, never `trips.lifecycle` directly (lifecycle only branches `active | vaulted | dreaming`).

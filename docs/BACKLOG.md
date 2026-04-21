@@ -6,6 +6,45 @@ Implementation sequencing rule (locked 2026-04-20): foundation first (ORM → DB
 
 ---
 
+## 🚀 2026-04-21 Canonical next-10-chunk queue (build-order grill — supersedes prior queue where conflict)
+
+This is the ordered execution queue from current state through beta onboarding. **Do not reorder.** Chunks beyond 9 are Public-MVP-tier and belong to the next sequencing grill, not this one.
+
+| # | Chunk | Contents | Rough duration (solo) |
+|---|---|---|---|
+| **0** | **Migration 0001** | Update `src/lib/db/schema.ts` with the 9 changes from SCHEMA_DRAFT.md → `drizzle-kit generate` → manually review SQL (verify RENAME not DROP+ADD for `status` → `lifecycle`, data migration for values) → apply to dev Neon branch. **Gate: `tsc --noEmit` passes.** | 1–2 days |
+| **1** | **Helpers + analytics emission scaffold** | `src/lib/trip/state.ts` (computeState), `src/lib/trip/balance.ts` (computeBalance over splits + settlements), `src/lib/account/deleteUserAccount.ts` (owner-transfer-before-delete), `src/lib/analytics/events.ts` (typed event emitters stubbed to console.log). Port every existing read of `trips.status` / `expense_splits.settled_at` to use helpers. **Gate: code compiles clean, no ad-hoc state math left anywhere.** | 2–3 days |
+| **2** | **Expenses moat capstone — settle-up + receipt upload** | Step-1 inventory for settle-up → `/design-critique` → `/design-system` (confirmation sheet is new pattern) → `/design-handoff` → implement per-pair settlement via `settlements` ledger, Venmo/Zelle deep-links, manual receipt upload via Vercel Blob + `expense_receipts`. Emit PostHog events for `two_member_expense_threshold`, `trip_settled`, `first_expense_logged`. | 1–2 weeks |
+| **3** | **Itinerary CRUD + soft-conflict toast** | Day-by-day view, add/edit modal (per UX_SPEC § 7a), last-write-wins + 10s conflict toast. Soft-conflict toast pattern becomes reusable for every future multi-editor surface. | 1–2 weeks |
+| **4** | **Travel Day static** | Planning-phase checklist + "Generate from trip" button. No focus mode, no per-member view, no skip semantics. Extract lean Step-1 checklist from UX_SPEC § 9/§ 38; skip focus-mode spec entirely. | 3–5 days |
+| **5** | **Notifications bell (global shell component)** | Reads from `notifications` table; receives events from Chunks 2/3/4 already firing. Wire icon into app shell before Home so Home composes over a working bell. If no bell spec exists in UX_SPEC, write a 1-page inventory. | 3–5 days |
+| **6** | **Home + trip switcher + between-trips state** | Cross-trip navigation. "Duplicate past trip" CTA with verified scope (shell + members + budget + itinerary skeleton, not shell-only — owed 1-page Step-1). Static trip ball as display component, no motion. `/design-handoff` before code. | 1 week |
+| **7** | **Invite-landing page (`/join/{inviteCode}`)** | Step-1 inventory (net-new, required) → mockup → `/design-critique` → implement. Auth'd-accept and signup-then-join paths. Participant's purposeful first surface. | 4–6 days |
+| **8** | **Beta onboarding checkpoint (single wave, ~20 users)** | Run `/accessibility-review` across every page built in Chunks 2–7. Draft onboarding email, recruit 20 personal-network users, bug bash. **No new surfaces added at this stage.** Blocker fixes only. | 1–2 weeks calendar |
+| **9** | **PostHog wiring + 6-metric canonical retention dashboard** | Replace `events.ts` stub with PostHog client. Build the STATE_MODEL.md 6-metric primary dashboard view. Historical funnel data (emitted since Chunk 2) becomes visible. | 3–5 days |
+
+**Stop at Chunk 9.** Everything beyond (marketing landing, Supporter purchase, ads, Booking.com affiliate chip, post-trip prompt, unsettled-balance reminder, transactional emails, "Your turn?" CTA, ad-impression prompt, "Who else?" prompt, first-run deposit CTA) is Public-MVP-tier and belongs to the *next* sequencing decision — not this one. Plan in flights.
+
+### Immediate next action
+
+**Chunk 0 — migration 0001.** Open `src/lib/db/schema.ts`, apply the 9 changes from SCHEMA_DRAFT.md's 2026-04-21 block, generate, review SQL line-by-line, apply. Do not start Chunk 1 until `tsc --noEmit` passes.
+
+### The 3 explicit bans (until Chunk 8 beta onboarding completes)
+
+1. **Trip ball motion / animation / modal / color picker polish.** Static SVG at launch.
+2. **Afterglow / memory recap design work.** Post-launch month 3.
+3. **Dream Mode in any form.** Post-launch weeks 4–6.
+
+Additional hard bans (from prior grills): Travel Day focus mode, receipt scanning OCR, Basics hub full, Vault, Tools, Wishlist, Polls, Scavenger Hunt, Notes, Skyscanner/Viator affiliates, motion/ripples/easing polish, CRDTs, OAuth, email verification, 2FA.
+
+### Discipline rule
+
+**No broad grill sessions during Chunks 1–9** unless implementation surfaces a decision that actually changes scope. Narrow, discovery-triggered grills are permitted; broad scope/architecture/retention grills are not. "I'm not sure which feature to build next" is a sign you're using grills to avoid building.
+
+Full rationale: DECISIONS.md *2026-04-21 — Build-order grill: 10-chunk queue locked + 3 explicit bans.*
+
+---
+
 ## 🔧 2026-04-21 Migration 0001 — owed before more Chunk 5 code lands
 
 Architecture & schema sanity grill (same date) found 5 collapses and 3 additions needed against the current migrated schema. This migration is owed before more feature code hits `expense_splits.settled_at` or `trip_members.permissions`.
@@ -20,6 +59,7 @@ Architecture & schema sanity grill (same date) found 5 collapses and 3 additions
 6. Create `settlements` table: `id uuid PK · trip_id FK cascade · from_user_id FK restrict · to_user_id FK restrict · amount_cents integer not null · currency text not null · settled_at timestamptz not null · note text · created_at · deleted_at`. Indices on `(trip_id)`, `(from_user_id, to_user_id)`.
 7. Create `supporter_entitlements` table: `id uuid PK · user_id FK · source text not null · external_id text · amount_cents integer · currency text · purchased_at timestamptz not null · refunded_at timestamptz · created_at`. UNIQUE `(source, external_id) WHERE external_id IS NOT NULL`.
 8. Create `expense_receipts` table: `id uuid PK · expense_id FK cascade · blob_url text not null · mime_type text not null · size_bytes integer not null · uploaded_by FK restrict · created_at · deleted_at`. Index on `(expense_id)`.
+9. **(Retention grill addition 2026-04-21)** Add `trips.unsettled_balance_reminder_sent_at timestamptz nullable`. Used by daily Vercel-scheduled cron to ensure the T+14d reminder (in-app banner + transactional email) fires once per trip.
 
 **Code changes landing alongside migration 0001:**
 

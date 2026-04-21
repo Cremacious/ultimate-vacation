@@ -1,5 +1,15 @@
 # Core Loop -- The Must-Prove Spine
 
+> **2026-04-21 Build-order grill — execution discipline rule**
+>
+> **No broad grill sessions during Chunks 1–9 of the beta-tier queue** (see BACKLOG.md canonical 10-chunk queue). Narrow, *discovery-triggered* grills are permitted when implementation surfaces a decision that actually changes scope (e.g., *"settle-up discovered Venmo requires phone match — fallback needed"*). Broad scope / architecture / retention / monetization grills are banned during execution.
+>
+> The check: if the grill's trigger is "I'm not sure which feature to build next," it's avoidance, not a decision. Execute the queue.
+>
+> "Done planning, just build" checkpoint: **migration 0001 applied AND `tsc --noEmit` passes against the updated schema.** Until both are true, some planning may still be invalidated. After both are true, no more broad grills until Chunk 9 completes and the Public-MVP sequencing grill opens.
+>
+> Full rationale: DECISIONS.md *2026-04-21 — Build-order grill: 10-chunk queue locked + 3 explicit bans.*
+
 > **2026-04-21 Launch-scope grill (supersedes portions below)**
 >
 > The Public MVP "must ship" list has been further cut. This block is the authoritative launch scope; the MVP list later in this file describes historical decision context.

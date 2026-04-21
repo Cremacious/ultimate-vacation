@@ -1,5 +1,51 @@
 # Monetization
 
+> **2026-04-21 Retention loop grill — transactional email scope accepted**
+>
+> The "no email except password reset" rule from earlier architecture decisions is **narrowed to "no marketing email."** Transactional event emails are accepted into launch scope as the only re-engagement mechanism available given that push notifications are deferred and marketing email is permanently off the table.
+>
+> **Launch transactional email scope (Resend — already in stack, no new infrastructure):**
+>
+> | Event | Recipient | Copy pattern |
+> |---|---|---|
+> | `invite_accepted` | trip organizer | *"Sara joined your trip [Trip Name]"* — one-line, direct link to trip |
+> | `first_expense_logged_by_other` | affected members (non-loggers) | *"Sara logged $240 — here's your share"* — total + split + link to expenses |
+> | `unsettled_balance_reminder` | organizer + affected members | Fires at T+14 days post `trip_end_date_reached` if trip not `trip_settled` AND balance open. *"Your [Trip] ended 2 weeks ago — settle the $X balance?"* — one-time, dismissible, opt-out |
+>
+> **Per-trip opt-out** in member settings. **No marketing content, no newsletter, no upsell** in any transactional email. Tone matches in-app — warm, specific, honest. All three templates must pass `/accessibility-review` before launch.
+>
+> **Unsettled-balance reminder is retention-critical, not a new feature.** Without it, trips silently die past their end date, which takes the entire post-trip retention loop with them (post-trip prompt never fires, "Your turn?" CTA never fires, Supporter conversion opportunity lost). Cheapest retention fix with the highest leverage: one scheduled banner + one email.
+>
+> **The in-app bell is re-classified as intra-session awareness**, not a retention tool. A notification the user never sees can't re-engage them. Any section of this doc treating the bell as re-engagement is a framing error.
+>
+> Full rationale: DECISIONS.md entry *2026-04-21 — Retention loop grill: 12 decisions locked.*
+
+> **2026-04-21 Conversion loop grill (supersedes portions below)**
+>
+> Conversion funnel grilled against locked Public MVP scope. Twelve decisions; five touch this doc.
+>
+> **Supporter bundle at launch (expanded from ad-removal-only):**
+> - **No ads** — removes the Home-page ad banner permanently
+> - **Founder badge** — "♥ Supporter · Founder" visible on profile + expense rows, for first 1,000 buyers at $2.99 (CSS-conditional on `supporter_source = 'founder'`)
+> - **20 premium trip-ball colors** — expanded palette beyond the 6 free brand colors (pure CSS; no backend work)
+>
+> Rationale: ad-removal-only is a thin value prop at Home-only ad placement. Founder badge and premium ball palette are zero-dev-cost identity features that make the $4.99 answer three bullets instead of one. Neither competes with the moat. Receipt scanning stays cut from launch — these features replace it without Azure integration cost.
+>
+> **Premium surfaces (three total, each one-dismiss-forever):**
+> 1. **Post-trip prompt** (locked, unchanged) — emotional moment; fires on the next screen load after first `trip_settled`. Warm copy, trip stats in the same card, Supporter benefits explicit, one-tap purchase. `/design-critique` required before implementation — this is the single most important UI surface in the launch conversion story.
+> 2. **Ad-impression-triggered prompt (NEW)** — rational moment; fires once at the 5th Home ad view. Copy: *"You've seen this ad 5 times. Remove it for $4.99 — forever."* Dismiss silences this surface only; post-trip prompt and account menu still function.
+> 3. **Account menu entry** (locked, unchanged) — always available; does not fire prompts; users navigate there themselves.
+>
+> **Dismiss rule:** dismissing any one surface silences *that surface only*, forever. Other surfaces continue. No surface ever fires twice for the same user.
+>
+> **§ 25 Settle-Up flow clarification:** the Settle-Up flow itself is ad-free AND upgrade-prompt-free. The post-trip prompt fires on the *next* screen load after settlement completion, never during the flow. Locked ad-free zones list expanded: Travel Day · Today · expense entry · onboarding · invite flow · modals · **Settle-Up flow** · all focus mode surfaces.
+>
+> **Year-1 affiliate revenue reality check:** 1,000 settled trips × ~0.5 lodging clicks × ~5% conversion × ~$12 avg commission ≈ **$300 Year-1 affiliate revenue.** The $500k lifetime projection elsewhere in this doc is honest but Year-3+ weighted. Affiliate at launch is infrastructure, not revenue. Do not plan Year-1 runway assuming meaningful affiliate income. Revenue scales non-linearly with traffic; most of the $500k sits in Years 3–5 at ~50k+ settled trips/year.
+>
+> **Retention framing correction:** TripWave is episodic. 2–6 month gaps between trips per organizer are the product rhythm, not churn. Any MAU/WAU language in this doc or elsewhere is a framing error — the success metric is settled trips per year per organizer, not daily/weekly active. Docs using MAU/WAU to be corrected at next revision.
+>
+> Full rationale: DECISIONS.md entry *2026-04-21 — Conversion loop grill: 12 decisions locked.*
+
 > **2026-04-21 Launch-scope grill (supersedes portions below)**
 >
 > - **Premium at Public MVP launch = 1 feature: ad removal only.** The 2-feature plan (ad removal + receipt scanning) locked on 2026-04-20 is further narrowed. Receipt scanning moves to post-launch month 2. Rationale: Azure AI Document Intelligence integration is a non-trivial side-quest for a solo dev that pulls focus from the moat during Public MVP polish weeks. At $4.99, one honest benefit beats two half-polished ones.

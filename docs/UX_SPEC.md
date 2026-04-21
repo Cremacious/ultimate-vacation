@@ -6,6 +6,44 @@ Decisions are added via structured grill-me sessions and reflect shared understa
 
 ---
 
+> **2026-04-21 Retention loop grill — retention UX surfaces owed for Public MVP**
+>
+> The retention loop grill locked four UX surfaces below. Each is owed a full Step-1 detail inventory before any mockup or code.
+>
+> 1. **Unsettled-balance reminder** — in-app banner + transactional email. Fires at T+14 days post `trip_end_date_reached` if trip not marked `trip_settled` AND balance open. In-app: persistent banner on Home and trip Overview for affected members; dismissible per-trip. Email: one-time, opt-out per trip. Copy: *"Your [Trip] ended 2 weeks ago — settle the $X balance?"* `/design-critique` required on mockup (new persistent-state pattern). `/design-system` required — confirms fit with neon-on-dark banner conventions.
+>
+> 2. **Invite share-sheet copy — WOM-critical, not just activation-critical.** The auto-populated text must work BOTH inside a direct invitee conversation AND pasted into a broader group chat. Two variants potentially needed: (a) *"Sara invited you to plan [Trip]. Join here: [link]"* for direct invites, (b) *"We're using TripWave to plan [Trip]. Join here: [link]"* for organizer-shared links. Copy-link affordance must default to the WOM-friendly variant. `/design-critique` required on copy.
+>
+> 3. **"Duplicate past trip" flow verification on Home** — already in locked scope but scope-ambiguous. Verify: does duplication copy (a) trip shell only (name, dates editable), (b) shell + budget + trip type, (c) shell + members list (re-send invites), or (d) shell + itinerary skeleton (events without dates, to be mapped onto new dates)? Step-1 inventory owed; recommendation is (c) for maximum repeat-trip friction reduction. If the flow is currently shell-only, it will under-serve the moat-as-retention mechanism from Q8.
+>
+> 4. **Expense-entry one-tap affordance on every in-trip surface** — during-trip retention depends on it. Add-Expense action must be reachable in ≤1 tap from: trip Overview, Itinerary, Expenses, Travel Day, any in-trip modal. Currently may live only on the Expenses tab. Audit the in-trip nav during Chunk 5 completion; add a persistent Add-Expense FAB or top-nav action if missing on any in-trip page.
+>
+> Full rationale: DECISIONS.md entry *2026-04-21 — Retention loop grill: 12 decisions locked.*
+
+> **2026-04-21 Conversion loop grill — new UX surfaces owed for Public MVP**
+>
+> The conversion loop grill locked five UX surfaces that do not exist elsewhere in this doc. Each is owed a full Step-1 detail inventory before any mockup or code. They are listed here as stubs; Step-1 inventories are produced just-in-time per CORE_LOOP.md Build Workflow.
+>
+> **Owed Step-1 inventories (conversion surfaces):**
+>
+> 1. **Invite-landing page** (`/join/{inviteCode}`) — participant onboarding. Shows: invited-by avatar + name, trip name + destination + dates preview, inviter's role, two featured CTAs matching locked member permissions ("Log an expense" / "Check your packing"), clear "This is Sara's trip — here's what you can do." Must work for authenticated (direct accept) and unauthenticated (sign-up-then-join) paths. `/design-critique` required on mockup.
+>
+> 2. **First-run Overview featured CTA — "Log your deposit expense"** — fires on post-invite Overview for the organizer once first invite has been sent. Most group trips have a deposit (flight booked, Airbnb reserved); logging it is the natural first expense and kicks off the moat. One-time dismissible. Not a modal; an elevated card near the expenses section.
+>
+> 3. **"Who else is coming?" soft prompt** — fires once on Overview after first invite has been sent. Dismissible card. Bulk paste shortcut (paste multiple emails, generates multiple invite links). Copy: *"Who else is coming on this trip?"* Dismiss = don't fire again for that trip.
+>
+> 4. **Post-trip prompt** — the single most important UI surface in the launch conversion story. Fires on next screen load after first `trip_settled`. Contains: trip stats (expense count, settled total, member count), Supporter benefits explicit (no ads, Founder badge, 20 ball colors, solo-dev support), one-tap purchase button, dismiss button ("Not now"). Single-dismiss-forever rule. Warm, honest, specific — never guilt-trippy. `/design-critique` **required** before implementation.
+>
+> 5. **"Your turn? Plan your next trip" CTA for participants** — fires once on the post-settlement Afterglow-lite screen for non-organizer members who just settled their first trip. One button → trip creation flow. Warmest moment a participant will ever be toward TripWave; capture it.
+>
+> **Also owed:**
+>
+> - **Ad-impression-triggered premium prompt** (per MONETIZATION.md revision) — fires once at 5th Home ad view. Minimal sheet, honest copy, dismiss silences this surface only.
+>
+> Full rationale: DECISIONS.md entry *2026-04-21 — Conversion loop grill: 12 decisions locked.*
+
+---
+
 ## 1. Trip Ball -- Interaction Behavior
 
 **Status:** locked (2026-04-17)

@@ -1,5 +1,96 @@
 # State Model
 
+> **2026-04-21 Retention loop grill — 4-phase retention model + canonical dashboard + vanity quarantine**
+>
+> TripWave's retention is **four-phase episodic** for organizers, with participant retention dependent on the participant-to-organizer conversion rate (without which invitees are effectively single-session users).
+>
+> **Four phases and what "retained" means at each:**
+>
+> | Phase | Return trigger | "Retained" definition (per trip) | Primary mechanism |
+> |---|---|---|---|
+> | **Pre-trip** (creation → departure, ~1–12 weeks) | Dependency pressure — item to log / add / invite | Organizer opens app ≥3 times pre-departure AND ≥1 invitee opens pre-departure | Transactional emails on key state changes + in-app bell (intra-session only) |
+> | **During-trip** (start date → end date) | In-moment expense logging + Travel Day checklist | ≥2 members log ≥1 expense each during the trip window | One-tap Add-Expense affordance on every in-trip surface; static Travel Day checklist |
+> | **Post-trip** (end date → +30 days) | Settle balances | `trip_settled` within 30 days of `trip_end_date_reached` | Post-trip prompt + "Your turn?" CTA + unsettled-balance reminder |
+> | **Next-trip** (+30 days → +12 months) | Organizer plans another trip, or participant creates their first | 90-day second-trip rate (organizer) + participant-to-organizer conversion rate (participant) | Muscle memory + "Duplicate past trip" CTA on Home |
+>
+> **Re-engagement constraint:** no push notifications, no marketing email. Re-engagement depends on (a) user remembering TripWave on their own, (b) transactional emails on user-requested state changes (see MONETIZATION.md § transactional email scope), and (c) the invite mechanism itself bringing dormant users back into trips.
+>
+> **The in-app bell is intra-session awareness, not a retention tool.** A notification the user never sees can't re-engage them. Docs referring to the bell as "retention" are corrected by this block.
+>
+> ---
+>
+> ### Canonical retention dashboard (6 metrics, PostHog primary view)
+>
+> | # | Metric | Definition | Year-1 target range |
+> |---|---|---|---|
+> | 1 | **Activation rate** | Weekly: `first_invite_accepted` / `signup_completed` | 40–60% |
+> | 2 | **Trip completion rate** | Cohort: `trip_settled` / `first_invite_accepted`, activation-month cohorted | 50–70% |
+> | 3 | **90-day second-trip rate** | Of users whose first trip settled, % who created a second trip within 90 days | 25–40% |
+> | 4 | **Participant-to-organizer conversion rate** | Of users who participated in ≥1 settled trip, % who then created their own | **5–10% (committed launch target)** |
+> | 5 | **Supporter conversion rate** | `supporter_purchased` within 30 days of post-trip prompt | 3–8% |
+> | 6 | **Unsettled-trip rate** | Of trips past `trip_end_date_reached`, % NOT `trip_settled` within 30 days | <20% |
+>
+> **Cohort by launch month.** All six together tell the truth about retention. Any one alone can lie.
+>
+> ---
+>
+> ### Vanity metrics quarantined (not in primary dashboard view)
+>
+> The following metrics are **not retention signals** and must not drive decisions alone. Quarantined from the primary PostHog view:
+>
+> - **Sign-ups per week** — flatters acquisition; hides activation failure.
+> - **Trips created** — counts solo-user trips that may never receive an invite.
+> - **DAU / WAU / MAU** — structurally wrong for an episodic product.
+> - **Expense count across all trips** — counts solo-logger trips that fail the moat threshold.
+>
+> These can appear on secondary activity pages for context only. **No retention decision is made on vanity metrics alone.**
+>
+> Full rationale: DECISIONS.md entry *2026-04-21 — Retention loop grill: 12 decisions locked.*
+
+---
+
+> **2026-04-21 Conversion loop grill — activation event + funnel events + retention framing**
+>
+> **Activation event:** `first_invite_accepted` — fires the moment a second authenticated member appears on a trip created by the organizer. Earliest event impossible to fake solo; proves the one thing TripWave cannot do for the user. **This is the leading indicator; the north-star metric below is unchanged.**
+>
+> **North-star metric (unchanged):** settled trips with ≥2 expense-logging members. Year-1 target: 1,000.
+>
+> **Retention framing — MAU/WAU is the wrong frame for this product.** TripWave is episodic. 22–28 friend-group organizers trip 2–4 times/year; between-trip gaps of 2–6 months are the product rhythm, not churn. Any doc section that measures success as MAU/WAU is a framing error and must be corrected at next revision. Success is settled trips per year per organizer.
+>
+> **PostHog funnel events (Public MVP canonical list):**
+>
+> | # | Event | Actor | Notes |
+> |---|---|---|---|
+> | 1 | `landing_page_visit` | anonymous | top-of-funnel |
+> | 2 | `signup_completed` | new user | |
+> | 3 | `trip_created` | organizer | |
+> | 4 | `first_invite_sent` | organizer | |
+> | 5 | **`first_invite_accepted`** | joining member | **activation event** |
+> | 6 | `first_expense_logged` | any member | |
+> | 7 | `two_member_expense_threshold` | derived | ≥2 unique members have logged at least one expense |
+> | 8 | `trip_end_date_reached` | system | |
+> | 9 | **`trip_settled`** | organizer | **north-star metric event** |
+> | 10 | `post_trip_prompt_shown` | system | next app open after `trip_settled` |
+> | 11 | `supporter_purchased` | converting user | |
+> | 12 | `participant_becomes_organizer` | ex-participant | one-time per user, when a member creates their first own trip |
+>
+> **Supplementary events (not linear):**
+>
+> - `ad_impression_prompt_shown` — fires at 5th Home ad view, once per user
+> - `affiliate_click` — Booking.com hotel chip tap on lodging itinerary items
+> - `supporter_prompt_dismissed` — fires from any prompt surface; silences that surface only
+>
+> **Dashboard watch-points (funnel chasms to instrument):**
+>
+> - 2 → 5 — the activation chasm (sign-up to invite-accepted)
+> - 5 → 7 — the moat-lock-in transition (one member → two loggers)
+> - 7 → 9 — the completion chasm (locked-in trip → settled)
+> - 9 → 11 — the conversion moment (settled → Supporter purchase)
+>
+> Full rationale: DECISIONS.md entry *2026-04-21 — Conversion loop grill: 12 decisions locked.*
+
+---
+
 This document defines the canonical trip lifecycle, state transitions, readiness computation, blocker taxonomy, and next-best-action algorithm for TripWave. Locked 2026-04-20 via the lifecycle grill (18 decisions). Any conflict with APP_STRUCTURE.md or UX_SPEC.md is resolved in favor of this document.
 
 ## Goal

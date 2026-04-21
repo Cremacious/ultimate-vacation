@@ -1,5 +1,46 @@
 # Roadmap
 
+> **2026-04-21 Retention loop grill — primary metrics + committed targets**
+>
+> **Year-1 primary retention metrics (added to success-metric suite):**
+>
+> | Metric | Year-1 target |
+> |---|---|
+> | Activation rate (signup → first_invite_accepted) | 40–60% |
+> | Trip completion rate (invite_accepted → trip_settled) | 50–70% |
+> | **90-day second-trip rate** (settled organizer → creates new trip) | 25–40% |
+> | **Participant-to-organizer conversion rate** | **5–10% (committed)** |
+> | Supporter conversion rate (post-trip prompt → purchase, within 30d) | 3–8% |
+> | Unsettled-trip rate (past end date → settled within 30 days) | <20% |
+>
+> **North-star success metric unchanged:** 1,000 settled trips with ≥2 expense-logging members in Year 1.
+>
+> **Vanity metrics quarantined:** sign-ups/week, trips created, DAU/WAU/MAU, expense count across trips. Not used for retention decisions. See STATE_MODEL.md for full list.
+>
+> **Launch scope additions from this grill (retention-critical, not feature-expansion):**
+>
+> - Unsettled-balance reminder (in-app banner + transactional email, T+14d post end-date)
+> - Three transactional emails accepted into launch: `invite_accepted`, `first_expense_logged_by_other`, `unsettled_balance_reminder` (see MONETIZATION.md)
+> - Expense-entry one-tap affordance audit across all in-trip surfaces
+> - Invite share-sheet copy treated as WOM-critical (not just activation)
+> - "Duplicate past trip" flow scope verification on Home (shell + members + budget + itinerary skeleton, not shell-only)
+>
+> Full rationale: DECISIONS.md entry *2026-04-21 — Retention loop grill: 12 decisions locked.*
+
+> **2026-04-21 Conversion loop grill annotations**
+>
+> **Year-1 affiliate reality check:** the $500k lifetime affiliate projection in MONETIZATION.md is honest but Year-3+ weighted. At Year-1 target of 1,000 settled trips, realistic affiliate revenue is **~$300 (best case ~$3k)**. Affiliate at launch is infrastructure, not revenue. Do not plan Year-1 runway assuming meaningful affiliate income.
+>
+> **Activation event added:** `first_invite_accepted` is the activation leading indicator; north-star success metric (settled trips with ≥2 expense-logging members) unchanged.
+>
+> **Retention framing:** episodic, measured in settled trips per year per organizer. MAU/WAU is the wrong frame for this product; any section using that language is a framing error.
+>
+> **Additional Public MVP UX surfaces (not new features — conversion plumbing):** invite-landing page, first-run "Log your deposit" CTA, "Who else is coming?" soft prompt, post-trip prompt (full spec), "Your turn?" participant CTA, ad-impression-triggered premium prompt. See UX_SPEC.md for the owed Step-1 inventories.
+>
+> **Supporter bundle expanded** (still within locked scope — zero-dev-cost additions): ad removal + Founder badge + 20 premium trip-ball colors. Receipt scanning stays cut from launch.
+>
+> Full rationale: DECISIONS.md entry *2026-04-21 — Conversion loop grill: 12 decisions locked.*
+
 > **2026-04-21 Launch-scope grill (supersedes Public MVP scope + Post-MVP ordering below)**
 >
 > Launch scope narrowed. Public MVP ships with:

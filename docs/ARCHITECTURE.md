@@ -1,5 +1,14 @@
 # Architecture
 
+> **2026-04-21 Retention loop grill — transactional email scope + bell classification**
+>
+> - **Transactional email scope expanded from password-reset-only to a minimal event set.** Resend is already in the stack; no new infrastructure. Launch scope includes three transactional events: `invite_accepted` (to organizer), `first_expense_logged_by_other` (to affected members), `unsettled_balance_reminder` (to affected members at T+14d post `trip_end_date_reached` if balance open). Per-trip opt-out. No marketing content in any template. See MONETIZATION.md for copy patterns.
+> - **The "no email except password reset" rule is narrowed to "no marketing email."** User-requested state-change emails are accepted as user-serving transactional messages, not marketing.
+> - **In-app bell is intra-session awareness, not a retention tool.** A notification the user never sees can't re-engage them. Any doc section implying the bell is a re-engagement mechanism is a framing error; the bell only informs users already in the app.
+> - **Unsettled-balance reminder scheduler:** one daily cron (Vercel scheduled function) scans trips where `trip_end_date < now - 14 days` AND `lifecycle = 'active'` AND open balance exists AND no `unsettled_balance_reminder_sent_at` set. Fires in-app banner state + transactional email once per trip. Fields: `unsettled_balance_reminder_sent_at timestamptz nullable` on `trips`. Add to migration 0001.
+>
+> Full rationale: DECISIONS.md entry *2026-04-21 — Retention loop grill: 12 decisions locked.*
+
 > **2026-04-21 Architecture & schema sanity grill (supersedes portions below)**
 >
 > This block is authoritative; sections below are historical context where they conflict.
