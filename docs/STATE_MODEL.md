@@ -17,6 +17,24 @@ The app should know:
 
 ## 1. Canonical Lifecycle States
 
+> **2026-04-21 Architecture & schema clarification — stored vs computed**
+>
+> The 8-state enum below (Draft/Planning/Ready/TravelDay/InProgress/Stale/Vaulted/Dreaming) is **computed at read time**, not persisted. Only a coarse `trips.lifecycle` column is stored, with three values (`active | vaulted | dreaming`) representing the user-durable transitions — the decisions a human action commits to.
+>
+> The full 8-state value is the return of `computeState(trip, now): TripState` in `src/lib/trip/state.ts`. Inputs: `trips.lifecycle`, `start_date`, `end_date`, itinerary event counts per day, preplan completeness, travel-leg dates derived from itinerary, `now()`. Every UI surface that renders trip state reads this function. **Nothing writes the 8-state enum to the database.**
+>
+> | Lifecycle (stored) | Possible computed states |
+> |---|---|
+> | `active` | Draft · Planning · Ready · TravelDay · InProgress · Stale |
+> | `vaulted` | Vaulted |
+> | `dreaming` | Dreaming |
+>
+> Indexing: `trips_lifecycle_idx` supports the one query that needs persisted state — *"give me all my active trips"* for the Home dashboard. The 8-state filter is applied in application code over the returned set.
+>
+> Why: an 8-state enum driven by `now()` can never be kept in sync by cron, user action, or DB trigger alone — they race, and a "trip shows as Ready at 6am on departure day" bug is unavoidable if any derived state is stored. Splitting the enum into durable-core + computed-detail eliminates the staleness class entirely while preserving the one index query that needs stored state.
+>
+> See DECISIONS.md entry *2026-04-21 — Architecture & schema sanity grill: 12 decisions locked* (Q2).
+
 TripWave has **7 primary lifecycle states** for real trips plus **1 terminal state** for Dream Mode trips.
 
 | State | Meaning |

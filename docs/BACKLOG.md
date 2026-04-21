@@ -6,6 +6,33 @@ Implementation sequencing rule (locked 2026-04-20): foundation first (ORM → DB
 
 ---
 
+## 🔧 2026-04-21 Migration 0001 — owed before more Chunk 5 code lands
+
+Architecture & schema sanity grill (same date) found 5 collapses and 3 additions needed against the current migrated schema. This migration is owed before more feature code hits `expense_splits.settled_at` or `trip_members.permissions`.
+
+**Migration 0001 steps:**
+
+1. Drop `preplan_budgets` table (Basics hub cut; collapsed into `trips`).
+2. Add `trips.budget_cents integer nullable` + `trips.budget_notes text nullable`.
+3. Rename `trips.status` → `trips.lifecycle`; drop default; data-migrate existing values (`'planning'` → `'active'`, `'in_progress'` → `'active'`, `'vaulted'` → `'vaulted'`). Rebuild the index as `trips_lifecycle_idx`.
+4. Drop `trip_members.permissions` JSONB column (role-only at launch).
+5. Drop `expense_splits.settled_at` column (per-pair settlement replaces per-split).
+6. Create `settlements` table: `id uuid PK · trip_id FK cascade · from_user_id FK restrict · to_user_id FK restrict · amount_cents integer not null · currency text not null · settled_at timestamptz not null · note text · created_at · deleted_at`. Indices on `(trip_id)`, `(from_user_id, to_user_id)`.
+7. Create `supporter_entitlements` table: `id uuid PK · user_id FK · source text not null · external_id text · amount_cents integer · currency text · purchased_at timestamptz not null · refunded_at timestamptz · created_at`. UNIQUE `(source, external_id) WHERE external_id IS NOT NULL`.
+8. Create `expense_receipts` table: `id uuid PK · expense_id FK cascade · blob_url text not null · mime_type text not null · size_bytes integer not null · uploaded_by FK restrict · created_at · deleted_at`. Index on `(expense_id)`.
+
+**Code changes landing alongside migration 0001:**
+
+- `src/lib/trip/state.ts` — export `computeState(trip, now): TripState` (the 8-state STATE_MODEL enum).
+- `src/lib/trip/balance.ts` — export balance math over `expense_splits + settlements`.
+- `src/lib/account/deleteUserAccount.ts` — owner-transfer-before-delete service.
+- Vercel Blob integration wired for `expense_receipts.blob_url`.
+- Better Auth adapter config verified to map `email_verified ↔ emailVerified`.
+
+Full rationale: DECISIONS.md *2026-04-21 — Architecture & schema sanity grill: 12 decisions locked.*
+
+---
+
 ## 🎯 2026-04-21 Launch-scope grill revisions (applies to build order below)
 
 - **Step 9 revised:** "Build Basics hub with budget section only" → **"Add inline budget field to trip Overview."** Basics hub cut entirely from spine — a hub with one section signals unfinished. Hub returns post-launch month 2+ when 3+ sections are ready. The Step-1 inventory below for "Preplanning hub" is **struck** for the launch line; Step-2 mockup work now targets Overview's budget field inline treatment only.

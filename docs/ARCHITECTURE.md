@@ -1,5 +1,21 @@
 # Architecture
 
+> **2026-04-21 Architecture & schema sanity grill (supersedes portions below)**
+>
+> This block is authoritative; sections below are historical context where they conflict.
+>
+> - **Trip state model: stored `lifecycle` vs computed 8-state.** Only `trips.lifecycle` (`active | vaulted | dreaming`) is persisted. The 8-state enum from STATE_MODEL.md is the return value of `computeState(trip, now)` in `src/lib/trip/state.ts` — never a stored column. Storing derived state is the #1 staleness trap.
+> - **Permissions model: role-only at launch.** `trip_members.role` enum (`organizer | trusted | member`) is the only permission primitive. The `permissions` JSONB override column is dropped. Per-user capability toggles return post-launch only if real configuration need emerges.
+> - **Offline is deferred — not a launch architecture concern.** The "design with it in mind from the start" stance below is struck. Offline premium feature moves to post-launch month 3+; revisit architecture decisions (service workers, cache strategy, write queueing, conflict resolution) when that feature is actually scoped. Designing for offline now would lock data shapes into unvalidated constraints.
+> - **Expense receipts: Vercel Blob + `expense_receipts` table.** Manual receipt upload is in launch scope. Clarifies the "no image hosting" stance below: *no user photo hosting; expense receipts are functional attachments on Vercel Blob with signed URLs.* User-generated photo uploads (profile avatars uploaded as images, trip photos, etc.) remain deferred.
+> - **Premium audit ledger: `supporter_entitlements` table added.** `users.supporter_entitled_at` is the hot-path lookup; ledger stores source, external_id, amount, purchased_at, refunded_at for refund/dispute trails.
+> - **Settlement data shape: per-pair via `settlements` ledger, not per-split.** `expense_splits.settled_at` is dropped. Balance formula: `sum(splits owed) - sum(splits paid) - sum(settlements from user) + sum(settlements to user)`.
+> - **Affiliate click attribution: PostHog events, no bespoke `affiliate_clicks` table.** Partner dashboards handle revenue attribution; PostHog logs chip taps.
+> - **Owner-deletion cascade: `ON DELETE restrict` retained on `trips.owner_id`.** Transfer-before-delete handled in `deleteUserAccount(userId)` app service. Restrict is the safety net against accidental orphaning.
+>
+> See SCHEMA_DRAFT.md for the 12-table launch canonical list and migration 0001 scope.
+> Full rationale: DECISIONS.md entry *2026-04-21 — Architecture & schema sanity grill: 12 decisions locked.*
+
 > **2026-04-20 Roadmap Grill Revision (supersedes portions below)**
 >
 > - **Real-time group collaboration:** optimistic UI + last-write-wins at the field level. When two members edit the same field within 10 seconds, show a soft conflict toast to the losing writer (*"Sara also edited this — your change was saved. Refresh to see the latest."*). CRDT-based collab (Yjs or similar) is explicitly **Post-MVP** — not in beta, not in Public MVP. Beta groups (~20 users) will hit edge cases here; document them, don't pre-solve them.
@@ -84,6 +100,8 @@ TripWave shares Vercel and Neon subscriptions with another app, making marginal 
 - premium entitlements
 
 ## Initial Data Domains
+
+> **Scope banner (2026-04-21):** The domain lists below describe the long-term data shape across every post-launch feature. **Only the 12 launch tables in SCHEMA_DRAFT.md exist at Public MVP launch.** Every table mentioned below that is not in that 12 is post-launch and will be added when its feature moves into active work. Do not create tables on this page's prompting alone — SCHEMA_DRAFT.md is the source of truth for what's live.
 
 ### User domain
 
@@ -206,39 +224,46 @@ These do not need to exist immediately as separate code modules, but the app sho
 
 ## Offline Strategy
 
-Offline access is a premium feature. Design with it in mind from the start.
+**Deferred. Revisit when the offline premium feature is scoped, month 3+ post-launch.**
+
+Offline is not a launch architecture concern. Premium at launch = ad removal only. Designing data shapes, cache strategies, service workers, or write-queueing now would lock the codebase into unvalidated constraints — offline conflict resolution in particular cannot be designed correctly without knowing what users actually do offline. When the feature moves into active scope, re-open this section with a fresh grill.
+
+Historical planning notes (pre-2026-04-21) preserved for when offline work resumes:
 
 - critical trip data should be cacheable
 - read-heavy surfaces should degrade gracefully
 - offline writes may need queueing later
-
-Initial offline target (premium only):
-
-- itinerary read access
-- travel-day checklist visibility and completion state
-- packing list visibility
-- addresses and reservation notes
-
-Non-premium users gracefully see an offline-unavailable state.
+- initial target surfaces: itinerary read access, travel-day checklist, packing list visibility, addresses and reservation notes
 
 ## Security and Permissions
 
-Current model:
+**Launch model (locked 2026-04-21 architecture grill): role-only, three roles.**
 
-- one paid organizer owns the trip
-- organizer sets per-user permission toggles at trip creation (simplified) and in trip settings (full control)
-- invited members participate within a trip subject to their permissions
+- `organizer` — trip creator; full access including delete, settings, member management.
+- `trusted` — promoted member; can edit itinerary events, add/edit/delete their own and others' itinerary items.
+- `member` (default on invite accept) — can view everything, log expenses, check packing items; cannot edit itinerary events.
+
+The `trip_members.permissions` JSONB override column was considered but dropped — no launch surface configures per-user capability overrides, and a write-never column is capability-debt. Post-launch, if real per-user overrides emerge, re-adding a JSONB column is a trivial additive migration.
+
+Universal rules:
+
 - account required for all app features — no anonymous or guest access
+- one paid organizer owns each trip; ownership transfers via `deleteUserAccount(userId)` service before hard-delete (never via FK cascade — `ON DELETE restrict` is the safety net)
+- authorization checks live in app services (`src/lib/trip/auth.ts` or similar), not in DB triggers
 
-Per-user toggleable capabilities (examples):
+**Role capability matrix (launch):**
 
-- can add itinerary items
-- can edit itinerary items
-- can delete itinerary items
-- can view packing lists
-- can add expenses
-- can start polls
-- can invite others
+| Capability | organizer | trusted | member |
+|---|---|---|---|
+| View trip | ✓ | ✓ | ✓ |
+| Log expenses | ✓ | ✓ | ✓ |
+| Split/settle expenses | ✓ | ✓ | ✓ |
+| Check packing items | ✓ | ✓ | ✓ |
+| Add/edit/delete itinerary events | ✓ | ✓ | — |
+| Edit budget | ✓ | ✓ | — |
+| Invite members | ✓ | — | — |
+| Manage members / promote to trusted | ✓ | — | — |
+| Trip settings · delete trip | ✓ | — | — |
 
 ## Ad Integration
 

@@ -1,5 +1,55 @@
 # Schema Draft
 
+> **2026-04-21 Architecture & schema sanity grill (supersedes portions below)**
+>
+> The schema shape below (drafted pre-launch-scope-grill) has three collapses and two additions owed before more Chunk 5 code lands. This block is authoritative; sections below are historical context.
+>
+> **Launch canonical tables (12 total):**
+>
+> **Auth (4):** `users` · `sessions` · `accounts` · `verifications` — Better Auth v1 compatible, already migrated.
+>
+> **Trip domain (3):** `trips` · `trip_members` · `invites`
+> - `trips` — **rename `status` column → `lifecycle`** with values `active | vaulted | dreaming` (only user-durable transitions). The 8-state enum (Draft/Planning/Ready/TravelDay/InProgress/Stale/Vaulted/Dreaming) becomes the return value of `computeState(trip, now)` in `src/lib/trip/state.ts`, never a stored column. **Add `budget_cents integer nullable`** and **`budget_notes text nullable`** to `trips` (collapses preplan_budgets).
+> - `trip_members` — **drop `permissions` JSONB column entirely.** Role enum is the only permission primitive at launch: `organizer | trusted | member`. If per-user overrides become a real requirement post-launch, re-adding JSONB is a trivial migration.
+> - `invites` — unchanged.
+>
+> **Pay arena (3):** `expenses` · `expense_splits` · `settlements`
+> - `expenses` — unchanged.
+> - `expense_splits` — **drop `settled_at` column.** Per-pair settlement (locked in the Expenses grill) cannot be expressed as per-split toggles.
+> - `settlements` (**NEW**) — ledger for per-pair soft settlements. Shape: `id uuid PK · trip_id FK cascade · from_user_id FK restrict · to_user_id FK restrict · amount_cents integer · currency text · settled_at timestamptz · note text · created_at · deleted_at`. Balance formula: `sum(splits owed by user) - sum(splits paid by user) - sum(settlements from user) + sum(settlements to user)`.
+>
+> **Plan arena (1):** `itinerary_events` — unchanged. `is_all_day` computed from `start_time IS NULL` at query layer; no column needed.
+>
+> **Tools (3):** `notifications` · `supporter_entitlements` · `expense_receipts`
+> - `notifications` — unchanged.
+> - `supporter_entitlements` (**NEW**) — audit ledger for one-time Supporter purchases. Shape: `id uuid PK · user_id FK · source text · external_id text · amount_cents integer · currency text · purchased_at timestamptz · refunded_at timestamptz · created_at`. UNIQUE `(source, external_id)` when `external_id` not null. `users.supporter_entitled_at` stays as the hot-path read; this table is the cold-path source of truth for refunds and disputes.
+> - `expense_receipts` (**NEW**) — functional-attachment table for manual receipt uploads (in launch scope). Shape: `id uuid PK · expense_id FK cascade · blob_url text · mime_type text · size_bytes integer · uploaded_by FK restrict · created_at · deleted_at`. Storage: **Vercel Blob** (zero-setup on existing Vercel account, signed URLs, priced per GB).
+>
+> **Removed:** `preplan_budgets` (collapsed to `trips`).
+>
+> **Migration 0001 scope (owed before more Chunk 5 code lands):**
+> 1. Drop `preplan_budgets` table.
+> 2. Add `trips.budget_cents integer nullable` + `trips.budget_notes text nullable`.
+> 3. Rename `trips.status` → `trips.lifecycle`; drop default; data-migrate existing values (`'planning'` → `'active'`, `'in_progress'` → `'active'`, `'vaulted'` → `'vaulted'`).
+> 4. Drop `trip_members.permissions` column.
+> 5. Drop `expense_splits.settled_at` column.
+> 6. Create `settlements` table with indices on `(trip_id)`, `(from_user_id, to_user_id)`.
+> 7. Create `supporter_entitlements` table with unique `(source, external_id) where external_id is not null`.
+> 8. Create `expense_receipts` table with index on `(expense_id)`.
+>
+> **Code action owed alongside migration 0001:**
+> - Add `src/lib/trip/state.ts` exporting `computeState(trip, now): TripState` — pure function returning the 8-state enum from `lifecycle + start_date + end_date + itinerary counts + preplan completeness`. Every UI surface that renders "trip state" reads this function, never `trips.lifecycle` directly (lifecycle only branches `active | vaulted | dreaming`).
+> - Add `src/lib/trip/balance.ts` exporting balance math over `expense_splits + settlements`.
+> - Add `src/lib/account/deleteUserAccount.ts` handling owner-transfer-before-delete logic (preserve `ON DELETE restrict` on `trips.owner_id` as safety net).
+>
+> **Invite codes:** nanoid(10) URL-safe, retry-on-unique-violation at insert time. **Trip slugs:** kebab-case-name + nanoid(4) suffix; must not embed PII (no auto-inclusion of owner name). Both globally unique.
+>
+> **Better Auth config check:** verify Drizzle adapter maps `email_verified ↔ emailVerified` correctly. `email_verified` stays `false` at launch (password reset is the only email flow; no verification step).
+>
+> Full rationale: DECISIONS.md entry *2026-04-21 — Architecture & schema sanity grill: 12 decisions locked.*
+
+---
+
 > **Status:** Draft — iterate during the Step-1 detail inventory sprint.
 > **ORM:** Drizzle (locked 2026-04-20, see DECISIONS.md).
 > **Target home in code:** `src/lib/db/schema.ts`.
