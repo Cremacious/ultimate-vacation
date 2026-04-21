@@ -3,13 +3,10 @@ import { and, desc, eq, isNull, inArray } from "drizzle-orm";
 import { db } from "@/lib/db";
 import { expenseSplits, expenses, tripMembers, users } from "@/lib/db/schema";
 import { isTripMember } from "@/lib/invites/permissions";
+import { listSettlementRowsForBalance } from "@/lib/settlements/queries";
+import { computeBalance, type MemberBalance } from "@/lib/trip/balance";
 
-import {
-  computeTripBalances,
-  planSettlement,
-  type MemberBalance,
-  type SettlementTransfer,
-} from "./balances";
+import { planSettlement, type SettlementTransfer } from "./balances";
 
 export type ExpenseListItem = {
   id: string;
@@ -97,7 +94,7 @@ export async function getBalancesForTrip(
   const member = await isTripMember(userId, tripId);
   if (!member) return null;
 
-  const [members, expenseRows] = await Promise.all([
+  const [members, expenseRows, settlementRows] = await Promise.all([
     db
       .select({ userId: tripMembers.userId, name: users.name })
       .from(tripMembers)
@@ -108,6 +105,7 @@ export async function getBalancesForTrip(
       .select({ id: expenses.id, payerId: expenses.payerId, amountCents: expenses.amountCents })
       .from(expenses)
       .where(and(eq(expenses.tripId, tripId), isNull(expenses.deletedAt))),
+    listSettlementRowsForBalance(tripId),
   ]);
 
   let splitRows: { userId: string; amountCents: number }[] = [];
@@ -118,7 +116,10 @@ export async function getBalancesForTrip(
       .where(inArray(expenseSplits.expenseId, expenseRows.map((e) => e.id)));
   }
 
-  const balances = computeTripBalances(members, expenseRows, splitRows);
+  // computeBalance is settlement-aware (per 2026-04-21 architecture grill Q5).
+  // planSettlement reads netCents + userId — structurally compatible with the
+  // MemberBalance shape from src/lib/trip/balance.ts.
+  const balances = computeBalance(members, expenseRows, splitRows, settlementRows);
   const transfers = planSettlement(balances);
   return { balances, transfers };
 }

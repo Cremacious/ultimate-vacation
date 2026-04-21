@@ -2,10 +2,12 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { eq } from "drizzle-orm";
 
+import { SettleUpClient } from "@/components/settle/SettleUpClient";
 import { requireUser } from "@/lib/auth/session";
 import { db } from "@/lib/db";
 import { trips } from "@/lib/db/schema";
 import { getBalancesForTrip } from "@/lib/expenses/queries";
+import { listSettlementsForTrip } from "@/lib/settlements/queries";
 
 function formatMoney(cents: number): string {
   const sign = cents < 0 ? "-" : "";
@@ -27,7 +29,11 @@ export default async function BalancesPage({
     .limit(1);
   if (!trip) notFound();
 
-  const view = await getBalancesForTrip(user.id, trip.id);
+  const [view, pastSettlements] = await Promise.all([
+    getBalancesForTrip(user.id, trip.id),
+    listSettlementsForTrip(user.id, trip.id),
+  ]);
+
   if (!view) {
     return (
       <div className="max-w-xl mx-auto px-4 py-10">
@@ -47,7 +53,31 @@ export default async function BalancesPage({
   }
 
   const nameById = new Map(view.balances.map((b) => [b.userId, b.name]));
-  const allSettled = view.transfers.length === 0;
+  // Rounding-safe settlement check: treat |net| < 1 as zero.
+  const allSettled = view.balances.every((b) => Math.abs(b.netCents) < 1);
+  const hasExpenses = view.balances.some(
+    (b) => b.totalPaidCents > 0 || b.totalOwedCents > 0
+  );
+
+  // Shape transfers for the client island (name-resolved).
+  const transfersView = view.transfers.map((t) => ({
+    fromUserId: t.fromUserId,
+    fromName: nameById.get(t.fromUserId) ?? "?",
+    toUserId: t.toUserId,
+    toName: nameById.get(t.toUserId) ?? "?",
+    amountCents: t.amountCents,
+  }));
+
+  // Serialize past settlements for the client island (Date → ISO string).
+  const pastSettlementsView = pastSettlements.map((s) => ({
+    id: s.id,
+    fromName: s.fromName,
+    toName: s.toName,
+    amountCents: s.amountCents,
+    currency: s.currency,
+    settledAt: s.settledAt.toISOString(),
+    note: s.note,
+  }));
 
   return (
     <div className="max-w-2xl mx-auto px-4 py-10">
@@ -101,24 +131,13 @@ export default async function BalancesPage({
 
       <section>
         <h2 className="text-lg font-semibold text-white mb-3">Settle up</h2>
-        {allSettled ? (
-          <p className="text-sm text-[#00C96B]">Everyone is settled.</p>
-        ) : (
-          <ul className="space-y-2">
-            {view.transfers.map((t, i) => (
-              <li
-                key={`${t.fromUserId}-${t.toUserId}-${i}`}
-                className="rounded-xl bg-[#2a2a2a] border border-[#3a3a3a] px-4 py-3 text-sm text-white"
-              >
-                <span className="font-bold">{nameById.get(t.fromUserId) ?? "?"}</span>
-                <span className="text-gray-400"> pays </span>
-                <span className="font-bold">{nameById.get(t.toUserId) ?? "?"}</span>
-                <span className="text-gray-400"> → </span>
-                <span className="font-bold text-[#00A8CC]">{formatMoney(t.amountCents)}</span>
-              </li>
-            ))}
-          </ul>
-        )}
+        <SettleUpClient
+          tripId={trip.id}
+          transfers={transfersView}
+          pastSettlements={pastSettlementsView}
+          allSettled={allSettled}
+          hasExpenses={hasExpenses}
+        />
       </section>
     </div>
   );

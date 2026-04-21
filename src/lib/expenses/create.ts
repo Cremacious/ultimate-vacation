@@ -1,5 +1,6 @@
-import { eq } from "drizzle-orm";
+import { and, eq, inArray, isNull } from "drizzle-orm";
 
+import { emit } from "@/lib/analytics/events";
 import { db } from "@/lib/db";
 import { expenseSplits, expenses, tripMembers } from "@/lib/db/schema";
 import { isTripMember } from "@/lib/invites/permissions";
@@ -72,6 +73,30 @@ export async function createExpenseForTrip(
 
   const splits = computeEqualSplit(amountCents, participantIds);
 
+  // Pre-insert snapshot for analytics: count of prior expenses and distinct
+  // contributing members (payer ∪ split users). Used to detect two funnel
+  // events without double-firing. Wrapped in try/catch so a DB hiccup on the
+  // read can't block the main write.
+  let priorExpenseCount = 0;
+  const priorContributors = new Set<string>();
+  try {
+    const priorExpenses = await db
+      .select({ id: expenses.id, payerId: expenses.payerId })
+      .from(expenses)
+      .where(and(eq(expenses.tripId, tripId), isNull(expenses.deletedAt)));
+    priorExpenseCount = priorExpenses.length;
+    for (const e of priorExpenses) priorContributors.add(e.payerId);
+    if (priorExpenses.length > 0) {
+      const priorSplitRows = await db
+        .select({ userId: expenseSplits.userId })
+        .from(expenseSplits)
+        .where(inArray(expenseSplits.expenseId, priorExpenses.map((e) => e.id)));
+      for (const s of priorSplitRows) priorContributors.add(s.userId);
+    }
+  } catch {
+    // Snapshot failure is non-blocking; we simply don't emit the threshold event.
+  }
+
   const [expense] = await db
     .insert(expenses)
     .values({
@@ -96,6 +121,31 @@ export async function createExpenseForTrip(
   } catch (err) {
     await db.delete(expenses).where(eq(expenses.id, expense.id));
     throw err;
+  }
+
+  // Analytics: emit funnel events. Failures are swallowed — the expense is
+  // already durable in the DB; PostHog can't be allowed to break writes.
+  try {
+    // first_expense_logged: emit if this trip had zero prior expenses.
+    if (priorExpenseCount === 0) {
+      emit({
+        type: "first_expense_logged",
+        userId,
+        tripId,
+        expenseId: expense.id,
+      });
+    }
+    // two_member_expense_threshold: distinct contributor set grows with this
+    // insert's payer + participant split users. If it crosses from <2 to ≥2
+    // distinct contributors, the trip just cleared the moat threshold.
+    const newContributors = new Set(priorContributors);
+    newContributors.add(payerId);
+    for (const pid of participantIds) newContributors.add(pid);
+    if (priorContributors.size < 2 && newContributors.size >= 2) {
+      emit({ type: "two_member_expense_threshold", tripId });
+    }
+  } catch {
+    // swallow
   }
 
   return expense;

@@ -2,6 +2,8 @@
 
 import { useActionState, useState } from "react";
 
+import { ReceiptAttach } from "@/components/receipts/ReceiptAttach";
+
 import { createExpenseAction, type CreateExpenseFormState } from "./actions";
 
 type Member = { userId: string; name: string };
@@ -12,6 +14,7 @@ type Expense = {
   payerName: string;
   paidAt: Date | string;
   participantCount: number;
+  receipt?: { blobUrl: string; mimeType: string } | null;
 };
 
 const initialState: CreateExpenseFormState = {};
@@ -144,15 +147,20 @@ export default function ExpensesClient({
             {expenses.map((e) => (
               <li
                 key={e.id}
-                className="rounded-xl bg-[#2a2a2a] border border-[#3a3a3a] px-4 py-3 flex items-center justify-between"
+                className="rounded-xl bg-[#2a2a2a] border border-[#3a3a3a] px-4 py-3"
               >
-                <div className="min-w-0 flex-1">
-                  <p className="text-white font-semibold truncate">{e.description}</p>
-                  <p className="text-xs text-gray-500 mt-0.5">
-                    {e.payerName} paid · split {e.participantCount} way{e.participantCount === 1 ? "" : "s"}
-                  </p>
+                <div className="flex items-center justify-between gap-3">
+                  <div className="min-w-0 flex-1">
+                    <p className="text-white font-semibold truncate">{e.description}</p>
+                    <p className="text-xs text-gray-500 mt-0.5">
+                      {e.payerName} paid · split {e.participantCount} way{e.participantCount === 1 ? "" : "s"}
+                    </p>
+                  </div>
+                  <span className="text-white font-bold">{formatMoney(e.amountCents)}</span>
                 </div>
-                <span className="text-white font-bold">{formatMoney(e.amountCents)}</span>
+                <div className="mt-2 pt-2 border-t border-[#3a3a3a]">
+                  <ReceiptAttach expenseId={e.id} initialReceipt={e.receipt ?? null} />
+                </div>
               </li>
             ))}
           </ul>

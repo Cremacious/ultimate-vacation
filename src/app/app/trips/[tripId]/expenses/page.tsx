@@ -7,6 +7,7 @@ import { db } from "@/lib/db";
 import { trips } from "@/lib/db/schema";
 import { listExpensesForTrip, listTripMembersForPicker } from "@/lib/expenses/queries";
 import { isTripMember } from "@/lib/invites/permissions";
+import { listReceiptsForExpenses } from "@/lib/receipts/queries";
 
 import ExpensesClient from "./ExpensesClient";
 
@@ -49,6 +50,15 @@ export default async function ExpensesPage({
     listExpensesForTrip(user.id, trip.id),
   ]);
 
+  // Attach the first receipt per expense (UI displays one receipt per row; MVP).
+  const receiptRows = await listReceiptsForExpenses(expenseRows.map((e) => e.id));
+  const receiptByExpense = new Map<string, { blobUrl: string; mimeType: string }>();
+  for (const r of receiptRows) {
+    if (!receiptByExpense.has(r.expenseId)) {
+      receiptByExpense.set(r.expenseId, { blobUrl: r.blobUrl, mimeType: r.mimeType });
+    }
+  }
+
   return (
     <div className="max-w-2xl mx-auto px-4 py-10">
       <div className="mb-6">
@@ -71,7 +81,10 @@ export default async function ExpensesPage({
         tripId={trip.id}
         currentUserId={user.id}
         members={members.map((m) => ({ userId: m.userId, name: m.name }))}
-        expenses={expenseRows}
+        expenses={expenseRows.map((e) => ({
+          ...e,
+          receipt: receiptByExpense.get(e.id) ?? null,
+        }))}
       />
     </div>
   );
