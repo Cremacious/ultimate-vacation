@@ -11,7 +11,6 @@ import {
   Airplane,
   Sun,
   Receipt,
-  Scales,
   ChartBar,
   ListChecks,
   Note,
@@ -48,7 +47,6 @@ const phaseColor: Record<string, string> = {
   "travel-days": "#FF2D8B",
   "vacation-days": "#00A8CC",
   expenses: "#00C96B",
-  balances: "#00C96B",
   polls: "#FFD600",
   wishlist: "#00A8CC",
   "scavenger-hunt": "#FF8C00",
@@ -78,7 +76,6 @@ export default function TripSideNav({
     { key: "travel-days",   label: "Travel Day",   href: `${base}/travel-days`,     icon: <Airplane size={14} weight="fill" />,     color: phaseColor["travel-days"] },
     { key: "vacation-days", label: "Vacation Day", href: `${base}/vacation-days`,   icon: <Sun size={14} weight="fill" />,          color: phaseColor["vacation-days"] },
     { key: "expenses",      label: "Expenses",     href: `${base}/expenses`,        icon: <Receipt size={14} weight="fill" />,      color: phaseColor.expenses },
-    { key: "balances",      label: "Balances",     href: `${base}/balances`,        icon: <Scales size={14} weight="fill" />,       color: phaseColor.balances },
   ];
 
   const extraPhases: Phase[] = [

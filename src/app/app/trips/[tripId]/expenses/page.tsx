@@ -5,9 +5,10 @@ import { eq } from "drizzle-orm";
 import { requireUser } from "@/lib/auth/session";
 import { db } from "@/lib/db";
 import { trips } from "@/lib/db/schema";
-import { listExpensesForTrip, listTripMembersForPicker } from "@/lib/expenses/queries";
+import { getBalancesForTrip, listExpensesForTrip, listTripMembersForPicker } from "@/lib/expenses/queries";
 import { isTripMember } from "@/lib/invites/permissions";
 import { listReceiptsForExpenses } from "@/lib/receipts/queries";
+import { listSettlementsForTrip } from "@/lib/settlements/queries";
 
 import ExpensesClient from "./ExpensesClient";
 
@@ -45,9 +46,11 @@ export default async function ExpensesPage({
     );
   }
 
-  const [members, expenseRows] = await Promise.all([
+  const [members, expenseRows, balanceView, pastSettlements] = await Promise.all([
     listTripMembersForPicker(trip.id),
     listExpensesForTrip(user.id, trip.id),
+    getBalancesForTrip(user.id, trip.id),
+    listSettlementsForTrip(user.id, trip.id),
   ]);
 
   // Attach the first receipt per expense (UI displays one receipt per row; MVP).
@@ -58,6 +61,32 @@ export default async function ExpensesPage({
       receiptByExpense.set(r.expenseId, { blobUrl: r.blobUrl, mimeType: r.mimeType });
     }
   }
+
+  // balanceView is null only for non-members; canView guard above ensures it's always set here.
+  const balances = balanceView?.balances ?? [];
+  const rawTransfers = balanceView?.transfers ?? [];
+
+  const nameById = new Map(balances.map((b) => [b.userId, b.name]));
+  const transfers = rawTransfers.map((t) => ({
+    fromUserId: t.fromUserId,
+    fromName: nameById.get(t.fromUserId) ?? "?",
+    toUserId: t.toUserId,
+    toName: nameById.get(t.toUserId) ?? "?",
+    amountCents: t.amountCents,
+  }));
+
+  const allSettled = balances.every((b) => Math.abs(b.netCents) < 1);
+  const hasExpenses = balances.some((b) => b.totalPaidCents > 0 || b.totalOwedCents > 0);
+
+  const pastSettlementsView = pastSettlements.map((s) => ({
+    id: s.id,
+    fromName: s.fromName,
+    toName: s.toName,
+    amountCents: s.amountCents,
+    currency: s.currency,
+    settledAt: s.settledAt.toISOString(),
+    note: s.note,
+  }));
 
   return (
     <div className="max-w-2xl mx-auto px-4 py-10">
@@ -85,6 +114,11 @@ export default async function ExpensesPage({
           ...e,
           receipt: receiptByExpense.get(e.id) ?? null,
         }))}
+        balances={balances}
+        transfers={transfers}
+        pastSettlements={pastSettlementsView}
+        allSettled={allSettled}
+        hasExpenses={hasExpenses}
       />
     </div>
   );

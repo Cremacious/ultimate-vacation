@@ -3,6 +3,7 @@
 import { useActionState, useState } from "react";
 
 import { ReceiptAttach } from "@/components/receipts/ReceiptAttach";
+import { SettleUpClient } from "@/components/settle/SettleUpClient";
 
 import { createExpenseAction, type CreateExpenseFormState } from "./actions";
 
@@ -16,6 +17,29 @@ type Expense = {
   participantCount: number;
   receipt?: { blobUrl: string; mimeType: string } | null;
 };
+type BalanceRow = {
+  userId: string;
+  name: string;
+  netCents: number;
+  totalPaidCents: number;
+  totalOwedCents: number;
+};
+type TransferView = {
+  fromUserId: string;
+  fromName: string;
+  toUserId: string;
+  toName: string;
+  amountCents: number;
+};
+type PastSettlement = {
+  id: string;
+  fromName: string;
+  toName: string;
+  amountCents: number;
+  currency: string;
+  settledAt: string;
+  note: string | null;
+};
 
 const initialState: CreateExpenseFormState = {};
 
@@ -28,11 +52,21 @@ export default function ExpensesClient({
   currentUserId,
   members,
   expenses,
+  balances,
+  transfers,
+  pastSettlements,
+  allSettled,
+  hasExpenses,
 }: {
   tripId: string;
   currentUserId: string;
   members: Member[];
   expenses: Expense[];
+  balances: BalanceRow[];
+  transfers: TransferView[];
+  pastSettlements: PastSettlement[];
+  allSettled: boolean;
+  hasExpenses: boolean;
 }) {
   const [state, formAction, pending] = useActionState(createExpenseAction, initialState);
   const [checked, setChecked] = useState<Set<string>>(new Set(members.map((m) => m.userId)));
@@ -48,6 +82,7 @@ export default function ExpensesClient({
 
   return (
     <div className="space-y-10">
+      {/* ── Add expense form ─────────────────────────────────────────── */}
       <form action={formAction} className="space-y-4 rounded-2xl bg-[#2a2a2a] border border-[#3a3a3a] p-5">
         <input type="hidden" name="tripId" value={tripId} />
         <h2 className="text-lg font-semibold text-white">Add expense</h2>
@@ -138,18 +173,9 @@ export default function ExpensesClient({
         </button>
       </form>
 
+      {/* ── Recent expenses ──────────────────────────────────────────── */}
       <div>
-        <div className="flex items-center justify-between mb-3">
-          <h2 className="text-lg font-semibold text-white">Recent expenses</h2>
-          {expenses.length > 0 && (
-            <a
-              href={`/app/trips/${tripId}/balances`}
-              className="text-xs font-bold text-[#00C96B] hover:underline"
-            >
-              Settle up →
-            </a>
-          )}
-        </div>
+        <h2 className="text-lg font-semibold text-white mb-3">Recent expenses</h2>
         {expenses.length === 0 ? (
           <p className="text-sm text-gray-500">No expenses logged yet.</p>
         ) : (
@@ -176,6 +202,50 @@ export default function ExpensesClient({
           </ul>
         )}
       </div>
+
+      {/* ── Balances ─────────────────────────────────────────────────── */}
+      {balances.length > 0 && (
+        <div>
+          <h2 className="text-lg font-semibold text-white mb-3">Balances</h2>
+          <ul className="space-y-2 mb-6">
+            {balances.map((b) => {
+              const tone =
+                b.netCents > 0 ? "#00C96B" : b.netCents < 0 ? "#D9304F" : "#9CA3AF";
+              const label =
+                b.netCents > 0 ? "is owed" : b.netCents < 0 ? "owes" : "settled";
+              return (
+                <li
+                  key={b.userId}
+                  className="rounded-xl bg-[#2a2a2a] border border-[#3a3a3a] px-4 py-3 flex items-center justify-between"
+                >
+                  <div>
+                    <p className="text-white font-semibold">{b.name}</p>
+                    <p className="text-xs text-gray-500 mt-0.5">
+                      paid {formatMoney(b.totalPaidCents)} · share {formatMoney(b.totalOwedCents)}
+                    </p>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-xs font-bold uppercase" style={{ color: tone }}>
+                      {label}
+                    </p>
+                    <p className="font-bold" style={{ color: tone }}>
+                      {formatMoney(Math.abs(b.netCents))}
+                    </p>
+                  </div>
+                </li>
+              );
+            })}
+          </ul>
+
+          <SettleUpClient
+            tripId={tripId}
+            transfers={transfers}
+            pastSettlements={pastSettlements}
+            allSettled={allSettled}
+            hasExpenses={hasExpenses}
+          />
+        </div>
+      )}
     </div>
   );
 }

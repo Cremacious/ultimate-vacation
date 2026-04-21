@@ -28,7 +28,7 @@ export async function vaultTripAction(tripId: string): Promise<VaultTripResult> 
 
   emit({ type: "trip_settled", userId: user.id, tripId });
 
-  revalidatePath(`/app/trips/${tripId}/balances`);
+  revalidatePath(`/app/trips/${tripId}/expenses`);
   revalidatePath("/app");
 
   return { ok: true };
