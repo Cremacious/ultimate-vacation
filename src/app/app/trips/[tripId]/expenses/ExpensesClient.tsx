@@ -139,7 +139,17 @@ export default function ExpensesClient({
       </form>
 
       <div>
-        <h2 className="text-lg font-semibold text-white mb-3">Recent expenses</h2>
+        <div className="flex items-center justify-between mb-3">
+          <h2 className="text-lg font-semibold text-white">Recent expenses</h2>
+          {expenses.length > 0 && (
+            <a
+              href={`/app/trips/${tripId}/balances`}
+              className="text-xs font-bold text-[#00C96B] hover:underline"
+            >
+              Settle up →
+            </a>
+          )}
+        </div>
         {expenses.length === 0 ? (
           <p className="text-sm text-gray-500">No expenses logged yet.</p>
         ) : (

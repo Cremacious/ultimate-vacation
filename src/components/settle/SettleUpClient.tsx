@@ -129,16 +129,32 @@ export function SettleUpClient({
   return (
     <div>
       {/* All-settled hero + mark-trip-settled */}
-      {hasExpenses && allSettled && (
-        <div className="rounded-xl bg-[#0f2a1e] border border-[#00C96B] px-4 py-4 mb-4 text-center">
-          <p className="text-[#00C96B] font-semibold mb-2">Everyone is settled up ✓</p>
-          <button
-            onClick={() => setTripSettledConfirm(true)}
-            className="text-sm font-semibold text-white bg-[#00C96B] rounded-lg px-4 py-2 hover:bg-[#00b85e] transition-colors"
-          >
-            Mark trip settled
-          </button>
-        </div>
+      {hasExpenses && (
+        allSettled ? (
+          <div className="rounded-xl bg-[#0f2a1e] border border-[#00C96B] px-4 py-4 mb-4 text-center">
+            <p className="text-[#00C96B] font-semibold mb-2">Everyone is settled up ✓</p>
+            <button
+              onClick={() => setTripSettledConfirm(true)}
+              className="text-sm font-semibold text-white bg-[#00C96B] rounded-lg px-4 py-2 hover:bg-[#00b85e] transition-colors"
+            >
+              Mark trip settled
+            </button>
+          </div>
+        ) : (
+          <div className="rounded-xl bg-[#1e1e1e] border border-[#3a3a3a] px-4 py-4 mb-4 text-center">
+            <p className="text-xs font-bold uppercase tracking-wide text-gray-500 mb-1">Final step</p>
+            <p className="text-sm text-gray-400 mb-3">
+              Mark all {transfers.length} payment{transfers.length === 1 ? "" : "s"} above as done to settle this trip.
+            </p>
+            <button
+              disabled
+              aria-disabled="true"
+              className="text-sm font-semibold text-gray-600 bg-[#2a2a2a] border border-[#3a3a3a] rounded-lg px-4 py-2 cursor-not-allowed"
+            >
+              Mark trip settled
+            </button>
+          </div>
+        )
       )}
 
       {/* Pending transfers */}
