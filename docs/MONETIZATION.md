@@ -1,5 +1,16 @@
 # Monetization
 
+> **2026-04-21 Launch-scope grill (supersedes portions below)**
+>
+> - **Premium at Public MVP launch = 1 feature: ad removal only.** The 2-feature plan (ad removal + receipt scanning) locked on 2026-04-20 is further narrowed. Receipt scanning moves to post-launch month 2. Rationale: Azure AI Document Intelligence integration is a non-trivial side-quest for a solo dev that pulls focus from the moat during Public MVP polish weeks. At $4.99, one honest benefit beats two half-polished ones.
+> - **Affiliate at launch = one partner, one surface: Booking.com hotel chip on lodging itinerary items only.** Skyscanner and Viator move to post-launch weeks 2–3. Rationale: wiring two partners at launch doubles disclosure copy, fallback states, tracking setup, and testing load. One partner proves the mechanism.
+> - **Ad banner at launch = Home page only.** Not on itinerary, expenses, Basics, Travel Day, onboarding, invite flow, modals, or any moat-adjacent surface. Rationale: at launch volumes the revenue delta is a rounding error; the first-impression delta from ad-free moat surfaces is large. Full ad zone rollout (per § 25) moves to post-launch month 2.
+> - **Pricing locked from prior grill holds:** $2.99 founder's (first 1,000 buyers) → $4.99 standard thereafter.
+> - **Post-trip upgrade prompt locked from prior grill holds:** one-time after first completed trip, plus account-menu entry point. No persistent nudge.
+> - **5-year revenue math unchanged:** the recalibrated target still works — fewer launch features does not materially shift the projection since premium conversion is dominated by emotional fit with the $4.99 price point, not feature count.
+>
+> Full rationale: DECISIONS.md entry *2026-04-21 — Launch-scope grill: 11 decisions locked (Public MVP = v1 launch).*
+
 > **2026-04-20 Naming Audit — see docs/NAMING.md**
 >
 > **"Premium" is a dev shorthand only.** All user-facing surfaces use **"Supporter"**: purchase sheet CTA *"Become a Supporter · $4.99 once"*, account menu *"Supporter status"*, badge *"♥ Supporter"*. Older sections of this doc still say "Premium" — those are historical context; copy-ready user strings use Supporter.

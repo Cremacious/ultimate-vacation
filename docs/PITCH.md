@@ -1,5 +1,20 @@
 # Pitch -- TripWave in Layman's Terms
 
+> **2026-04-21 Launch-scope grill (supersedes portions below)**
+>
+> - **"v1 launch" = Public MVP (weeks 13–24)**, not the 90-day private beta. Beta is a closed spine-validation checkpoint with 20 personal-network users; launch is the public day strangers arrive and money goes live.
+> - **Launch tagline: "The group trip app that actually splits the bill."** Leads with the moat. The brand tagline *"Plan the trip. Not the group chat."* is preserved for post-launch when awareness is built.
+> - **Premium at launch = 1 feature: ad removal.** Receipt scanning deferred to post-launch month 2. At $4.99, one honest benefit beats two half-polished.
+> - **Dream Mode deferred to weeks 4–6 post-launch.** At launch volumes there is no audience to go viral to; the wedge is real trips finishing. Dream Mode becomes its own v1.1 content beat.
+> - **Affiliate at launch = Booking.com hotel chip on lodging itinerary items only.** Skyscanner and Viator move to post-launch weeks 2–3.
+> - **Ad banner at launch confined to Home page only.** No ads on itinerary, expenses, Basics, Travel Day, or any moat-adjacent surface.
+> - **Travel Day at launch = static planning checklist + "Generate from trip" button.** Focus mode, per-member view, skip semantics deferred to month 2.
+> - **Basics hub cut entirely from launch (and from beta).** Budget becomes an inline field on the trip Overview. Hub returns in v1.1 when 3+ sections are ready.
+> - **First-run flow: sign up → trip-create first-run → invite step featured.** Skip Home on first login.
+> - **Non-organizer permissions at launch: view + log expenses + check packing; itinerary edits gated to Trusted+.** (Degrades to view+expenses-only if the role UI isn't built in time.)
+>
+> Full rationale: DECISIONS.md entry *2026-04-21 — Launch-scope grill: 11 decisions locked (Public MVP = v1 launch).*
+
 > **2026-04-20 Naming Audit — see docs/NAMING.md**
 >
 > Forward-work renames: Vacation Day → **Today**, Preplan → **Basics**, Memory recap → **Afterglow**, Dashboard → **Home**, Premium (user-facing) → **Supporter**, Tools Hub → **Tools**. Branded flagship surfaces: TripWave · Dream Mode · Afterglow · Vault.

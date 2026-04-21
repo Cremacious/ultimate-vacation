@@ -1,5 +1,47 @@
 # Roadmap
 
+> **2026-04-21 Launch-scope grill (supersedes Public MVP scope + Post-MVP ordering below)**
+>
+> Launch scope narrowed. Public MVP ships with:
+> - Full spine (auth · trip create · invite · expenses · itinerary · Home · notifications bell · static trip ball · marketing landing)
+> - Stripe Supporter sheet — **1 premium feature at launch: ad removal only** (receipt scanning moves to post-launch month 2)
+> - **Ad banner on Home page only** (not itinerary, expenses, Basics, Travel Day, or any moat-adjacent surface)
+> - **Booking.com hotel affiliate chip on lodging itinerary items only** (Skyscanner + Viator defer to post-launch weeks 2–3)
+> - **Travel Day: static planning checklist + "Generate from trip" button only** (focus mode, per-member view, skip semantics defer to month 2)
+> - Founder's pricing tier live, analytics funnel wired, legal/privacy/terms/contact stubs, 404/error pages
+>
+> **Cut from Public MVP:**
+> - **Dream Mode** (even the stripped version) — moves to post-launch weeks 4–6
+> - **Basics hub entirely** — budget becomes an inline field on the trip Overview; hub returns at v1.1 when 3+ sections are ready
+> - **Receipt scanning** — month 2
+> - **Travel Day focus mode + per-member view** — month 2
+> - Second/third affiliate partners (Skyscanner, Viator)
+>
+> **Post-MVP priority order (updated):**
+> 1. Stripped Dream Mode (weeks 4–6)
+> 2. Skyscanner affiliate chip (week 2–3)
+> 3. Receipt scanning premium feature (month 2)
+> 4. Travel Day focus mode + per-member view + skip semantics (month 2)
+> 5. Viator affiliate chip (month 2)
+> 6. Full ad banner rollout — Basics cards, vault, additional permitted zones (month 2)
+> 7. Basics hub full (3+ sections) (month 2+)
+> 8. Afterglow / memory recap (month 3)
+> 9. Native iOS + Android ship (month 3–6)
+> 10. Today (Vacation Day) full build
+> 11. Trip-ball modal + color picker + motion polish
+> 12. Remaining 5 premium features (offline, currency converter, smart suggestions, templates, export, trip duplication)
+> 13. Wishlist, Polls, Notes, Vault, Scavenger Hunt (months 3–6)
+> 14. Advanced permission toggles, traveler profile editor
+> 15. CRDTs / Yjs if last-write-wins breaks
+>
+> **First-run onboarding at launch:** sign up → trip-create first-run → invite step featured. Skip Home on first login.
+>
+> **Launch tagline: "The group trip app that actually splits the bill."** Brand tagline *"Plan the trip. Not the group chat."* preserved for post-launch.
+>
+> **Non-organizer member permissions at launch:** view + log expenses + check packing; itinerary edits gated to Trusted+. (Degrades to view+expenses-only if role UI isn't ready.)
+>
+> Full rationale: DECISIONS.md entry *2026-04-21 — Launch-scope grill: 11 decisions locked (Public MVP = v1 launch).*
+
 > **2026-04-20 Naming Audit — see docs/NAMING.md**
 >
 > Forward-work renames: Vacation Day → **Today** · Preplan → **Basics** · Tools Hub → **Tools** · Memory recap → **Afterglow** · Dashboard → **Home** · Premium (user-facing) → **Supporter**. Post-MVP list items below reference these new names going forward.

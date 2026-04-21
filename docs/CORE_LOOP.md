@@ -1,5 +1,56 @@
 # Core Loop -- The Must-Prove Spine
 
+> **2026-04-21 Launch-scope grill (supersedes portions below)**
+>
+> The Public MVP "must ship" list has been further cut. This block is the authoritative launch scope; the MVP list later in this file describes historical decision context.
+>
+> **At Public MVP launch (weeks 13–24), these ship:**
+> - Auth (sign-up, log-in, password reset, logout, delete account)
+> - Trip creation (4-step, Real/Dream picker stays for post-launch; launch = Real trips only)
+> - Trip Overview (brand-new + established states, with **inline budget field — no Basics hub**)
+> - Invite flow (link, code, QR, join path)
+> - Members list (Standard + Trusted roles; non-Trusted members can view, log expenses, check packing; itinerary edits gated to Trusted+)
+> - **Expenses polished to screenshot-worthy quality (the moat):** balances hero, ledger, create, equal/by-share/by-amount splits, multi-currency at log-time rate, settle with Venmo/Zelle deep-link, manual receipt upload
+> - **Itinerary** day-by-day CRUD + soft-conflict toast + add/edit modal (§ 7a)
+> - **Travel Day: static planning checklist + "Generate from trip" button only.** No focus mode, no per-member view, no skip semantics.
+> - Notifications bell (in-app only)
+> - Home (between-trips state) + trip switcher
+> - Static trip ball (no modal, no motion)
+> - Marketing landing page
+> - Supporter purchase sheet (Stripe, $2.99 founder's → $4.99 standard, **1 feature: ad removal only**)
+> - Ad banner on Home page only (AdMob/AdSense)
+> - **Booking.com hotel affiliate chip on lodging itinerary items only** (one partner, one surface)
+> - Legal stubs (terms, privacy, contact)
+> - 404 / error pages
+> - Founder's pricing counter
+> - Analytics funnel wired (sign-up → trip → invite → invite accepted → first expense → 2nd-member expense → settled)
+>
+> **Explicitly NOT in launch (deferred to post-launch, priority-ordered):**
+> 1. Dream Mode (stripped version) — weeks 4–6 post-launch
+> 2. Receipt scanning (premium) — month 2 (Azure setup)
+> 3. Travel Day focus mode + per-member view + skip semantics + auto-arrival — month 2
+> 4. Skyscanner flight affiliate chip — week 2–3 post-launch
+> 5. Viator affiliate chip — month 2
+> 6. Full ad banner rollout (Basics cards, vault, other permitted zones) — month 2
+> 7. Afterglow (memory recap) — month 3 (no trip has finished yet at launch)
+> 8. Basics hub (full, 3+ sections) — month 2+
+> 9. Wishlist, Polls, Scavenger Hunt, Notes, Vault — months 3–6
+> 10. Advanced permission toggles, traveler profile editor — post-launch
+> 11. Remaining 6 premium features (offline, currency converter, smart suggestions, templates, export, trip duplication) — months 3–6
+> 12. Native iOS/Android wrap — month 3–6 post-launch
+> 13. CRDTs / Yjs — only if last-write-wins breaks under real load
+>
+> **First-run onboarding:** sign up → trip-create first-run (skip Home on first login) → invite step featured as step 2, not step 4. Compresses the sign-up → invite-sent funnel where 80% of drop-off happens.
+>
+> **Three scope traps to watch:**
+> 1. Polishing the trip ball before expenses is screenshot-worthy
+> 2. Shipping Dream Mode at launch because it is "the viral engine" (no audience to go viral to yet)
+> 3. Shipping "small stubs" of Afterglow / Vault / Tools / Wishlist — stubs are worse than absence
+>
+> **Launch promise: "The group trip app that actually splits the bill."** Lead with the moat. Graduate to the brand tagline post-launch.
+>
+> Full rationale: DECISIONS.md entry *2026-04-21 — Launch-scope grill: 11 decisions locked (Public MVP = v1 launch).*
+
 > **2026-04-20 Naming Audit — see docs/NAMING.md**
 >
 > Canonical renames applied forward: Vacation Day → **Today** · Preplan / Preplan Hub → **Basics** · Tools Hub → **Tools** · Memory recap → **Afterglow** · Dashboard → **Home** · Premium (user-facing) → **Supporter** · In-progress (phase) → **Active**. Kept as-is: TripWave, Overview, Itinerary, Expenses, Packing, Travel Day, Budget, Invite, Wishlist, Polls, Scavenger Hunt, Dream Mode, Vault. Historical references in this file are not retroactively rewritten — NAMING.md is the source of truth for forward work.

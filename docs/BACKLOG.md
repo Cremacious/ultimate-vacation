@@ -6,6 +6,19 @@ Implementation sequencing rule (locked 2026-04-20): foundation first (ORM → DB
 
 ---
 
+## 🎯 2026-04-21 Launch-scope grill revisions (applies to build order below)
+
+- **Step 9 revised:** "Build Basics hub with budget section only" → **"Add inline budget field to trip Overview."** Basics hub cut entirely from spine — a hub with one section signals unfinished. Hub returns post-launch month 2+ when 3+ sections are ready. The Step-1 inventory below for "Preplanning hub" is **struck** for the launch line; Step-2 mockup work now targets Overview's budget field inline treatment only.
+- **Step 10 clarified:** "Travel Day checklist" = **static planning checklist + "Generate from trip" button only.** Focus mode, per-member view, skip semantics, auto-arrival are post-launch month 2.
+- **Public MVP (beyond beta) adds:** marketing landing page · Stripe Supporter sheet (1 feature: ad removal only) · ad banner on Home page only · Booking.com hotel affiliate chip on lodging itinerary items only · founder's pricing counter · legal stubs · 404/error pages · first-run onboarding that routes sign-up → trip-create → invite step (skip Home on first login).
+- **Explicitly NOT in launch:** Dream Mode, receipt scanning, Skyscanner/Viator chips, full ad zones, Travel Day focus mode, Basics hub full, Afterglow, Today, Tools, Vault, Wishlist, Polls, Notes, Scavenger Hunt, trip-ball modal, motion/animation polish, remaining 5 premium features.
+- **Non-organizer permissions at launch:** view + log expenses + check packing; itinerary edits gated to Trusted+ (degrades to view+expenses-only if role UI isn't ready in Chunk 4).
+- **Launch tagline: "The group trip app that actually splits the bill."**
+
+Full rationale: DECISIONS.md *2026-04-21 — Launch-scope grill: 11 decisions locked (Public MVP = v1 launch).*
+
+---
+
 ## 🎯 Canonical 12-step build order (locked 2026-04-20 — implementation-order grill)
 
 **Two rules that override everything:**
