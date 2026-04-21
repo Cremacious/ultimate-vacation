@@ -18,13 +18,14 @@ export async function acceptInviteAction(
   const code = String(formData.get("code") ?? "");
   if (!code) return { error: "Missing invite code." };
 
+  let result;
   try {
-    await acceptInviteByCode(user.id, code);
+    result = await acceptInviteByCode(user.id, code);
   } catch (err) {
     if (err instanceof InviteError) return { error: err.message };
     return { error: err instanceof Error ? err.message : "Could not accept invite." };
   }
 
   revalidatePath("/app");
-  redirect("/app");
+  redirect(`/app/trips/${result.tripId}`);
 }
