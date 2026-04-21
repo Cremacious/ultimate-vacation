@@ -1,59 +1,51 @@
 interface TripBallProps {
-  fillPct?: number;
   color?: string;
+  fillPct?: number;
   size?: number;
+  glow?: boolean;
   pulse?: boolean;
-  /** Background color of the inner circle cutout. Should match the surface the ball sits on. */
+  /** Background of inner donut cutout. Defaults to elevated-card. */
   surfaceColor?: string;
-  /** Color of the unfilled arc portion. Use a dark tone on dark surfaces. */
+  /** Color of the unfilled arc. Defaults to elevated-card. */
   emptyArcColor?: string;
+  className?: string;
 }
 
 export default function TripBall({
+  color = "#7C5CFF",
   fillPct = 0,
-  color = "#00A8CC",
-  size = 48,
-  pulse = true,
-  surfaceColor = "#ffffff",
-  emptyArcColor = "#E5E7EB",
+  size = 52,
+  glow = false,
+  pulse = false,
+  surfaceColor = "#15162A",
+  emptyArcColor = "#15162A",
+  className = "",
 }: TripBallProps) {
-  const deg = Math.min(360, (fillPct / 100) * 360);
-  const isEmpty = fillPct < 2;
+  const pct = Math.min(100, Math.max(0, fillPct));
+  const deg = (pct / 100) * 360;
+  const isEmpty = pct < 2;
+
+  const background = isEmpty
+    ? "transparent"
+    : pct >= 100
+    ? color
+    : `conic-gradient(${color} ${deg}deg, ${emptyArcColor} ${deg}deg)`;
+
+  const border = isEmpty ? `2px dashed ${color}` : "none";
+  const boxShadow = glow ? `0 0 28px ${color}50` : undefined;
 
   return (
     <div
-      className={pulse ? "animate-wave-pulse" : ""}
-      style={{ width: size, height: size, flexShrink: 0 }}
+      aria-hidden="true"
+      className={`relative rounded-full flex-shrink-0 ${pulse ? "animate-wave-pulse" : ""} ${className}`}
+      style={{ width: size, height: size, background, border, boxShadow }}
     >
-      <div
-        className="rounded-full relative"
-        style={{
-          width: size,
-          height: size,
-          background: isEmpty
-            ? "transparent"
-            : `conic-gradient(${color} ${deg}deg, ${emptyArcColor} ${deg}deg)`,
-          border: isEmpty ? `2px dashed ${color}` : "none",
-          boxShadow: fillPct > 80 ? `0 0 ${size / 2}px ${color}30` : undefined,
-        }}
-      >
-        {fillPct > 0 && fillPct < 100 && (
-          <div
-            className="absolute inset-[15%] rounded-full"
-            style={{ backgroundColor: surfaceColor }}
-          />
-        )}
-
-        {fillPct >= 40 && (
-          <div
-            className="absolute rounded-full"
-            style={{
-              inset: "20%",
-              background: `radial-gradient(circle at 60% 40%, transparent 55%, ${color}18 100%)`,
-            }}
-          />
-        )}
-      </div>
+      {pct > 0 && pct < 100 && (
+        <div
+          className="absolute rounded-full"
+          style={{ inset: "15%", backgroundColor: surfaceColor }}
+        />
+      )}
     </div>
   );
 }
