@@ -1,7 +1,8 @@
-import { eq, sql } from "drizzle-orm";
+import { and, eq, isNull, sql } from "drizzle-orm";
 
 import { db } from "@/lib/db";
-import { invites, tripMembers, trips } from "@/lib/db/schema";
+import { invites, tripMembers, trips, users } from "@/lib/db/schema";
+import { emitNotificationBulk } from "@/lib/notifications/emit";
 
 import { isTripMember } from "./permissions";
 
@@ -82,6 +83,40 @@ export async function acceptInviteByCode(
     userId,
     role: "member",
   });
+
+  // Notifications: notify organizers that a new member joined. Best-effort.
+  try {
+    const [joiner, organizers] = await Promise.all([
+      db.select({ name: users.name }).from(users).where(eq(users.id, userId)).limit(1),
+      db
+        .select({ userId: tripMembers.userId })
+        .from(tripMembers)
+        .where(
+          and(
+            eq(tripMembers.tripId, trip.id),
+            eq(tripMembers.role, "organizer"),
+            isNull(tripMembers.deletedAt)
+          )
+        ),
+    ]);
+    const notifyOrganizers = organizers.filter((o) => o.userId !== userId);
+    if (joiner[0] && notifyOrganizers.length > 0) {
+      await emitNotificationBulk(
+        notifyOrganizers.map((o) => ({
+          userId: o.userId,
+          tripId: trip.id,
+          type: "invite_accepted",
+          payload: {
+            joinerName: joiner[0].name,
+            joinerUserId: userId,
+            tripName: trip.name,
+          },
+        }))
+      );
+    }
+  } catch {
+    // swallow — notifications are non-critical
+  }
 
   // Best-effort usedCount bump; don't fail the accept if this update throws.
   try {

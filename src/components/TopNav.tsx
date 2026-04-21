@@ -2,8 +2,9 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Bell, List, X, User, CaretDown } from "@phosphor-icons/react";
+import { List, X, User, CaretDown } from "@phosphor-icons/react";
 import { useAppShell } from "./AppShellProvider";
+import NotificationBell from "./NotificationBell";
 
 interface TopNavProps {
   tripName?: string;
@@ -53,10 +54,7 @@ export default function TopNav({ tripName }: TopNavProps) {
 
       {/* Right side actions */}
       <div className="flex items-center gap-2">
-        <button className="relative w-9 h-9 rounded-full bg-[#2a2a2a] hover:bg-[#333333] flex items-center justify-center transition-colors">
-          <Bell size={18} weight="bold" className="text-white" />
-          <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-[#FF2D8B]" />
-        </button>
+        <NotificationBell />
 
         <Link href="/app/account">
           <div className="w-9 h-9 rounded-full bg-[#00A8CC] flex items-center justify-center hover:bg-[#0096b8] transition-colors">

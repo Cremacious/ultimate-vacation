@@ -2,8 +2,9 @@ import { and, eq, inArray, isNull } from "drizzle-orm";
 
 import { emit } from "@/lib/analytics/events";
 import { db } from "@/lib/db";
-import { expenseSplits, expenses, tripMembers } from "@/lib/db/schema";
+import { expenseSplits, expenses, tripMembers, users } from "@/lib/db/schema";
 import { isTripMember } from "@/lib/invites/permissions";
+import { emitNotificationBulk } from "@/lib/notifications/emit";
 
 import { computeEqualSplit } from "./split";
 
@@ -121,6 +122,35 @@ export async function createExpenseForTrip(
   } catch (err) {
     await db.delete(expenses).where(eq(expenses.id, expense.id));
     throw err;
+  }
+
+  // Notifications: emit expense_added to each non-payer participant. Best-effort.
+  try {
+    const nonPayerSplits = splits.filter((s) => s.userId !== payerId);
+    if (nonPayerSplits.length > 0) {
+      const [payer] = await db
+        .select({ name: users.name })
+        .from(users)
+        .where(eq(users.id, payerId))
+        .limit(1);
+      if (payer) {
+        await emitNotificationBulk(
+          nonPayerSplits.map((s) => ({
+            userId: s.userId,
+            tripId,
+            type: "expense_added",
+            payload: {
+              expenseId: expense.id,
+              payerName: payer.name,
+              description: desc,
+              shareAmountCents: s.amountCents,
+            },
+          }))
+        );
+      }
+    }
+  } catch {
+    // swallow — notifications are non-critical
   }
 
   // Analytics: emit funnel events. Failures are swallowed — the expense is
