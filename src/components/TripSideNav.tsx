@@ -100,21 +100,21 @@ export default function TripSideNav({
         <div
           className={`flex items-center gap-2.5 px-3 py-2 rounded-xl transition-all ${
             active
-              ? "bg-[#333333] border border-[#00A8CC]/25"
-              : "hover:bg-[#333333]/60"
+              ? "bg-[#2A2B45] border border-[#00E5FF]/25"
+              : "hover:bg-[#2A2B45]/60"
           }`}
         >
           <div
             className="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0"
-            style={{ backgroundColor: active ? phase.color : "#3a3a3a" }}
+            style={{ backgroundColor: active ? phase.color : "#2A2B45" }}
           >
-            <span style={{ color: active ? "white" : "#9CA3AF" }}>
+            <span style={{ color: active ? "white" : "rgba(255,255,255,0.4)" }}>
               {phase.icon}
             </span>
           </div>
           <span
             className={`text-sm truncate ${
-              active ? "font-bold text-white" : "font-semibold text-[#9CA3AF]"
+              active ? "font-bold text-white" : "font-semibold text-white/40"
             }`}
           >
             {phase.label}
@@ -146,7 +146,7 @@ export default function TripSideNav({
       <aside
         className={[
           "fixed top-14 left-0 bottom-0 z-50",
-          "bg-[#252525] border-r border-[#333333]",
+          "bg-[#15162A] border-r border-[#2A2B45]",
           "flex flex-col overflow-y-auto scrollbar-dark",
           "transition-transform duration-300 ease-in-out",
           // Mobile: 80vw wide, slide in/out
@@ -157,15 +157,15 @@ export default function TripSideNav({
         ].join(" ")}
       >
         {/* Trip header */}
-        <div className="px-4 py-4 border-b border-[#333333]">
+        <div className="px-4 py-4 border-b border-[#2A2B45]">
           <div className="flex items-center gap-3">
             <TripBall
               fillPct={fillPct}
               color={ballColor}
               size={40}
               pulse
-              surfaceColor="#252525"
-              emptyArcColor="#404040"
+              surfaceColor="#15162A"
+              emptyArcColor="#2A2B45"
             />
             <div className="min-w-0">
               <p
@@ -175,7 +175,7 @@ export default function TripSideNav({
                 {tripName}
               </p>
               {countdownLabel() && (
-                <p className="text-xs font-medium text-[#9CA3AF]">
+                <p className="text-xs font-medium text-white/40">
                   {countdownLabel()}
                 </p>
               )}
@@ -186,26 +186,26 @@ export default function TripSideNav({
         {/* Phase navigation */}
         <nav className="flex-1 px-2 py-3 space-y-0.5">
           {mainPhases.map(renderPhase)}
-          <div className="border-t border-[#333333] my-2" />
+          <div className="border-t border-[#2A2B45] my-2" />
           {extraPhases.map(renderPhase)}
         </nav>
 
         {/* Bottom: Members + Settings */}
-        <div className="px-2 py-3 border-t border-[#333333] space-y-0.5">
+        <div className="px-2 py-3 border-t border-[#2A2B45] space-y-0.5">
           <Link href={`${base}/settings/members`} onClick={closeSidebar}>
-            <div className="flex items-center gap-2.5 px-3 py-2 rounded-xl hover:bg-[#333333]/60 transition-colors">
-              <div className="w-6 h-6 rounded-full bg-[#3a3a3a] flex items-center justify-center flex-shrink-0">
-                <Users size={14} weight="fill" className="text-[#9CA3AF]" />
+            <div className="flex items-center gap-2.5 px-3 py-2 rounded-xl hover:bg-[#2A2B45]/60 transition-colors">
+              <div className="w-6 h-6 rounded-full bg-[#2A2B45] flex items-center justify-center flex-shrink-0">
+                <Users size={14} weight="fill" className="text-white/40" />
               </div>
-              <span className="text-sm font-semibold text-[#9CA3AF]">Members</span>
+              <span className="text-sm font-semibold text-white/40">Members</span>
             </div>
           </Link>
           <Link href={`${base}/settings`} onClick={closeSidebar}>
-            <div className="flex items-center gap-2.5 px-3 py-2 rounded-xl hover:bg-[#333333]/60 transition-colors">
-              <div className="w-6 h-6 rounded-full bg-[#3a3a3a] flex items-center justify-center flex-shrink-0">
-                <Gear size={14} weight="fill" className="text-[#9CA3AF]" />
+            <div className="flex items-center gap-2.5 px-3 py-2 rounded-xl hover:bg-[#2A2B45]/60 transition-colors">
+              <div className="w-6 h-6 rounded-full bg-[#2A2B45] flex items-center justify-center flex-shrink-0">
+                <Gear size={14} weight="fill" className="text-white/40" />
               </div>
-              <span className="text-sm font-semibold text-[#9CA3AF]">Settings</span>
+              <span className="text-sm font-semibold text-white/40">Settings</span>
             </div>
           </Link>
         </div>

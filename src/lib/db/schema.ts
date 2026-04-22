@@ -15,7 +15,7 @@ import {
 } from "drizzle-orm/pg-core";
 
 /**
- * TripWave spine schema — 14 tables (post migration 0001 / 2026-04-21).
+ * TripWave spine schema — 17 tables (post migration 0005 / polls).
  *
  * Canonical order:
  *   Auth       : users, sessions, accounts, verifications
@@ -461,6 +461,51 @@ export const packingItems = pgTable(
     deletedAt: timestamp("deleted_at", { withTimezone: true }),
   },
   (t) => [index("packing_items_trip_id_idx").on(t.tripId)]
+);
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Polls (group decision-making — migration 0005)
+// ─────────────────────────────────────────────────────────────────────────────
+
+export const polls = pgTable(
+  "polls",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    tripId: uuid("trip_id").notNull().references(() => trips.id, { onDelete: "cascade" }),
+    createdById: uuid("created_by_id").notNull().references(() => users.id, { onDelete: "restrict" }),
+    question: text("question").notNull(),
+    closedAt: timestamp("closed_at", { withTimezone: true }),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    deletedAt: timestamp("deleted_at", { withTimezone: true }),
+  },
+  (t) => [index("polls_trip_id_idx").on(t.tripId)]
+);
+
+export const pollOptions = pgTable(
+  "poll_options",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    pollId: uuid("poll_id").notNull().references(() => polls.id, { onDelete: "cascade" }),
+    text: text("text").notNull(),
+    position: integer("position").notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [index("poll_options_poll_id_idx").on(t.pollId)]
+);
+
+export const pollVotes = pgTable(
+  "poll_votes",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    pollId: uuid("poll_id").notNull().references(() => polls.id, { onDelete: "cascade" }),
+    optionId: uuid("option_id").notNull().references(() => pollOptions.id, { onDelete: "cascade" }),
+    userId: uuid("user_id").notNull().references(() => users.id, { onDelete: "restrict" }),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [
+    uniqueIndex("poll_votes_poll_user_unique").on(t.pollId, t.userId),
+    index("poll_votes_poll_id_idx").on(t.pollId),
+  ]
 );
 
 // ─────────────────────────────────────────────────────────────────────────────
