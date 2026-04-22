@@ -68,7 +68,6 @@ function NextUpHero({ trip }: { trip: TripListItem }) {
           <p className="text-sm font-semibold mt-1" style={{ color: trip.ballColor }}>
             {label}
           </p>
-          <p className="text-xs mt-0.5 text-white/50">0% planned</p>
         </div>
       </div>
     </Link>

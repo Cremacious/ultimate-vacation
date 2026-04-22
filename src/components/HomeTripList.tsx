@@ -35,6 +35,14 @@ function countdownLabel(trip: HomeTripItem): string {
   return "Completed";
 }
 
+function tripStatusSignal(trip: HomeTripItem): { label: string; color: string } | null {
+  if (trip.lifecycle === "vaulted") return { label: "Settled ✓", color: "#00C96B" };
+  if (trip.endDate && new Date(`${trip.endDate}T00:00:00Z`) < new Date()) {
+    return { label: "Settle up", color: "#FFD600" };
+  }
+  return null;
+}
+
 function isPast(trip: HomeTripItem): boolean {
   if (trip.lifecycle === "vaulted") return true;
   if (trip.lifecycle === "dreaming") return false;
@@ -52,6 +60,7 @@ function TripCard({
   const d = daysUntil(trip.startDate);
   const urgency = d !== null && d >= 0 && d <= 7;
   const past = isPast(trip);
+  const signal = tripStatusSignal(trip);
 
   return (
     <div className="relative">
@@ -75,15 +84,13 @@ function TripCard({
               {countdownLabel(trip)}
             </p>
           </div>
-          <div className="text-right flex-shrink-0">
-            <p
-              className="text-2xl font-semibold leading-none"
-              style={{ fontFamily: "var(--font-fredoka)", color: trip.ballColor }}
-            >
-              0%
-            </p>
-            <p className="text-xs text-white/50 mt-0.5">planned</p>
-          </div>
+          {signal && (
+            <div className="text-right flex-shrink-0">
+              <p className="text-xs font-black" style={{ color: signal.color }}>
+                {signal.label}
+              </p>
+            </div>
+          )}
           {/* Reserve space for duplicate button */}
           {past && <div className="w-11 h-11 flex-shrink-0" aria-hidden="true" />}
         </div>
