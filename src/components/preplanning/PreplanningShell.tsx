@@ -70,6 +70,7 @@ type SectionMeta = {
   id: SectionId;
   label: string;
   subtitle: string;
+  description: string;
   Icon: typeof Airplane;
   color: string;
 };
@@ -95,7 +96,7 @@ function PreplanningRail({
   onSelect: (id: SectionId) => void;
 }) {
   return (
-    <aside className="hidden w-[274px] shrink-0 border-r border-white/6 bg-[#242424] px-4 py-4 md:block">
+    <aside className="hidden min-h-[calc(100vh-68px-92px)] w-[274px] shrink-0 border-r border-white/6 bg-[#242424] px-4 py-4 md:block">
       <div className="space-y-2.5">
         {sections.map(({ id, label, subtitle, Icon, color }) => {
           const isActive = active === id;
@@ -529,32 +530,37 @@ export default function PreplanningShell({
   const prepTotal = initialChecklist.length;
 
   const sections = useMemo<SectionMeta[]>(() => [
-    { id: "group", label: "Group", subtitle: "4 travelers added", Icon: Users, color: "#14bfe8" },
-    { id: "travel", label: "Travel", subtitle: travelCount === 0 ? "0 flights entered" : `${travelCount} flights entered`, Icon: Airplane, color: "#ff980f" },
-    { id: "lodging", label: "Lodging", subtitle: staysCount === 0 ? "0 stays added" : `1 of ${Math.max(staysCount, 2)} stays confirmed`, Icon: House, color: "#ff980f" },
-    { id: "budget", label: "Budget", subtitle: "Budget set · 8 categories", Icon: CurrencyDollar, color: "#ff980f" },
-    { id: "destinations", label: "Destinations", subtitle: "3 stops · 12 days planned", Icon: MapPin, color: "#ff980f" },
-    { id: "documents", label: "Documents", subtitle: "6 of 8 confirmed", Icon: FileText, color: "#ff980f" },
-    { id: "vibe", label: "Trip Vibe", subtitle: "2 vibes · Balanced pace", Icon: Sparkle, color: "#ff980f" },
-    { id: "departure", label: "Pre-Departure", subtitle: prepTotal === 0 ? "0 of 18 tasks done" : `${prepDone} of ${prepTotal} tasks done`, Icon: Checks, color: "#ff980f" },
+    { id: "group", label: "Group", subtitle: "4 travelers added", description: "Who&apos;s coming, roles, and the crew shape for this trip.", Icon: Users, color: "#14bfe8" },
+    { id: "travel", label: "Travel", subtitle: travelCount === 0 ? "0 flights entered" : `${travelCount} flights entered`, description: "How you&apos;re getting there, timing, and all booked transport.", Icon: Airplane, color: "#ff980f" },
+    { id: "lodging", label: "Lodging", subtitle: staysCount === 0 ? "0 stays added" : `1 of ${Math.max(staysCount, 2)} stays confirmed`, description: "Where everyone&apos;s staying, check-in dates, and booking details.", Icon: House, color: "#ff980f" },
+    { id: "budget", label: "Budget", subtitle: "Budget set · 8 categories", description: "Costs, guardrails, and what the group is trying not to accidentally torch.", Icon: CurrencyDollar, color: "#ff980f" },
+    { id: "destinations", label: "Destinations", subtitle: "3 stops · 12 days planned", description: "Stops, rough route, and how the overall trip takes shape.", Icon: MapPin, color: "#ff980f" },
+    { id: "documents", label: "Documents", subtitle: "6 of 8 confirmed", description: "Important notes, confirmations, and anything the group needs access to.", Icon: FileText, color: "#ff980f" },
+    { id: "vibe", label: "Trip Vibe", subtitle: "2 vibes · Balanced pace", description: "The feel of the trip, priorities, and what kind of chaos is acceptable.", Icon: Sparkle, color: "#ff980f" },
+    { id: "departure", label: "Pre-Departure", subtitle: prepTotal === 0 ? "0 of 18 tasks done" : `${prepDone} of ${prepTotal} tasks done`, description: "The last checks before you leave, so nothing stupid gets forgotten.", Icon: Checks, color: "#ff980f" },
   ], [prepDone, prepTotal, staysCount, travelCount]);
+
+  const activeSection = sections.find((section) => section.id === active) ?? sections[0];
 
   const sectionsDone = Number(staysCount > 0) + Number(travelCount > 0);
   const inProgress = Math.max(0, sections.length - sectionsDone);
   const overall = Math.round(((travelCount > 0 ? 1 : 0) + (staysCount > 0 ? 1 : 0) + (prepTotal > 0 ? prepDone / Math.max(prepTotal, 1) : 0)) / 3 * 100);
 
   return (
-    <div className="overflow-hidden rounded-[0px] border border-white/6 bg-[#4b4b4b] md:rounded-[24px]">
+    <div className="bg-[#4b4b4b]">
       <PreplanningTabs sections={sections} active={active} onSelect={setActive} />
+
+      <div className="border-b border-white/6 bg-[#1f1f1f] px-5 py-5 md:px-8">
+        <h2 className="text-[2rem] font-semibold leading-none text-white" style={{ fontFamily: "var(--font-fredoka)" }}>
+          {activeSection.label}
+        </h2>
+        <p className="mt-2 max-w-2xl text-sm text-white/72">{activeSection.description}</p>
+      </div>
+
       <div className="grid grid-cols-1 md:grid-cols-[274px_minmax(0,1fr)]">
         <PreplanningRail sections={sections} active={active} onSelect={setActive} />
 
-        <div className="min-w-0 bg-[#4b4b4b]">
-          <div className="border-b border-white/6 bg-[#1f1f1f] px-5 py-5 md:px-8">
-            <h2 className="text-[2rem] font-semibold leading-none text-white" style={{ fontFamily: "var(--font-fredoka)" }}>Preplanning</h2>
-            <p className="mt-2 max-w-2xl text-sm text-white/72">How you&apos;re getting there, where you&apos;re staying, plus anything the group should know before you leave.</p>
-          </div>
-
+        <div className="min-h-[calc(100vh-68px-92px)] min-w-0 bg-[#4b4b4b]">
           <div className="space-y-5 px-5 py-5 md:px-8 md:py-6">
             <div className="grid gap-4 lg:grid-cols-3">
               <MetricBox label="Sections Done" value={String(sectionsDone)} color="#00d26a" />
@@ -562,7 +568,7 @@ export default function PreplanningShell({
               <MetricBox label="Overall" value={`${overall}%`} color="#14bfe8" />
             </div>
 
-            <div className="min-h-[520px] rounded-[0px] bg-transparent md:rounded-[20px]">
+            <div className="min-h-[520px] bg-transparent">
               {active === "group" && <ComingSoonPanel title="Group" accent="#14bfe8" body="4 travelers added" />}
               {active === "travel" && <TravelSection flights={flights} transports={transports} createFlightAction={createFlightAction} updateFlightAction={updateFlightAction} deleteFlightAction={deleteFlightAction} createTransportAction={createTransportAction} updateTransportAction={updateTransportAction} deleteTransportAction={deleteTransportAction} />}
               {active === "lodging" && <StaysSection lodgings={lodgings} createAction={createStayAction} updateAction={updateStayAction} deleteAction={deleteStayAction} />}
