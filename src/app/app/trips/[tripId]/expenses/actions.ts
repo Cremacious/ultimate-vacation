@@ -41,5 +41,6 @@ export async function createExpenseAction(
   }
 
   revalidatePath(`/app/trips/${tripId}/expenses`);
+  revalidatePath(`/app/trips/${tripId}`);
   return { ok: true };
 }

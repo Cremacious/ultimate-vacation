@@ -27,5 +27,6 @@ export async function acceptInviteAction(
   }
 
   revalidatePath("/app");
+  revalidatePath(`/app/trips/${result.tripId}`);
   redirect(`/app/trips/${result.tripId}`);
 }

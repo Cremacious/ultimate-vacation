@@ -7,6 +7,7 @@ import { requireUser } from "@/lib/auth/session";
 import { db } from "@/lib/db";
 import { pollOptions, polls, pollVotes, tripMembers, users } from "@/lib/db/schema";
 import { isTripMember, isTripOrganizer } from "@/lib/invites/permissions";
+import { isTripVaulted } from "@/lib/trips/queries";
 import { emitNotificationBulk } from "@/lib/notifications/emit";
 
 export type CreatePollState = { error?: string; ok?: boolean };
@@ -19,6 +20,7 @@ export async function createPollAction(
   const user = await requireUser();
   const member = await isTripMember(user.id, tripId);
   if (!member) return { error: "You must be a trip member to create a poll." };
+  if (await isTripVaulted(tripId)) return { error: "This trip is settled." };
 
   const question = (formData.get("question") as string | null)?.trim() ?? "";
   if (!question) return { error: "A question is required." };
@@ -69,6 +71,7 @@ export async function createPollAction(
   }
 
   revalidatePath(`/app/trips/${tripId}/polls`);
+  revalidatePath(`/app/trips/${tripId}`);
   return { ok: true };
 }
 
@@ -80,6 +83,7 @@ export async function voteAction(
   const user = await requireUser();
   const member = await isTripMember(user.id, tripId);
   if (!member) return { ok: false, error: "Not a trip member." };
+  if (await isTripVaulted(tripId)) return { ok: false, error: "This trip is settled." };
 
   const [poll] = await db
     .select({ closedAt: polls.closedAt, tripId: polls.tripId })
@@ -107,6 +111,7 @@ export async function voteAction(
     });
 
   revalidatePath(`/app/trips/${tripId}/polls`);
+  revalidatePath(`/app/trips/${tripId}`);
   return { ok: true };
 }
 
@@ -117,6 +122,7 @@ export async function closePollAction(
   const user = await requireUser();
   const member = await isTripMember(user.id, tripId);
   if (!member) return;
+  if (await isTripVaulted(tripId)) return;
 
   const pollId = (formData.get("pollId") as string | null) ?? "";
   if (!pollId) return;
@@ -135,6 +141,7 @@ export async function closePollAction(
   await db.update(polls).set({ closedAt: new Date() }).where(eq(polls.id, pollId));
 
   revalidatePath(`/app/trips/${tripId}/polls`);
+  revalidatePath(`/app/trips/${tripId}`);
 }
 
 export async function deletePollAction(
@@ -144,6 +151,7 @@ export async function deletePollAction(
   const user = await requireUser();
   const member = await isTripMember(user.id, tripId);
   if (!member) return;
+  if (await isTripVaulted(tripId)) return;
 
   const pollId = (formData.get("pollId") as string | null) ?? "";
   if (!pollId) return;
@@ -162,4 +170,5 @@ export async function deletePollAction(
   await db.update(polls).set({ deletedAt: new Date() }).where(eq(polls.id, pollId));
 
   revalidatePath(`/app/trips/${tripId}/polls`);
+  revalidatePath(`/app/trips/${tripId}`);
 }

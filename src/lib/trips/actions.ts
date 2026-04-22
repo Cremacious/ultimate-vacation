@@ -174,5 +174,6 @@ export async function updateTripAction(
     .where(eq(trips.id, tripId));
 
   revalidatePath(`/app/trips/${tripId}/setup`);
+  revalidatePath(`/app/trips/${tripId}`);
   redirect(`/app/trips/${tripId}/setup`);
 }

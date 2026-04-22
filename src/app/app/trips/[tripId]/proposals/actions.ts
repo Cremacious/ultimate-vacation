@@ -7,6 +7,7 @@ import { requireUser } from "@/lib/auth/session";
 import { db } from "@/lib/db";
 import { proposalUpvotes, proposals, tripMembers, users } from "@/lib/db/schema";
 import { isTripMember, isTripOrganizer } from "@/lib/invites/permissions";
+import { isTripVaulted } from "@/lib/trips/queries";
 import { emitNotificationBulk } from "@/lib/notifications/emit";
 
 export type CreateProposalState = { error?: string; ok?: boolean };
@@ -19,6 +20,7 @@ export async function createProposalAction(
   const user = await requireUser();
   const member = await isTripMember(user.id, tripId);
   if (!member) return { error: "You must be a trip member to add a proposal." };
+  if (await isTripVaulted(tripId)) return { error: "This trip is settled." };
 
   const title = (formData.get("title") as string | null)?.trim() ?? "";
   if (!title) return { error: "A title is required." };
@@ -56,6 +58,7 @@ export async function createProposalAction(
   }
 
   revalidatePath(`/app/trips/${tripId}/proposals`);
+  revalidatePath(`/app/trips/${tripId}`);
   return { ok: true };
 }
 
@@ -66,6 +69,9 @@ export async function toggleUpvoteAction(
   const user = await requireUser();
   const member = await isTripMember(user.id, tripId);
   if (!member) return { ok: false, hasUpvoted: false, error: "Not a trip member." };
+  if (await isTripVaulted(tripId)) {
+    return { ok: false, hasUpvoted: false, error: "This trip is settled." };
+  }
 
   const [proposal] = await db
     .select({ tripId: proposals.tripId })
@@ -98,10 +104,12 @@ export async function toggleUpvoteAction(
         ),
       );
     revalidatePath(`/app/trips/${tripId}/proposals`);
+    revalidatePath(`/app/trips/${tripId}`);
     return { ok: true, hasUpvoted: false };
   } else {
     await db.insert(proposalUpvotes).values({ proposalId, userId: user.id });
     revalidatePath(`/app/trips/${tripId}/proposals`);
+    revalidatePath(`/app/trips/${tripId}`);
     return { ok: true, hasUpvoted: true };
   }
 }
@@ -113,6 +121,7 @@ export async function deleteProposalAction(
   const user = await requireUser();
   const member = await isTripMember(user.id, tripId);
   if (!member) return;
+  if (await isTripVaulted(tripId)) return;
 
   const proposalId = (formData.get("proposalId") as string | null) ?? "";
   if (!proposalId) return;
@@ -131,4 +140,5 @@ export async function deleteProposalAction(
   await db.update(proposals).set({ deletedAt: new Date() }).where(eq(proposals.id, proposalId));
 
   revalidatePath(`/app/trips/${tripId}/proposals`);
+  revalidatePath(`/app/trips/${tripId}`);
 }

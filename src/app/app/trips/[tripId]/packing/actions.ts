@@ -7,6 +7,7 @@ import { requireUser } from "@/lib/auth/session";
 import { db } from "@/lib/db";
 import { packingItems } from "@/lib/db/schema";
 import { isTripMember } from "@/lib/invites/permissions";
+import { isTripVaulted } from "@/lib/trips/queries";
 
 export type PackingFormState = { error?: string };
 
@@ -18,6 +19,7 @@ export async function addPackingItemAction(
   const user = await requireUser();
   const member = await isTripMember(user.id, tripId);
   if (!member) return { error: "You must be a trip member to add items." };
+  if (await isTripVaulted(tripId)) return { error: "This trip is settled." };
 
   const text = (formData.get("text") as string | null)?.trim() ?? "";
   if (!text) return { error: "Item text is required." };
@@ -36,6 +38,7 @@ export async function togglePackingItemAction(
   const user = await requireUser();
   const member = await isTripMember(user.id, tripId);
   if (!member) return;
+  if (await isTripVaulted(tripId)) return;
 
   const itemId = (formData.get("itemId") as string | null) ?? "";
   if (!itemId) return;
@@ -68,6 +71,7 @@ export async function deletePackingItemAction(
   const user = await requireUser();
   const member = await isTripMember(user.id, tripId);
   if (!member) return;
+  if (await isTripVaulted(tripId)) return;
 
   const itemId = (formData.get("itemId") as string | null) ?? "";
   if (!itemId) return;

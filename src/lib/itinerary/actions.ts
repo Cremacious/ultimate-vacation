@@ -104,6 +104,7 @@ export async function createEventAction(
   }
 
   revalidatePath(`/app/trips/${tripId}/itinerary`);
+  revalidatePath(`/app/trips/${tripId}`);
   return { ok: true };
 }
 
@@ -154,6 +155,7 @@ export async function updateEventAction(
       .where(eq(itineraryEvents.id, eventId));
 
     revalidatePath(`/app/trips/${tripId}/itinerary`);
+    revalidatePath(`/app/trips/${tripId}`);
     return { ok: true, conflict, conflictEventTitle };
   } catch (err) {
     return { error: err instanceof Error ? err.message : "Could not update event." };
@@ -186,5 +188,6 @@ export async function deleteEventAction(
   }
 
   revalidatePath(`/app/trips/${tripId}/itinerary`);
+  revalidatePath(`/app/trips/${tripId}`);
   return { ok: true };
 }
