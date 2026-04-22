@@ -1,7 +1,7 @@
 "use client";
 
-import { useActionState, useEffect, useState, useTransition } from "react";
-import { Trash, PencilSimple, Plus, Link as LinkIcon } from "@phosphor-icons/react";
+import { useActionState, useState, useTransition } from "react";
+import { Trash, PencilSimple, Plus, Link as LinkIcon, Airplane, House, Checks, Note } from "@phosphor-icons/react";
 
 import type { ChecklistItem, Lodging, TripFlight, TripTransport } from "@/lib/preplanning/queries";
 import type {
@@ -43,8 +43,8 @@ export interface PreplanningShellProps {
 // ── Shared form constants ────────────────────────────────────────────────────
 
 const INPUT_CLASS =
-  "w-full rounded-xl px-3 py-2 text-sm bg-[#15162A] border border-[#2A2B45] text-white placeholder:text-white/30 focus:outline-none focus:border-[#00E5FF] transition-colors";
-const LABEL_CLASS = "text-[11px] font-black uppercase tracking-wide text-white/40 mb-1";
+  "w-full rounded-xl px-4 py-3 text-base bg-[#1D1E36] border border-[#2A2B45] text-white placeholder:text-white/40 focus:outline-none focus:border-[#00E5FF] focus:ring-1 focus:ring-[#00E5FF]/20 transition-colors";
+const LABEL_CLASS = "text-[13px] font-black uppercase tracking-wide text-white/60 mb-1.5";
 
 // ── Flights section ──────────────────────────────────────────────────────────
 
@@ -174,7 +174,7 @@ function AddFlightForm({
   }
 
   return (
-    <form action={formAction} className="rounded-2xl border border-[#2A2B45] p-4 bg-[#15162A]/40">
+    <form action={formAction} className="rounded-2xl border border-[#2A2B45] p-5 bg-[#15162A]">
       <FlightFormFields />
       {state.error && (
         <p role="alert" className="mt-3 text-sm font-semibold" style={{ color: "#FF3DA7" }}>
@@ -193,7 +193,7 @@ function AddFlightForm({
         <button
           type="button"
           onClick={onDone}
-          className="text-sm font-semibold text-white/50 hover:text-white/80 transition-colors px-3 py-2"
+          className="text-sm font-semibold text-white/65 hover:text-white/90 transition-colors px-3 py-2"
         >
           Cancel
         </button>
@@ -221,7 +221,7 @@ function FlightCard({
 
   if (editing) {
     return (
-      <form action={formAction} className="rounded-2xl border border-[#2A2B45] p-4 bg-[#15162A]/40">
+      <form action={formAction} className="rounded-2xl border border-[#2A2B45] p-5 bg-[#15162A]">
         <input type="hidden" name="id" value={flight.id} />
         <FlightFormFields initial={flight} />
         {state.error && (
@@ -241,7 +241,7 @@ function FlightCard({
           <button
             type="button"
             onClick={() => setEditing(false)}
-            className="text-sm font-semibold text-white/50 hover:text-white/80 transition-colors px-3 py-2"
+            className="text-sm font-semibold text-white/65 hover:text-white/90 transition-colors px-3 py-2"
           >
             Cancel
           </button>
@@ -254,18 +254,18 @@ function FlightCard({
   const meta = formatFlightMeta(flight);
 
   return (
-    <article className="rounded-2xl border border-[#2A2B45] p-4 bg-[#15162A]/40 flex flex-col gap-2">
+    <article className="rounded-2xl border border-[#2A2B45] p-5 bg-[#15162A] flex flex-col gap-2">
       <header className="flex items-start justify-between gap-3">
         <div className="min-w-0">
-          <h3 className="text-base font-semibold text-white truncate">{header}</h3>
-          {meta && <p className="text-xs text-white/55 mt-0.5">{meta}</p>}
+          <h3 className="text-lg font-semibold text-white truncate">{header}</h3>
+          {meta && <p className="text-sm text-white/70 mt-0.5">{meta}</p>}
         </div>
         <div className="flex items-center gap-1 shrink-0">
           <button
             type="button"
             aria-label="Edit flight"
             onClick={() => setEditing(true)}
-            className="p-1.5 rounded-md text-white/45 hover:text-white hover:bg-white/[0.06] transition-colors"
+            className="p-1.5 rounded-md text-white/60 hover:text-white hover:bg-white/[0.08] transition-colors"
           >
             <PencilSimple size={14} weight="bold" />
           </button>
@@ -278,7 +278,7 @@ function FlightCard({
               type="submit"
               aria-label="Delete flight"
               disabled={isDeleting}
-              className="p-1.5 rounded-md text-white/45 hover:text-[#FF3DA7] hover:bg-white/[0.06] transition-colors disabled:opacity-40"
+              className="p-1.5 rounded-md text-white/60 hover:text-[#FF3DA7] hover:bg-white/[0.08] transition-colors disabled:opacity-40"
             >
               <Trash size={14} weight="bold" />
             </button>
@@ -287,9 +287,9 @@ function FlightCard({
       </header>
 
       {(flight.confirmationCode || flight.bookingUrl) && (
-        <div className="flex flex-wrap items-center gap-2 text-xs">
+        <div className="flex flex-wrap items-center gap-2 text-sm">
           {flight.confirmationCode && (
-            <span className="rounded-full px-2.5 py-1 bg-white/[0.05] text-white/70 font-semibold">
+            <span className="rounded-full px-3 py-1 bg-white/[0.08] text-white font-semibold">
               Conf: {flight.confirmationCode}
             </span>
           )}
@@ -298,7 +298,7 @@ function FlightCard({
               href={flight.bookingUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-1 rounded-full px-2.5 py-1 bg-white/[0.05] text-[#00E5FF] font-semibold hover:brightness-110"
+              className="inline-flex items-center gap-1.5 rounded-full px-3 py-1 bg-[#00E5FF]/10 text-[#00E5FF] font-semibold hover:brightness-110"
             >
               <LinkIcon size={10} weight="bold" />
               Booking
@@ -308,7 +308,7 @@ function FlightCard({
       )}
 
       {flight.notes && (
-        <p className="text-sm text-white/60 whitespace-pre-wrap">{flight.notes}</p>
+        <p className="text-sm text-white/80 whitespace-pre-wrap">{flight.notes}</p>
       )}
     </article>
   );
@@ -331,7 +331,7 @@ function FlightsSection({
     <section aria-label="Flights" className="flex flex-col gap-3">
       <header className="flex items-center justify-between">
         <h2
-          className="text-lg font-semibold text-white"
+          className="text-xl font-semibold text-white"
           style={{ fontFamily: "var(--font-fredoka)" }}
         >
           Flights
@@ -340,7 +340,7 @@ function FlightsSection({
           <button
             type="button"
             onClick={() => setAdding(true)}
-            className="inline-flex items-center gap-1.5 text-sm font-semibold rounded-full px-3 py-1.5 hover:brightness-110 transition"
+            className="inline-flex items-center gap-1.5 text-sm font-bold rounded-full px-4 py-2 hover:brightness-110 transition"
             style={{ backgroundColor: "#00E5FF", color: "#0A0A12" }}
           >
             <Plus size={12} weight="bold" />
@@ -354,9 +354,9 @@ function FlightsSection({
           className="rounded-2xl border border-[#2A2B45] px-6 py-10 text-center"
           style={{ backgroundColor: "#15162A" }}
         >
-          <p className="text-sm text-white/50">No flights yet.</p>
-          <p className="text-xs text-white/30 mt-1">
-            Add your confirmation codes so the group knows how everyone is getting there.
+          <p className="text-base font-semibold text-white/80">No flights added yet.</p>
+          <p className="text-sm text-white/55 mt-1.5">
+            Drop in your flights and the whole group knows the drill.
           </p>
         </div>
       )}
@@ -516,7 +516,7 @@ function AddTransportForm({
   }
 
   return (
-    <form action={formAction} className="rounded-2xl border border-[#2A2B45] p-4 bg-[#15162A]/40">
+    <form action={formAction} className="rounded-2xl border border-[#2A2B45] p-5 bg-[#15162A]">
       <TransportFormFields />
       {state.error && (
         <p role="alert" className="mt-3 text-sm font-semibold" style={{ color: "#FF3DA7" }}>
@@ -535,7 +535,7 @@ function AddTransportForm({
         <button
           type="button"
           onClick={onDone}
-          className="text-sm font-semibold text-white/50 hover:text-white/80 transition-colors px-3 py-2"
+          className="text-sm font-semibold text-white/65 hover:text-white/90 transition-colors px-3 py-2"
         >
           Cancel
         </button>
@@ -563,7 +563,7 @@ function TransportCard({
 
   if (editing) {
     return (
-      <form action={formAction} className="rounded-2xl border border-[#2A2B45] p-4 bg-[#15162A]/40">
+      <form action={formAction} className="rounded-2xl border border-[#2A2B45] p-5 bg-[#15162A]">
         <input type="hidden" name="id" value={transport.id} />
         <TransportFormFields initial={transport} />
         {state.error && (
@@ -583,7 +583,7 @@ function TransportCard({
           <button
             type="button"
             onClick={() => setEditing(false)}
-            className="text-sm font-semibold text-white/50 hover:text-white/80 transition-colors px-3 py-2"
+            className="text-sm font-semibold text-white/65 hover:text-white/90 transition-colors px-3 py-2"
           >
             Cancel
           </button>
@@ -596,18 +596,18 @@ function TransportCard({
   const meta = formatTransportMeta(transport);
 
   return (
-    <article className="rounded-2xl border border-[#2A2B45] p-4 bg-[#15162A]/40 flex flex-col gap-2">
+    <article className="rounded-2xl border border-[#2A2B45] p-5 bg-[#15162A] flex flex-col gap-2">
       <header className="flex items-start justify-between gap-3">
         <div className="min-w-0">
-          <h3 className="text-base font-semibold text-white truncate">{header}</h3>
-          {meta && <p className="text-xs text-white/55 mt-0.5">{meta}</p>}
+          <h3 className="text-lg font-semibold text-white truncate">{header}</h3>
+          {meta && <p className="text-sm text-white/70 mt-0.5">{meta}</p>}
         </div>
         <div className="flex items-center gap-1 shrink-0">
           <button
             type="button"
             aria-label="Edit transport"
             onClick={() => setEditing(true)}
-            className="p-1.5 rounded-md text-white/45 hover:text-white hover:bg-white/[0.06] transition-colors"
+            className="p-1.5 rounded-md text-white/60 hover:text-white hover:bg-white/[0.08] transition-colors"
           >
             <PencilSimple size={14} weight="bold" />
           </button>
@@ -620,7 +620,7 @@ function TransportCard({
               type="submit"
               aria-label="Delete transport"
               disabled={isDeleting}
-              className="p-1.5 rounded-md text-white/45 hover:text-[#FF3DA7] hover:bg-white/[0.06] transition-colors disabled:opacity-40"
+              className="p-1.5 rounded-md text-white/60 hover:text-[#FF3DA7] hover:bg-white/[0.08] transition-colors disabled:opacity-40"
             >
               <Trash size={14} weight="bold" />
             </button>
@@ -629,9 +629,9 @@ function TransportCard({
       </header>
 
       {(transport.confirmationCode || transport.bookingUrl) && (
-        <div className="flex flex-wrap items-center gap-2 text-xs">
+        <div className="flex flex-wrap items-center gap-2 text-sm">
           {transport.confirmationCode && (
-            <span className="rounded-full px-2.5 py-1 bg-white/[0.05] text-white/70 font-semibold">
+            <span className="rounded-full px-3 py-1 bg-white/[0.08] text-white font-semibold">
               Conf: {transport.confirmationCode}
             </span>
           )}
@@ -640,7 +640,7 @@ function TransportCard({
               href={transport.bookingUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-1 rounded-full px-2.5 py-1 bg-white/[0.05] text-[#00E5FF] font-semibold hover:brightness-110"
+              className="inline-flex items-center gap-1.5 rounded-full px-3 py-1 bg-[#00E5FF]/10 text-[#00E5FF] font-semibold hover:brightness-110"
             >
               <LinkIcon size={10} weight="bold" />
               Booking
@@ -650,7 +650,7 @@ function TransportCard({
       )}
 
       {transport.notes && (
-        <p className="text-sm text-white/60 whitespace-pre-wrap">{transport.notes}</p>
+        <p className="text-sm text-white/80 whitespace-pre-wrap">{transport.notes}</p>
       )}
     </article>
   );
@@ -673,7 +673,7 @@ function TransportSection({
     <section aria-label="Transport" className="flex flex-col gap-3">
       <header className="flex items-center justify-between">
         <h2
-          className="text-lg font-semibold text-white"
+          className="text-xl font-semibold text-white"
           style={{ fontFamily: "var(--font-fredoka)" }}
         >
           Transport
@@ -682,7 +682,7 @@ function TransportSection({
           <button
             type="button"
             onClick={() => setAdding(true)}
-            className="inline-flex items-center gap-1.5 text-sm font-semibold rounded-full px-3 py-1.5 hover:brightness-110 transition"
+            className="inline-flex items-center gap-1.5 text-sm font-bold rounded-full px-4 py-2 hover:brightness-110 transition"
             style={{ backgroundColor: "#00E5FF", color: "#0A0A12" }}
           >
             <Plus size={12} weight="bold" />
@@ -696,9 +696,9 @@ function TransportSection({
           className="rounded-2xl border border-[#2A2B45] px-6 py-10 text-center"
           style={{ backgroundColor: "#15162A" }}
         >
-          <p className="text-sm text-white/50">No transport yet.</p>
-          <p className="text-xs text-white/30 mt-1">
-            Add rental cars, trains, shuttles — anything that needs a confirmation.
+          <p className="text-base font-semibold text-white/80">No transport booked yet.</p>
+          <p className="text-sm text-white/55 mt-1.5">
+            Rental cars, trains, shuttles — if it needs a confirmation number, it belongs here.
           </p>
         </div>
       )}
@@ -824,7 +824,7 @@ function AddStayForm({
   }
 
   return (
-    <form action={formAction} className="rounded-2xl border border-[#2A2B45] p-4 bg-[#15162A]/40">
+    <form action={formAction} className="rounded-2xl border border-[#2A2B45] p-5 bg-[#15162A]">
       <LodgingFormFields />
       {state.error && (
         <p role="alert" className="mt-3 text-sm font-semibold" style={{ color: "#FF3DA7" }}>
@@ -843,7 +843,7 @@ function AddStayForm({
         <button
           type="button"
           onClick={onDone}
-          className="text-sm font-semibold text-white/50 hover:text-white/80 transition-colors px-3 py-2"
+          className="text-sm font-semibold text-white/65 hover:text-white/90 transition-colors px-3 py-2"
         >
           Cancel
         </button>
@@ -871,7 +871,7 @@ function StayCard({
 
   if (editing) {
     return (
-      <form action={formAction} className="rounded-2xl border border-[#2A2B45] p-4 bg-[#15162A]/40">
+      <form action={formAction} className="rounded-2xl border border-[#2A2B45] p-5 bg-[#15162A]">
         <input type="hidden" name="id" value={stay.id} />
         <LodgingFormFields initial={stay} />
         {state.error && (
@@ -891,7 +891,7 @@ function StayCard({
           <button
             type="button"
             onClick={() => setEditing(false)}
-            className="text-sm font-semibold text-white/50 hover:text-white/80 transition-colors px-3 py-2"
+            className="text-sm font-semibold text-white/65 hover:text-white/90 transition-colors px-3 py-2"
           >
             Cancel
           </button>
@@ -903,15 +903,15 @@ function StayCard({
   const nights = computeNights(stay.checkInDate, stay.checkOutDate);
 
   return (
-    <article className="rounded-2xl border border-[#2A2B45] p-4 bg-[#15162A]/40 flex flex-col gap-2">
+    <article className="rounded-2xl border border-[#2A2B45] p-5 bg-[#15162A] flex flex-col gap-2">
       <header className="flex items-start justify-between gap-3">
         <div className="min-w-0">
-          <h3 className="text-base font-semibold text-white truncate">{stay.name}</h3>
+          <h3 className="text-lg font-semibold text-white truncate">{stay.name}</h3>
           {(stay.checkInDate || stay.checkOutDate) && (
-            <p className="text-xs text-white/55 mt-0.5">
+            <p className="text-sm text-white/70 mt-0.5">
               {formatDateRange(stay.checkInDate, stay.checkOutDate)}
               {nights !== null && (
-                <span className="text-white/35">
+                <span className="text-white/55">
                   {" · "}
                   {nights} {nights === 1 ? "night" : "nights"}
                 </span>
@@ -924,7 +924,7 @@ function StayCard({
             type="button"
             aria-label="Edit stay"
             onClick={() => setEditing(true)}
-            className="p-1.5 rounded-md text-white/45 hover:text-white hover:bg-white/[0.06] transition-colors"
+            className="p-1.5 rounded-md text-white/60 hover:text-white hover:bg-white/[0.08] transition-colors"
           >
             <PencilSimple size={14} weight="bold" />
           </button>
@@ -937,7 +937,7 @@ function StayCard({
               type="submit"
               aria-label="Delete stay"
               disabled={isDeleting}
-              className="p-1.5 rounded-md text-white/45 hover:text-[#FF3DA7] hover:bg-white/[0.06] transition-colors disabled:opacity-40"
+              className="p-1.5 rounded-md text-white/60 hover:text-[#FF3DA7] hover:bg-white/[0.08] transition-colors disabled:opacity-40"
             >
               <Trash size={14} weight="bold" />
             </button>
@@ -945,12 +945,12 @@ function StayCard({
         </div>
       </header>
 
-      {stay.address && <p className="text-sm text-white/70">{stay.address}</p>}
+      {stay.address && <p className="text-sm text-white/80">{stay.address}</p>}
 
       {(stay.confirmationNumber || stay.bookingUrl) && (
-        <div className="flex flex-wrap items-center gap-2 text-xs">
+        <div className="flex flex-wrap items-center gap-2 text-sm">
           {stay.confirmationNumber && (
-            <span className="rounded-full px-2.5 py-1 bg-white/[0.05] text-white/70 font-semibold">
+            <span className="rounded-full px-3 py-1 bg-white/[0.08] text-white font-semibold">
               Conf: {stay.confirmationNumber}
             </span>
           )}
@@ -959,7 +959,7 @@ function StayCard({
               href={stay.bookingUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-1 rounded-full px-2.5 py-1 bg-white/[0.05] text-[#00E5FF] font-semibold hover:brightness-110"
+              className="inline-flex items-center gap-1.5 rounded-full px-3 py-1 bg-[#00E5FF]/10 text-[#00E5FF] font-semibold hover:brightness-110"
             >
               <LinkIcon size={10} weight="bold" />
               Booking
@@ -969,7 +969,7 @@ function StayCard({
       )}
 
       {stay.notes && (
-        <p className="text-sm text-white/60 whitespace-pre-wrap">{stay.notes}</p>
+        <p className="text-sm text-white/80 whitespace-pre-wrap">{stay.notes}</p>
       )}
     </article>
   );
@@ -994,7 +994,7 @@ function StaysSection({
     <section id={id} aria-label="Stays" className="flex flex-col gap-3">
       <header className="flex items-center justify-between">
         <h2
-          className="text-lg font-semibold text-white"
+          className="text-xl font-semibold text-white"
           style={{ fontFamily: "var(--font-fredoka)" }}
         >
           Stays
@@ -1003,7 +1003,7 @@ function StaysSection({
           <button
             type="button"
             onClick={() => setAdding(true)}
-            className="inline-flex items-center gap-1.5 text-sm font-semibold rounded-full px-3 py-1.5 hover:brightness-110 transition"
+            className="inline-flex items-center gap-1.5 text-sm font-bold rounded-full px-4 py-2 hover:brightness-110 transition"
             style={{ backgroundColor: "#00E5FF", color: "#0A0A12" }}
           >
             <Plus size={12} weight="bold" />
@@ -1017,9 +1017,9 @@ function StaysSection({
           className="rounded-2xl border border-[#2A2B45] px-6 py-10 text-center"
           style={{ backgroundColor: "#15162A" }}
         >
-          <p className="text-sm text-white/50">No stays yet.</p>
-          <p className="text-xs text-white/30 mt-1">
-            Add your Airbnb, hotel, or wherever the group is crashing.
+          <p className="text-base font-semibold text-white/80">No stays yet.</p>
+          <p className="text-sm text-white/55 mt-1.5">
+            Airbnb, hotel, or whoever&apos;s couch the group is crashing on — it all lives here.
           </p>
         </div>
       )}
@@ -1075,7 +1075,7 @@ function TripNotesSection({
           maxLength={5000}
           rows={6}
           placeholder="Parking codes, Wi-Fi passwords, anything the group should know."
-          className="rounded-2xl px-4 py-3 text-sm bg-[#15162A] border border-[#2A2B45] text-white placeholder:text-white/30 focus:outline-none focus:border-[#00E5FF] transition-colors resize-y min-h-[140px]"
+          className="rounded-2xl px-4 py-3 text-base bg-[#1D1E36] border border-[#2A2B45] text-white placeholder:text-white/40 focus:outline-none focus:border-[#00E5FF] focus:ring-1 focus:ring-[#00E5FF]/20 transition-colors resize-y min-h-[140px]"
         />
 
         {state.error && (
@@ -1085,7 +1085,7 @@ function TripNotesSection({
         )}
 
         <div className="flex items-center justify-between gap-3">
-          <p className="text-xs text-white/35">
+          <p className="text-sm text-white/55">
             {notesMeta.updatedAt
               ? `Last edited${notesMeta.updatedByName ? ` by ${notesMeta.updatedByName}` : ""} · ${formatRelative(notesMeta.updatedAt)}`
               : "Not edited yet"}
@@ -1104,51 +1104,77 @@ function TripNotesSection({
   );
 }
 
-// ── Section anchor nav ────────────────────────────────────────────────────────
+// ── Section nav ───────────────────────────────────────────────────────────────
 
-const NAV_SECTIONS = [
-  { id: "travel", label: "Travel" },
-  { id: "stays",  label: "Stays"  },
-  { id: "prep",   label: "Prep"   },
-  { id: "notes",  label: "Notes"  },
-] as const;
+type SectionId = "travel" | "stays" | "prep" | "notes";
 
-function PreplanningNav() {
-  const [active, setActive] = useState<string>("travel");
+const SECTIONS: Array<{ id: SectionId; label: string; Icon: typeof Airplane; color: string }> = [
+  { id: "travel", label: "Travel", Icon: Airplane, color: "#00E5FF" },
+  { id: "stays",  label: "Stays",  Icon: House,    color: "#00E5FF" },
+  { id: "prep",   label: "Prep",   Icon: Checks,   color: "#FFD600" },
+  { id: "notes",  label: "Notes",  Icon: Note,     color: "#00E5FF" },
+];
 
-  useEffect(() => {
-    const observers = NAV_SECTIONS.map(({ id }) => {
-      const el = document.getElementById(id);
-      if (!el) return null;
-      const obs = new IntersectionObserver(
-        ([entry]) => { if (entry.isIntersecting) setActive(id); },
-        { threshold: 0.25 },
-      );
-      obs.observe(el);
-      return obs;
-    });
-    return () => observers.forEach((o) => o?.disconnect());
-  }, []);
-
+function PreplanningRail({
+  active,
+  onSelect,
+}: {
+  active: SectionId;
+  onSelect: (id: SectionId) => void;
+}) {
   return (
-    <nav className="flex gap-2 overflow-x-auto pb-1 scrollbar-none" aria-label="Preplanning sections">
-      {NAV_SECTIONS.map(({ id, label }) => (
-        <button
-          key={id}
-          type="button"
-          onClick={() => {
-            document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
-            setActive(id);
-          }}
-          className={`flex-shrink-0 px-4 py-1.5 rounded-full text-xs font-bold transition-colors ${
-            active === id
-              ? "bg-[#2A2B45] text-white border border-[#00E5FF]/40"
-              : "text-white/40 hover:text-white/70"
-          }`}
-        >
-          {label}
-        </button>
-      ))}
+    <aside className="hidden md:flex flex-col gap-0.5 w-40 flex-shrink-0 pt-1">
+      {SECTIONS.map(({ id, label, Icon, color }) => {
+        const isActive = active === id;
+        return (
+          <button
+            key={id}
+            type="button"
+            onClick={() => onSelect(id)}
+            className={`flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-sm font-semibold text-left transition-colors ${
+              isActive
+                ? "bg-[#2A2B45]"
+                : "text-white/55 hover:text-white/80 hover:bg-white/[0.06]"
+            }`}
+            style={isActive ? { color } : undefined}
+          >
+            <Icon size={15} weight="bold" style={isActive ? { color } : { color: "inherit" }} />
+            {label}
+          </button>
+        );
+      })}
+    </aside>
+  );
+}
+
+function PreplanningTabs({
+  active,
+  onSelect,
+}: {
+  active: SectionId;
+  onSelect: (id: SectionId) => void;
+}) {
+  return (
+    <nav className="md:hidden flex gap-2 overflow-x-auto pb-1 scrollbar-none" aria-label="Preplanning sections">
+      {SECTIONS.map(({ id, label, Icon, color }) => {
+        const isActive = active === id;
+        return (
+          <button
+            key={id}
+            type="button"
+            onClick={() => onSelect(id)}
+            className={`flex-shrink-0 flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-bold transition-colors ${
+              isActive
+                ? "bg-[#2A2B45] border border-[#00E5FF]/40"
+                : "text-white/55 hover:text-white/80"
+            }`}
+            style={isActive ? { color } : undefined}
+          >
+            <Icon size={13} weight="bold" style={isActive ? { color } : { color: "inherit" }} />
+            {label}
+          </button>
+        );
+      })}
     </nav>
   );
 }
@@ -1208,13 +1234,13 @@ function ChecklistCard({
   const doneCount = items.filter((i) => i.checked).length;
 
   return (
-    <div className="rounded-2xl border border-[#2A2B45] p-4" style={{ backgroundColor: "#15162A" }}>
+    <div className="rounded-2xl border border-[#2A2B45] p-5" style={{ backgroundColor: "#15162A" }}>
       <div className="flex items-center justify-between mb-4">
-        <span className="text-[11px] font-black uppercase tracking-widest text-white/30">
+        <span className="text-[13px] font-black uppercase tracking-widest text-white/55">
           Before you leave
         </span>
         {items.length > 0 && (
-          <span className="text-[11px] text-white/30 font-medium">
+          <span className="text-sm text-white/55 font-medium">
             {doneCount}/{items.length} done
           </span>
         )}
@@ -1232,7 +1258,7 @@ function ChecklistCard({
               />
               <span
                 className={`flex-1 text-sm font-medium min-w-0 break-words transition-colors ${
-                  item.checked ? "text-white/30 line-through" : "text-white"
+                  item.checked ? "text-white/40 line-through" : "text-white"
                 }`}
               >
                 {item.text}
@@ -1251,8 +1277,8 @@ function ChecklistCard({
       )}
 
       {items.length === 0 && (
-        <p className="text-xs text-white/30 mb-4 leading-relaxed">
-          Things to sort before you leave — book parking, notify your bank, pack adapters, download offline maps.
+        <p className="text-sm text-white/55 mb-4 leading-relaxed">
+          Nothing pre-planned yet. Add the stuff that will absolutely bite you if you forget it.
         </p>
       )}
 
@@ -1267,7 +1293,7 @@ function ChecklistCard({
           maxLength={MAX_ITEM_TEXT}
           placeholder="Add a task…"
           disabled={items.length >= MAX_CHECKLIST_ITEMS}
-          className={INPUT_CLASS}
+          className={INPUT_CLASS + " flex-1"}
         />
         <button
           type="button"
@@ -1281,7 +1307,7 @@ function ChecklistCard({
       </div>
 
       {error && <p className="text-xs text-[#FF3DA7] mt-2 font-medium">{error}</p>}
-      {isPending && <p className="text-xs text-white/30 mt-2">Saving…</p>}
+      {isPending && <p className="text-sm text-white/50 mt-2">Saving…</p>}
     </div>
   );
 }
@@ -1313,6 +1339,46 @@ function PrepSection({
   );
 }
 
+// ── Travel section (flights + transport grouped) ──────────────────────────────
+
+function TravelSection({
+  flights,
+  transports,
+  createFlightAction,
+  updateFlightAction,
+  deleteFlightAction,
+  createTransportAction,
+  updateTransportAction,
+  deleteTransportAction,
+}: Pick<
+  PreplanningShellProps,
+  | "flights"
+  | "transports"
+  | "createFlightAction"
+  | "updateFlightAction"
+  | "deleteFlightAction"
+  | "createTransportAction"
+  | "updateTransportAction"
+  | "deleteTransportAction"
+>) {
+  return (
+    <div className="flex flex-col gap-8">
+      <FlightsSection
+        flights={flights}
+        createAction={createFlightAction}
+        updateAction={updateFlightAction}
+        deleteAction={deleteFlightAction}
+      />
+      <TransportSection
+        transports={transports}
+        createAction={createTransportAction}
+        updateAction={updateTransportAction}
+        deleteAction={deleteTransportAction}
+      />
+    </div>
+  );
+}
+
 // ── Top-level shell ──────────────────────────────────────────────────────────
 
 export default function PreplanningShell({
@@ -1334,48 +1400,51 @@ export default function PreplanningShell({
   updateNotesAction,
   updateChecklistAction,
 }: PreplanningShellProps) {
-  return (
-    <div className="flex flex-col gap-8">
-      <PreplanningNav />
+  const [active, setActive] = useState<SectionId>("travel");
 
-      {/* Travel groups Flights + Transport under a single anchor for the future section rail. */}
-      <section id="travel" aria-label="Travel" className="flex flex-col gap-3">
-        <p className="text-[11px] font-black uppercase tracking-widest text-white/30">
-          Travel
-        </p>
-        <div className="flex flex-col gap-8">
-          <FlightsSection
-            flights={flights}
-            createAction={createFlightAction}
-            updateAction={updateFlightAction}
-            deleteAction={deleteFlightAction}
-          />
-          <TransportSection
-            transports={transports}
-            createAction={createTransportAction}
-            updateAction={updateTransportAction}
-            deleteAction={deleteTransportAction}
-          />
+  return (
+    <div className="flex flex-col gap-4">
+      <PreplanningTabs active={active} onSelect={setActive} />
+
+      <div className="flex gap-6 md:gap-8 items-start">
+        <PreplanningRail active={active} onSelect={setActive} />
+
+        <div className="flex-1 min-w-0 min-h-[400px]">
+          {active === "travel" && (
+            <TravelSection
+              flights={flights}
+              transports={transports}
+              createFlightAction={createFlightAction}
+              updateFlightAction={updateFlightAction}
+              deleteFlightAction={deleteFlightAction}
+              createTransportAction={createTransportAction}
+              updateTransportAction={updateTransportAction}
+              deleteTransportAction={deleteTransportAction}
+            />
+          )}
+          {active === "stays" && (
+            <StaysSection
+              lodgings={lodgings}
+              createAction={createStayAction}
+              updateAction={updateStayAction}
+              deleteAction={deleteStayAction}
+            />
+          )}
+          {active === "prep" && (
+            <PrepSection
+              initialChecklist={initialChecklist}
+              updateChecklistAction={updateChecklistAction}
+            />
+          )}
+          {active === "notes" && (
+            <TripNotesSection
+              initialText={tripNotes}
+              notesMeta={notesMeta}
+              updateNotesAction={updateNotesAction}
+            />
+          )}
         </div>
-      </section>
-      <StaysSection
-        id="stays"
-        lodgings={lodgings}
-        createAction={createStayAction}
-        updateAction={updateStayAction}
-        deleteAction={deleteStayAction}
-      />
-      <PrepSection
-        id="prep"
-        initialChecklist={initialChecklist}
-        updateChecklistAction={updateChecklistAction}
-      />
-      <TripNotesSection
-        id="notes"
-        initialText={tripNotes}
-        notesMeta={notesMeta}
-        updateNotesAction={updateNotesAction}
-      />
+      </div>
     </div>
   );
 }
