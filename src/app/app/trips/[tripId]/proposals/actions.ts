@@ -5,8 +5,9 @@ import { revalidatePath } from "next/cache";
 
 import { requireUser } from "@/lib/auth/session";
 import { db } from "@/lib/db";
-import { proposalUpvotes, proposals } from "@/lib/db/schema";
+import { proposalUpvotes, proposals, tripMembers, users } from "@/lib/db/schema";
 import { isTripMember, isTripOrganizer } from "@/lib/invites/permissions";
+import { emitNotificationBulk } from "@/lib/notifications/emit";
 
 export type CreateProposalState = { error?: string; ok?: boolean };
 
@@ -29,6 +30,30 @@ export async function createProposalAction(
   }
 
   await db.insert(proposals).values({ tripId, createdById: user.id, title, description });
+
+  // Notify other members a new idea is up for discussion. Best-effort.
+  try {
+    const [creatorRow, memberRows] = await Promise.all([
+      db.select({ name: users.name }).from(users).where(eq(users.id, user.id)).limit(1),
+      db
+        .select({ userId: tripMembers.userId })
+        .from(tripMembers)
+        .where(and(eq(tripMembers.tripId, tripId), isNull(tripMembers.deletedAt))),
+    ]);
+    const recipients = memberRows.filter((m) => m.userId !== user.id);
+    if (creatorRow[0] && recipients.length > 0) {
+      await emitNotificationBulk(
+        recipients.map((m) => ({
+          userId: m.userId,
+          tripId,
+          type: "proposal_created",
+          payload: { creatorName: creatorRow[0].name, title },
+        })),
+      );
+    }
+  } catch {
+    // swallow — notifications are non-critical
+  }
 
   revalidatePath(`/app/trips/${tripId}/proposals`);
   return { ok: true };

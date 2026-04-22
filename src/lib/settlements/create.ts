@@ -13,7 +13,8 @@
 import { and, eq, isNull } from "drizzle-orm";
 
 import { db } from "@/lib/db";
-import { settlements, tripMembers, trips } from "@/lib/db/schema";
+import { settlements, tripMembers, trips, users } from "@/lib/db/schema";
+import { emitNotificationBulk } from "@/lib/notifications/emit";
 
 export type CreateSettlementInput = {
   tripId: string;
@@ -107,6 +108,29 @@ export async function createSettlement(
       currency: settlements.currency,
       settledAt: settlements.settledAt,
     });
+
+  // Notify the creditor that a payment has been recorded. Best-effort.
+  try {
+    const [fromUser] = await db
+      .select({ name: users.name })
+      .from(users)
+      .where(eq(users.id, fromUserId))
+      .limit(1);
+    if (fromUser) {
+      await emitNotificationBulk([{
+        userId: toUserId,
+        tripId,
+        type: "settlement_recorded",
+        payload: {
+          fromUserName: fromUser.name,
+          amountCents,
+          currency: row.currency,
+        },
+      }]);
+    }
+  } catch {
+    // swallow — notifications are non-critical
+  }
 
   return row;
 }

@@ -5,8 +5,9 @@ import { revalidatePath } from "next/cache";
 
 import { requireUser } from "@/lib/auth/session";
 import { db } from "@/lib/db";
-import { pollOptions, polls, pollVotes } from "@/lib/db/schema";
+import { pollOptions, polls, pollVotes, tripMembers, users } from "@/lib/db/schema";
 import { isTripMember, isTripOrganizer } from "@/lib/invites/permissions";
+import { emitNotificationBulk } from "@/lib/notifications/emit";
 
 export type CreatePollState = { error?: string; ok?: boolean };
 
@@ -42,6 +43,30 @@ export async function createPollAction(
   await db.insert(pollOptions).values(
     optionTexts.map((text, i) => ({ pollId: poll.id, text, position: i })),
   );
+
+  // Notify other members a poll needs their vote. Best-effort.
+  try {
+    const [creatorRow, memberRows] = await Promise.all([
+      db.select({ name: users.name }).from(users).where(eq(users.id, user.id)).limit(1),
+      db
+        .select({ userId: tripMembers.userId })
+        .from(tripMembers)
+        .where(and(eq(tripMembers.tripId, tripId), isNull(tripMembers.deletedAt))),
+    ]);
+    const recipients = memberRows.filter((m) => m.userId !== user.id);
+    if (creatorRow[0] && recipients.length > 0) {
+      await emitNotificationBulk(
+        recipients.map((m) => ({
+          userId: m.userId,
+          tripId,
+          type: "poll_created",
+          payload: { creatorName: creatorRow[0].name, question },
+        })),
+      );
+    }
+  } catch {
+    // swallow — notifications are non-critical
+  }
 
   revalidatePath(`/app/trips/${tripId}/polls`);
   return { ok: true };

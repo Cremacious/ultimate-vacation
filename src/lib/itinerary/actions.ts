@@ -5,7 +5,8 @@ import { and, eq, isNull } from "drizzle-orm";
 
 import { requireUser } from "@/lib/auth/session";
 import { db } from "@/lib/db";
-import { itineraryEvents, tripMembers } from "@/lib/db/schema";
+import { itineraryEvents, tripMembers, users } from "@/lib/db/schema";
+import { emitNotificationBulk } from "@/lib/notifications/emit";
 
 export type ItineraryActionState = {
   error?: string;
@@ -76,6 +77,30 @@ export async function createEventAction(
     });
   } catch (err) {
     return { error: err instanceof Error ? err.message : "Could not add event." };
+  }
+
+  // Notify other members the itinerary has a new entry. Best-effort.
+  try {
+    const [creatorRow, memberRows] = await Promise.all([
+      db.select({ name: users.name }).from(users).where(eq(users.id, user.id)).limit(1),
+      db
+        .select({ userId: tripMembers.userId })
+        .from(tripMembers)
+        .where(and(eq(tripMembers.tripId, tripId), isNull(tripMembers.deletedAt))),
+    ]);
+    const recipients = memberRows.filter((m) => m.userId !== user.id);
+    if (creatorRow[0] && recipients.length > 0) {
+      await emitNotificationBulk(
+        recipients.map((m) => ({
+          userId: m.userId,
+          tripId,
+          type: "itinerary_event_added",
+          payload: { creatorName: creatorRow[0].name, eventTitle: title, eventDate },
+        })),
+      );
+    }
+  } catch {
+    // swallow — notifications are non-critical
   }
 
   revalidatePath(`/app/trips/${tripId}/itinerary`);

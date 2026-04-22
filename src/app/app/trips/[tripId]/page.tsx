@@ -10,6 +10,9 @@ import { requireUser } from "@/lib/auth/session";
 import { getTripById } from "@/lib/trips/queries";
 import { notFound } from "next/navigation";
 
+import { getTripPulse } from "@/lib/trips/pulse";
+import TripPulse from "./TripPulse";
+
 // Deterministic palette for member initials — cycles if there are more members than colors.
 const MEMBER_COLORS = [
   "#FF2D8B", "#00A8CC", "#FFD600", "#00C96B",
@@ -174,7 +177,9 @@ export default async function TripOverviewPage({
   const trip = await getTripById(tripId);
   if (!trip) notFound();
 
-  const [memberRows, expenseCountRow] = await Promise.all([
+  const daysUntil = daysUntilDate(trip.startDate);
+
+  const [memberRows, expenseCountRow, pulse] = await Promise.all([
     db
       .select({ userId: tripMembers.userId, name: users.name, role: tripMembers.role })
       .from(tripMembers)
@@ -184,6 +189,10 @@ export default async function TripOverviewPage({
       .select({ n: sql<string>`count(*)` })
       .from(expenses)
       .where(and(eq(expenses.tripId, tripId), isNull(expenses.deletedAt))),
+    getTripPulse(tripId, user.id, {
+      includeNextEvent: daysUntil !== null && daysUntil <= 14,
+      isVaulted: trip.lifecycle === "vaulted",
+    }),
   ]);
 
   const isOrganizer = memberRows.some(
@@ -206,7 +215,6 @@ export default async function TripOverviewPage({
   }
 
   const base = `/app/trips/${tripId}`;
-  const daysUntil = daysUntilDate(trip.startDate);
   const phase = tripPhaseLabel(trip.lifecycle, trip.startDate, trip.endDate);
 
   // Countdown display: days remaining, "Today", "In Progress", or "Completed"
@@ -437,6 +445,7 @@ export default async function TripOverviewPage({
           </div>
 
         </div>
+        <TripPulse pulse={pulse} base={base} displayCurrency={trip.displayCurrency} />
       </div>
     </>
   );

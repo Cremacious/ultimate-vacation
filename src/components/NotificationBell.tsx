@@ -5,7 +5,11 @@ import { usePathname } from "next/navigation";
 import Link from "next/link";
 import {
   Bell,
+  CalendarBlank,
+  ChartBar,
+  CheckCircle,
   CurrencyDollar,
+  Lightbulb,
   UserPlus,
   X,
   type Icon as PhosphorIcon,
@@ -30,8 +34,13 @@ function relativeTime(isoStr: string): string {
   return `${Math.floor(hours / 24)}d ago`;
 }
 
-function formatCents(cents: number): string {
-  return `$${(cents / 100).toFixed(2)}`;
+function formatCents(cents: number, currency = "USD"): string {
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency,
+    minimumFractionDigits: cents % 100 === 0 ? 0 : 2,
+    maximumFractionDigits: 2,
+  }).format(Math.abs(cents) / 100);
 }
 
 type NotificationDisplay = {
@@ -75,6 +84,68 @@ function resolveNotification(n: SerializedNotification): NotificationDisplay {
         href: n.tripId ? `/app/trips/${n.tripId}/settings/members` : "/app",
         color: "#00E5FF",
         Icon: UserPlus,
+      };
+    }
+    case "poll_created": {
+      const creatorName = String(p.creatorName ?? "Someone");
+      const question = String(p.question ?? "a new poll");
+      return {
+        message: (
+          <>
+            <span className="font-semibold">{creatorName}</span> started a poll · {question}
+          </>
+        ),
+        plainText: `${creatorName} started a poll: ${question}`,
+        href: n.tripId ? `/app/trips/${n.tripId}/polls` : "/app",
+        color: "#A855F7",
+        Icon: ChartBar,
+      };
+    }
+    case "proposal_created": {
+      const creatorName = String(p.creatorName ?? "Someone");
+      const title = String(p.title ?? "a new proposal");
+      return {
+        message: (
+          <>
+            <span className="font-semibold">{creatorName}</span> proposed {title}
+          </>
+        ),
+        plainText: `${creatorName} proposed ${title}`,
+        href: n.tripId ? `/app/trips/${n.tripId}/proposals` : "/app",
+        color: "#FF8C00",
+        Icon: Lightbulb,
+      };
+    }
+    case "itinerary_event_added": {
+      const creatorName = String(p.creatorName ?? "Someone");
+      const eventTitle = String(p.eventTitle ?? "an event");
+      return {
+        message: (
+          <>
+            <span className="font-semibold">{creatorName}</span> added {eventTitle} to the itinerary
+          </>
+        ),
+        plainText: `${creatorName} added ${eventTitle} to the itinerary`,
+        href: n.tripId ? `/app/trips/${n.tripId}/itinerary` : "/app",
+        color: "#00A8CC",
+        Icon: CalendarBlank,
+      };
+    }
+    case "settlement_recorded": {
+      const fromUserName = String(p.fromUserName ?? "Someone");
+      const amountCents = Number(p.amountCents ?? 0);
+      const currency = String(p.currency ?? "USD");
+      const amount = formatCents(amountCents, currency);
+      return {
+        message: (
+          <>
+            <span className="font-semibold">{fromUserName}</span> recorded a payment to you · {amount}
+          </>
+        ),
+        plainText: `${fromUserName} recorded a payment to you, ${amount}`,
+        href: n.tripId ? `/app/trips/${n.tripId}/expenses` : "/app",
+        color: "#00C96B",
+        Icon: CheckCircle,
       };
     }
     default:
