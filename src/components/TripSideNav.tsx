@@ -40,22 +40,22 @@ interface TripSideNavProps {
 }
 
 const phaseColor: Record<string, string> = {
-  overview: "#6d6d6d",
-  setup: "#8b8f98",
-  preplanning: "#92a7c8",
-  itinerary: "#8aa6d9",
+  overview: "#12b8e8",
+  setup: "#8e7cff",
+  preplanning: "#00d4ff",
+  itinerary: "#7eb6ff",
   packing: "#ffd400",
-  "travel-days": "#b7bac4",
-  "vacation-days": "#8f939b",
+  "travel-days": "#ff4fa3",
+  "vacation-days": "#00c96b",
   expenses: "#00d26a",
   polls: "#ffd400",
   proposals: "#12b8e8",
   "scavenger-hunt": "#ff8f1f",
-  notes: "#8f939b",
-  tools: "#8f939b",
-  vault: "#8f939b",
-  memory: "#8f939b",
-  members: "#8f939b",
+  notes: "#b58cff",
+  tools: "#7eb6ff",
+  vault: "#ff4fa3",
+  memory: "#00d4ff",
+  members: "#00c96b",
   settings: "#8f939b",
 };
 
@@ -102,18 +102,17 @@ export default function TripSideNav({
       <Link key={phase.key} href={phase.href} onClick={closeSidebar} aria-current={active ? "page" : undefined}>
         <div
           className={[
-            "group relative flex items-center gap-3 rounded-xl border px-3 py-2.5 transition-all",
+            "group flex items-center gap-3 rounded-xl border px-3 py-2.5 transition-all",
             active
-              ? "border-[#d6ecf3] bg-[#2b2b2b] shadow-[inset_0_0_0_1px_rgba(255,255,255,0.04)]"
+              ? "border-white/20 bg-[#323254] shadow-[inset_0_0_0_1px_rgba(255,255,255,0.05)]"
               : "border-transparent bg-transparent hover:border-white/6 hover:bg-[#2b2b2b]",
           ].join(" ")}
         >
-          {active && <span className="absolute inset-y-1 left-0 w-[3px] rounded-full bg-[#11c3ef]" />}
           <div
-            className="flex h-8 w-8 items-center justify-center rounded-full flex-shrink-0"
-            style={{ backgroundColor: active ? phase.color : "#3a3a3a" }}
+            className="flex h-8 w-8 items-center justify-center rounded-full flex-shrink-0 shadow-[0_0_0_1px_rgba(255,255,255,0.05)]"
+            style={{ backgroundColor: active ? phase.color : "#343434" }}
           >
-            <span style={{ color: active ? "#ffffff" : "rgba(255,255,255,0.62)" }}>{phase.icon}</span>
+            <span style={{ color: active ? "#ffffff" : phase.color }}>{phase.icon}</span>
           </div>
           <span
             className={[
@@ -135,10 +134,13 @@ export default function TripSideNav({
         <div
           className={[
             "group flex items-center gap-3 rounded-xl border px-3 py-2.5 transition-all",
-            active ? "border-[#d6ecf3] bg-[#2b2b2b]" : "border-transparent hover:border-white/6 hover:bg-[#2b2b2b]",
+            active ? "border-white/20 bg-[#323254]" : "border-transparent hover:border-white/6 hover:bg-[#2b2b2b]",
           ].join(" ")}
         >
-          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[#3a3a3a] text-white/60">
+          <div
+            className="flex h-8 w-8 items-center justify-center rounded-full shadow-[0_0_0_1px_rgba(255,255,255,0.05)]"
+            style={{ backgroundColor: active ? phaseColor[label.toLowerCase()] ?? "#343434" : "#343434", color: active ? "#ffffff" : phaseColor[label.toLowerCase()] ?? "rgba(255,255,255,0.62)" }}
+          >
             {icon}
           </div>
           <span className={active ? "text-[15px] font-bold text-white" : "text-[15px] font-semibold text-[#b7bcc6] group-hover:text-white"}>
@@ -165,7 +167,7 @@ export default function TripSideNav({
 
       <aside
         className={[
-          "fixed bottom-0 left-0 top-17 z-50 flex flex-col overflow-y-auto border-r border-white/8 bg-[#262626] scrollbar-dark",
+          "fixed bottom-0 left-0 top-17 z-40 flex flex-col overflow-y-auto border-r border-white/8 bg-[#202020] scrollbar-dark",
           "transition-transform duration-300 ease-in-out",
           "w-[82vw] max-w-[302px]",
           sidebarOpen ? "translate-x-0" : "-translate-x-full",
@@ -179,8 +181,8 @@ export default function TripSideNav({
               color={ballColor}
               size={44}
               pulse
-              surfaceColor="#262626"
-              emptyArcColor="#3d3d3d"
+              surfaceColor="#202020"
+              emptyArcColor="#343434"
             />
             <div className="min-w-0">
               <p className="truncate text-base font-bold leading-tight text-white" style={{ fontFamily: "var(--font-fredoka)" }}>
