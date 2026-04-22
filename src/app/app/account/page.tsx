@@ -78,6 +78,16 @@ export default async function AccountPage() {
 
         {/* Sign out */}
         <SignOutButton />
+
+        {/* Delete account */}
+        <div className="pt-2 text-center">
+          <Link
+            href="/app/account/delete"
+            className="text-xs font-semibold text-gray-500 hover:text-[#FF2D8B] transition-colors"
+          >
+            Delete account
+          </Link>
+        </div>
       </div>
     </div>
   );
