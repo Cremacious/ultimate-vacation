@@ -7,6 +7,7 @@ import { requireUser } from "@/lib/auth/session";
 import { db } from "@/lib/db";
 import { lodgings, tripFlights, tripTransports, trips } from "@/lib/db/schema";
 import { isTripMember } from "@/lib/invites/permissions";
+import type { ChecklistItem } from "@/lib/preplanning/queries";
 import { isTripVaulted } from "@/lib/trips/queries";
 
 // ── Shared helpers ───────────────────────────────────────────────────────────
@@ -393,6 +394,42 @@ export async function deleteLodgingAction(
     .where(and(eq(lodgings.id, id), eq(lodgings.tripId, tripId)));
 
   revalidatePath(`/app/trips/${tripId}/preplanning`);
+}
+
+// ── Checklist (Before You Leave) ─────────────────────────────────────────────
+
+const MAX_CHECKLIST_ITEMS = 30;
+const MAX_CHECKLIST_TEXT = 200;
+
+export type ChecklistFormState = { error?: string; ok?: boolean };
+
+export async function updateChecklistAction(
+  tripId: string,
+  items: ChecklistItem[],
+): Promise<ChecklistFormState> {
+  const user = await requireUser();
+  const member = await isTripMember(user.id, tripId);
+  if (!member) return { error: "You must be a trip member to update the checklist." };
+  if (await isTripVaulted(tripId)) return { error: "This trip is settled." };
+
+  if (!Array.isArray(items)) return { error: "Invalid checklist data." };
+  if (items.length > MAX_CHECKLIST_ITEMS) return { error: `Max ${MAX_CHECKLIST_ITEMS} items.` };
+
+  const sanitized: ChecklistItem[] = items
+    .map((item) => ({
+      id: String(item.id ?? "").slice(0, 36),
+      text: String(item.text ?? "").trim().slice(0, MAX_CHECKLIST_TEXT),
+      checked: Boolean(item.checked),
+    }))
+    .filter((item) => item.id && item.text.length > 0);
+
+  await db
+    .update(trips)
+    .set({ preplanChecklist: sanitized, updatedAt: new Date() })
+    .where(eq(trips.id, tripId));
+
+  revalidatePath(`/app/trips/${tripId}/preplanning`);
+  return { ok: true };
 }
 
 // ── Trip notes (single pad per trip) ─────────────────────────────────────────

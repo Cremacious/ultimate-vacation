@@ -1,10 +1,11 @@
 "use client";
 
-import { useActionState, useState, useTransition } from "react";
+import { useActionState, useEffect, useState, useTransition } from "react";
 import { Trash, PencilSimple, Plus, Link as LinkIcon } from "@phosphor-icons/react";
 
-import type { Lodging, TripFlight, TripTransport } from "@/lib/preplanning/queries";
+import type { ChecklistItem, Lodging, TripFlight, TripTransport } from "@/lib/preplanning/queries";
 import type {
+  ChecklistFormState,
   FlightFormState,
   LodgingFormState,
   TransportFormState,
@@ -35,6 +36,8 @@ export interface PreplanningShellProps {
   updateStayAction: (prev: LodgingFormState, fd: FormData) => Promise<LodgingFormState>;
   deleteStayAction: (fd: FormData) => Promise<void>;
   updateNotesAction: (prev: TripNotesFormState, fd: FormData) => Promise<TripNotesFormState>;
+  initialChecklist: ChecklistItem[];
+  updateChecklistAction: (items: ChecklistItem[]) => Promise<ChecklistFormState>;
 }
 
 // ── Shared form constants ────────────────────────────────────────────────────
@@ -1101,9 +1104,199 @@ function TripNotesSection({
   );
 }
 
-// ── Prep stub section ────────────────────────────────────────────────────────
+// ── Section anchor nav ────────────────────────────────────────────────────────
 
-function PrepStubSection({ id }: { id?: string }) {
+const NAV_SECTIONS = [
+  { id: "travel", label: "Travel" },
+  { id: "stays",  label: "Stays"  },
+  { id: "prep",   label: "Prep"   },
+  { id: "notes",  label: "Notes"  },
+] as const;
+
+function PreplanningNav() {
+  const [active, setActive] = useState<string>("travel");
+
+  useEffect(() => {
+    const observers = NAV_SECTIONS.map(({ id }) => {
+      const el = document.getElementById(id);
+      if (!el) return null;
+      const obs = new IntersectionObserver(
+        ([entry]) => { if (entry.isIntersecting) setActive(id); },
+        { threshold: 0.25 },
+      );
+      obs.observe(el);
+      return obs;
+    });
+    return () => observers.forEach((o) => o?.disconnect());
+  }, []);
+
+  return (
+    <nav className="flex gap-2 overflow-x-auto pb-1 scrollbar-none" aria-label="Preplanning sections">
+      {NAV_SECTIONS.map(({ id, label }) => (
+        <button
+          key={id}
+          type="button"
+          onClick={() => {
+            document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
+            setActive(id);
+          }}
+          className={`flex-shrink-0 px-4 py-1.5 rounded-full text-xs font-bold transition-colors ${
+            active === id
+              ? "bg-[#2A2B45] text-white border border-[#00E5FF]/40"
+              : "text-white/40 hover:text-white/70"
+          }`}
+        >
+          {label}
+        </button>
+      ))}
+    </nav>
+  );
+}
+
+// ── Checklist card (Before you leave) ────────────────────────────────────────
+
+const MAX_CHECKLIST_ITEMS = 30;
+const MAX_ITEM_TEXT = 200;
+
+function ChecklistCard({
+  initialItems,
+  updateAction,
+}: {
+  initialItems: ChecklistItem[];
+  updateAction: (items: ChecklistItem[]) => Promise<ChecklistFormState>;
+}) {
+  const [items, setItems] = useState<ChecklistItem[]>(initialItems);
+  const [inputValue, setInputValue] = useState("");
+  const [isPending, startTransition] = useTransition();
+  const [error, setError] = useState<string | null>(null);
+
+  function persist(newItems: ChecklistItem[]) {
+    startTransition(async () => {
+      const result = await updateAction(newItems);
+      if (result?.error) setError(result.error);
+      else setError(null);
+    });
+  }
+
+  function handleAdd() {
+    const text = inputValue.trim().slice(0, MAX_ITEM_TEXT);
+    if (!text) return;
+    if (items.length >= MAX_CHECKLIST_ITEMS) {
+      setError(`Max ${MAX_CHECKLIST_ITEMS} items.`);
+      return;
+    }
+    const newItems = [...items, { id: crypto.randomUUID(), text, checked: false }];
+    setItems(newItems);
+    setInputValue("");
+    persist(newItems);
+  }
+
+  function handleToggle(id: string) {
+    const newItems = items.map((item) =>
+      item.id === id ? { ...item, checked: !item.checked } : item,
+    );
+    setItems(newItems);
+    persist(newItems);
+  }
+
+  function handleDelete(id: string) {
+    const newItems = items.filter((item) => item.id !== id);
+    setItems(newItems);
+    persist(newItems);
+  }
+
+  const doneCount = items.filter((i) => i.checked).length;
+
+  return (
+    <div className="rounded-2xl border border-[#2A2B45] p-4" style={{ backgroundColor: "#15162A" }}>
+      <div className="flex items-center justify-between mb-4">
+        <span className="text-[11px] font-black uppercase tracking-widest text-white/30">
+          Before you leave
+        </span>
+        {items.length > 0 && (
+          <span className="text-[11px] text-white/30 font-medium">
+            {doneCount}/{items.length} done
+          </span>
+        )}
+      </div>
+
+      {items.length > 0 && (
+        <ul className="space-y-2 mb-4">
+          {items.map((item) => (
+            <li key={item.id} className="group flex items-center gap-3">
+              <input
+                type="checkbox"
+                checked={item.checked}
+                onChange={() => handleToggle(item.id)}
+                className="flex-shrink-0 w-4 h-4 rounded cursor-pointer accent-[#00E5FF]"
+              />
+              <span
+                className={`flex-1 text-sm font-medium min-w-0 break-words transition-colors ${
+                  item.checked ? "text-white/30 line-through" : "text-white"
+                }`}
+              >
+                {item.text}
+              </span>
+              <button
+                type="button"
+                onClick={() => handleDelete(item.id)}
+                className="opacity-0 group-hover:opacity-100 focus:opacity-100 transition-opacity text-white/30 hover:text-[#FF3DA7] flex-shrink-0"
+                aria-label="Remove item"
+              >
+                <Trash size={14} />
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
+
+      {items.length === 0 && (
+        <p className="text-xs text-white/30 mb-4 leading-relaxed">
+          Things to sort before you leave — book parking, notify your bank, pack adapters, download offline maps.
+        </p>
+      )}
+
+      <div className="flex gap-2">
+        <input
+          type="text"
+          value={inputValue}
+          onChange={(e) => setInputValue(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") { e.preventDefault(); handleAdd(); }
+          }}
+          maxLength={MAX_ITEM_TEXT}
+          placeholder="Add a task…"
+          disabled={items.length >= MAX_CHECKLIST_ITEMS}
+          className={INPUT_CLASS}
+        />
+        <button
+          type="button"
+          onClick={handleAdd}
+          disabled={!inputValue.trim() || items.length >= MAX_CHECKLIST_ITEMS}
+          className="flex-shrink-0 px-3 py-2 rounded-xl font-bold transition disabled:opacity-30 hover:brightness-110"
+          style={{ backgroundColor: "#00E5FF", color: "#0A0A12" }}
+        >
+          <Plus size={16} />
+        </button>
+      </div>
+
+      {error && <p className="text-xs text-[#FF3DA7] mt-2 font-medium">{error}</p>}
+      {isPending && <p className="text-xs text-white/30 mt-2">Saving…</p>}
+    </div>
+  );
+}
+
+// ── Prep section ──────────────────────────────────────────────────────────────
+
+function PrepSection({
+  id,
+  initialChecklist,
+  updateChecklistAction,
+}: {
+  id?: string;
+  initialChecklist: ChecklistItem[];
+  updateChecklistAction: (items: ChecklistItem[]) => Promise<ChecklistFormState>;
+}) {
   return (
     <section id={id} aria-label="Prep" className="flex flex-col gap-3">
       <h2
@@ -1112,15 +1305,10 @@ function PrepStubSection({ id }: { id?: string }) {
       >
         Prep
       </h2>
-      <div
-        className="rounded-2xl border border-[#2A2B45] px-6 py-10 text-center"
-        style={{ backgroundColor: "#15162A" }}
-      >
-        <p className="text-sm text-white/50">Pre-trip prep coming soon.</p>
-        <p className="text-xs text-white/30 mt-1">
-          Visas, travel insurance, and pre-departure logistics will live here.
-        </p>
-      </div>
+      <ChecklistCard
+        initialItems={initialChecklist}
+        updateAction={updateChecklistAction}
+      />
     </section>
   );
 }
@@ -1133,6 +1321,7 @@ export default function PreplanningShell({
   lodgings,
   tripNotes,
   notesMeta,
+  initialChecklist,
   createFlightAction,
   updateFlightAction,
   deleteFlightAction,
@@ -1143,9 +1332,12 @@ export default function PreplanningShell({
   updateStayAction,
   deleteStayAction,
   updateNotesAction,
+  updateChecklistAction,
 }: PreplanningShellProps) {
   return (
     <div className="flex flex-col gap-8">
+      <PreplanningNav />
+
       {/* Travel groups Flights + Transport under a single anchor for the future section rail. */}
       <section id="travel" aria-label="Travel" className="flex flex-col gap-3">
         <p className="text-[11px] font-black uppercase tracking-widest text-white/30">
@@ -1173,7 +1365,11 @@ export default function PreplanningShell({
         updateAction={updateStayAction}
         deleteAction={deleteStayAction}
       />
-      <PrepStubSection id="prep" />
+      <PrepSection
+        id="prep"
+        initialChecklist={initialChecklist}
+        updateChecklistAction={updateChecklistAction}
+      />
       <TripNotesSection
         id="notes"
         initialText={tripNotes}

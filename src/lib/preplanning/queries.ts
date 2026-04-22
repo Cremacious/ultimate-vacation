@@ -3,6 +3,14 @@ import { and, asc, eq, isNull } from "drizzle-orm";
 import { db } from "@/lib/db";
 import { lodgings, tripFlights, tripTransports } from "@/lib/db/schema";
 
+// ── Checklist ─────────────────────────────────────────────────────────────────
+
+export type ChecklistItem = {
+  id: string;
+  text: string;
+  checked: boolean;
+};
+
 // ── Stays ────────────────────────────────────────────────────────────────────
 
 export type Lodging = {

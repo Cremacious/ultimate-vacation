@@ -19,6 +19,7 @@ export async function getTripById(tripId: string) {
       preplanNotes: trips.preplanNotes,
       preplanNotesUpdatedBy: trips.preplanNotesUpdatedBy,
       preplanNotesUpdatedAt: trips.preplanNotesUpdatedAt,
+      preplanChecklist: trips.preplanChecklist,
       ownerId: trips.ownerId,
     })
     .from(trips)

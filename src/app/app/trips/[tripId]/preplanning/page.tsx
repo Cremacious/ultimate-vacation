@@ -20,7 +20,9 @@ import {
   updateLodgingAction,
   deleteLodgingAction,
   updateTripNotesAction,
+  updateChecklistAction,
 } from "./actions";
+import type { ChecklistItem } from "@/lib/preplanning/queries";
 
 export default async function PreplanningPage({
   params,
@@ -67,6 +69,7 @@ export default async function PreplanningPage({
   const updateStayAction = updateLodgingAction.bind(null, tripId);
   const deleteStayAction = deleteLodgingAction.bind(null, tripId);
   const updateNotesAction = updateTripNotesAction.bind(null, tripId);
+  const updateChecklistBound = updateChecklistAction.bind(null, tripId);
 
   return (
     <div className="px-4 py-6 md:px-6 md:py-8 max-w-3xl">
@@ -89,6 +92,7 @@ export default async function PreplanningPage({
         lodgings={lodgings}
         tripNotes={trip.preplanNotes ?? ""}
         notesMeta={notesMeta}
+        initialChecklist={(trip.preplanChecklist as ChecklistItem[] | null) ?? []}
         createFlightAction={createFlightBound}
         updateFlightAction={updateFlightBound}
         deleteFlightAction={deleteFlightBound}
@@ -99,6 +103,7 @@ export default async function PreplanningPage({
         updateStayAction={updateStayAction}
         deleteStayAction={deleteStayAction}
         updateNotesAction={updateNotesAction}
+        updateChecklistAction={updateChecklistBound}
       />
     </div>
   );

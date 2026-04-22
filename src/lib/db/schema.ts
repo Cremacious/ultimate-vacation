@@ -154,6 +154,9 @@ export const trips = pgTable(
       onDelete: "set null",
     }),
     preplanNotesUpdatedAt: timestamp("preplan_notes_updated_at", { withTimezone: true }),
+    // Preplanning checklist — Before You Leave (migration 0010).
+    // JSONB array of {id, text, checked}. Null = no checklist yet.
+    preplanChecklist: jsonb("preplan_checklist"),
     // Retention: set by daily cron when T+14d unsettled-balance reminder has fired for this trip.
     // Null = not yet sent. Never reset — reminder fires once per trip.
     unsettledBalanceReminderSentAt: timestamp("unsettled_balance_reminder_sent_at", {
