@@ -91,7 +91,7 @@ export default async function SetupPage({
         {/* ── Page header ───────────────────────────────────────── */}
         <div
           className="border-b flex items-center justify-between flex-shrink-0 px-4 py-4 md:px-7 md:py-6"
-          style={{ backgroundColor: "#282828", borderColor: "#333333" }}
+          style={{ backgroundColor: "#15162A", borderColor: "#2A2B45" }}
         >
           <div>
             <h1
@@ -123,8 +123,8 @@ export default async function SetupPage({
             <div
               className="sg-hero rounded-[20px] border flex flex-col justify-end relative overflow-hidden p-5 md:p-7"
               style={{
-                backgroundColor: "#2e2e2e",
-                borderColor: "#3a3a3a",
+                backgroundColor: "#15162A",
+                borderColor: "#2A2B45",
                 minHeight: "200px",
               }}
             >
@@ -190,7 +190,7 @@ export default async function SetupPage({
             {budgetDisplay != null && (
               <div
                 className="sg-budget rounded-[20px] border p-5 md:p-6 flex flex-col items-center justify-center text-center"
-                style={{ backgroundColor: "#2e2e2e", borderColor: "#3a3a3a" }}
+                style={{ backgroundColor: "#15162A", borderColor: "#2A2B45" }}
               >
                 <div className="text-[11px] font-black uppercase tracking-[2px] text-white/35 mb-2">Budget</div>
                 <div

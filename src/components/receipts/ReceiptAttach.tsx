@@ -66,10 +66,10 @@ export function ReceiptAttach({ expenseId, initialReceipt }: ReceiptAttachProps)
           <img
             src={receipt.blobUrl}
             alt="Attached receipt"
-            className="w-12 h-12 rounded-lg border border-[#3a3a3a] object-cover"
+            className="w-12 h-12 rounded-lg border border-[#2A2B45] object-cover"
           />
         ) : (
-          <div className="w-12 h-12 rounded-lg border border-[#3a3a3a] bg-[#2a2a2a] flex items-center justify-center text-xs font-bold text-gray-400">
+          <div className="w-12 h-12 rounded-lg border border-[#2A2B45] bg-[#15162A] flex items-center justify-center text-xs font-bold text-white/40">
             PDF
           </div>
         )}
@@ -77,7 +77,7 @@ export function ReceiptAttach({ expenseId, initialReceipt }: ReceiptAttachProps)
           href={receipt.blobUrl}
           target="_blank"
           rel="noopener noreferrer"
-          className="text-xs font-semibold text-[#00A8CC] hover:underline"
+          className="text-xs font-semibold text-[#00E5FF] hover:underline"
         >
           View
         </a>
@@ -97,12 +97,12 @@ export function ReceiptAttach({ expenseId, initialReceipt }: ReceiptAttachProps)
       <button
         onClick={pickFile}
         disabled={isPending}
-        className="text-xs font-semibold text-gray-400 hover:text-white transition-colors disabled:opacity-50"
+        className="text-xs font-semibold text-white/40 hover:text-white transition-colors disabled:opacity-50"
       >
         {isPending ? "Uploading…" : "Attach receipt"}
       </button>
       {error && (
-        <p role="alert" className="mt-1 text-xs text-[#ffb3bf]">
+        <p role="alert" className="mt-1 text-xs text-[#FF3DA7]">
           {error}
         </p>
       )}

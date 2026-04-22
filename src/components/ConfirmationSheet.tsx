@@ -107,8 +107,8 @@ export function ConfirmationSheet({
           right: 0,
           bottom: 0,
           maxHeight: "80vh",
-          background: "#1a1a1a",
-          borderTop: "1px solid #00A8CC",
+          background: "#15162A",
+          borderTop: "1px solid #00E5FF",
           padding: "24px 20px 32px",
           outline: "none",
           overflowY: "auto",
@@ -116,7 +116,7 @@ export function ConfirmationSheet({
           borderTopRightRadius: "16px",
           animation: "cs-slide-up 300ms cubic-bezier(0.4, 0.1, 0.2, 1)",
         }}
-        className="md:!left-1/2 md:!right-auto md:!bottom-auto md:!top-1/2 md:!-translate-x-1/2 md:!-translate-y-1/2 md:!max-w-[480px] md:!w-[90vw] md:!rounded-2xl md:!border md:!border-[#00A8CC]"
+        className="md:!left-1/2 md:!right-auto md:!bottom-auto md:!top-1/2 md:!-translate-x-1/2 md:!-translate-y-1/2 md:!max-w-[480px] md:!w-[90vw] md:!rounded-2xl md:!border md:!border-[#00E5FF]"
       >
         <h2
           id={titleId}

@@ -33,12 +33,12 @@ export default async function SetupEditPage({
       {/* Page header */}
       <div
         className="border-b px-4 py-4 md:px-7 md:py-6 flex items-center gap-3 md:gap-4 flex-shrink-0"
-        style={{ backgroundColor: "#282828", borderColor: "#333333" }}
+        style={{ backgroundColor: "#15162A", borderColor: "#2A2B45" }}
       >
         <Link
           href={`/app/trips/${tripId}/setup`}
           className="w-9 h-9 rounded-full border flex items-center justify-center text-white transition-colors hover:border-[#00A8CC] hover:text-[#00A8CC] flex-shrink-0"
-          style={{ borderColor: "#444444", backgroundColor: "#1e1e1e" }}
+          style={{ borderColor: "#2A2B45", backgroundColor: "#15162A" }}
         >
           <ArrowLeft size={16} weight="bold" />
         </Link>
@@ -73,7 +73,7 @@ export default async function SetupEditPage({
         ) : (
           <div
             className="rounded-2xl border p-6 text-center"
-            style={{ backgroundColor: "#2e2e2e", borderColor: "#3a3a3a" }}
+            style={{ backgroundColor: "#15162A", borderColor: "#2A2B45" }}
           >
             <p className="text-sm font-semibold text-white/50">
               Only trip organizers can edit setup details.

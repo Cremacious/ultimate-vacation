@@ -83,13 +83,13 @@ export default function ExpensesClient({
   return (
     <div className="space-y-10">
       {/* ── Add expense form ─────────────────────────────────────────── */}
-      <form action={formAction} className="space-y-4 rounded-2xl bg-[#2a2a2a] border border-[#3a3a3a] p-5">
+      <form action={formAction} className="space-y-4 rounded-2xl border border-[#2A2B45] p-5" style={{ backgroundColor: "#15162A" }}>
         <input type="hidden" name="tripId" value={tripId} />
         <h2 className="text-lg font-semibold text-white">Add expense</h2>
 
         <div className="grid grid-cols-2 gap-3">
           <label className="block">
-            <span className="block text-xs font-bold text-gray-400 uppercase tracking-wide mb-1">
+            <span className="block text-xs font-bold text-white/50 uppercase tracking-wide mb-1">
               Amount (USD)
             </span>
             <input
@@ -99,17 +99,17 @@ export default function ExpensesClient({
               min="0.01"
               required
               placeholder="0.00"
-              className="w-full px-3 py-2 rounded-xl bg-[#1e1e1e] border border-[#3a3a3a] text-white focus:outline-none focus:border-[#00A8CC]"
+              className="w-full px-3 py-2 rounded-xl bg-[#0A0A12] border border-[#2A2B45] text-white focus:outline-none focus:border-[#00E5FF] transition-colors"
             />
           </label>
           <label className="block">
-            <span className="block text-xs font-bold text-gray-400 uppercase tracking-wide mb-1">
+            <span className="block text-xs font-bold text-white/50 uppercase tracking-wide mb-1">
               Paid by
             </span>
             <select
               name="payerId"
               defaultValue={currentUserId}
-              className="w-full px-3 py-2 rounded-xl bg-[#1e1e1e] border border-[#3a3a3a] text-white focus:outline-none focus:border-[#00A8CC]"
+              className="w-full px-3 py-2 rounded-xl bg-[#0A0A12] border border-[#2A2B45] text-white focus:outline-none focus:border-[#00E5FF] transition-colors"
             >
               {members.map((m) => (
                 <option key={m.userId} value={m.userId}>
@@ -121,7 +121,7 @@ export default function ExpensesClient({
         </div>
 
         <label className="block">
-          <span className="block text-xs font-bold text-gray-400 uppercase tracking-wide mb-1">
+          <span className="block text-xs font-bold text-white/50 uppercase tracking-wide mb-1">
             Description
           </span>
           <input
@@ -130,12 +130,12 @@ export default function ExpensesClient({
             required
             maxLength={200}
             placeholder="Dinner at Ichiran"
-            className="w-full px-3 py-2 rounded-xl bg-[#1e1e1e] border border-[#3a3a3a] text-white focus:outline-none focus:border-[#00A8CC]"
+            className="w-full px-3 py-2 rounded-xl bg-[#0A0A12] border border-[#2A2B45] text-white focus:outline-none focus:border-[#00E5FF] transition-colors"
           />
         </label>
 
         <fieldset>
-          <legend className="block text-xs font-bold text-gray-400 uppercase tracking-wide mb-2">
+          <legend className="block text-xs font-bold text-white/50 uppercase tracking-wide mb-2">
             Split equally between
           </legend>
           <div className="space-y-1.5">
@@ -155,7 +155,7 @@ export default function ExpensesClient({
         </fieldset>
 
         {state.error && (
-          <p role="alert" className="text-sm font-semibold text-[#D9304F]">
+          <p role="alert" className="text-sm font-semibold text-[#FF3DA7]">
             {state.error}
           </p>
         )}
@@ -166,8 +166,8 @@ export default function ExpensesClient({
         <button
           type="submit"
           disabled={pending || checked.size === 0}
-          className="bg-[#00A8CC] text-white font-bold px-5 py-2.5 rounded-full hover:bg-[#0096b8] transition-colors disabled:opacity-60"
-          style={{ boxShadow: "0 3px 0 #007a99" }}
+          className="font-bold px-5 py-2.5 rounded-full hover:brightness-110 transition disabled:opacity-60"
+          style={{ backgroundColor: "#00E5FF", color: "#0A0A12" }}
         >
           {pending ? "Saving…" : "Add expense"}
         </button>
@@ -177,24 +177,25 @@ export default function ExpensesClient({
       <div>
         <h2 className="text-lg font-semibold text-white mb-3">Recent expenses</h2>
         {expenses.length === 0 ? (
-          <p className="text-sm text-gray-500">No expenses logged yet.</p>
+          <p className="text-sm text-white/40">No expenses logged yet.</p>
         ) : (
           <ul className="space-y-2">
             {expenses.map((e) => (
               <li
                 key={e.id}
-                className="rounded-xl bg-[#2a2a2a] border border-[#3a3a3a] px-4 py-3"
+                className="rounded-xl border border-[#2A2B45] px-4 py-3"
+                style={{ backgroundColor: "#15162A" }}
               >
                 <div className="flex items-center justify-between gap-3">
                   <div className="min-w-0 flex-1">
                     <p className="text-white font-semibold truncate">{e.description}</p>
-                    <p className="text-xs text-gray-500 mt-0.5">
+                    <p className="text-xs text-white/40 mt-0.5">
                       {e.payerName} paid · split {e.participantCount} way{e.participantCount === 1 ? "" : "s"}
                     </p>
                   </div>
                   <span className="text-white font-bold">{formatMoney(e.amountCents)}</span>
                 </div>
-                <div className="mt-2 pt-2 border-t border-[#3a3a3a]">
+                <div className="mt-2 pt-2 border-t border-[#2A2B45]">
                   <ReceiptAttach expenseId={e.id} initialReceipt={e.receipt ?? null} />
                 </div>
               </li>
@@ -210,17 +211,18 @@ export default function ExpensesClient({
           <ul className="space-y-2 mb-6">
             {balances.map((b) => {
               const tone =
-                b.netCents > 0 ? "#00C96B" : b.netCents < 0 ? "#D9304F" : "#9CA3AF";
+                b.netCents > 0 ? "#00C96B" : b.netCents < 0 ? "#FF3DA7" : "rgba(255,255,255,0.4)";
               const label =
                 b.netCents > 0 ? "is owed" : b.netCents < 0 ? "owes" : "settled";
               return (
                 <li
                   key={b.userId}
-                  className="rounded-xl bg-[#2a2a2a] border border-[#3a3a3a] px-4 py-3 flex items-center justify-between"
+                  className="rounded-xl border border-[#2A2B45] px-4 py-3 flex items-center justify-between"
+                  style={{ backgroundColor: "#15162A" }}
                 >
                   <div>
                     <p className="text-white font-semibold">{b.name}</p>
-                    <p className="text-xs text-gray-500 mt-0.5">
+                    <p className="text-xs text-white/40 mt-0.5">
                       paid {formatMoney(b.totalPaidCents)} · share {formatMoney(b.totalOwedCents)}
                     </p>
                   </div>

@@ -9,7 +9,7 @@ const BALL_COLORS = [
   "#00A8CC", "#A855F7", "#EF4444", "#3B82F6",
 ];
 
-const CARD: React.CSSProperties = { backgroundColor: "#2e2e2e", borderColor: "#3a3a3a" };
+const CARD: React.CSSProperties = { backgroundColor: "#15162A", borderColor: "#2A2B45" };
 
 function CellLabel({ children }: { children: React.ReactNode }) {
   return (
@@ -27,7 +27,7 @@ function InpBase({ className = "", style, ...props }: React.InputHTMLAttributes<
     <input
       {...props}
       className={`rounded-xl px-4 py-3 text-base font-semibold text-white outline-none border transition-colors focus:border-[#00A8CC] placeholder-white/25 ${className}`}
-      style={{ backgroundColor: "#1e1e1e", borderColor: "#3a3a3a", ...style }}
+      style={{ backgroundColor: "#0A0A12", borderColor: "#2A2B45", ...style }}
     />
   );
 }
@@ -97,8 +97,8 @@ export default function SetupForm({ tripId, action, initialData }: SetupFormProp
                 fontWeight: 600,
                 padding: "12px 16px",
                 borderRadius: "14px",
-                backgroundColor: "#1e1e1e",
-                borderColor: "#3a3a3a",
+                backgroundColor: "#0A0A12",
+                borderColor: "#2A2B45",
                 color: "white",
               }}
             />
@@ -160,8 +160,8 @@ export default function SetupForm({ tripId, action, initialData }: SetupFormProp
                   fontSize: "clamp(32px, 3.5vw, 52px)",
                   fontWeight: 600,
                   color: "#00C96B",
-                  backgroundColor: "#1e1e1e",
-                  borderColor: "#3a3a3a",
+                  backgroundColor: "#0A0A12",
+                  borderColor: "#2A2B45",
                 }}
               />
             </div>
@@ -177,7 +177,7 @@ export default function SetupForm({ tripId, action, initialData }: SetupFormProp
             defaultValue={initialData.budgetNotes ?? ""}
             placeholder="e.g. Flights already booked, split equally between all travelers…"
             className="w-full rounded-xl px-4 py-3 text-base font-semibold text-white outline-none border transition-colors focus:border-[#00A8CC] placeholder-white/25 resize-none"
-            style={{ backgroundColor: "#1e1e1e", borderColor: "#3a3a3a" }}
+            style={{ backgroundColor: "#0A0A12", borderColor: "#2A2B45" }}
           />
         </Cell>
 
@@ -232,15 +232,15 @@ export default function SetupForm({ tripId, action, initialData }: SetupFormProp
           <Link
             href={`/app/trips/${tripId}/setup`}
             className="px-6 py-3 rounded-full text-[15px] font-black border text-white transition-opacity hover:opacity-80"
-            style={{ backgroundColor: "#2e2e2e", borderColor: "#3a3a3a" }}
+            style={{ backgroundColor: "#15162A", borderColor: "#2A2B45" }}
           >
             Cancel
           </Link>
           <button
             type="submit"
             disabled={pending}
-            className="px-8 py-3 rounded-full text-[15px] font-black text-[#1a1a1a] transition-opacity hover:opacity-90 disabled:opacity-60"
-            style={{ backgroundColor: "#FFD600" }}
+            className="px-8 py-3 rounded-full text-[15px] font-black transition-opacity hover:brightness-110 disabled:opacity-60"
+            style={{ backgroundColor: "#00E5FF", color: "#0A0A12" }}
           >
             {pending ? "Saving…" : "Save changes"}
           </button>
