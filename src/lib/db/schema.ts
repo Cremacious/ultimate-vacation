@@ -509,6 +509,38 @@ export const pollVotes = pgTable(
 );
 
 // ─────────────────────────────────────────────────────────────────────────────
+// Proposals (idea board — migration 0006)
+// ─────────────────────────────────────────────────────────────────────────────
+
+export const proposals = pgTable(
+  "proposals",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    tripId: uuid("trip_id").notNull().references(() => trips.id, { onDelete: "cascade" }),
+    createdById: uuid("created_by_id").notNull().references(() => users.id, { onDelete: "restrict" }),
+    title: text("title").notNull(),
+    description: text("description"),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    deletedAt: timestamp("deleted_at", { withTimezone: true }),
+  },
+  (t) => [index("proposals_trip_id_idx").on(t.tripId)]
+);
+
+export const proposalUpvotes = pgTable(
+  "proposal_upvotes",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    proposalId: uuid("proposal_id").notNull().references(() => proposals.id, { onDelete: "cascade" }),
+    userId: uuid("user_id").notNull().references(() => users.id, { onDelete: "restrict" }),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [
+    uniqueIndex("proposal_upvotes_proposal_user_unique").on(t.proposalId, t.userId),
+    index("proposal_upvotes_proposal_id_idx").on(t.proposalId),
+  ]
+);
+
+// ─────────────────────────────────────────────────────────────────────────────
 // Notifications (in-app bell only; intra-session awareness, not re-engagement.
 // Re-engagement happens via transactional emails — see MONETIZATION.md.)
 // ─────────────────────────────────────────────────────────────────────────────
