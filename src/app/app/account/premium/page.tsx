@@ -8,9 +8,9 @@ import { users } from "@/lib/db/schema";
 import SupporterCheckoutButton from "@/components/supporter/SupporterCheckoutButton";
 
 const LAUNCH_PERKS = [
-  "No ads across TripWave",
-  "Supporter badge on your profile and expense rows",
-  "20 exclusive trip color themes",
+  "Supporter badge on your profile",
+  "Ad-free forever — your exemption is locked in before ads launch",
+  "Receipt scanning when it ships (month 2) — access already set",
 ];
 
 export default async function SupporterPage({

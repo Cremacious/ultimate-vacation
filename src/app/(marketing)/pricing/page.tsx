@@ -2,33 +2,22 @@ import Link from "next/link";
 
 export default function PricingPage() {
   const freeFeatures = [
-    "1 active trip",
-    "Up to 3 saved trips",
+    "Unlimited trips",
     "Full itinerary builder",
-    "Preplanning and polls",
     "Expense tracking and splitting",
+    "Preplanning — flights, stays, transport, notes",
     "Packing lists",
-    "Proposals and notes",
-    "Trip vault",
-    "Smart packing suggestions",
-    "Group memory tools",
-    "All destination reference tools",
-    "Weather, jet lag, unit converter",
-    "Countdown widget",
-    "Trip memory vault",
+    "Group polls and proposals",
+    "Invite by link, code, or QR",
+    "Travel Day planning checklist",
+    "In-app notifications",
   ];
 
-  const premiumFeatures = [
+  const supporterPerks = [
     "Everything in free",
-    "No ads. Ever.",
-    "Offline mode (itinerary, packing, travel day)",
-    "Receipt scanning with AI",
-    "Currency converter",
-    "Smart suggestions (vibe and destination aware)",
-    "Advanced travel day templates",
-    "Trip export",
-    "Trip duplication",
-    "Offline phrasebook and confirmation vault",
+    "Supporter badge on your profile",
+    "Ad-free forever — exemption locked in before ads launch",
+    "Receipt scanning when it ships (month 2)",
   ];
 
   return (
@@ -52,7 +41,7 @@ export default function PricingPage() {
             Simple pricing.
           </h1>
           <p className="text-gray-400 font-medium max-w-sm mx-auto">
-            Free gets you going. Five dollars gets you everything. Forever.
+            Free gets you going. $4.99 removes the ads and says thanks. Forever.
           </p>
         </div>
 
@@ -90,18 +79,18 @@ export default function PricingPage() {
             </ul>
           </div>
 
-          {/* Premium */}
+          {/* Supporter */}
           <div
             className="bg-[#1A1A1A] rounded-3xl p-8"
             style={{ boxShadow: "0 8px 40px #00A8CC25" }}
           >
             <div className="mb-6">
-              <p className="text-sm font-bold text-[#00A8CC] uppercase tracking-widest mb-2">Premium</p>
+              <p className="text-sm font-bold text-[#00A8CC] uppercase tracking-widest mb-2">Supporter</p>
               <div className="flex items-end gap-1">
-                <span className="text-5xl font-semibold text-white" style={{ fontFamily: "var(--font-fredoka)" }}>$5</span>
+                <span className="text-5xl font-semibold text-white" style={{ fontFamily: "var(--font-fredoka)" }}>$4.99</span>
                 <span className="text-gray-400 font-medium mb-1.5">/ one time</span>
               </div>
-              <p className="text-sm text-gray-400 font-medium mt-1">Once. Never again.</p>
+              <p className="text-sm text-gray-400 font-medium mt-1">Pay once, yours forever.</p>
             </div>
 
             <Link
@@ -109,11 +98,11 @@ export default function PricingPage() {
               className="block w-full text-center font-bold py-3.5 rounded-full bg-[#FFD600] text-[#1A1A1A] hover:opacity-90 transition-opacity mb-8"
               style={{ boxShadow: "0 3px 0 #c9a900" }}
             >
-              Sign up and unlock
+              Start free, support later
             </Link>
 
             <ul className="space-y-2.5">
-              {premiumFeatures.map((f) => (
+              {supporterPerks.map((f) => (
                 <li key={f} className="flex items-center gap-3 text-sm font-medium text-white">
                   <span
                     className="w-4 h-4 rounded-full flex items-center justify-center text-[10px] font-bold flex-shrink-0"
@@ -129,7 +118,7 @@ export default function PricingPage() {
         </div>
 
         <p className="text-center text-xs text-gray-400 font-medium mt-8">
-          One payment. No renewals. No receipts. The trip is already stressful enough.
+          One payment. No renewals. No subscriptions. Built by one person who uses it too.
         </p>
       </div>
     </div>
