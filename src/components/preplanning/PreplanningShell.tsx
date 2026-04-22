@@ -3,10 +3,11 @@
 import { useActionState, useState, useTransition } from "react";
 import { Trash, PencilSimple, Plus, Link as LinkIcon } from "@phosphor-icons/react";
 
-import type { Lodging, TripFlight } from "@/lib/preplanning/queries";
+import type { Lodging, TripFlight, TripTransport } from "@/lib/preplanning/queries";
 import type {
   FlightFormState,
   LodgingFormState,
+  TransportFormState,
   TripNotesFormState,
 } from "@/app/app/trips/[tripId]/preplanning/actions";
 
@@ -20,12 +21,16 @@ type NotesMeta = {
 export interface PreplanningShellProps {
   tripId: string;
   flights: TripFlight[];
+  transports: TripTransport[];
   lodgings: Lodging[];
   tripNotes: string;
   notesMeta: NotesMeta;
   createFlightAction: (prev: FlightFormState, fd: FormData) => Promise<FlightFormState>;
   updateFlightAction: (prev: FlightFormState, fd: FormData) => Promise<FlightFormState>;
   deleteFlightAction: (fd: FormData) => Promise<void>;
+  createTransportAction: (prev: TransportFormState, fd: FormData) => Promise<TransportFormState>;
+  updateTransportAction: (prev: TransportFormState, fd: FormData) => Promise<TransportFormState>;
+  deleteTransportAction: (fd: FormData) => Promise<void>;
   createStayAction: (prev: LodgingFormState, fd: FormData) => Promise<LodgingFormState>;
   updateStayAction: (prev: LodgingFormState, fd: FormData) => Promise<LodgingFormState>;
   deleteStayAction: (fd: FormData) => Promise<void>;
@@ -363,6 +368,350 @@ function FlightsSection({
       ))}
 
       {adding && <AddFlightForm createAction={createAction} onDone={() => setAdding(false)} />}
+    </section>
+  );
+}
+
+// ── Transport section ────────────────────────────────────────────────────────
+
+const TRANSPORT_LABELS: Record<string, string> = {
+  rental_car: "Rental car",
+  train: "Train",
+  bus: "Bus / Coach",
+  shuttle: "Shuttle",
+  ferry: "Ferry",
+  other: "Transport",
+};
+
+type TransportFieldValues = Partial<Omit<TripTransport, "id" | "addedById">>;
+
+function TransportFormFields({ initial }: { initial?: TransportFieldValues }) {
+  return (
+    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+      <label className="flex flex-col">
+        <span className={LABEL_CLASS}>Type</span>
+        <select
+          name="type"
+          defaultValue={initial?.type ?? "rental_car"}
+          className={INPUT_CLASS}
+        >
+          <option value="rental_car">Rental car</option>
+          <option value="train">Train</option>
+          <option value="bus">Bus / Coach</option>
+          <option value="shuttle">Shuttle</option>
+          <option value="ferry">Ferry</option>
+          <option value="other">Other</option>
+        </select>
+      </label>
+
+      <label className="flex flex-col">
+        <span className={LABEL_CLASS}>Provider</span>
+        <input
+          type="text"
+          name="provider"
+          maxLength={80}
+          defaultValue={initial?.provider ?? ""}
+          placeholder="Budget, Amtrak, FlixBus…"
+          className={INPUT_CLASS}
+        />
+      </label>
+
+      <label className="flex flex-col">
+        <span className={LABEL_CLASS}>Pickup</span>
+        <input
+          type="text"
+          name="pickupLocation"
+          maxLength={100}
+          defaultValue={initial?.pickupLocation ?? ""}
+          placeholder="JFK Terminal 4"
+          className={INPUT_CLASS}
+        />
+      </label>
+
+      <label className="flex flex-col">
+        <span className={LABEL_CLASS}>Drop-off</span>
+        <input
+          type="text"
+          name="dropoffLocation"
+          maxLength={100}
+          defaultValue={initial?.dropoffLocation ?? ""}
+          placeholder="Hotel lobby"
+          className={INPUT_CLASS}
+        />
+      </label>
+
+      <label className="flex flex-col">
+        <span className={LABEL_CLASS}>Pickup date</span>
+        <input
+          type="date"
+          name="pickupDate"
+          defaultValue={initial?.pickupDate ?? ""}
+          className={INPUT_CLASS}
+        />
+      </label>
+
+      <label className="flex flex-col">
+        <span className={LABEL_CLASS}>Pickup time</span>
+        <input
+          type="time"
+          name="pickupTime"
+          defaultValue={toTimeInputValue(initial?.pickupTime ?? null)}
+          className={INPUT_CLASS}
+        />
+      </label>
+
+      <label className="flex flex-col">
+        <span className={LABEL_CLASS}>Confirmation #</span>
+        <input
+          type="text"
+          name="confirmationCode"
+          maxLength={20}
+          defaultValue={initial?.confirmationCode ?? ""}
+          placeholder="XK8R2T"
+          className={INPUT_CLASS}
+        />
+      </label>
+
+      <label className="flex flex-col">
+        <span className={LABEL_CLASS}>Booking URL</span>
+        <input
+          type="url"
+          name="bookingUrl"
+          maxLength={500}
+          defaultValue={initial?.bookingUrl ?? ""}
+          placeholder="https://…"
+          className={INPUT_CLASS}
+        />
+      </label>
+
+      <label className="sm:col-span-2 flex flex-col">
+        <span className={LABEL_CLASS}>Notes</span>
+        <textarea
+          name="notes"
+          rows={2}
+          maxLength={500}
+          defaultValue={initial?.notes ?? ""}
+          placeholder="Vehicle type, seats, driver info, anything the group should know…"
+          className={INPUT_CLASS}
+        />
+      </label>
+    </div>
+  );
+}
+
+function AddTransportForm({
+  createAction,
+  onDone,
+}: {
+  createAction: PreplanningShellProps["createTransportAction"];
+  onDone: () => void;
+}) {
+  const [state, formAction, pending] = useActionState(createAction, {} as TransportFormState);
+
+  if (state.ok) {
+    queueMicrotask(onDone);
+  }
+
+  return (
+    <form action={formAction} className="rounded-2xl border border-[#2A2B45] p-4 bg-[#15162A]/40">
+      <TransportFormFields />
+      {state.error && (
+        <p role="alert" className="mt-3 text-sm font-semibold" style={{ color: "#FF3DA7" }}>
+          {state.error}
+        </p>
+      )}
+      <div className="mt-4 flex items-center gap-2">
+        <button
+          type="submit"
+          disabled={pending}
+          className="font-bold rounded-full px-4 py-2 text-sm hover:brightness-110 transition disabled:opacity-50"
+          style={{ backgroundColor: "#00E5FF", color: "#0A0A12" }}
+        >
+          {pending ? "Adding…" : "Add transport"}
+        </button>
+        <button
+          type="button"
+          onClick={onDone}
+          className="text-sm font-semibold text-white/50 hover:text-white/80 transition-colors px-3 py-2"
+        >
+          Cancel
+        </button>
+      </div>
+    </form>
+  );
+}
+
+function TransportCard({
+  transport,
+  updateAction,
+  deleteAction,
+}: {
+  transport: TripTransport;
+  updateAction: PreplanningShellProps["updateTransportAction"];
+  deleteAction: PreplanningShellProps["deleteTransportAction"];
+}) {
+  const [editing, setEditing] = useState(false);
+  const [state, formAction, pending] = useActionState(updateAction, {} as TransportFormState);
+  const [isDeleting, startDelete] = useTransition();
+
+  if (state.ok && editing) {
+    queueMicrotask(() => setEditing(false));
+  }
+
+  if (editing) {
+    return (
+      <form action={formAction} className="rounded-2xl border border-[#2A2B45] p-4 bg-[#15162A]/40">
+        <input type="hidden" name="id" value={transport.id} />
+        <TransportFormFields initial={transport} />
+        {state.error && (
+          <p role="alert" className="mt-3 text-sm font-semibold" style={{ color: "#FF3DA7" }}>
+            {state.error}
+          </p>
+        )}
+        <div className="mt-4 flex items-center gap-2">
+          <button
+            type="submit"
+            disabled={pending}
+            className="font-bold rounded-full px-4 py-2 text-sm hover:brightness-110 transition disabled:opacity-50"
+            style={{ backgroundColor: "#00E5FF", color: "#0A0A12" }}
+          >
+            {pending ? "Saving…" : "Save"}
+          </button>
+          <button
+            type="button"
+            onClick={() => setEditing(false)}
+            className="text-sm font-semibold text-white/50 hover:text-white/80 transition-colors px-3 py-2"
+          >
+            Cancel
+          </button>
+        </div>
+      </form>
+    );
+  }
+
+  const header = formatTransportHeader(transport);
+  const meta = formatTransportMeta(transport);
+
+  return (
+    <article className="rounded-2xl border border-[#2A2B45] p-4 bg-[#15162A]/40 flex flex-col gap-2">
+      <header className="flex items-start justify-between gap-3">
+        <div className="min-w-0">
+          <h3 className="text-base font-semibold text-white truncate">{header}</h3>
+          {meta && <p className="text-xs text-white/55 mt-0.5">{meta}</p>}
+        </div>
+        <div className="flex items-center gap-1 shrink-0">
+          <button
+            type="button"
+            aria-label="Edit transport"
+            onClick={() => setEditing(true)}
+            className="p-1.5 rounded-md text-white/45 hover:text-white hover:bg-white/[0.06] transition-colors"
+          >
+            <PencilSimple size={14} weight="bold" />
+          </button>
+          <form
+            action={(fd) => startDelete(async () => await deleteAction(fd))}
+            className="inline-flex"
+          >
+            <input type="hidden" name="id" value={transport.id} />
+            <button
+              type="submit"
+              aria-label="Delete transport"
+              disabled={isDeleting}
+              className="p-1.5 rounded-md text-white/45 hover:text-[#FF3DA7] hover:bg-white/[0.06] transition-colors disabled:opacity-40"
+            >
+              <Trash size={14} weight="bold" />
+            </button>
+          </form>
+        </div>
+      </header>
+
+      {(transport.confirmationCode || transport.bookingUrl) && (
+        <div className="flex flex-wrap items-center gap-2 text-xs">
+          {transport.confirmationCode && (
+            <span className="rounded-full px-2.5 py-1 bg-white/[0.05] text-white/70 font-semibold">
+              Conf: {transport.confirmationCode}
+            </span>
+          )}
+          {transport.bookingUrl && (
+            <a
+              href={transport.bookingUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1 rounded-full px-2.5 py-1 bg-white/[0.05] text-[#00E5FF] font-semibold hover:brightness-110"
+            >
+              <LinkIcon size={10} weight="bold" />
+              Booking
+            </a>
+          )}
+        </div>
+      )}
+
+      {transport.notes && (
+        <p className="text-sm text-white/60 whitespace-pre-wrap">{transport.notes}</p>
+      )}
+    </article>
+  );
+}
+
+function TransportSection({
+  transports,
+  createAction,
+  updateAction,
+  deleteAction,
+}: {
+  transports: TripTransport[];
+  createAction: PreplanningShellProps["createTransportAction"];
+  updateAction: PreplanningShellProps["updateTransportAction"];
+  deleteAction: PreplanningShellProps["deleteTransportAction"];
+}) {
+  const [adding, setAdding] = useState(false);
+
+  return (
+    <section aria-label="Transport" className="flex flex-col gap-3">
+      <header className="flex items-center justify-between">
+        <h2
+          className="text-lg font-semibold text-white"
+          style={{ fontFamily: "var(--font-fredoka)" }}
+        >
+          Transport
+        </h2>
+        {!adding && (
+          <button
+            type="button"
+            onClick={() => setAdding(true)}
+            className="inline-flex items-center gap-1.5 text-sm font-semibold rounded-full px-3 py-1.5 hover:brightness-110 transition"
+            style={{ backgroundColor: "#00E5FF", color: "#0A0A12" }}
+          >
+            <Plus size={12} weight="bold" />
+            Add transport
+          </button>
+        )}
+      </header>
+
+      {transports.length === 0 && !adding && (
+        <div
+          className="rounded-2xl border border-[#2A2B45] px-6 py-10 text-center"
+          style={{ backgroundColor: "#15162A" }}
+        >
+          <p className="text-sm text-white/50">No transport yet.</p>
+          <p className="text-xs text-white/30 mt-1">
+            Add rental cars, trains, shuttles — anything that needs a confirmation.
+          </p>
+        </div>
+      )}
+
+      {transports.map((transport) => (
+        <TransportCard
+          key={transport.id}
+          transport={transport}
+          updateAction={updateAction}
+          deleteAction={deleteAction}
+        />
+      ))}
+
+      {adding && (
+        <AddTransportForm createAction={createAction} onDone={() => setAdding(false)} />
+      )}
     </section>
   );
 }
@@ -752,12 +1101,16 @@ function TripNotesSection({
 
 export default function PreplanningShell({
   flights,
+  transports,
   lodgings,
   tripNotes,
   notesMeta,
   createFlightAction,
   updateFlightAction,
   deleteFlightAction,
+  createTransportAction,
+  updateTransportAction,
+  deleteTransportAction,
   createStayAction,
   updateStayAction,
   deleteStayAction,
@@ -770,6 +1123,12 @@ export default function PreplanningShell({
         createAction={createFlightAction}
         updateAction={updateFlightAction}
         deleteAction={deleteFlightAction}
+      />
+      <TransportSection
+        transports={transports}
+        createAction={createTransportAction}
+        updateAction={updateTransportAction}
+        deleteAction={deleteTransportAction}
       />
       <StaysSection
         lodgings={lodgings}
@@ -861,4 +1220,20 @@ function formatTime(timeStr: string): string {
 function toTimeInputValue(t: string | null): string {
   if (!t) return "";
   return t.slice(0, 5); // "HH:MM:SS" → "HH:MM", "HH:MM" unchanged
+}
+
+function formatTransportHeader(t: TripTransport): string {
+  const label = TRANSPORT_LABELS[t.type] ?? "Transport";
+  return t.provider ? `${label} · ${t.provider}` : label;
+}
+
+function formatTransportMeta(t: TripTransport): string | null {
+  const routePart =
+    t.pickupLocation || t.dropoffLocation
+      ? `${t.pickupLocation ?? "??"} → ${t.dropoffLocation ?? "??"}`
+      : null;
+  const datePart = t.pickupDate ? formatShortDate(t.pickupDate) : null;
+  const timePart = t.pickupTime ? formatTime(t.pickupTime) : null;
+  const parts = [routePart, datePart, timePart].filter(Boolean);
+  return parts.length > 0 ? parts.join(" · ") : null;
 }

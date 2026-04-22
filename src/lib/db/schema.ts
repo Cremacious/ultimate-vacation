@@ -534,6 +534,39 @@ export const tripFlights = pgTable(
 );
 
 // ─────────────────────────────────────────────────────────────────────────────
+// Preplanning — Transport (migration 0009)
+// Booking records for ground/water transport: rental cars, trains, buses,
+// shuttles, ferries. type is server-validated against a fixed allow-list.
+// Any trip member may add/edit/delete. Sorted by pickup_date ASC.
+// ─────────────────────────────────────────────────────────────────────────────
+
+export const tripTransports = pgTable(
+  "trip_transports",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    tripId: uuid("trip_id")
+      .notNull()
+      .references(() => trips.id, { onDelete: "cascade" }),
+    type: text("type").notNull(),
+    provider: text("provider"),
+    confirmationCode: text("confirmation_code"),
+    pickupLocation: text("pickup_location"),
+    dropoffLocation: text("dropoff_location"),
+    pickupDate: date("pickup_date"),
+    pickupTime: time("pickup_time"),
+    bookingUrl: text("booking_url"),
+    notes: text("notes"),
+    addedById: uuid("added_by_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "restrict" }),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+    deletedAt: timestamp("deleted_at", { withTimezone: true }),
+  },
+  (t) => [index("trip_transports_trip_id_idx").on(t.tripId)]
+);
+
+// ─────────────────────────────────────────────────────────────────────────────
 // Polls (group decision-making — migration 0005)
 // ─────────────────────────────────────────────────────────────────────────────
 

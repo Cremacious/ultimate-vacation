@@ -6,13 +6,16 @@ import { db } from "@/lib/db";
 import { users } from "@/lib/db/schema";
 import { isTripMember } from "@/lib/invites/permissions";
 import { getTripById } from "@/lib/trips/queries";
-import { listFlights, listLodgings } from "@/lib/preplanning/queries";
+import { listFlights, listLodgings, listTransports } from "@/lib/preplanning/queries";
 
 import PreplanningShell from "@/components/preplanning/PreplanningShell";
 import {
   createFlightAction,
   updateFlightAction,
   deleteFlightAction,
+  createTransportAction,
+  updateTransportAction,
+  deleteTransportAction,
   createLodgingAction,
   updateLodgingAction,
   deleteLodgingAction,
@@ -33,8 +36,9 @@ export default async function PreplanningPage({
   const member = await isTripMember(user.id, tripId);
   if (!member) notFound();
 
-  const [flights, lodgings, notesEditor] = await Promise.all([
+  const [flights, transports, lodgings, notesEditor] = await Promise.all([
     listFlights(tripId),
+    listTransports(tripId),
     listLodgings(tripId),
     trip.preplanNotesUpdatedBy
       ? db
@@ -56,6 +60,9 @@ export default async function PreplanningPage({
   const createFlightBound = createFlightAction.bind(null, tripId);
   const updateFlightBound = updateFlightAction.bind(null, tripId);
   const deleteFlightBound = deleteFlightAction.bind(null, tripId);
+  const createTransportBound = createTransportAction.bind(null, tripId);
+  const updateTransportBound = updateTransportAction.bind(null, tripId);
+  const deleteTransportBound = deleteTransportAction.bind(null, tripId);
   const createStayAction = createLodgingAction.bind(null, tripId);
   const updateStayAction = updateLodgingAction.bind(null, tripId);
   const deleteStayAction = deleteLodgingAction.bind(null, tripId);
@@ -78,12 +85,16 @@ export default async function PreplanningPage({
       <PreplanningShell
         tripId={tripId}
         flights={flights}
+        transports={transports}
         lodgings={lodgings}
         tripNotes={trip.preplanNotes ?? ""}
         notesMeta={notesMeta}
         createFlightAction={createFlightBound}
         updateFlightAction={updateFlightBound}
         deleteFlightAction={deleteFlightBound}
+        createTransportAction={createTransportBound}
+        updateTransportAction={updateTransportBound}
+        deleteTransportAction={deleteTransportBound}
         createStayAction={createStayAction}
         updateStayAction={updateStayAction}
         deleteStayAction={deleteStayAction}

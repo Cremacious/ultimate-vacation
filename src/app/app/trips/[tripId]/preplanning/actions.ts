@@ -5,7 +5,7 @@ import { revalidatePath } from "next/cache";
 
 import { requireUser } from "@/lib/auth/session";
 import { db } from "@/lib/db";
-import { lodgings, tripFlights, trips } from "@/lib/db/schema";
+import { lodgings, tripFlights, tripTransports, trips } from "@/lib/db/schema";
 import { isTripMember } from "@/lib/invites/permissions";
 import { isTripVaulted } from "@/lib/trips/queries";
 
@@ -24,6 +24,21 @@ const MAX_AIRPORT = 10;
 const MAX_FLIGHT_CONF = 20;
 const MAX_FLIGHT_NOTES = 500;
 
+const MAX_TRANSPORT_PROVIDER = 80;
+const MAX_TRANSPORT_CONF = 20;
+const MAX_TRANSPORT_LOCATION = 100;
+const MAX_TRANSPORT_NOTES = 500;
+
+const VALID_TRANSPORT_TYPES = [
+  "rental_car",
+  "train",
+  "bus",
+  "shuttle",
+  "ferry",
+  "other",
+] as const;
+type TransportType = (typeof VALID_TRANSPORT_TYPES)[number];
+
 function normalize(raw: FormDataEntryValue | null, max: number): string | null {
   if (typeof raw !== "string") return null;
   const trimmed = raw.trim();
@@ -39,6 +54,127 @@ function validDateOrNull(raw: FormDataEntryValue | null): string | null {
 function validTimeOrNull(raw: FormDataEntryValue | null): string | null {
   if (typeof raw !== "string" || !raw) return null;
   return /^\d{2}:\d{2}$/.test(raw) ? raw : null;
+}
+
+function validTransportType(raw: FormDataEntryValue | null): TransportType {
+  if (
+    typeof raw === "string" &&
+    (VALID_TRANSPORT_TYPES as readonly string[]).includes(raw)
+  ) {
+    return raw as TransportType;
+  }
+  return "other";
+}
+
+// ── Transport ─────────────────────────────────────────────────────────────────
+
+export type TransportFormState = { error?: string; ok?: boolean };
+
+export async function createTransportAction(
+  tripId: string,
+  _prev: TransportFormState,
+  formData: FormData,
+): Promise<TransportFormState> {
+  const user = await requireUser();
+  const member = await isTripMember(user.id, tripId);
+  if (!member) return { error: "You must be a trip member to add transport." };
+  if (await isTripVaulted(tripId)) return { error: "This trip is settled." };
+
+  const type = validTransportType(formData.get("type"));
+  const provider = normalize(formData.get("provider"), MAX_TRANSPORT_PROVIDER);
+  const confirmationCode = normalize(formData.get("confirmationCode"), MAX_TRANSPORT_CONF);
+  const pickupLocation = normalize(formData.get("pickupLocation"), MAX_TRANSPORT_LOCATION);
+  const dropoffLocation = normalize(formData.get("dropoffLocation"), MAX_TRANSPORT_LOCATION);
+  const pickupDate = validDateOrNull(formData.get("pickupDate"));
+  const pickupTime = validTimeOrNull(formData.get("pickupTime"));
+  const bookingUrl = normalize(formData.get("bookingUrl"), MAX_URL);
+  const notes = normalize(formData.get("notes"), MAX_TRANSPORT_NOTES);
+
+  await db.insert(tripTransports).values({
+    tripId,
+    type,
+    provider,
+    confirmationCode,
+    pickupLocation,
+    dropoffLocation,
+    pickupDate,
+    pickupTime,
+    bookingUrl,
+    notes,
+    addedById: user.id,
+  });
+
+  revalidatePath(`/app/trips/${tripId}/preplanning`);
+  return { ok: true };
+}
+
+export async function updateTransportAction(
+  tripId: string,
+  _prev: TransportFormState,
+  formData: FormData,
+): Promise<TransportFormState> {
+  const user = await requireUser();
+  const member = await isTripMember(user.id, tripId);
+  if (!member) return { error: "You must be a trip member to edit transport." };
+  if (await isTripVaulted(tripId)) return { error: "This trip is settled." };
+
+  const id = typeof formData.get("id") === "string" ? String(formData.get("id")) : "";
+  if (!id) return { error: "Missing transport id." };
+
+  const type = validTransportType(formData.get("type"));
+  const provider = normalize(formData.get("provider"), MAX_TRANSPORT_PROVIDER);
+  const confirmationCode = normalize(formData.get("confirmationCode"), MAX_TRANSPORT_CONF);
+  const pickupLocation = normalize(formData.get("pickupLocation"), MAX_TRANSPORT_LOCATION);
+  const dropoffLocation = normalize(formData.get("dropoffLocation"), MAX_TRANSPORT_LOCATION);
+  const pickupDate = validDateOrNull(formData.get("pickupDate"));
+  const pickupTime = validTimeOrNull(formData.get("pickupTime"));
+  const bookingUrl = normalize(formData.get("bookingUrl"), MAX_URL);
+  const notes = normalize(formData.get("notes"), MAX_TRANSPORT_NOTES);
+
+  await db
+    .update(tripTransports)
+    .set({
+      type,
+      provider,
+      confirmationCode,
+      pickupLocation,
+      dropoffLocation,
+      pickupDate,
+      pickupTime,
+      bookingUrl,
+      notes,
+      updatedAt: new Date(),
+    })
+    .where(
+      and(
+        eq(tripTransports.id, id),
+        eq(tripTransports.tripId, tripId),
+        isNull(tripTransports.deletedAt),
+      )
+    );
+
+  revalidatePath(`/app/trips/${tripId}/preplanning`);
+  return { ok: true };
+}
+
+export async function deleteTransportAction(
+  tripId: string,
+  formData: FormData,
+): Promise<void> {
+  const user = await requireUser();
+  const member = await isTripMember(user.id, tripId);
+  if (!member) return;
+  if (await isTripVaulted(tripId)) return;
+
+  const id = typeof formData.get("id") === "string" ? String(formData.get("id")) : "";
+  if (!id) return;
+
+  await db
+    .update(tripTransports)
+    .set({ deletedAt: new Date() })
+    .where(and(eq(tripTransports.id, id), eq(tripTransports.tripId, tripId)));
+
+  revalidatePath(`/app/trips/${tripId}/preplanning`);
 }
 
 // ── Flights ──────────────────────────────────────────────────────────────────
