@@ -11,6 +11,8 @@ import {
   proposals,
 } from "@/lib/db/schema";
 
+// ── Pulse data (server read) ─────────────────────────────────────────────────
+
 export type TripPulseData = {
   nextEvent: {
     title: string;
@@ -151,4 +153,172 @@ export async function getTripPulse(
     proposalsCount: proposalsCountResult[0]?.count ?? 0,
     topProposal: topRow ? { title: topRow.title, upvoteCount: topRow.upvoteCount } : null,
   };
+}
+
+// ── Right-now rows (merged lifecycle + live signals) ─────────────────────────
+
+export type RightNowSeverity =
+  | "blocking"        // lifecycle gap on the spine the user must clear
+  | "time-sensitive"  // near-future event or open vote
+  | "financial"       // money owed or owing
+  | "collaborative";  // group input / proposals
+
+export type RightNowRow = {
+  key: string;
+  severity: RightNowSeverity;
+  text: string;
+  href: string;
+};
+
+const SEVERITY_RANK: Record<RightNowSeverity, number> = {
+  blocking: 0,
+  "time-sensitive": 1,
+  financial: 2,
+  collaborative: 3,
+};
+
+function formatCents(cents: number, currency: string): string {
+  const abs = Math.abs(cents) / 100;
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency,
+    minimumFractionDigits: Math.abs(cents) % 100 === 0 ? 0 : 2,
+    maximumFractionDigits: 2,
+  }).format(abs);
+}
+
+function formatEventDate(eventDate: string): string {
+  const [year, month, day] = eventDate.split("-").map(Number);
+  const today = new Date();
+  const todayUtc = Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate());
+  const eventUtc = Date.UTC(year, month - 1, day);
+  const diffDays = Math.round((eventUtc - todayUtc) / 86_400_000);
+  if (diffDays === 0) return "Today";
+  if (diffDays === 1) return "Tomorrow";
+  if (diffDays > 1) return `In ${diffDays} days`;
+  return `${Math.abs(diffDays)} days ago`;
+}
+
+function formatTime(timeStr: string): string {
+  const [h, m] = timeStr.split(":").map(Number);
+  const ampm = h >= 12 ? "pm" : "am";
+  const hour = h % 12 || 12;
+  return `${hour}:${String(m).padStart(2, "0")}${ampm}`;
+}
+
+export type RightNowContext = {
+  base: string;
+  displayCurrency: string;
+  isOrganizer: boolean;
+  isSolo: boolean;
+  hasExpenses: boolean;
+  hasStartDate: boolean;
+  isVaulted: boolean;
+};
+
+/**
+ * Builds the single ranked "Right now" row list for the trip overview.
+ * Merges lifecycle gaps (no dates / solo / no expenses) with live pulse signals
+ * (next event, unvoted polls, net balance, proposals) into one ordered array.
+ *
+ * Scope note: kept local to the overview route on purpose. This is not a
+ * general-purpose cross-app signal framework.
+ */
+export function buildRightNowRows(
+  pulse: TripPulseData,
+  ctx: RightNowContext,
+): RightNowRow[] {
+  const rows: RightNowRow[] = [];
+
+  // Lifecycle gaps — only meaningful while the trip is still active.
+  if (!ctx.isVaulted) {
+    if (!ctx.hasStartDate && ctx.isOrganizer) {
+      rows.push({
+        key: "no-dates",
+        severity: "blocking",
+        text: "Set trip dates",
+        href: `${ctx.base}/setup/edit`,
+      });
+    }
+    if (ctx.isSolo && ctx.isOrganizer) {
+      rows.push({
+        key: "solo",
+        severity: "blocking",
+        text: "Invite your first traveler",
+        href: `${ctx.base}/invite`,
+      });
+    }
+    if (!ctx.hasExpenses && !ctx.isSolo) {
+      rows.push({
+        key: "no-expenses",
+        severity: "blocking",
+        text: ctx.isOrganizer ? "Log the first expense" : "Log an expense",
+        href: `${ctx.base}/expenses`,
+      });
+    }
+  }
+
+  // Live signals.
+  if (pulse.nextEvent) {
+    const dateLabel = formatEventDate(pulse.nextEvent.eventDate);
+    const timeLabel = pulse.nextEvent.startTime
+      ? `, ${formatTime(pulse.nextEvent.startTime)}`
+      : "";
+    rows.push({
+      key: "next-event",
+      severity: "time-sensitive",
+      text: `${dateLabel} · ${pulse.nextEvent.title}${timeLabel}`,
+      href: `${ctx.base}/itinerary`,
+    });
+  }
+
+  if (pulse.unvotedPollsCount > 0) {
+    rows.push({
+      key: "polls",
+      severity: "time-sensitive",
+      text:
+        pulse.unvotedPollsCount === 1
+          ? "1 open poll — your vote needed"
+          : `${pulse.unvotedPollsCount} open polls — your vote needed`,
+      href: `${ctx.base}/polls`,
+    });
+  }
+
+  if (!ctx.isVaulted && Math.abs(pulse.netBalanceCents) >= 100) {
+    rows.push({
+      key: "balance",
+      severity: "financial",
+      text:
+        pulse.netBalanceCents < 0
+          ? `You owe ${formatCents(pulse.netBalanceCents, ctx.displayCurrency)}`
+          : `You're owed ${formatCents(pulse.netBalanceCents, ctx.displayCurrency)}`,
+      href: `${ctx.base}/expenses`,
+    });
+  }
+
+  if (pulse.proposalsCount > 0) {
+    const { proposalsCount: count, topProposal: top } = pulse;
+    let text: string;
+    if (count === 1 && top) {
+      text =
+        top.upvoteCount > 0
+          ? `1 proposal: ${top.title} (${top.upvoteCount} upvote${top.upvoteCount === 1 ? "" : "s"})`
+          : `1 proposal: ${top.title}`;
+    } else if (top && top.upvoteCount > 0) {
+      text = `${count} proposals · top: ${top.title} (${top.upvoteCount} upvote${top.upvoteCount === 1 ? "" : "s"})`;
+    } else {
+      text = `${count} proposal${count === 1 ? "" : "s"} — add your support`;
+    }
+    rows.push({
+      key: "proposals",
+      severity: "collaborative",
+      text,
+      href: `${ctx.base}/proposals`,
+    });
+  }
+
+  // Stable sort: severity first, original push order preserved inside a tier.
+  rows.sort((a, b) => SEVERITY_RANK[a.severity] - SEVERITY_RANK[b.severity]);
+
+  return rows;
 }

@@ -13,6 +13,7 @@ export async function getTripById(tripId: string) {
       lifecycle: trips.lifecycle,
       startDate: trips.startDate,
       endDate: trips.endDate,
+      displayCurrency: trips.displayCurrency,
       budgetCents: trips.budgetCents,
       budgetNotes: trips.budgetNotes,
       ownerId: trips.ownerId,
