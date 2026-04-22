@@ -484,10 +484,146 @@ function DepartureSection({ initialChecklist, updateChecklistAction }: { initial
 }
 
 function TravelSection(props: Pick<PreplanningShellProps, "flights" | "transports" | "createFlightAction" | "updateFlightAction" | "deleteFlightAction" | "createTransportAction" | "updateTransportAction" | "deleteTransportAction">) {
+  const primaryFlight = props.flights[0] ?? null;
+  const hasFlight = Boolean(primaryFlight);
+  const hasTransport = props.transports.length > 0;
+
+  const routeFromCode = primaryFlight?.fromAirport ?? "SRQ";
+  const routeToCode = primaryFlight?.toAirport ?? "JFK";
+  const routeFromLabel = airportLabel(primaryFlight?.fromAirport) ?? "Sarasota, FL";
+  const routeToLabel = airportLabel(primaryFlight?.toAirport) ?? "New York, NY";
+  const departDate = primaryFlight?.departureDate ? formatShortDate(primaryFlight.departureDate) : "04/01/2025";
+  const departTime = primaryFlight?.departureTime ? formatTime(primaryFlight.departureTime) : "07:15 AM";
+  const arriveDate = primaryFlight?.departureDate ? formatShortDate(primaryFlight.departureDate) : "04/01/2025";
+  const arriveTime = primaryFlight?.departureTime ? plusHours(primaryFlight.departureTime, 3, 15) : "10:30 AM";
+  const flightNumber = primaryFlight?.flightNumber ?? "AA2847";
+  const confirmation = primaryFlight?.confirmationCode ?? "XK92MN";
+  const notes = primaryFlight?.notes ?? "Seat preferences, meal requests, layover notes...";
+  const airline = primaryFlight?.airline ?? "American Airlines";
+
   return (
-    <div className="flex flex-col gap-8">
-      <FlightsSection flights={props.flights} createAction={props.createFlightAction} updateAction={props.updateFlightAction} deleteAction={props.deleteFlightAction} />
-      <TransportSection transports={props.transports} createAction={props.createTransportAction} updateAction={props.updateTransportAction} deleteAction={props.deleteTransportAction} />
+    <div className="space-y-5">
+      <section className="rounded-[26px] border border-white/[0.06] bg-[#2a2a2a] px-6 py-5">
+        <div className="flex flex-wrap items-start gap-4 border-b border-white/[0.06] pb-5">
+          <div className="flex h-14 w-14 items-center justify-center rounded-full bg-[#ff2d8b] shadow-[0_12px_30px_rgba(255,45,139,0.22)]">
+            <Airplane size={24} weight="fill" color="#ffffff" />
+          </div>
+          <div className="min-w-0 flex-1">
+            <h3 className="text-[2.1rem] font-semibold leading-none text-white" style={{ fontFamily: "var(--font-fredoka)" }}>Travel</h3>
+            <p className="mt-1 text-base font-black text-[#ff980f]">{hasFlight ? `${props.flights.length} flights entered` : "0 flights entered"}</p>
+          </div>
+        </div>
+
+        <div className="mt-5 flex flex-wrap gap-3">
+          <div className="inline-flex items-center gap-2 rounded-full border border-[#ff2d8b]/50 bg-[#ff2d8b] px-5 py-2.5 text-base font-black text-white">
+            <Airplane size={16} weight="fill" /> Flights
+          </div>
+          <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-[#353535] px-5 py-2.5 text-base font-black text-white/75">
+            <span className="flex h-5 w-5 items-center justify-center rounded-full bg-white/10 text-[11px] font-black">🚗</span>
+            Driving
+          </div>
+        </div>
+
+        <div className="mt-4 flex flex-wrap gap-3">
+          <div className="inline-flex items-center gap-2 rounded-full border border-[#ff2d8b]/50 bg-[#ff2d8b] px-5 py-2.5 text-base font-black text-white">
+            • Leg 1 <span className="text-white/70">×</span>
+          </div>
+          <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-[#353535] px-5 py-2.5 text-base font-black text-[#9fb3cf]">
+            • Leg 2 <span className="text-white/35">×</span>
+          </div>
+          <button type="button" className="inline-flex items-center gap-2 rounded-full border border-dashed border-[#ff2d8b]/45 px-5 py-2.5 text-base font-black text-[#ff2d8b]">
+            + Add leg
+          </button>
+        </div>
+      </section>
+
+      <div className="grid gap-5 xl:grid-cols-[1.8fr_0.9fr]">
+        <section className="rounded-[26px] border border-white/[0.06] bg-[#2e2e2e] p-6">
+          <p className="text-center text-xs font-black uppercase tracking-[0.28em] text-[#8a8f98]">Route</p>
+          <div className="mt-5 grid gap-5 lg:grid-cols-[1fr_auto_1fr] lg:items-center">
+            <div>
+              <p className="text-6xl font-semibold leading-none text-white" style={{ fontFamily: "var(--font-fredoka)" }}>{routeFromCode}</p>
+              <p className="mt-2 text-[1.05rem] font-bold text-white/82">{routeFromLabel}</p>
+            </div>
+            <div className="flex items-center justify-center text-white/25 text-4xl">→</div>
+            <div className="text-left lg:text-right">
+              <p className="text-6xl font-semibold leading-none text-white" style={{ fontFamily: "var(--font-fredoka)" }}>{routeToCode}</p>
+              <p className="mt-2 text-[1.05rem] font-bold text-white/82">{routeToLabel}</p>
+            </div>
+          </div>
+
+          <div className="mt-6 grid gap-3 md:grid-cols-2">
+            <div className="rounded-[18px] bg-[#1e1e1e] px-4 py-4"><p className="text-xs font-black uppercase tracking-[0.24em] text-white/45">From</p><p className="mt-2 text-[1.35rem] font-black text-white">{routeFromCode}</p><p className="mt-1 text-base font-semibold text-white/78">{routeFromLabel}</p></div>
+            <div className="rounded-[18px] bg-[#1e1e1e] px-4 py-4"><p className="text-xs font-black uppercase tracking-[0.24em] text-white/45">To</p><p className="mt-2 text-[1.35rem] font-black text-white">{routeToCode}</p><p className="mt-1 text-base font-semibold text-white/78">{routeToLabel}</p></div>
+          </div>
+        </section>
+
+        <section className="rounded-[26px] border border-white/[0.06] bg-[#2e2e2e] p-6">
+          <p className="text-center text-xs font-black uppercase tracking-[0.28em] text-[#8a8f98]">Flight #</p>
+          <p className="mt-7 text-center text-5xl font-semibold leading-none text-[#11c3ef]" style={{ fontFamily: "var(--font-fredoka)" }}>{flightNumber}</p>
+          <div className="mt-8 rounded-[18px] bg-[#1e1e1e] px-4 py-5 text-center">
+            <p className="text-[1.85rem] font-black text-white">{flightNumber}</p>
+            <p className="mt-2 text-sm font-semibold text-white/68">{airline}</p>
+          </div>
+        </section>
+      </div>
+
+      <div className="grid gap-5 xl:grid-cols-3">
+        <section className="rounded-[26px] border border-white/[0.06] bg-[#2e2e2e] p-6 xl:col-span-2">
+          <p className="text-center text-xs font-black uppercase tracking-[0.28em] text-[#8a8f98]">Depart → Arrive</p>
+          <div className="mt-5 grid gap-4 lg:grid-cols-[1fr_auto_1fr] lg:items-end">
+            <div className="grid gap-3 sm:grid-cols-2">
+              <div className="rounded-[18px] bg-[#1e1e1e] px-4 py-4"><p className="text-xs font-black uppercase tracking-[0.24em] text-white/45">Depart date</p><p className="mt-2 text-[1.15rem] font-black text-white">{departDate}</p></div>
+              <div className="rounded-[18px] bg-[#1e1e1e] px-4 py-4"><p className="text-xs font-black uppercase tracking-[0.24em] text-white/45">Depart time</p><p className="mt-2 text-[1.15rem] font-black text-white">{departTime}</p></div>
+            </div>
+            <div className="pb-2 text-center text-sm font-black uppercase tracking-[0.22em] text-white/30">Direct</div>
+            <div className="grid gap-3 sm:grid-cols-2">
+              <div className="rounded-[18px] bg-[#1e1e1e] px-4 py-4"><p className="text-xs font-black uppercase tracking-[0.24em] text-white/45">Arrive date</p><p className="mt-2 text-[1.15rem] font-black text-white">{arriveDate}</p></div>
+              <div className="rounded-[18px] bg-[#1e1e1e] px-4 py-4"><p className="text-xs font-black uppercase tracking-[0.24em] text-white/45">Arrive time</p><p className="mt-2 text-[1.15rem] font-black text-white">{arriveTime}</p></div>
+            </div>
+          </div>
+        </section>
+
+        <section className="rounded-[26px] border border-white/[0.06] bg-[#2e2e2e] p-6">
+          <p className="text-center text-xs font-black uppercase tracking-[0.28em] text-[#8a8f98]">Transport status</p>
+          <div className="mt-6 space-y-3 rounded-[18px] bg-[#1e1e1e] px-4 py-5">
+            <p className="text-lg font-black text-white">{hasTransport ? `${props.transports.length} transport item${props.transports.length === 1 ? "" : "s"} logged` : "No driving details yet"}</p>
+            <p className="text-sm font-semibold text-white/75">{hasTransport ? "Cars, trains, shuttles, and pickups are attached below." : "Add cars, trains, shuttles, or ferries once those details are locked."}</p>
+          </div>
+        </section>
+      </div>
+
+      <div className="grid gap-5 xl:grid-cols-3">
+        <section className="rounded-[26px] border border-white/[0.06] bg-[#2e2e2e] p-6">
+          <p className="text-center text-xs font-black uppercase tracking-[0.28em] text-[#8a8f98]">Seat class</p>
+          <div className="mt-6 flex flex-wrap gap-3">
+            <span className="rounded-full bg-[#ff2d8b] px-5 py-2.5 text-lg font-black text-white">Economy</span>
+            <span className="rounded-full bg-[#3a3a3a] px-5 py-2.5 text-lg font-black text-white/78">Premium</span>
+            <span className="rounded-full bg-[#3a3a3a] px-5 py-2.5 text-lg font-black text-white/78">Business</span>
+            <span className="rounded-full bg-[#3a3a3a] px-5 py-2.5 text-lg font-black text-white/78">First</span>
+          </div>
+        </section>
+
+        <section className="rounded-[26px] border border-white/[0.06] bg-[#2e2e2e] p-6">
+          <p className="text-center text-xs font-black uppercase tracking-[0.28em] text-[#8a8f98]">Confirmation</p>
+          <p className="mt-6 text-center text-5xl font-semibold leading-none text-[#ffd400]" style={{ fontFamily: "var(--font-fredoka)" }}>{confirmation}</p>
+          <div className="mt-8 rounded-[18px] bg-[#1e1e1e] px-4 py-5 text-center">
+            <p className="text-[1.7rem] font-black tracking-[0.18em] text-white">{confirmation}</p>
+          </div>
+        </section>
+
+        <section className="rounded-[26px] border border-white/[0.06] bg-[#2e2e2e] p-6">
+          <p className="text-center text-xs font-black uppercase tracking-[0.28em] text-[#8a8f98]">Notes</p>
+          <div className="mt-6 min-h-[176px] rounded-[18px] bg-[#1e1e1e] px-4 py-4">
+            <p className="text-lg font-semibold leading-relaxed text-white/88">{notes}</p>
+          </div>
+        </section>
+      </div>
+
+      <div className="grid gap-5 xl:grid-cols-2">
+        <FlightsSection flights={props.flights} createAction={props.createFlightAction} updateAction={props.updateFlightAction} deleteAction={props.deleteFlightAction} />
+        <TransportSection transports={props.transports} createAction={props.createTransportAction} updateAction={props.updateTransportAction} deleteAction={props.deleteTransportAction} />
+      </div>
     </div>
   );
 }
@@ -630,6 +766,33 @@ function formatFlightMeta(flight: TripFlight): string | null {
   const timePart = flight.departureTime ? formatTime(flight.departureTime) : null;
   const parts = [routePart, datePart, timePart].filter(Boolean);
   return parts.length > 0 ? parts.join(" · ") : null;
+}
+
+function airportLabel(code: string | null | undefined): string | null {
+  if (!code) return null;
+  const normalized = code.toUpperCase();
+  const known: Record<string, string> = {
+    SRQ: "Sarasota, FL",
+    JFK: "New York, NY",
+    EWR: "Newark, NJ",
+    LGA: "Queens, NY",
+    MCO: "Orlando, FL",
+    TPA: "Tampa, FL",
+    ATL: "Atlanta, GA",
+    LAX: "Los Angeles, CA",
+    ORD: "Chicago, IL",
+    BOS: "Boston, MA",
+    PVD: "Providence, RI",
+  };
+  return known[normalized] ?? normalized;
+}
+
+function plusHours(timeStr: string, hours: number, minutes = 0): string {
+  const [h, m] = timeStr.split(":").map(Number);
+  const d = new Date();
+  d.setHours(h, m, 0, 0);
+  d.setMinutes(d.getMinutes() + hours * 60 + minutes);
+  return d.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" });
 }
 
 function formatShortDate(dateStr: string): string {
