@@ -29,6 +29,13 @@
       "when": 1745452800000,
       "tag": "0003_slug_per_owner",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1745539200000,
+      "tag": "0004_packing_items",
+      "breakpoints": true
     }
   ]
 }

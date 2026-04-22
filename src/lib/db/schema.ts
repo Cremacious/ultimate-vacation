@@ -442,6 +442,28 @@ export const travelDayTasks = pgTable(
 );
 
 // ─────────────────────────────────────────────────────────────────────────────
+// Packing (shared per-trip checklist — migration 0004)
+// ─────────────────────────────────────────────────────────────────────────────
+
+export const packingItems = pgTable(
+  "packing_items",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    tripId: uuid("trip_id")
+      .notNull()
+      .references(() => trips.id, { onDelete: "cascade" }),
+    text: text("text").notNull(),
+    isPacked: boolean("is_packed").notNull().default(false),
+    addedById: uuid("added_by_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "restrict" }),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    deletedAt: timestamp("deleted_at", { withTimezone: true }),
+  },
+  (t) => [index("packing_items_trip_id_idx").on(t.tripId)]
+);
+
+// ─────────────────────────────────────────────────────────────────────────────
 // Notifications (in-app bell only; intra-session awareness, not re-engagement.
 // Re-engagement happens via transactional emails — see MONETIZATION.md.)
 // ─────────────────────────────────────────────────────────────────────────────
