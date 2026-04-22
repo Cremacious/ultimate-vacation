@@ -6,10 +6,13 @@ import { db } from "@/lib/db";
 import { users } from "@/lib/db/schema";
 import { isTripMember } from "@/lib/invites/permissions";
 import { getTripById } from "@/lib/trips/queries";
-import { listLodgings } from "@/lib/preplanning/queries";
+import { listFlights, listLodgings } from "@/lib/preplanning/queries";
 
 import PreplanningShell from "@/components/preplanning/PreplanningShell";
 import {
+  createFlightAction,
+  updateFlightAction,
+  deleteFlightAction,
   createLodgingAction,
   updateLodgingAction,
   deleteLodgingAction,
@@ -30,7 +33,8 @@ export default async function PreplanningPage({
   const member = await isTripMember(user.id, tripId);
   if (!member) notFound();
 
-  const [lodgings, notesEditor] = await Promise.all([
+  const [flights, lodgings, notesEditor] = await Promise.all([
+    listFlights(tripId),
     listLodgings(tripId),
     trip.preplanNotesUpdatedBy
       ? db
@@ -48,7 +52,10 @@ export default async function PreplanningPage({
     updatedByName: notesEditor[0]?.name ?? null,
   };
 
-  // Bind tripId onto the server actions so the client shell stays simple.
+  // Bind tripId onto server actions so the client shell stays simple.
+  const createFlightBound = createFlightAction.bind(null, tripId);
+  const updateFlightBound = updateFlightAction.bind(null, tripId);
+  const deleteFlightBound = deleteFlightAction.bind(null, tripId);
   const createStayAction = createLodgingAction.bind(null, tripId);
   const updateStayAction = updateLodgingAction.bind(null, tripId);
   const deleteStayAction = deleteLodgingAction.bind(null, tripId);
@@ -64,15 +71,19 @@ export default async function PreplanningPage({
           Preplanning
         </h1>
         <p className="text-sm text-white/50">
-          Where you&apos;re staying, plus anything the group should know before you leave.
+          How you&apos;re getting there, where you&apos;re staying, plus anything the group should know before you leave.
         </p>
       </header>
 
       <PreplanningShell
         tripId={tripId}
+        flights={flights}
         lodgings={lodgings}
         tripNotes={trip.preplanNotes ?? ""}
         notesMeta={notesMeta}
+        createFlightAction={createFlightBound}
+        updateFlightAction={updateFlightBound}
+        deleteFlightAction={deleteFlightBound}
         createStayAction={createStayAction}
         updateStayAction={updateStayAction}
         deleteStayAction={deleteStayAction}

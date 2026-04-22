@@ -472,9 +472,8 @@ export const packingItems = pgTable(
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Preplanning — Stays (migration 0007)
-// Member-level collaborative; one row per booked accommodation. Flights and
-// transport deliberately stay in itinerary_events. File uploads and external
-// API integration are out of v1 scope.
+// One row per booked accommodation. Any trip member may add/edit/delete.
+// File uploads and external API integration out of scope.
 // ─────────────────────────────────────────────────────────────────────────────
 
 export const lodgings = pgTable(
@@ -499,6 +498,39 @@ export const lodgings = pgTable(
     deletedAt: timestamp("deleted_at", { withTimezone: true }),
   },
   (t) => [index("lodgings_trip_id_idx").on(t.tripId)]
+);
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Preplanning — Flights (migration 0008)
+// Booking records, not schedule blocks. Distinct from itinerary_events: these
+// store confirmation codes and routing info; the itinerary stores time-blocks.
+// Any trip member may add/edit/delete. Sorted by departure_date ASC.
+// ─────────────────────────────────────────────────────────────────────────────
+
+export const tripFlights = pgTable(
+  "trip_flights",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    tripId: uuid("trip_id")
+      .notNull()
+      .references(() => trips.id, { onDelete: "cascade" }),
+    airline: text("airline"),
+    flightNumber: text("flight_number"),
+    confirmationCode: text("confirmation_code"),
+    fromAirport: text("from_airport"),
+    toAirport: text("to_airport"),
+    departureDate: date("departure_date"),
+    departureTime: time("departure_time"),
+    bookingUrl: text("booking_url"),
+    notes: text("notes"),
+    addedById: uuid("added_by_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "restrict" }),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+    deletedAt: timestamp("deleted_at", { withTimezone: true }),
+  },
+  (t) => [index("trip_flights_trip_id_idx").on(t.tripId)]
 );
 
 // ─────────────────────────────────────────────────────────────────────────────

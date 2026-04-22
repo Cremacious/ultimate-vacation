@@ -37,6 +37,9 @@ This folder is the operating system for the project. If we keep it current, it w
 - [DECISIONS.md](C:\Code\personal\ultimate-vacation\docs\DECISIONS.md)
   The running decision log for important product and engineering choices.
 
+- [SURFACE_BLUEPRINT.md](C:\Code\personal\ultimate-vacation\docs\SURFACE_BLUEPRINT.md)
+  Per-surface product-memory document: verified current state, long-term contract, deferred capabilities, and what is not owed. Read before expanding any existing surface.
+
 ## How To Use This Folder
 
 - Update `PROJECT_PLAN.md` when the product vision or business assumptions change.
