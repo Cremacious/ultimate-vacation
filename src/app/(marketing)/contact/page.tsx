@@ -1,3 +1,6 @@
+const CONTACT_EMAIL = "hello@tripwave.app";
+const MAILTO = `mailto:${CONTACT_EMAIL}?subject=TripWave%20question`;
+
 export default function ContactPage() {
   return (
     <div className="px-6 py-20 max-w-2xl mx-auto">
@@ -7,43 +10,49 @@ export default function ContactPage() {
       >
         Say hello.
       </h1>
-      <p className="text-gray-400 font-medium mb-10">
-        Questions, feedback, or just want to chat about your next trip? We are here.
+      <p className="text-gray-400 font-medium mb-10 leading-relaxed">
+        Questions, feedback, a bug to report, or something about your account — email us directly.
+        We read every message.
       </p>
 
-      <form className="space-y-4">
-        <div>
-          <label className="block text-sm font-bold text-[#1A1A1A] mb-1.5">Name</label>
-          <input
-            type="text"
-            placeholder="Your name"
-            className="w-full px-4 py-3 rounded-2xl border-2 border-gray-100 bg-[#F8F8FA] text-[#1A1A1A] placeholder:text-gray-300 focus:outline-none focus:border-[#00A8CC] transition-colors text-sm font-medium"
-          />
-        </div>
-        <div>
-          <label className="block text-sm font-bold text-[#1A1A1A] mb-1.5">Email</label>
-          <input
-            type="email"
-            placeholder="you@email.com"
-            className="w-full px-4 py-3 rounded-2xl border-2 border-gray-100 bg-[#F8F8FA] text-[#1A1A1A] placeholder:text-gray-300 focus:outline-none focus:border-[#00A8CC] transition-colors text-sm font-medium"
-          />
-        </div>
-        <div>
-          <label className="block text-sm font-bold text-[#1A1A1A] mb-1.5">Message</label>
-          <textarea
-            rows={5}
-            placeholder="What's on your mind?"
-            className="w-full px-4 py-3 rounded-2xl border-2 border-gray-100 bg-[#F8F8FA] text-[#1A1A1A] placeholder:text-gray-300 focus:outline-none focus:border-[#00A8CC] transition-colors text-sm font-medium resize-none"
-          />
-        </div>
-        <button
-          type="submit"
-          className="w-full bg-[#00A8CC] text-white font-bold py-3.5 rounded-full hover:bg-[#0096b8] transition-colors"
-          style={{ boxShadow: "0 3px 0 #007a99" }}
+      <div className="bg-white rounded-3xl border border-gray-100 p-8">
+        <p className="text-xs font-bold text-[#00A8CC] uppercase tracking-widest mb-3">
+          Contact
+        </p>
+        <a
+          href={MAILTO}
+          className="text-xl font-semibold text-[#1A1A1A] hover:text-[#00A8CC] transition-colors break-all"
         >
-          Send message
-        </button>
-      </form>
+          {CONTACT_EMAIL}
+        </a>
+        <p className="text-sm text-gray-400 font-medium mt-3 leading-relaxed">
+          Click to open in your email client, or copy the address above.
+          We aim to respond within one business day.
+        </p>
+
+        <div className="mt-8 pt-6 border-t border-gray-100 space-y-2">
+          <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-3">
+            Common topics
+          </p>
+          {[
+            ["Billing question", "billing question"],
+            ["Bug report", "bug report"],
+            ["Account or data request", "account or data request"],
+            ["General feedback", "feedback"],
+          ].map(([label, subject]) => (
+            <a
+              key={subject}
+              href={`mailto:${CONTACT_EMAIL}?subject=TripWave%20${encodeURIComponent(subject)}`}
+              className="flex items-center justify-between px-4 py-3 rounded-2xl bg-[#F8F8FA] hover:bg-[#00A8CC]/8 transition-colors group"
+            >
+              <span className="text-sm font-semibold text-[#1A1A1A]">{label}</span>
+              <span className="text-xs font-bold text-[#00A8CC] opacity-0 group-hover:opacity-100 transition-opacity">
+                Open email →
+              </span>
+            </a>
+          ))}
+        </div>
+      </div>
     </div>
   );
 }

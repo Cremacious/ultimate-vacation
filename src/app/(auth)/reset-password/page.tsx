@@ -40,7 +40,7 @@ function ResetPasswordForm() {
   return (
     <form className="space-y-4" onSubmit={handleSubmit}>
       <div>
-        <label className="block text-sm font-bold text[#1A1A1A] mb-1.5">New password</label>
+        <label className="block text-sm font-bold text-[#1A1A1A] mb-1.5">New password</label>
         <input
           type="password"
           required
