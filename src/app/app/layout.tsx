@@ -13,9 +13,9 @@ export default async function AppLayout({
 
   return (
     <AppShellProvider>
-      <div className="min-h-screen" style={{ backgroundColor: "#404040" }}>
+      <div className="min-h-screen bg-[#4a4a4a] text-white">
         <TopNav />
-        <main className="pt-14">{children}</main>
+        <main className="pt-17">{children}</main>
       </div>
     </AppShellProvider>
   );

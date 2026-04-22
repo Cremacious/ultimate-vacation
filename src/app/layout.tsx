@@ -31,7 +31,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className={cn(fredoka.variable, nunito.variable, "font-sans", geist.variable)}>
-      <body>{children}</body>
+      <body className="tripwave-shell">{children}</body>
     </html>
   );
 }

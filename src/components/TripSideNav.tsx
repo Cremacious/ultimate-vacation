@@ -3,22 +3,22 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
-  House,
-  Gear,
-  Checks,
-  CalendarBlank,
-  Backpack,
   Airplane,
-  Sun,
-  Receipt,
+  Backpack,
+  CalendarBlank,
   ChartBar,
+  Checks,
+  Compass,
+  Gear,
+  House,
   ListChecks,
   Note,
-  Wrench,
-  Vault,
+  Receipt,
   Star,
+  Sun,
   Users,
-  Compass,
+  Vault,
+  Wrench,
 } from "@phosphor-icons/react";
 import TripBall from "./TripBall";
 import { useAppShell } from "./AppShellProvider";
@@ -40,27 +40,30 @@ interface TripSideNavProps {
 }
 
 const phaseColor: Record<string, string> = {
-  setup: "#00A8CC",
-  preplanning: "#00A8CC",
-  itinerary: "#00A8CC",
-  packing: "#FFD600",
-  "travel-days": "#FF2D8B",
-  "vacation-days": "#00A8CC",
-  expenses: "#00C96B",
-  polls: "#FFD600",
-  proposals: "#00A8CC",
-  "scavenger-hunt": "#FF8C00",
-  notes: "#FFD600",
-  tools: "#00A8CC",
-  vault: "#FF2D8B",
-  memory: "#FF2D8B",
+  overview: "#6d6d6d",
+  setup: "#8b8f98",
+  preplanning: "#92a7c8",
+  itinerary: "#8aa6d9",
+  packing: "#ffd400",
+  "travel-days": "#b7bac4",
+  "vacation-days": "#8f939b",
+  expenses: "#00d26a",
+  polls: "#ffd400",
+  proposals: "#12b8e8",
+  "scavenger-hunt": "#ff8f1f",
+  notes: "#8f939b",
+  tools: "#8f939b",
+  vault: "#8f939b",
+  memory: "#8f939b",
+  members: "#8f939b",
+  settings: "#8f939b",
 };
 
 export default function TripSideNav({
   tripId,
   tripName = "My Trip",
   fillPct = 0,
-  ballColor = "#00A8CC",
+  ballColor = "#ff2d8b",
   daysUntil,
 }: TripSideNavProps) {
   const pathname = usePathname();
@@ -68,24 +71,24 @@ export default function TripSideNav({
   const { sidebarOpen, closeSidebar } = useAppShell();
 
   const mainPhases: Phase[] = [
-    { key: "overview",      label: "Overview",     href: base,                      icon: <House size={14} weight="fill" />,        color: "#00A8CC" },
-    { key: "setup",         label: "Setup",        href: `${base}/setup`,           icon: <Gear size={14} weight="fill" />,         color: phaseColor.setup },
-    { key: "preplanning",   label: "Preplanning",  href: `${base}/preplanning`,     icon: <Checks size={14} weight="fill" />,       color: phaseColor.preplanning },
-    { key: "itinerary",     label: "Itinerary",    href: `${base}/itinerary`,       icon: <CalendarBlank size={14} weight="fill" />,color: phaseColor.itinerary },
-    { key: "packing",       label: "Packing",      href: `${base}/packing`,         icon: <Backpack size={14} weight="fill" />,     color: phaseColor.packing },
-    { key: "travel-days",   label: "Travel Day",   href: `${base}/travel-days`,     icon: <Airplane size={14} weight="fill" />,     color: phaseColor["travel-days"] },
-    { key: "vacation-days", label: "Today",        href: `${base}/vacation-days`,   icon: <Sun size={14} weight="fill" />,          color: phaseColor["vacation-days"] },
-    { key: "expenses",      label: "Expenses",     href: `${base}/expenses`,        icon: <Receipt size={14} weight="fill" />,      color: phaseColor.expenses },
+    { key: "overview", label: "Overview", href: base, icon: <House size={14} weight="fill" />, color: phaseColor.overview },
+    { key: "setup", label: "Setup", href: `${base}/setup`, icon: <Gear size={14} weight="fill" />, color: phaseColor.setup },
+    { key: "preplanning", label: "Preplanning", href: `${base}/preplanning`, icon: <Checks size={14} weight="fill" />, color: phaseColor.preplanning },
+    { key: "itinerary", label: "Itinerary", href: `${base}/itinerary`, icon: <CalendarBlank size={14} weight="fill" />, color: phaseColor.itinerary },
+    { key: "packing", label: "Packing", href: `${base}/packing`, icon: <Backpack size={14} weight="fill" />, color: phaseColor.packing },
+    { key: "travel-days", label: "Travel Day", href: `${base}/travel-days`, icon: <Airplane size={14} weight="fill" />, color: phaseColor["travel-days"] },
+    { key: "vacation-days", label: "Vacation Day", href: `${base}/vacation-days`, icon: <Sun size={14} weight="fill" />, color: phaseColor["vacation-days"] },
+    { key: "expenses", label: "Expenses", href: `${base}/expenses`, icon: <Receipt size={14} weight="fill" />, color: phaseColor.expenses },
   ];
 
   const extraPhases: Phase[] = [
-    { key: "polls",           label: "Polls",         href: `${base}/polls`,          icon: <ChartBar size={14} weight="fill" />,  color: phaseColor.polls },
-    { key: "proposals",       label: "Proposals",     href: `${base}/proposals`,      icon: <Star size={14} weight="fill" />,      color: phaseColor.proposals },
-    { key: "scavenger-hunt",  label: "Scavenger Hunt",href: `${base}/scavenger-hunt`, icon: <Compass size={14} weight="fill" />,   color: phaseColor["scavenger-hunt"] },
-    { key: "notes",    label: "Notes",   href: `${base}/notes`,   icon: <Note size={14} weight="fill" />,      color: phaseColor.notes },
-    { key: "tools",    label: "Tools",   href: `${base}/tools`,   icon: <Wrench size={14} weight="fill" />,    color: phaseColor.tools },
-    { key: "vault",    label: "Vault",   href: `${base}/vault`,   icon: <Vault size={14} weight="fill" />,     color: phaseColor.vault },
-    { key: "memory",   label: "Memory",  href: `${base}/memory`,  icon: <ListChecks size={14} weight="fill" />,color: phaseColor.memory },
+    { key: "polls", label: "Polls", href: `${base}/polls`, icon: <ChartBar size={14} weight="fill" />, color: phaseColor.polls },
+    { key: "proposals", label: "Proposals", href: `${base}/proposals`, icon: <Star size={14} weight="fill" />, color: phaseColor.proposals },
+    { key: "scavenger-hunt", label: "Scavenger Hunt", href: `${base}/scavenger-hunt`, icon: <Compass size={14} weight="fill" />, color: phaseColor["scavenger-hunt"] },
+    { key: "notes", label: "Notes", href: `${base}/notes`, icon: <Note size={14} weight="fill" />, color: phaseColor.notes },
+    { key: "tools", label: "Tools", href: `${base}/tools`, icon: <Wrench size={14} weight="fill" />, color: phaseColor.tools },
+    { key: "vault", label: "Vault", href: `${base}/vault`, icon: <Vault size={14} weight="fill" />, color: phaseColor.vault },
+    { key: "memory", label: "Memory", href: `${base}/memory`, icon: <ListChecks size={14} weight="fill" />, color: phaseColor.memory },
   ];
 
   const isActive = (href: string, key: string) => {
@@ -98,26 +101,48 @@ export default function TripSideNav({
     return (
       <Link key={phase.key} href={phase.href} onClick={closeSidebar} aria-current={active ? "page" : undefined}>
         <div
-          className={`flex items-center gap-2.5 px-3 py-2 rounded-xl transition-all ${
+          className={[
+            "group relative flex items-center gap-3 rounded-xl border px-3 py-2.5 transition-all",
             active
-              ? "bg-[#2A2B45] border border-[#00E5FF]/25"
-              : "hover:bg-[#2A2B45]/60"
-          }`}
+              ? "border-[#d6ecf3] bg-[#2b2b2b] shadow-[inset_0_0_0_1px_rgba(255,255,255,0.04)]"
+              : "border-transparent bg-transparent hover:border-white/6 hover:bg-[#2b2b2b]",
+          ].join(" ")}
         >
+          {active && <span className="absolute inset-y-1 left-0 w-[3px] rounded-full bg-[#11c3ef]" />}
           <div
-            className="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0"
-            style={{ backgroundColor: active ? phase.color : "#2A2B45" }}
+            className="flex h-8 w-8 items-center justify-center rounded-full flex-shrink-0"
+            style={{ backgroundColor: active ? phase.color : "#3a3a3a" }}
           >
-            <span style={{ color: active ? "white" : "rgba(255,255,255,0.4)" }}>
-              {phase.icon}
-            </span>
+            <span style={{ color: active ? "#ffffff" : "rgba(255,255,255,0.62)" }}>{phase.icon}</span>
           </div>
           <span
-            className={`text-sm truncate ${
-              active ? "font-bold text-white" : "font-semibold text-white/40"
-            }`}
+            className={[
+              "truncate text-[15px] leading-none",
+              active ? "font-bold text-white" : "font-semibold text-[#b7bcc6] group-hover:text-white",
+            ].join(" ")}
           >
             {phase.label}
+          </span>
+        </div>
+      </Link>
+    );
+  };
+
+  const renderUtilityLink = (href: string, label: string, icon: React.ReactNode) => {
+    const active = pathname.startsWith(href);
+    return (
+      <Link href={href} onClick={closeSidebar} aria-current={active ? "page" : undefined}>
+        <div
+          className={[
+            "group flex items-center gap-3 rounded-xl border px-3 py-2.5 transition-all",
+            active ? "border-[#d6ecf3] bg-[#2b2b2b]" : "border-transparent hover:border-white/6 hover:bg-[#2b2b2b]",
+          ].join(" ")}
+        >
+          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[#3a3a3a] text-white/60">
+            {icon}
+          </div>
+          <span className={active ? "text-[15px] font-bold text-white" : "text-[15px] font-semibold text-[#b7bcc6] group-hover:text-white"}>
+            {label}
           </span>
         </div>
       </Link>
@@ -134,80 +159,47 @@ export default function TripSideNav({
 
   return (
     <>
-      {/* Mobile backdrop overlay -- tap to close */}
       {sidebarOpen && (
-        <div
-          className="fixed top-14 inset-x-0 bottom-0 z-40 bg-black/75 md:hidden"
-          onClick={closeSidebar}
-        />
+        <div className="fixed inset-x-0 bottom-0 top-17 z-40 bg-black/70 md:hidden" onClick={closeSidebar} />
       )}
 
-      {/* Sidebar */}
       <aside
         className={[
-          "fixed top-14 left-0 bottom-0 z-50",
-          "bg-[#15162A] border-r border-[#2A2B45]",
-          "flex flex-col overflow-y-auto scrollbar-dark",
+          "fixed bottom-0 left-0 top-17 z-50 flex flex-col overflow-y-auto border-r border-white/8 bg-[#262626] scrollbar-dark",
           "transition-transform duration-300 ease-in-out",
-          // Mobile: 80vw wide, slide in/out
-          "w-[80vw] max-w-[300px]",
+          "w-[82vw] max-w-[302px]",
           sidebarOpen ? "translate-x-0" : "-translate-x-full",
-          // Desktop: always visible, fixed 224px wide
-          "md:translate-x-0 md:w-56",
+          "md:translate-x-0 md:w-[270px]",
         ].join(" ")}
       >
-        {/* Trip header */}
-        <div className="px-4 py-4 border-b border-[#2A2B45]">
+        <div className="border-b border-white/8 px-4 py-6">
           <div className="flex items-center gap-3">
             <TripBall
               fillPct={fillPct}
               color={ballColor}
-              size={40}
+              size={44}
               pulse
-              surfaceColor="#15162A"
-              emptyArcColor="#2A2B45"
+              surfaceColor="#262626"
+              emptyArcColor="#3d3d3d"
             />
             <div className="min-w-0">
-              <p
-                className="font-semibold text-white truncate text-sm leading-tight"
-                style={{ fontFamily: "var(--font-fredoka)" }}
-              >
+              <p className="truncate text-base font-bold leading-tight text-white" style={{ fontFamily: "var(--font-fredoka)" }}>
                 {tripName}
               </p>
-              {countdownLabel() && (
-                <p className="text-xs font-medium text-white/40">
-                  {countdownLabel()}
-                </p>
-              )}
+              {countdownLabel() && <p className="mt-0.5 text-sm font-semibold text-[#aeb5c2]">{countdownLabel()}</p>}
             </div>
           </div>
         </div>
 
-        {/* Phase navigation */}
-        <nav className="flex-1 px-2 py-3 space-y-0.5">
+        <nav className="flex-1 space-y-1 px-3 py-4">
           {mainPhases.map(renderPhase)}
-          <div className="border-t border-[#2A2B45] my-2" />
+          <div className="my-3 border-t border-white/8" />
           {extraPhases.map(renderPhase)}
         </nav>
 
-        {/* Bottom: Members + Settings */}
-        <div className="px-2 py-3 border-t border-[#2A2B45] space-y-0.5">
-          <Link href={`${base}/settings/members`} onClick={closeSidebar}>
-            <div className="flex items-center gap-2.5 px-3 py-2 rounded-xl hover:bg-[#2A2B45]/60 transition-colors">
-              <div className="w-6 h-6 rounded-full bg-[#2A2B45] flex items-center justify-center flex-shrink-0">
-                <Users size={14} weight="fill" className="text-white/40" />
-              </div>
-              <span className="text-sm font-semibold text-white/40">Members</span>
-            </div>
-          </Link>
-          <Link href={`${base}/settings`} onClick={closeSidebar}>
-            <div className="flex items-center gap-2.5 px-3 py-2 rounded-xl hover:bg-[#2A2B45]/60 transition-colors">
-              <div className="w-6 h-6 rounded-full bg-[#2A2B45] flex items-center justify-center flex-shrink-0">
-                <Gear size={14} weight="fill" className="text-white/40" />
-              </div>
-              <span className="text-sm font-semibold text-white/40">Settings</span>
-            </div>
-          </Link>
+        <div className="space-y-1 border-t border-white/8 px-3 py-4">
+          {renderUtilityLink(`${base}/settings/members`, "Members", <Users size={14} weight="fill" />)}
+          {renderUtilityLink(`${base}/settings`, "Settings", <Gear size={14} weight="fill" />)}
         </div>
       </aside>
     </>

@@ -41,7 +41,7 @@ export default async function TripLayout({
         ballColor={trip.ballColor}
         daysUntil={daysUntilStart}
       />
-      <div className="md:pl-56">{children}</div>
+      <div className="md:pl-[270px]">{children}</div>
     </>
   );
 }

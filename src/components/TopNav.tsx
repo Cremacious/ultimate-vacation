@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { List, X, User } from "@phosphor-icons/react";
+import { BellSimple, List, User, X } from "@phosphor-icons/react";
 import { useAppShell } from "./AppShellProvider";
 import NotificationBell from "./NotificationBell";
 import TripSwitcher from "./TripSwitcher";
@@ -13,46 +13,50 @@ export default function TopNav() {
   const { sidebarOpen, toggleSidebar, currentTrip } = useAppShell();
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 h-14 bg-[#15162A] border-b border-[#2A2B45] flex items-center px-4 gap-3">
-      {/* Hamburger toggle -- mobile only, inside trip workspace */}
-      {inTrip && (
-        <button
-          onClick={toggleSidebar}
-          className="md:hidden flex items-center justify-center w-9 h-9 rounded-xl hover:bg-[#2A2B45] transition-colors flex-shrink-0"
-          aria-label={sidebarOpen ? "Close navigation" : "Open navigation"}
-        >
-          {sidebarOpen ? (
-            <X size={20} weight="bold" className="text-white" />
-          ) : (
-            <List size={20} weight="bold" className="text-white" />
-          )}
-        </button>
-      )}
+    <header className="fixed top-0 left-0 right-0 z-50 h-17 border-b border-white/8 bg-[#1f1f1f]">
+      <div className="flex h-full items-center gap-3 px-4 md:px-5">
+        {inTrip && (
+          <button
+            onClick={toggleSidebar}
+            className="flex h-10 w-10 items-center justify-center rounded-full border border-white/8 bg-[#2a2a2a] text-white transition-colors hover:bg-[#333333] md:hidden"
+            aria-label={sidebarOpen ? "Close navigation" : "Open navigation"}
+          >
+            {sidebarOpen ? <X size={18} weight="bold" /> : <List size={18} weight="bold" />}
+          </button>
+        )}
 
-      {/* Logo */}
-      <Link href="/app" className="flex-shrink-0">
-        <span
-          className="text-2xl font-semibold text-[#00A8CC]"
-          style={{ fontFamily: "var(--font-fredoka)" }}
-        >
-          TripWave
-        </span>
-      </Link>
-
-      {/* Trip switcher -- desktop only, shown once context is populated */}
-      {inTrip && currentTrip && <TripSwitcher currentTrip={currentTrip} />}
-
-      <div className="flex-1" />
-
-      {/* Right side actions */}
-      <div className="flex items-center gap-2">
-        <NotificationBell />
-
-        <Link href="/app/account" aria-label="Account">
-          <div className="w-9 h-9 rounded-full bg-[#00A8CC] flex items-center justify-center hover:bg-[#0096b8] transition-colors">
-            <User size={16} weight="fill" className="text-white" aria-hidden="true" />
-          </div>
+        <Link href="/app" className="flex shrink-0 items-center">
+          <span
+            className="text-[2rem] font-semibold leading-none text-[#00b8e6]"
+            style={{ fontFamily: "var(--font-fredoka)" }}
+          >
+            TripWave
+          </span>
         </Link>
+
+        {inTrip && currentTrip && <TripSwitcher currentTrip={currentTrip} />}
+
+        <div className="flex-1" />
+
+        <div className="flex items-center gap-2">
+          <div className="hidden sm:block">
+            <NotificationBell />
+          </div>
+          <button
+            type="button"
+            aria-label="Quick alerts"
+            className="flex h-10 w-10 items-center justify-center rounded-full border border-white/8 bg-[#2a2a2a] text-white transition-colors hover:bg-[#333333] sm:hidden"
+          >
+            <BellSimple size={18} weight="bold" />
+            <span className="absolute mt-[-18px] ml-[18px] h-2.5 w-2.5 rounded-full bg-[#ff2d8b]" />
+          </button>
+
+          <Link href="/app/account" aria-label="Account">
+            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#12b8e8] text-white transition-colors hover:bg-[#0ea8d4]">
+              <User size={17} weight="fill" aria-hidden="true" />
+            </div>
+          </Link>
+        </div>
       </div>
     </header>
   );
