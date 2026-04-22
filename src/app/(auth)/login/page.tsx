@@ -48,9 +48,9 @@ function LoginForm() {
       <div>
         <div className="flex items-center justify-between mb-1.5">
           <label className="block text-sm font-bold text-[#1A1A1A]">Password</label>
-          <span className="text-xs font-semibold text-gray-300" title="Password reset by email isn't available in this beta.">
+          <Link href="/forgot-password" className="text-xs font-bold text-[#00A8CC] hover:text-[#0096b8] transition-colors">
             Forgot?
-          </span>
+          </Link>
         </div>
         <input
           type="password"

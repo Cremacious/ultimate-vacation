@@ -5,6 +5,7 @@ import { nextCookies } from "better-auth/next-js";
 import { db } from "./db";
 import * as schema from "./db/schema";
 import { emit } from "./analytics/events";
+import { sendPasswordResetEmail } from "./email";
 
 /**
  * Better Auth — server instance.
@@ -39,7 +40,7 @@ export const auth = betterAuth({
     sendResetPassword: async ({ user, url }) => {
       // Beta: no email provider configured; log the reset URL so the solo dev can
       // hand it off manually. Replace with a real mail handler in the email-send chunk.
-      console.log(`[auth] password reset for ${user.email} → ${url}`);
+      await sendPasswordResetEmail(user.email, url);
     },
   },
   secret: process.env.BETTER_AUTH_SECRET,
