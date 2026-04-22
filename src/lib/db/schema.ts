@@ -147,6 +147,13 @@ export const trips = pgTable(
     // Budget — inline field (Basics hub collapsed to trip-level per 2026-04-21 launch-scope grill).
     budgetCents: integer("budget_cents"),
     budgetNotes: text("budget_notes"),
+    // Preplanning v1 — one freeform notes pad per trip (migration 0007).
+    // Member-level editable; last-write-wins. Separate table `lodgings` holds structured stays.
+    preplanNotes: text("preplan_notes"),
+    preplanNotesUpdatedBy: uuid("preplan_notes_updated_by").references(() => users.id, {
+      onDelete: "set null",
+    }),
+    preplanNotesUpdatedAt: timestamp("preplan_notes_updated_at", { withTimezone: true }),
     // Retention: set by daily cron when T+14d unsettled-balance reminder has fired for this trip.
     // Null = not yet sent. Never reset — reminder fires once per trip.
     unsettledBalanceReminderSentAt: timestamp("unsettled_balance_reminder_sent_at", {
@@ -461,6 +468,37 @@ export const packingItems = pgTable(
     deletedAt: timestamp("deleted_at", { withTimezone: true }),
   },
   (t) => [index("packing_items_trip_id_idx").on(t.tripId)]
+);
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Preplanning — Stays (migration 0007)
+// Member-level collaborative; one row per booked accommodation. Flights and
+// transport deliberately stay in itinerary_events. File uploads and external
+// API integration are out of v1 scope.
+// ─────────────────────────────────────────────────────────────────────────────
+
+export const lodgings = pgTable(
+  "lodgings",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    tripId: uuid("trip_id")
+      .notNull()
+      .references(() => trips.id, { onDelete: "cascade" }),
+    name: text("name").notNull(),
+    address: text("address"),
+    checkInDate: date("check_in_date"),
+    checkOutDate: date("check_out_date"),
+    confirmationNumber: text("confirmation_number"),
+    bookingUrl: text("booking_url"),
+    notes: text("notes"),
+    addedById: uuid("added_by_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "restrict" }),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+    deletedAt: timestamp("deleted_at", { withTimezone: true }),
+  },
+  (t) => [index("lodgings_trip_id_idx").on(t.tripId)]
 );
 
 // ─────────────────────────────────────────────────────────────────────────────

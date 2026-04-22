@@ -16,6 +16,9 @@ export async function getTripById(tripId: string) {
       displayCurrency: trips.displayCurrency,
       budgetCents: trips.budgetCents,
       budgetNotes: trips.budgetNotes,
+      preplanNotes: trips.preplanNotes,
+      preplanNotesUpdatedBy: trips.preplanNotesUpdatedBy,
+      preplanNotesUpdatedAt: trips.preplanNotesUpdatedAt,
       ownerId: trips.ownerId,
     })
     .from(trips)
