@@ -107,7 +107,7 @@ export default async function TripOverviewPage({
         members={memberRows}
       />
       <div className="p-3 md:p-6">
-        <OverviewRightNow rows={rightNowRows} />
+        <OverviewRightNow rows={rightNowRows} base={base} />
       </div>
     </>
   );
