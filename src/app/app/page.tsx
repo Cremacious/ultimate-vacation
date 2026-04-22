@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
 
 import { requireUser } from "@/lib/auth/session";
 import { listTripsForUser, type TripListItem } from "@/lib/trips/queries";
@@ -129,6 +130,8 @@ function EmptyState() {
 export default async function HomePage() {
   const user = await requireUser();
   const userTrips = await listTripsForUser(user.id);
+
+  if (userTrips.length === 0) redirect("/app/trips/new");
 
   const firstName = (user.name ?? "").split(" ")[0] || "there";
   const hero = nextUpTrip(userTrips);
