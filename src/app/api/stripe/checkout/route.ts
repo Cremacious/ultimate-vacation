@@ -4,7 +4,7 @@ import { eq } from "drizzle-orm";
 import { getServerSession } from "@/lib/auth/session";
 import { db } from "@/lib/db";
 import { users } from "@/lib/db/schema";
-import { stripe } from "@/lib/stripe";
+import { getStripe } from "@/lib/stripe";
 
 export async function POST() {
   const session = await getServerSession();
@@ -24,7 +24,7 @@ export async function POST() {
 
   const baseUrl = process.env.BETTER_AUTH_URL ?? "http://localhost:3000";
 
-  const checkoutSession = await stripe.checkout.sessions.create({
+  const checkoutSession = await getStripe().checkout.sessions.create({
     mode: "payment",
     line_items: [{ price: process.env.STRIPE_PRICE_ID!, quantity: 1 }],
     success_url: `${baseUrl}/app/account/premium?success=1`,
