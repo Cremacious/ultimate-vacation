@@ -16,6 +16,25 @@ Use this format for new entries:
 
 ## Entries
 
+### 2026-04-22 - Preplanning navigation: 4-section in-page rail supersedes 8-section hub
+
+- Status: **accepted** (UX_SPEC.md §4 annotated as superseded; SURFACE_BLUEPRINT.md updated; structural slice shipped)
+- Context: UX_SPEC.md §4 described an 8-section hub model — a grid of section cards, each navigating to a focused editor page and back. After building Flights, Transport, Stays, and Trip Notes as CRUD record lists, the content shape became clear: every implemented section is a list of bookings, not a fill-in-once form. The hub model was designed for form-style sections (fill group composition, fill budget, etc.); list-based sections (add flights, add stays) work better with in-page navigation where the user can scan all records at a glance without round-tripping to a hub.
+- Decision:
+  - **The 8-section hub model (UX_SPEC §4) is superseded.** The intended Preplanning navigation shape is a 4-section in-page rail (left nav) + content pane. UX_SPEC §4 is annotated accordingly.
+  - **4 canonical sections:** Travel (Flights + Transport), Stays, Prep, Notes.
+  - **Travel is a group, not a flat section.** Flights and Transport are sub-lists under a single "Travel" anchor — both cover moving the group from place to place.
+  - **Prep is a real future section**, not mock-era filler. It covers visa requirements, travel insurance notes, and pre-departure logistics. Currently stubbed ("coming soon") as a placeholder to lock in the canonical model. Content requires a separate grill before build.
+  - **Sections dropped from the original 8:** Group composition (belongs in Members/Settings), Budget (belongs in Expenses), Destination info (already exists as the Tools surface), Trip character/Vibe (belongs in Setup, not Preplanning).
+  - **Structural slice shipped:** Travel `<section id="travel">` wrapper groups Flights + Transport under a single anchor. Stays and Notes receive `id` props threaded to their root elements. PrepStubSection added between Stays and Notes to establish the 4-section model visibly.
+- Why:
+  - Hub navigation (click section card → navigate to editor → fill → return to hub) creates unnecessary round-trip friction for a booking-reference use case. "Let me check what flights we have" should not require navigating into a section, scanning a list, and tapping back.
+  - CRUD record lists and fill-in-once forms are different patterns. A stacked page with in-page section anchors (and eventually a nav rail) handles lists better. The hub was appropriate for the section shapes originally imagined; the built shapes are different.
+  - Collapsing 8 sections to 4 removes sections that either don't belong in Preplanning or are mock-era product design. The remaining 4 map cleanly to what the group actually needs before departure.
+  - The structural changes are cheap now. They become expensive if the stacked layout hardens further before the rail is built.
+- Follow-up: Rail UI (left nav + content pane split) is deferred to a future design pass — run `/design-critique` before implementing it. Prep section content (visa, insurance, checklist items) requires its own scoping grill before build. UX_SPEC §4–5 annotated as superseded. SURFACE_BLUEPRINT.md Preplanning entry updated.
+- Design skills: `/design-critique` owed before the rail layout is implemented. `/design-handoff` owed before rail code ships. `/accessibility-review` owed before the rail ships to users. No design skills run for this structural slice (structural only, no new user-facing interaction patterns).
+
 ### 2026-04-21 - Build-order grill: 10-chunk queue locked + 3 explicit bans
 
 - Status: **accepted** (grill complete — 12 decisions locked; BACKLOG.md canonical queue updated, CORE_LOOP.md gets the "no broad grills during chunks 1–9" discipline rule)

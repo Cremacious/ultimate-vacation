@@ -74,7 +74,7 @@ export default function TripSideNav({
     { key: "itinerary",     label: "Itinerary",    href: `${base}/itinerary`,       icon: <CalendarBlank size={14} weight="fill" />,color: phaseColor.itinerary },
     { key: "packing",       label: "Packing",      href: `${base}/packing`,         icon: <Backpack size={14} weight="fill" />,     color: phaseColor.packing },
     { key: "travel-days",   label: "Travel Day",   href: `${base}/travel-days`,     icon: <Airplane size={14} weight="fill" />,     color: phaseColor["travel-days"] },
-    { key: "vacation-days", label: "Vacation Day", href: `${base}/vacation-days`,   icon: <Sun size={14} weight="fill" />,          color: phaseColor["vacation-days"] },
+    { key: "vacation-days", label: "Today",        href: `${base}/vacation-days`,   icon: <Sun size={14} weight="fill" />,          color: phaseColor["vacation-days"] },
     { key: "expenses",      label: "Expenses",     href: `${base}/expenses`,        icon: <Receipt size={14} weight="fill" />,      color: phaseColor.expenses },
   ];
 

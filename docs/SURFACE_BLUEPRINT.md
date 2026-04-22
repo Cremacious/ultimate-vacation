@@ -27,7 +27,7 @@ Read before building anything:
 
 1. **Expenses is the moat.** Screenshot-worthy quality before any other surface gets polish attention. It is the reason someone switches from a group chat and the thing they screenshot to share.
 
-2. **Preplanning is a booking-records hub.** Current v1 (Stays + Notes) is ~40% of the intended surface. Flights (confirmation records) and Transport are still owed. Do not treat v1 as the complete contract.
+2. **Preplanning is a booking-records hub with 4 canonical sections: Travel (Flights + Transport), Stays, Prep, Notes.** All 4 sections are now structurally present. Prep is a stub. The in-page section rail (left nav) is the intended future shape — the 8-section hub model (UX_SPEC §4) is superseded.
 
 3. **Vacation Day / Today is the highest-frequency in-trip surface.** Members open it 3–5 times per day during a trip. Its stub status is invisible during planning-phase development and will be TripWave's most felt gap the moment a real trip starts.
 
@@ -41,7 +41,7 @@ Read before building anything:
 
 The five places where building v1 slices could accidentally redefine the product downward:
 
-1. **Preplanning** — "Stays + Notes" looks polished and complete. Flights + Transport sections are absent and unobvious. Next developer will treat v1 as the spec.
+1. **Preplanning** — All 4 canonical sections are now structurally present (Travel, Stays, Prep, Notes). Risk shifts: Prep is a visible stub but has no content yet. In-page section rail (left nav) has not been implemented — the stacked layout should not be treated as the final shape.
 2. **Premium purchase** — Dead button. The longer this stays unwired, the more the product is implicitly designed as a free-only product. Ad banner also can't be justified without a working purchase flow.
 3. **Overview inline budget field** — Listed in CORE_LOOP launch scope, not yet built. If overlooked, the Overview never fully fulfills its "what's actionable right now" contract.
 4. **Vacation Day / Today** — Total stub for the highest-frequency in-trip surface. Missing it means TripWave is a planning tool, not a trip tool.
@@ -121,18 +121,22 @@ The five places where building v1 slices could accidentally redefine the product
 
 ### Preplanning / Basics (`/app/trips/[tripId]/preplanning`)
 
-**Now `[V]`** Stays section (lodging cards: name, address, check-in/check-out, confirmation number, booking URL, notes; inline add/edit/delete) + Trip Notes (shared freeform textarea, explicit Save, "last edited by" attribution). `isTripVaulted` guard on all mutations.
+**Now `[V]`** 4-section structure: **Travel** (Flights + Transport, grouped under `id="travel"` wrapper with small overline label) · **Stays** (`id="stays"`) · **Prep** stub (`id="prep"`) · **Notes** (`id="notes"`). All 4 sections have stable anchor IDs for future section rail. Flights, Transport, Stays, and Trip Notes are fully implemented CRUD. `isTripVaulted` guard on all mutations.
 
-**Contract** Structured pre-departure booking-records hub. The group's answer to: "how are we getting there, where are we staying, and what confirmations do we have?" Current v1 covers lodging and notes — approximately 40% of the intended surface.
+**Contract** Structured pre-departure booking-records hub. The group's answer to: "how are we getting there, where are we staying, and what do we need to sort before we leave?" Intended future shape: left section rail + content pane per section (see DECISIONS.md 2026-04-22). The current stacked layout is a structural stepping stone, not the final product shape.
+
+**Canonical section model** (locked 2026-04-22, supersedes UX_SPEC §4 8-section hub):
+1. **Travel** — Flights (airline, flight #, confirmation, from/to airports, departure date/time, booking URL, notes) + Transport (type, provider, pickup/drop-off, date/time, confirmation, booking URL, notes)
+2. **Stays** — Lodging entries (name, address, check-in/check-out, confirmation number, booking URL, notes)
+3. **Prep** — Visas, travel insurance, pre-departure logistics (stub — content requires separate grill + build)
+4. **Notes** — Group scratch pad (shared freeform textarea, explicit Save, "last edited by" attribution)
 
 **Deferred**
-- **Flights section:** Booking records (airline, flight number, confirmation code, from/to airports, seat class, departure date). Distinct from Itinerary's time-based flight events — the Preplanning entry is the confirmation record; the Itinerary entry is the schedule block.
-- **Transport section:** Rental car, train, bus booking confirmations (ref number, pickup/drop-off, link).
-- Budget section placement `[?]` — CORE_LOOP mentions "budget only at launch" for Preplanning, but current Setup has the budget form. Verify whether budget lives here or on Overview before building.
+- **In-page section rail UI** — left nav + content pane layout. Requires `/design-critique` before implementation. Structural anchors (`id="travel"` etc.) are already in place.
+- **Prep section content** — visa requirements, travel insurance notes, pre-departure checklist items. Requires scoping grill before build.
+- **Budget field** — does not belong in Preplanning. Lives in Expenses / Overview.
 
-**Not owed** Adventure-theme icon decorators from old shell (Mountains, Waves, Moon, Heart, Camera, Compass, Sun, Leaf — these were visual mood decorators, not data sections). Medical/vaccination tracker. Business travel section. Shopping list (belongs in Tools or Packing).
-
-> **Flag:** "Stays + Notes" looks complete and polished. It is not the full contract. The Flights and Transport sections are the next required additions before this surface fulfills its stated purpose.
+**Not owed** Adventure-theme icon decorators from old shell. Medical/vaccination tracker. Business travel section. Shopping list (belongs in Tools or Packing). Group composition section (belongs in Members/Settings). 8-section hub navigation (superseded).
 
 > **Flag:** False "trip is settled" error reported when adding a stay on a non-vaulted trip. Most likely cause: test trip has `lifecycle = 'vaulted'` from a prior settle-up test. Verify by creating a fresh trip and attempting add-stay. If error appears on a genuinely new trip, investigate `.bind(null, tripId)` serialization.
 
@@ -340,7 +344,8 @@ The five places where building v1 slices could accidentally redefine the product
 | Ad banner missing from Home | Launch blocker | Home |
 | Three conflicting prices ($5 / $7.99 / $4.99) | Launch blocker | Account / Premium |
 | Overview inline budget field not built (CORE_LOOP launch scope) | Launch gap | Overview |
-| Preplanning: Flights + Transport sections not built | Surface incomplete | Preplanning |
+| Preplanning: Prep section is a stub with no content | Future build | Preplanning |
+| Preplanning: in-page section rail not yet implemented | Design pass owed | Preplanning |
 | False "trip is settled" error on add-stay — likely vaulted test trip | Bug (likely data) | Preplanning |
 | Vacation Day / Today — total stub for highest-frequency in-trip surface | Post-launch critical | Vacation Day |
 | Join landing page — not through conversion-design review | Pre-launch review needed | Invite / Join |

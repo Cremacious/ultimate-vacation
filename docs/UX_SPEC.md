@@ -276,7 +276,7 @@ For users creating a second+ trip, the ritual entry comes from the *+ New trip* 
 
 ## 4. Preplanning Wizard -- Navigation Shape
 
-**Status:** locked (2026-04-17)
+**Status:** ~~locked (2026-04-17)~~ **SUPERSEDED 2026-04-22** — see DECISIONS.md entry "Preplanning navigation: 4-section in-page rail supersedes 8-section hub." The 8-section hub is replaced by a 4-section in-page rail (Travel, Stays, Prep, Notes). §5 single-section editor is also superseded; sections are CRUD list panes, not fill-in-once forms. The content below is preserved for historical reference only.
 
 Preplanning uses a **section picker hub** as its navigation shape. The user picks which of the 8 sections to work on, in any order, and returns to the hub after each.
 

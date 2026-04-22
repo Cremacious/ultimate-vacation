@@ -977,16 +977,18 @@ function StaysSection({
   createAction,
   updateAction,
   deleteAction,
+  id,
 }: {
   lodgings: Lodging[];
   createAction: PreplanningShellProps["createStayAction"];
   updateAction: PreplanningShellProps["updateStayAction"];
   deleteAction: PreplanningShellProps["deleteStayAction"];
+  id?: string;
 }) {
   const [adding, setAdding] = useState(false);
 
   return (
-    <section aria-label="Stays" className="flex flex-col gap-3">
+    <section id={id} aria-label="Stays" className="flex flex-col gap-3">
       <header className="flex items-center justify-between">
         <h2
           className="text-lg font-semibold text-white"
@@ -1039,10 +1041,12 @@ function TripNotesSection({
   initialText,
   notesMeta,
   updateNotesAction,
+  id,
 }: {
   initialText: string;
   notesMeta: NotesMeta;
   updateNotesAction: PreplanningShellProps["updateNotesAction"];
+  id?: string;
 }) {
   const [state, formAction, pending] = useActionState(
     updateNotesAction,
@@ -1052,7 +1056,7 @@ function TripNotesSection({
   const dirty = value !== initialText;
 
   return (
-    <section aria-label="Trip notes" className="flex flex-col gap-2">
+    <section id={id} aria-label="Trip notes" className="flex flex-col gap-2">
       <h2
         className="text-lg font-semibold text-white"
         style={{ fontFamily: "var(--font-fredoka)" }}
@@ -1097,6 +1101,30 @@ function TripNotesSection({
   );
 }
 
+// ── Prep stub section ────────────────────────────────────────────────────────
+
+function PrepStubSection({ id }: { id?: string }) {
+  return (
+    <section id={id} aria-label="Prep" className="flex flex-col gap-3">
+      <h2
+        className="text-lg font-semibold text-white"
+        style={{ fontFamily: "var(--font-fredoka)" }}
+      >
+        Prep
+      </h2>
+      <div
+        className="rounded-2xl border border-[#2A2B45] px-6 py-10 text-center"
+        style={{ backgroundColor: "#15162A" }}
+      >
+        <p className="text-sm text-white/50">Pre-trip prep coming soon.</p>
+        <p className="text-xs text-white/30 mt-1">
+          Visas, travel insurance, and pre-departure logistics will live here.
+        </p>
+      </div>
+    </section>
+  );
+}
+
 // ── Top-level shell ──────────────────────────────────────────────────────────
 
 export default function PreplanningShell({
@@ -1118,25 +1146,36 @@ export default function PreplanningShell({
 }: PreplanningShellProps) {
   return (
     <div className="flex flex-col gap-8">
-      <FlightsSection
-        flights={flights}
-        createAction={createFlightAction}
-        updateAction={updateFlightAction}
-        deleteAction={deleteFlightAction}
-      />
-      <TransportSection
-        transports={transports}
-        createAction={createTransportAction}
-        updateAction={updateTransportAction}
-        deleteAction={deleteTransportAction}
-      />
+      {/* Travel groups Flights + Transport under a single anchor for the future section rail. */}
+      <section id="travel" aria-label="Travel" className="flex flex-col gap-3">
+        <p className="text-[11px] font-black uppercase tracking-widest text-white/30">
+          Travel
+        </p>
+        <div className="flex flex-col gap-8">
+          <FlightsSection
+            flights={flights}
+            createAction={createFlightAction}
+            updateAction={updateFlightAction}
+            deleteAction={deleteFlightAction}
+          />
+          <TransportSection
+            transports={transports}
+            createAction={createTransportAction}
+            updateAction={updateTransportAction}
+            deleteAction={deleteTransportAction}
+          />
+        </div>
+      </section>
       <StaysSection
+        id="stays"
         lodgings={lodgings}
         createAction={createStayAction}
         updateAction={updateStayAction}
         deleteAction={deleteStayAction}
       />
+      <PrepStubSection id="prep" />
       <TripNotesSection
+        id="notes"
         initialText={tripNotes}
         notesMeta={notesMeta}
         updateNotesAction={updateNotesAction}
