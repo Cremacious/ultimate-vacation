@@ -72,19 +72,7 @@ export default async function PreplanningPage({
   const updateChecklistBound = updateChecklistAction.bind(null, tripId);
 
   return (
-    <div className="px-4 py-6 md:px-6 md:py-8 max-w-3xl">
-      <header className="mb-6">
-        <h1
-          className="text-3xl md:text-4xl font-semibold text-white leading-none mb-1"
-          style={{ fontFamily: "var(--font-fredoka)" }}
-        >
-          Preplanning
-        </h1>
-        <p className="text-sm text-white/50">
-          How you&apos;re getting there, where you&apos;re staying, plus anything the group should know before you leave.
-        </p>
-      </header>
-
+    <div className="px-0 py-0">
       <PreplanningShell
         tripId={tripId}
         flights={flights}
