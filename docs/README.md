@@ -40,6 +40,15 @@ This folder is the operating system for the project. If we keep it current, it w
 - [SURFACE_BLUEPRINT.md](C:\Code\personal\ultimate-vacation\docs\SURFACE_BLUEPRINT.md)
   Per-surface product-memory document: verified current state, long-term contract, deferred capabilities, and what is not owed. Read before expanding any existing surface.
 
+- [PACKING_IMPLEMENTATION_CHECKLIST.md](C:\Code\personal\ultimate-vacation\docs\PACKING_IMPLEMENTATION_CHECKLIST.md)
+  Handoff-safe implementation checklist for the Packing page: current audited state, doc conflicts, missing JSX/logic/schema, and phased work remaining.
+
+- [PACKING_PHASE1_SCHEMA_PROPOSAL.md](C:\Code\personal\ultimate-vacation\docs\PACKING_PHASE1_SCHEMA_PROPOSAL.md)
+  Concrete Phase 1 schema proposal for richer Packing: recommended columns, migration strategy, query contract, and action surface before any implementation work starts.
+
+- [PACKING_LISTS_SCHEMA_PROPOSAL.md](C:\Code\personal\ultimate-vacation\docs\PACKING_LISTS_SCHEMA_PROPOSAL.md)
+  Current recommended Packing schema direction after the named-lists contract update: `packing_lists`, list visibility, item visibility overrides, and migration guidance from the transitional schema.
+
 ## How To Use This Folder
 
 - Update `PROJECT_PLAN.md` when the product vision or business assumptions change.

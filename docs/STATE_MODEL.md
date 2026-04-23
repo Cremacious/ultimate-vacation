@@ -388,7 +388,7 @@ The readiness score is a composite 0-100 number computed deterministically from 
 |---|---|---|
 | **Setup** | 25 | Binary — 25 if setup complete (all required fields), 0 otherwise |
 | **Itinerary** | 20 | 4 per day of trip that has >=1 scheduled event, capped at 20 |
-| **Packing** | 15 | 5 for personal list exists, 5 for group list exists (if travelerCount > 1), 5 for personal list has >=80% of suggested items |
+| **Packing** | 15 | 5 for at least one personal named list exists, 5 for shared list exists (if travelerCount > 1), 5 for an active personal list has >=80% of suggested items |
 | **Travel Day** | 20 | 10 for departure travel-day has a plan, 10 for return travel-day has a plan. Partial plan (>=1 task) counts |
 | **Collaboration** | 10 | 5 for any invite sent, 5 for all invitees joined (or 5 automatically if travelerCount = 1) |
 | **Finance** | 10 | 5 if budget set in Setup, 5 for >=1 expense logged OR expense tracking is explicitly opted out |

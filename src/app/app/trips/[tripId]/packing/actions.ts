@@ -25,7 +25,15 @@ export async function addPackingItemAction(
   if (!text) return { error: "Item text is required." };
   if (text.length > 200) return { error: "Item text must be 200 characters or fewer." };
 
-  await db.insert(packingItems).values({ tripId, text, addedById: user.id });
+  await db.insert(packingItems).values({
+    tripId,
+    text,
+    addedById: user.id,
+    ownerUserId: user.id,
+    scope: "group",
+    isPrivate: false,
+    categoryKey: "other",
+  });
 
   revalidatePath(`/app/trips/${tripId}/packing`);
   return {};
@@ -58,7 +66,7 @@ export async function togglePackingItemAction(
 
   await db
     .update(packingItems)
-    .set({ isPacked: !item.isPacked })
+    .set({ isPacked: !item.isPacked, updatedAt: new Date() })
     .where(eq(packingItems.id, itemId));
 
   revalidatePath(`/app/trips/${tripId}/packing`);
@@ -78,7 +86,7 @@ export async function deletePackingItemAction(
 
   await db
     .update(packingItems)
-    .set({ deletedAt: new Date() })
+    .set({ deletedAt: new Date(), updatedAt: new Date() })
     .where(and(eq(packingItems.id, itemId), eq(packingItems.tripId, tripId)));
 
   revalidatePath(`/app/trips/${tripId}/packing`);

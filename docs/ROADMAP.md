@@ -291,7 +291,8 @@ Items below are Later or Speculative per CORE_LOOP.md. Pull into active work onl
 
 ### Packing Page
 
-- My list + Group list tabs
+- My lists + Shared tabs
+- Named personal lists with per-list visibility
 - Drag-to-reorder categories
 - Cross-member visibility rules
 

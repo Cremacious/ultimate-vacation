@@ -6,7 +6,7 @@ import { requireUser } from "@/lib/auth/session";
 import { db } from "@/lib/db";
 import { trips } from "@/lib/db/schema";
 import { isTripMember } from "@/lib/invites/permissions";
-import { listPackingItemsForTrip } from "@/lib/packing/queries";
+import { getPackingPageData } from "@/lib/packing/queries";
 
 import PackingClient from "./PackingClient";
 import {
@@ -23,14 +23,16 @@ export default async function PackingPage({
   const { tripId } = await params;
   const user = await requireUser();
 
-  const [trip] = await db
-    .select({ id: trips.id, name: trips.name })
-    .from(trips)
-    .where(eq(trips.id, tripId))
-    .limit(1);
+  const [trip, canView] = await Promise.all([
+    db
+      .select({ id: trips.id, name: trips.name })
+      .from(trips)
+      .where(eq(trips.id, tripId))
+      .limit(1)
+      .then((rows) => rows[0]),
+    isTripMember(user.id, tripId),
+  ]);
   if (!trip) notFound();
-
-  const canView = await isTripMember(user.id, trip.id);
   if (!canView) {
     return (
       <div className="max-w-xl mx-auto px-4 py-10">
@@ -49,7 +51,7 @@ export default async function PackingPage({
     );
   }
 
-  const items = await listPackingItemsForTrip(trip.id);
+  const packingData = await getPackingPageData(trip.id, user.id);
 
   const boundAdd = addPackingItemAction.bind(null, trip.id);
   const boundToggle = togglePackingItemAction.bind(null, trip.id);
@@ -58,7 +60,7 @@ export default async function PackingPage({
   return (
     <PackingClient
       tripName={trip.name}
-      items={items}
+      packingData={packingData}
       addAction={boundAdd}
       toggleAction={boundToggle}
       deleteAction={boundDelete}

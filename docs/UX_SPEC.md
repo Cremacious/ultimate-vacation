@@ -507,23 +507,28 @@ When the trip has no dates set (Setup incomplete or dates skipped), the day pick
 
 ---
 
-## 8. Packing -- Personal vs Shared Visibility
+## 8. Packing -- My Lists, Shared, and Suggestions
 
-**Status:** locked (2026-04-20)
+**Status:** revised lock (2026-04-23)
 
-Packing uses **three tabs** at the top of the phase to separate personal, group, and suggested content.
+Packing uses **three tabs** at the top of the phase to separate personal named lists, shared trip items, and suggested content.
 
 ### Tab structure
 
-- **My list** (default tab)
-  - Grouped by categories (see Category behavior below)
+- **My lists** (default tab)
+  - Top area shows the user's named personal lists as pills/cards
+  - User can **create, name, rename, and delete** personal lists
+  - Selecting a list opens that list's items grouped by categories (see Category behavior below)
+  - Each list has a **visibility setting** owned by the list owner:
+    - **Private list** — visible only to the owner
+    - **Public list** — visible to trip members
   - Each item: checkbox + label + optional quantity + three-dot menu
-    - Menu actions: Edit (inline — see § 37), Move to group list, Delete, Make private (toggle)
-  - New items default to **private** (personal only)
-  - Quick-add input pinned at the bottom of each category
-  - Count badge on tab shows total unchecked items
+    - Menu actions: Edit (inline — see § 37), Move to Shared, Delete, Item privacy
+  - New items inherit the selected list's visibility by default, but can be overridden per item
+  - Quick-add input pinned at the bottom of each category within the selected list
+  - Count badge on tab shows total unchecked items across the user's lists
 
-- **Group list**
+- **Shared**
   - Flat list grouped by category
   - Each item: checkbox + label + avatar of the assigned bringer + three-dot menu
     - Menu actions: Edit (inline), Unassign (bringer or organizer only), Remove
@@ -540,35 +545,53 @@ Packing uses **three tabs** at the top of the phase to separate personal, group,
 ### Category behavior
 
 - **Defaults seeded on first open**: Clothing, Toiletries, Electronics, Documents, Other.
-- Defaults are immediately user-owned — same powers as custom categories: rename, delete, reorder.
+- Defaults are immediately user-owned within the selected personal list — same powers as custom categories: rename, delete, reorder.
 - Users can create additional custom categories. Custom categories can be renamed, deleted, and reordered.
-- **Ordering**: categories are drag-to-reorder (drag handle on category header). Default order is seeded order; user-defined order persists server-side per trip per user.
+- **Ordering**: categories are drag-to-reorder (drag handle on category header). Default order is seeded order; user-defined order persists server-side per list owner per list.
 - **Item ordering within a category**: creation order. Checked items move to the collapsed *Packed (N)* section at the bottom per § 37's staged reveal. Unchecked items stay in creation order.
 
-### Moving items between My list and Group list
+### List visibility and item visibility
 
-- **Move to group list** (from My list three-dot): **cut** — item leaves My list and appears in Group list pre-assigned to the moving user as bringer. No copy; the item has one home.
-- **Make private** toggle (from My list three-dot): hides the item from all other members everywhere. Toggling off restores visibility. This is the only privacy control — there is no separate "Share with group" action (redundant with Move to group list).
+- **List visibility** is the default visibility for items created inside that list.
+- **Private list**: all items default to private; other members cannot see the list unless an individual item is explicitly made public by a later action the owner takes.
+- **Public list**: the list shell is visible to trip members; items default to public unless individually marked private.
+- **Item privacy is an override**, not a second list type:
+  - a private item stays visible only to its owner, even if the surrounding list is public
+  - a public item inside a private list is visible in that list to trip members, but the rest of the list remains hidden
+- This is intentional: users need to hide a specific gift, medication, or surprise item without rebuilding their whole packing structure.
+
+### Moving items between My lists and Shared
+
+- **Move to Shared** (from My lists item menu): **cut** — item leaves its personal list and appears in Shared pre-assigned to the moving user as bringer. No copy; the item has one home.
+- **Move between personal lists**: users can re-home an item from one named personal list to another without recreating it.
+- **Item privacy** toggle: overrides the parent list visibility and hides or reveals that item to other members.
 
 ### Check-off persistence
 
-Check state on My list and Group list is **persisted server-side for the duration of the trip**. Checks survive app relaunches, device switches, and background sessions. Checks clear automatically when the trip enters Stale state (end of trip + 24h grace), so the next trip starts fresh. This is distinct from the per-leg repack check in § 39, which has independent binary state per travel leg.
+Check state on My lists and Shared is **persisted server-side for the duration of the trip**. Checks survive app relaunches, device switches, and background sessions. Checks clear automatically when the trip enters Stale state (end of trip + 24h grace), so the next trip starts fresh. This is distinct from the per-leg repack check in § 39, which has independent binary state per travel leg.
 
 ### Cross-member visibility
 
-My list is personal — visible only to its owner. Even the organizer cannot see other members' My list items. The Group tab is the shared surface. This is intentional: packing is personal (medical items, hygiene products, personal preferences) and cross-visibility would create a surveillance dynamic that makes members self-conscious.
+My lists are owned by an individual member, but visibility is now configurable per list and per item:
+
+- **Private personal lists** are visible only to their owner. Even the organizer cannot see them.
+- **Public personal lists** are visible to trip members, except for any items individually marked private.
+- **Private item override** always wins over public list visibility.
+- The **Shared** tab is still the main coordination surface for items the group is actively assigning and bringing together.
+
+This is intentional: packing is personal (medical items, hygiene products, personal preferences, gifts), and visibility needs to be flexible without creating a surveillance dynamic.
 
 ### Empty states per tab
 
 Each tab has its own empty-state messaging:
-- My list: *"No items yet. Start with the essentials."*
-- Group list: *"Nothing shared yet. First aid kit? Beach umbrella? Group snacks?"*
+- My lists: *"No lists yet. Start with your main bag, carry-on, or essentials."*
+- Shared: *"Nothing shared yet. First aid kit? Beach umbrella? Group snacks?"*
 - Suggestions (free): upgrade prompt framed as value, not pressure
 
 ### Why tabs instead of one scrolling view
 
-- Packing is deeply personal -- users want their own view first, without group items leaking in
-- Group list is a separate conversation from personal packing and deserves its own focus
+- Packing is deeply personal -- users want a flexible home for their own bags and contexts before they think about shared gear
+- Shared is a separate conversation from personal packing and deserves its own focus
 - Suggestions need their own context so the premium upgrade prompt can live cleanly in the free-user view
 - Tabs scale identically across mobile and desktop
 
@@ -2003,14 +2026,14 @@ All empty states across TripWave share a **unified skeleton** (consistent layout
   - CTA: *Add your first event*
   - Chip: *For everyone*
 
-- **Packing, My list**
+- **Packing, My lists**
   - Illustration: open suitcase with a small ball tucked inside
-  - Headline: *"No items yet. Start with the essentials."*
+  - Headline: *"No lists yet. Start with your main bag, carry-on, or essentials."*
   - Description: *"Add what you're bringing. Share what matters with the group."*
   - CTA: *Add an item*
   - Chip: *Just you*
 
-- **Packing, Group list**
+- **Packing, Shared**
   - Illustration: suitcase with colored dots representing group members
   - Headline: *"Nothing shared yet."*
   - Description: *"First aid kit? Beach umbrella? Group snacks? Add it here and claim it."*
@@ -2763,17 +2786,21 @@ All-day events and time-unset events (Notes / Free time without a start time) ca
 
 **Status:** locked (2026-04-20)
 
-Packing structure (3 tabs: My / Group / Suggestions) is already locked in section 8. This section adds the neon-on-dark treatment and two layers of fun: satisfying check animations and staged reveal (checked items collapse into a "Packed" section, shrinking the working list as you pack).
+Packing structure (3 tabs: My lists / Shared / Suggestions) is already locked in section 8. This section adds the neon-on-dark treatment and two layers of fun: satisfying check animations and staged reveal (checked items collapse into a "Packed" section, shrinking the working list as you pack).
 
 ### Tab strip (neon treatment)
 
-- Three tabs: **My list** (default) / **Group list** / **Suggestions**
+- Three tabs: **My lists** (default) / **Shared** / **Suggestions**
 - Active tab: neon cyan bottom border with glow, pure white text
 - Inactive tabs: white text at reduced weight, no underline
 - Count badges next to each tab label in small neon-cyan pills
 - Suggestions tab for free users shows a small neon-purple lock icon
 
-### Category groups (My list)
+### List strip + category groups (My lists)
+
+- Horizontal list strip above categories: each named list appears as a pill/card with its name and visibility chip
+- `+ New list` affordance lives at the end of the strip
+- Active list opens its categories below
 
 - Collapsible groups: Clothing, Toiletries, Electronics, Documents, Other (seeded defaults; all user-owned and reorderable — see § 8)
 - Group header: Fredoka white with small neon-cyan icon, tap collapses/expands
@@ -2782,7 +2809,7 @@ Packing structure (3 tabs: My / Group / Suggestions) is already locked in sectio
   - Custom neon-cyan checkbox on the left
   - Item name in white (strike-through when checked, but NOT grayed)
   - Optional quantity chip on the right
-  - Three-dot menu for edit / move / delete / make private
+  - Three-dot menu for edit / move to another list / move to Shared / delete / item privacy
   - **Inline edit**: tapping Edit in the three-dot menu transforms the item row into an inline editable state — item name becomes a focused text input, quantity becomes a stepper. Save on blur or Enter. No modal needed for packing items.
 
 ### Satisfying check animation
@@ -2810,14 +2837,14 @@ When a user checks an item:
 - Enter submits; focus is kept for chained adds
 - Neon-cyan focus ring
 
-### Group list tab
+### Shared tab
 
 - Flat list of shared items grouped by category
 - Each item: assigned-bringer avatar on the right
 - Unassigned items show a neon-yellow *Claim* button — tapping assigns the current user as bringer with a subtle ball-bounce animation
 - **Check-off**: only the **assigned bringer** can check the item (marks it as *Brought*). Other members see the bringer's avatar with a filled or empty checkmark — read-only. This is the accountability model: one owner, one check.
 - **Unassign**: available to the bringer (self-unassign) and the organizer (override). Tap three-dot → *Unassign*. Returns item to unclaimed state with *Claim* button visible to all.
-- Inline edit available via three-dot (same as My list)
+- Inline edit available via three-dot (same as My lists)
 
 ### Suggestions tab
 
@@ -2827,8 +2854,8 @@ When a user checks an item:
 
 ### Empty states
 
-- My list empty: ball-in-a-suitcase illustration, *"No items yet. Start with the essentials."*
-- Group list empty: suitcase with colored dots, *"Nothing shared yet. First aid kit? Beach umbrella? Group snacks?"*
+- My lists empty: ball-in-a-suitcase illustration, *"No lists yet. Start with your main bag, carry-on, or essentials."*
+- Shared empty: suitcase with colored dots, *"Nothing shared yet. First aid kit? Beach umbrella? Group snacks?"*
 - Suggestions empty (premium): *"Smart suggestions will appear as you add trip details."*
 
 ### Micro-interactions

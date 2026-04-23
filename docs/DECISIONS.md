@@ -16,6 +16,43 @@ Use this format for new entries:
 
 ## Entries
 
+### 2026-04-23 - Packing contract expanded: named lists are in scope under My lists
+
+- Status: **accepted** (UX_SPEC.md, SURFACE_BLUEPRINT.md, and packing handoff docs owed/updated)
+- Context: The 2026-04-23 Packing contract decision locked the richer UX-spec direction but explicitly kept arbitrary named list containers out of scope. After implementing the first schema and read-layer slices, a clearer user need emerged: travelers want to create and name multiple personal packing lists such as a main bag, carry-on, or gift bag, and control visibility at both the list level and the item level. This is still a packing problem, not a generic list-builder feature, but it changes the underlying shape enough that the existing `packing_items`-only direction is no longer sufficient as the long-term contract.
+- Decision:
+  - **Packing keeps the three top tabs, but the first tab becomes `My lists`, not a single `My list`.**
+  - **Named personal packing lists are now in scope.** Users can create, name, and manage multiple personal lists inside `My lists`.
+  - **List-level visibility is part of the contract.** Each named list can be marked public or private by its owner.
+  - **Item-level visibility is also part of the contract.** Individual items can override the list-level default and remain private even inside an otherwise public list.
+  - **The shared coordination surface remains distinct.** `Shared` stays a dedicated tab for trip-visible packing items, separate from personal list containers.
+  - **This change supersedes the earlier "named lists are out of scope" constraint only for Packing.** It does not create a generic multi-list pattern elsewhere in the product.
+- Why:
+  - Travelers naturally think in bags and contexts, not just categories. A single personal list forces too many unrelated packing decisions into one surface.
+  - List-level and item-level visibility together solve the real privacy use case cleanly: a user can share most of a carry-on list while hiding a gift or medication item.
+  - Keeping `Shared` as its own tab preserves TripWave's group-coordination value instead of collapsing everything into private containers.
+  - This shape is a better foundation for later Travel Day repack behavior, because repacking can still derive from the user's visible personal packing universe without assuming one monolithic list.
+- Follow-up: Update UX_SPEC.md Packing section to `My lists / Shared / Suggestions` with list-level and item-level visibility rules. Update SURFACE_BLUEPRINT.md and packing handoff docs. Replace the single-table packing schema proposal with a `packing_lists`-based proposal before further schema work. `/design-system`, `/design-critique`, and `/design-handoff` are owed before the list-management UI is implemented.
+- Design skills: `/user-research` skipped (user need became explicit in product direction). `/design-system` owed for the named-list and visibility-pattern components. `/design-critique` owed once the Step 2 mockup for `My lists` exists. `/design-handoff` owed before coding the list-management UI. `/accessibility-review` owed before the richer Packing surface ships.
+
+### 2026-04-23 - Packing contract resolved: richer UX-spec direction is canonical
+
+- Status: **accepted** (SURFACE_BLUEPRINT.md and packing handoff docs updated)
+- Context: Packing had drifted into a doc split. The audited current-state docs described it as a narrow shared checklist utility surface, while UX_SPEC.md and the 2026-04-20 packing grill described a richer model: **My list / Group list / Suggestions**, privacy, categories, move-to-group semantics, bringer assignment, inline edit, and persisted check behavior. This created implementation ambiguity during packing redesign and schema-planning work.
+- Decision:
+  - **Packing must not remain permanently defined as a plain audited shared checklist.**
+  - **The richer UX-spec direction is the canonical product contract** for Packing going forward.
+  - **Implementation proceeds in phased slices** so the final product shape is preserved without forcing the full feature set into one oversized build.
+  - **Current live implementation remains a valid partial slice**, not the final contract. The flat checklist is now treated as an interim state on the way to the richer model.
+  - **Multiple named lists are still NOT part of the confirmed contract.** The richer direction means tabs + categories + privacy + shared/group mechanics, not arbitrary `Main Bag` / `Carry-On` style user-created list containers unless later docs add them explicitly.
+- Why:
+  - The richer model is already the better-specified, decision-backed version of Packing and better matches TripWave's group-trip coordination value.
+  - Freezing Packing at the audited current slice would permanently flatten the product below the intended shape and make later Travel Day / repack integrations weaker.
+  - Phased implementation protects scope discipline while still preserving the right end-state contract.
+  - Excluding arbitrary named lists keeps scope tight and prevents accidental implementation of mock-only behavior not supported by docs.
+- Follow-up: Update SURFACE_BLUEPRINT.md Packing contract language to reflect the richer canonical direction. Update packing handoff docs to mark the contract decision resolved and keep the phased plan. Next implementation step remains schema-first per PACKING_PHASE1_SCHEMA_PROPOSAL.md.
+- Design skills: `/user-research` skipped (contract resolution, not user-need discovery). `/design-critique` owed when the first tabbed Packing slice mockup is prepared. `/design-system` owed if Packing introduces new tab-strip or privacy-pattern components not already covered. `/design-handoff` owed before the first rich Packing implementation slice begins. `/accessibility-review` owed before the richer Packing surface ships.
+
 ### 2026-04-22 - Preplanning navigation: 4-section in-page rail supersedes 8-section hub
 
 - Status: **accepted** (UX_SPEC.md §4 annotated as superseded; SURFACE_BLUEPRINT.md updated; structural slice shipped)

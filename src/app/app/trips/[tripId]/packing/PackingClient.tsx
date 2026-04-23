@@ -1,18 +1,26 @@
 "use client";
 
-import { useActionState } from "react";
-import { Backpack, Check, Plus, Trash } from "@phosphor-icons/react";
+import { useActionState, useState } from "react";
+import type { ReactNode } from "react";
+import { Backpack, Check, LockKey, Plus, Stack, Trash, UsersThree } from "@phosphor-icons/react";
 
-import type { PackingItem } from "@/lib/packing/queries";
+import type {
+  PackingCategoryView,
+  PackingItemView,
+  PackingListView,
+  PackingPageData,
+} from "@/lib/packing/queries";
 import type { PackingFormState } from "./actions";
 
 interface Props {
   tripName: string;
-  items: PackingItem[];
+  packingData: PackingPageData;
   addAction: (_prev: PackingFormState, formData: FormData) => Promise<PackingFormState>;
   toggleAction: (formData: FormData) => Promise<void>;
   deleteAction: (formData: FormData) => Promise<void>;
 }
+
+type PackingTab = "my" | "group";
 
 const SURFACE = "#404040";
 const HEADER_SURFACE = "#282828";
@@ -23,7 +31,7 @@ function DarkCard({
   children,
   className = "",
 }: {
-  children: React.ReactNode;
+  children: ReactNode;
   className?: string;
 }) {
   return (
@@ -76,7 +84,7 @@ function ChecklistRow({
   toggleAction,
   deleteAction,
 }: {
-  item: PackingItem;
+  item: PackingItemView;
   toggleAction: (formData: FormData) => Promise<void>;
   deleteAction: (formData: FormData) => Promise<void>;
 }) {
@@ -97,15 +105,36 @@ function ChecklistRow({
         </button>
       </form>
 
-      <span
-        className="flex-1 text-sm font-semibold leading-snug transition-colors"
-        style={{
-          color: item.isPacked ? "rgba(255,255,255,0.25)" : "rgba(255,255,255,0.88)",
-          textDecoration: item.isPacked ? "line-through" : "none",
-        }}
-      >
-        {item.text}
-      </span>
+      <div className="min-w-0 flex-1">
+        <span
+          className="block text-sm font-semibold leading-snug transition-colors"
+          style={{
+            color: item.isPacked ? "rgba(255,255,255,0.25)" : "rgba(255,255,255,0.88)",
+            textDecoration: item.isPacked ? "line-through" : "none",
+          }}
+        >
+          {item.text}
+        </span>
+        {item.quantity ? (
+          <span className="mt-1 block text-[11px] font-bold uppercase tracking-[0.16em]" style={{ color: "#9CA3AF" }}>
+            Qty {item.quantity}
+          </span>
+        ) : null}
+      </div>
+
+      {item.scope === "my" && item.isPrivate ? (
+        <span
+          className="hidden items-center gap-1 rounded-full border px-2 py-1 text-[10px] font-black uppercase tracking-[0.16em] md:inline-flex"
+          style={{
+            color: "#FF2D8B",
+            borderColor: "rgba(255,45,139,0.25)",
+            backgroundColor: "rgba(255,45,139,0.08)",
+          }}
+        >
+          <LockKey size={10} weight="fill" />
+          Private
+        </span>
+      ) : null}
 
       <form action={deleteAction} className="opacity-0 transition-opacity group-hover:opacity-100">
         <input type="hidden" name="itemId" value={item.id} />
@@ -122,31 +151,182 @@ function ChecklistRow({
   );
 }
 
+function PackingTabButton({
+  active,
+  count,
+  icon,
+  label,
+  onClick,
+}: {
+  active: boolean;
+  count: number;
+  icon: ReactNode;
+  label: string;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className="flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-black transition-colors"
+      style={{
+        backgroundColor: active ? "#00A8CC" : "rgba(255,255,255,0.04)",
+        borderColor: active ? "#00A8CC" : "rgba(255,255,255,0.08)",
+        color: "#fff",
+      }}
+    >
+      {icon}
+      <span>{label}</span>
+      <span
+        className="rounded-full px-2 py-0.5 text-[11px] leading-none"
+        style={{
+          backgroundColor: active ? "rgba(0,0,0,0.15)" : "rgba(255,255,255,0.07)",
+          color: active ? "#fff" : "#9CA3AF",
+        }}
+      >
+        {count}
+      </span>
+    </button>
+  );
+}
+
+function CategoryCard({
+  category,
+  progressAccent,
+  toggleAction,
+  deleteAction,
+}: {
+  category: PackingCategoryView;
+  progressAccent: string;
+  toggleAction: (formData: FormData) => Promise<void>;
+  deleteAction: (formData: FormData) => Promise<void>;
+}) {
+  const completionPct =
+    category.totalCount > 0 ? Math.round((category.packedCount / category.totalCount) * 100) : 0;
+
+  return (
+    <DarkCard className="overflow-hidden">
+      <div
+        className="flex items-center gap-3 px-4 py-3.5"
+        style={{ borderBottom: `1px solid ${BORDER}` }}
+      >
+        <div
+          className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full"
+          style={{ backgroundColor: "rgba(0,168,204,0.14)" }}
+        >
+          <Stack size={14} weight="fill" color={progressAccent} />
+        </div>
+        <div className="min-w-0 flex-1">
+          <p className="text-[13px] font-black text-white">{category.label}</p>
+          <p className="text-[11px] font-bold" style={{ color: "rgba(255,255,255,0.35)" }}>
+            {category.totalCount} item{category.totalCount === 1 ? "" : "s"}
+          </p>
+        </div>
+        <div className="hidden items-center gap-3 md:flex">
+          <span className="text-[11px] font-black" style={{ color: "rgba(255,255,255,0.3)" }}>
+            {category.packedCount}/{category.totalCount}
+          </span>
+          <div className="h-1.5 w-16 overflow-hidden rounded-full" style={{ backgroundColor: BORDER }}>
+            <div
+              className="h-full rounded-full transition-all duration-500"
+              style={{ width: `${completionPct}%`, backgroundColor: progressAccent }}
+            />
+          </div>
+        </div>
+      </div>
+
+      <ul className="px-4 py-2">
+        {category.items.map((item) => (
+          <ChecklistRow
+            key={item.id}
+            item={item}
+            toggleAction={toggleAction}
+            deleteAction={deleteAction}
+          />
+        ))}
+      </ul>
+    </DarkCard>
+  );
+}
+
+function EmptyState({
+  body,
+  title,
+}: {
+  body: string;
+  title: string;
+}) {
+  return (
+    <DarkCard className="px-6 py-14 text-center">
+      <p className="text-sm font-black text-white">{title}</p>
+      <p className="mt-2 text-sm font-semibold" style={{ color: "rgba(255,255,255,0.3)" }}>
+        {body}
+      </p>
+    </DarkCard>
+  );
+}
+
+function getDefaultTab(packingData: PackingPageData): PackingTab {
+  if (packingData.myList.totalCount > 0) return "my";
+  return "group";
+}
+
+function getListCopy(activeTab: PackingTab, activeList: PackingListView): { title: string; body: string } {
+  if (activeTab === "my") {
+    if (activeList.totalCount === 0) {
+      return {
+        title: "No personal items yet",
+        body: "Personal-only items will appear here once they exist on this trip.",
+      };
+    }
+
+    return {
+      title: "My list",
+      body: "Only your personal packing items appear here.",
+    };
+  }
+
+  if (activeList.totalCount === 0) {
+    return {
+      title: "No shared items yet",
+      body: "Add the first group item to start the shared list.",
+    };
+  }
+
+  return {
+    title: "Group list",
+    body: "Shared trip items are grouped here by category.",
+  };
+}
+
 export default function PackingClient({
   tripName,
-  items,
+  packingData,
   addAction,
   toggleAction,
   deleteAction,
 }: Props) {
+  const [activeTab, setActiveTab] = useState<PackingTab>(() => getDefaultTab(packingData));
   const [addState, formAction, pending] = useActionState(addAction, {});
 
-  const packedCount = items.filter((item) => item.isPacked).length;
-  const totalCount = items.length;
-  const remainingCount = Math.max(totalCount - packedCount, 0);
-  const completionPct = totalCount > 0 ? Math.round((packedCount / totalCount) * 100) : 0;
+  const activeList = activeTab === "my" ? packingData.myList : packingData.groupList;
+  const completionPct =
+    packingData.counts.total > 0
+      ? Math.round((packingData.counts.packed / packingData.counts.total) * 100)
+      : 0;
   const progressAccent = completionPct === 100 ? "#00C96B" : "#00A8CC";
+  const activeListCopy = getListCopy(activeTab, activeList);
   const statusCopy =
-    totalCount === 0
-      ? "Start the list with the first thing you do not want to forget."
-      : remainingCount === 0
-        ? "Everything on this checklist is packed."
-        : `${remainingCount} item${remainingCount === 1 ? "" : "s"} still left to pack.`;
+    packingData.counts.total === 0
+      ? "Start the shared list with the first thing you do not want the group to forget."
+      : packingData.counts.remaining === 0
+        ? "Everything across the current packing data is marked packed."
+        : `${packingData.counts.remaining} item${packingData.counts.remaining === 1 ? "" : "s"} still left to pack.`;
 
   return (
     <div className="min-h-[calc(100vh-68px)]" style={{ backgroundColor: SURFACE }}>
       <div style={{ backgroundColor: HEADER_SURFACE, borderBottom: `1px solid ${BORDER}` }}>
-        <div className="mx-auto flex max-w-5xl flex-col gap-4 px-6 py-5 md:flex-row md:items-end md:justify-between">
+        <div className="mx-auto flex max-w-6xl flex-col gap-4 px-6 py-5 md:flex-row md:items-end md:justify-between">
           <div>
             <h1
               className="m-0 text-[2rem] leading-none text-white"
@@ -155,7 +335,7 @@ export default function PackingClient({
               Packing
             </h1>
             <p className="mt-1 text-sm font-semibold" style={{ color: "#9CA3AF" }}>
-              Live checklist for {tripName}
+              Personal and shared packing, backed by the trip&apos;s live data.
             </p>
           </div>
 
@@ -168,8 +348,8 @@ export default function PackingClient({
                 color: progressAccent,
               }}
             >
-              {packedCount}
-              <span style={{ fontSize: "1rem", color: "#555" }}>/{totalCount}</span>
+              {packingData.counts.packed}
+              <span style={{ fontSize: "1rem", color: "#555" }}>/{packingData.counts.total}</span>
             </p>
             <div className="flex items-center gap-2">
               <div className="h-1.5 w-28 overflow-hidden rounded-full" style={{ backgroundColor: BORDER }}>
@@ -186,56 +366,61 @@ export default function PackingClient({
         </div>
       </div>
 
-      <div className="mx-auto max-w-5xl px-6 py-6">
+      <div className="mx-auto max-w-6xl px-6 py-6">
         <div className="space-y-5">
           <div className="grid gap-3 md:grid-cols-3">
-            <StatCard label="Items packed" value={packedCount} suffix={`/${totalCount}`} accent="#00A8CC" />
-            <StatCard label="Still to pack" value={remainingCount} accent="#00C96B" />
-            <StatCard label="Completion" value={`${completionPct}%`} accent="#FF2D8B" />
+            <StatCard
+              label="Items packed"
+              value={packingData.counts.packed}
+              suffix={`/${packingData.counts.total}`}
+              accent="#00A8CC"
+            />
+            <StatCard label="My list" value={packingData.counts.myTotal} accent="#FF2D8B" />
+            <StatCard label="Group list" value={packingData.counts.groupTotal} accent="#00C96B" />
           </div>
 
-          <div className="grid items-start gap-5 lg:grid-cols-[minmax(0,2fr)_minmax(280px,1fr)]">
+          <div className="grid items-start gap-5 lg:grid-cols-[minmax(0,2fr)_minmax(300px,1fr)]">
             <div className="space-y-4">
               <div className="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
-                <div className="flex items-center gap-2">
-                  <span
-                    className="rounded-full border px-4 py-1.5 text-sm font-black text-white"
-                    style={{ backgroundColor: "#00A8CC", borderColor: "#00A8CC" }}
-                  >
-                    Checklist
-                  </span>
-                  <span
-                    className="rounded-full border px-3 py-1.5 text-xs font-black uppercase tracking-[0.18em]"
-                    style={{
-                      color: "#9CA3AF",
-                      backgroundColor: "rgba(255,255,255,0.05)",
-                      borderColor: "rgba(255,255,255,0.12)",
-                    }}
-                  >
-                    {totalCount} items
-                  </span>
+                <div className="flex flex-wrap items-center gap-2">
+                  <PackingTabButton
+                    active={activeTab === "my"}
+                    count={packingData.counts.myTotal}
+                    icon={<Backpack size={13} weight="fill" />}
+                    label="My list"
+                    onClick={() => setActiveTab("my")}
+                  />
+                  <PackingTabButton
+                    active={activeTab === "group"}
+                    count={packingData.counts.groupTotal}
+                    icon={<UsersThree size={13} weight="fill" />}
+                    label="Group list"
+                    onClick={() => setActiveTab("group")}
+                  />
                 </div>
 
-                <form action={formAction} className="flex w-full gap-2 xl:max-w-[440px]">
-                  <input
-                    type="text"
-                    name="text"
-                    placeholder="Add an item..."
-                    required
-                    maxLength={200}
-                    className="min-w-0 flex-1 rounded-full border px-4 py-2.5 text-sm font-bold text-white outline-none transition-colors placeholder:text-white/20 focus:border-[#00A8CC]"
-                    style={{ backgroundColor: "#2e2e2e", borderColor: BORDER }}
-                  />
-                  <button
-                    type="submit"
-                    disabled={pending}
-                    className="flex flex-shrink-0 items-center gap-1.5 rounded-full px-4 py-2.5 text-sm font-black transition disabled:opacity-50"
-                    style={{ backgroundColor: "#00A8CC", color: "#fff" }}
-                  >
-                    <Plus size={12} weight="bold" />
-                    {pending ? "Adding..." : "Add"}
-                  </button>
-                </form>
+                {activeTab === "group" ? (
+                  <form action={formAction} className="flex w-full gap-2 xl:max-w-[460px]">
+                    <input
+                      type="text"
+                      name="text"
+                      placeholder="Add a shared item..."
+                      required
+                      maxLength={200}
+                      className="min-w-0 flex-1 rounded-full border px-4 py-2.5 text-sm font-bold text-white outline-none transition-colors placeholder:text-white/20 focus:border-[#00A8CC]"
+                      style={{ backgroundColor: "#2e2e2e", borderColor: BORDER }}
+                    />
+                    <button
+                      type="submit"
+                      disabled={pending}
+                      className="flex flex-shrink-0 items-center gap-1.5 rounded-full px-4 py-2.5 text-sm font-black transition disabled:opacity-50"
+                      style={{ backgroundColor: "#00A8CC", color: "#fff" }}
+                    >
+                      <Plus size={12} weight="bold" />
+                      {pending ? "Adding..." : "Add to group"}
+                    </button>
+                  </form>
+                ) : null}
               </div>
 
               {addState.error ? (
@@ -262,46 +447,50 @@ export default function PackingClient({
                     className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full"
                     style={{ backgroundColor: "rgba(0,168,204,0.14)" }}
                   >
-                    <Backpack size={14} weight="fill" color="#00A8CC" />
+                    {activeTab === "my" ? (
+                      <Backpack size={14} weight="fill" color="#FF2D8B" />
+                    ) : (
+                      <UsersThree size={14} weight="fill" color="#00A8CC" />
+                    )}
                   </div>
                   <div className="min-w-0 flex-1">
-                    <p className="text-[13px] font-black text-white">All items</p>
+                    <p className="text-[13px] font-black text-white">{activeListCopy.title}</p>
                     <p className="text-[11px] font-bold" style={{ color: "rgba(255,255,255,0.35)" }}>
-                      Real trip data, with the old packing-page composition restored around it.
+                      {activeListCopy.body}
                     </p>
                   </div>
                   <div className="hidden items-center gap-3 md:flex">
                     <span className="text-[11px] font-black" style={{ color: "rgba(255,255,255,0.3)" }}>
-                      {packedCount}/{totalCount}
+                      {activeList.packedCount}/{activeList.totalCount}
                     </span>
                     <div className="h-1.5 w-16 overflow-hidden rounded-full" style={{ backgroundColor: BORDER }}>
                       <div
                         className="h-full rounded-full transition-all duration-500"
-                        style={{ width: `${completionPct}%`, backgroundColor: progressAccent }}
+                        style={{
+                          width: `${activeList.totalCount > 0 ? Math.round((activeList.packedCount / activeList.totalCount) * 100) : 0}%`,
+                          backgroundColor: activeTab === "my" ? "#FF2D8B" : progressAccent,
+                        }}
                       />
                     </div>
                   </div>
                 </div>
-
-                {totalCount === 0 ? (
-                  <div className="px-6 py-14 text-center">
-                    <p className="text-sm font-semibold" style={{ color: "rgba(255,255,255,0.3)" }}>
-                      Nothing here yet. Add the first thing to pack.
-                    </p>
-                  </div>
-                ) : (
-                  <ul className="px-4 py-2">
-                    {items.map((item) => (
-                      <ChecklistRow
-                        key={item.id}
-                        item={item}
-                        toggleAction={toggleAction}
-                        deleteAction={deleteAction}
-                      />
-                    ))}
-                  </ul>
-                )}
               </DarkCard>
+
+              {activeList.totalCount === 0 ? (
+                <EmptyState title={activeListCopy.title} body={activeListCopy.body} />
+              ) : (
+                <div className="space-y-4">
+                  {activeList.categories.map((category) => (
+                    <CategoryCard
+                      key={category.key}
+                      category={category}
+                      progressAccent={activeTab === "my" ? "#FF2D8B" : progressAccent}
+                      toggleAction={toggleAction}
+                      deleteAction={deleteAction}
+                    />
+                  ))}
+                </div>
+              )}
             </div>
 
             <div className="space-y-4">
@@ -315,17 +504,17 @@ export default function PackingClient({
                   <div>
                     <p className="text-sm font-bold text-white">{tripName}</p>
                     <p className="mt-1 text-[11px] font-bold" style={{ color: "rgba(255,255,255,0.28)" }}>
-                      One live checklist for everything you need to bring.
+                      Shared list items stay visible to the group. Personal items stay separated by owner.
                     </p>
                   </div>
 
                   <div>
                     <div className="mb-2 flex items-center justify-between">
                       <span className="text-xs font-bold" style={{ color: "#9CA3AF" }}>
-                        Progress
+                        Overall progress
                       </span>
                       <span className="text-xs font-black" style={{ color: progressAccent }}>
-                        {packedCount}/{totalCount}
+                        {packingData.counts.packed}/{packingData.counts.total}
                       </span>
                     </div>
                     <div className="h-2 w-full overflow-hidden rounded-full" style={{ backgroundColor: BORDER }}>
@@ -357,7 +546,7 @@ export default function PackingClient({
                         Packed
                       </span>
                       <span className="text-sm font-black" style={{ color: "#00C96B" }}>
-                        {packedCount}
+                        {packingData.counts.packed}
                       </span>
                     </div>
                   </div>
@@ -371,10 +560,10 @@ export default function PackingClient({
                   >
                     <div className="flex items-center justify-between">
                       <span className="text-xs font-bold" style={{ color: "#9CA3AF" }}>
-                        Remaining
+                        Private items
                       </span>
                       <span className="text-sm font-black" style={{ color: "#FF2D8B" }}>
-                        {remainingCount}
+                        {packingData.counts.myPrivate}
                       </span>
                     </div>
                   </div>

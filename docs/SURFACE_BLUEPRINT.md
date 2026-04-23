@@ -168,13 +168,13 @@ The five places where building v1 slices could accidentally redefine the product
 
 ### Packing (`/app/trips/[tripId]/packing`)
 
-**Now `[V]`** Group packing checklist — add, toggle checked, delete. Any member can check/uncheck.
+**Now `[V]`** Transitional packing workspace. Live code has a partial `My lists` / `Shared` read split plus shared add/toggle/delete actions, but not the full named-list contract yet.
 
-**Contract** Shared group packing list. Ensures critical items are covered before departure.
+**Contract** Rich packing workspace, implemented in phases. Canonical direction is now **My lists / Shared / Suggestions**: user-created named personal lists, per-list visibility, item-level privacy overrides, grouped categories, move-to-shared semantics, bringer assignment for shared items, and eventually suggestion-driven adds. The current read-layer split is a valid partial slice, not the long-term contract.
 
-**Deferred** Per-member sections (each person manages their own sub-list within the shared list).
+**Deferred** Named-list creation and management, per-list visibility settings, item-level privacy overrides, move-between-lists, move-to-shared, bringer assignment, inline edit, suggestions tab, and later Travel Day / repack integrations that depend on the richer packing structure.
 
-**Not owed** Packing calculator (belongs in Tools). Category system with icons. Templates/presets.
+**Not owed** Generic list-builder behavior outside Packing. Packing calculator (belongs in Tools). Templates/presets.
 
 ---
 
