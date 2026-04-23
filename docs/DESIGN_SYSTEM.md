@@ -1,15 +1,17 @@
 # Design System Direction
 
-> **2026-04-23 — Visual baseline alignment**
+> **2026-04-23 — Transitional visual state**
 >
-> This document was written around an aspirational neon-black-first aesthetic that predates the current implemented UI. **The current app's actual visual baseline differs from several sections below.** Sections marked **[ASPIRATIONAL]** describe a future design direction, not what currently ships. Do not use aspirational sections to "correct" the current UI — the current dark gray baseline IS the baseline. Structural guidance (bento grid, typography, icons, component anatomy) remains valid regardless of surface color.
+> TripWave is in a **transitional visual state.** The codebase has two coexisting looks: a dark-gray shell that shipped first, and a navy-tinted neon direction that newer components already use. Both are intentional — the dark gray is where the product started, not where it is headed. The neon-black-navy direction is the restoration target TripWave is still actively moving toward.
 >
-> **Current implemented baseline (2026-04-23):**
-> - Shell background: `#444444` / `#4a4a4a` — dark gray, not near-black navy
-> - Top nav: `#171717` · Sidebar: `#202020` — very dark, providing clear visual hierarchy against the shell
+> Structural guidance (bento grid, typography, icons, component anatomy) is fully valid now. For surface colors and motion, use the **[Current Transitional State]** section to understand what is live today, and use the **[Restoration Target]** section and the Neon-on-Dark Brand Direction as the forward reference. Restore one surface at a time — never via broad global token rewrites.
+>
+> **Current transitional state (2026-04-23) — what ships today:**
+> - Shell background: `#444444` / `#4a4a4a` — dark gray. Transitional, not the intended end state.
+> - Top nav: `#171717` · Sidebar: `#202020` — very dark, near-black. Hierarchy is working.
 > - Content cards (Overview, action panels): `#2e2e2e`–`#333333`
-> - Newer components (MetricCard, HomeTripList, Home page): already use `#15162A` / `#2A2B45` navy-tinted surfaces
-> - Primary accent: `#12b8e8` / `#00b8e6` mid-tone cyan (logo, avatar, links, active states)
+> - Newer components (MetricCard, HomeTripList, Home page): already at `#15162A` / `#2A2B45` — the navy-tinted target palette. This is intentional progress.
+> - Primary accent: `#12b8e8` / `#00b8e6` mid-tone cyan on older components; `#00E5FF` neon cyan on newer ones
 > - Phase nav colors: implemented rainbow (see TripSideNav — cyan, purple, pink, yellow, green, orange variants)
 > - Liquid Motion System: not implemented. Basic transitions via tw-animate-css only.
 
@@ -41,9 +43,9 @@ These two lines serve different purposes. The headline creates instant recogniti
 
 ## Visual Thesis
 
-Trip planning should feel upbeat, confident, a little cheeky, and ready to go — inspired by the Go-Gos song Vacation energy applied to a dark-first product. The current app achieves this through a dark-gray shell, a rainbow of accent colors across the phase nav, and warm copy throughout.
+Trip planning should feel upbeat, confident, a little cheeky, and ready to go — inspired by the Go-Gos song Vacation energy applied to a dark-first product. The current app achieves this through a dark-gray shell (a transitional starting point, not the final look), a rainbow of accent colors across the phase nav, and warm copy throughout. Newer components like MetricCard and the Home page have already moved to the navy-tinted neon palette — intentional progress toward the intended look.
 
-The **eventual** visual target (see Neon-on-Dark Brand Direction [ASPIRATIONAL]) is richer: a navy-dark base, brighter neon accents, and a layered depth hierarchy that makes every color element pop. That is the direction, not the current state.
+The **restoration target** (see Neon-on-Dark Brand Direction and Restoration Target) is richer: a navy-dark base, brighter neon accents, and a layered depth hierarchy that makes every color element pop. That is the direction TripWave is still actively moving toward.
 
 **What is true now and should stay true:** this is a dark-first product. It is not a dark mode. The dark base is the neutral — white is the accent, not the background. Accent colors (cyan, yellow, pink, green, orange) do the personality work against the dark surfaces. That is the current UI and it should remain dark-first as the product evolves.
 
@@ -58,11 +60,11 @@ The **eventual** visual target (see Neon-on-Dark Brand Direction [ASPIRATIONAL])
 
 ## Color Direction
 
-### Surface palette [CURRENT]
+### Surface palette [CURRENT TRANSITIONAL VALUES]
 
-The current implemented surface hierarchy:
+The current transitional surface hierarchy (what ships today — not the final target):
 
-- **Shell/page background**: `#444444` / `#4a4a4a` — dark gray. This is the current baseline.
+- **Shell/page background**: `#444444` / `#4a4a4a` — dark gray. Transitional value, not the intended end state.
 - **Top nav**: `#171717` — very dark, near-black. Creates clear separation from the page background.
 - **Sidebar**: `#202020` — dark gray, one step lighter than the nav.
 - **Content cards (Overview, action panels)**: `#2e2e2e`–`#333333` — raised above the page background.
@@ -72,7 +74,7 @@ The current implemented surface hierarchy:
 
 The surface hierarchy (nav darker than page, sidebar slightly lighter than nav, cards raised above page) is implemented and working. The specific values are dark gray–dominant, not the navy-tinted direction described in the Neon-on-Dark section below.
 
-**Forward direction [ASPIRATIONAL]:** future surface passes may move toward a navy-tinted dark (`#0F1724` shell, `#15162A` cards, `#2A2B45` borders) for more visual personality. This is a future refinement target, not a correction mandate.
+**Restoration target:** surface passes should move toward a navy-tinted dark (`#0F1724` shell, `#15162A` cards, `#2A2B45` borders). Some components are already there. This is an active restoration target — restore surface-by-surface using specific component references, not global token rewrites.
 
 ### Accent palette [CURRENT + FORWARD DIRECTION]
 
@@ -106,9 +108,11 @@ The surface hierarchy (nav darker than page, sidebar slightly lighter than nav, 
 
 - large expanses of white or near-white in the app UI
 - sandy, tropical, or beachy styling
-- pure black (#000000) as the only background — pure black flattens the hierarchy; the current `#171717` nav and `#444444`/`#4a4a4a` shell provide the correct depth relationship
+- pure black (#000000) as the only background — pure black flattens the hierarchy; a near-black navy (`#0A0A12` / `#0F1724`) provides the correct depth
 - going so neon that the palette feels chaotic — the dark base is what makes accent colors readable
 - mid-tone or neutral backgrounds that erase the darkness of the product (it must always read as a dark-first app, not a washed-out gray)
+- treating the current dark-gray shell (`#444444`/`#4a4a4a`) as the permanent surface color — it is transitional; restored surfaces should move toward the navy-tinted target palette, not stay on the gray values
+- flat, neutral dark surfaces with no cool tint — the intended depth hierarchy uses a subtle blue-black, not plain dark gray
 
 ## Action Circle Color Language
 
@@ -599,9 +603,11 @@ Override transitions use the existing Liquid Motion System wave sweep (600ms) --
 - ball pulse is ocean wave rhythm -- slow, organic, never mechanical
 - motion should help orientation, not distract from tasks
 
-## Neon-on-Dark Brand Direction [ASPIRATIONAL]
+## Neon-on-Dark Brand Direction
 
-> **This section describes a design target, not the current implementation.** The current app uses a dark gray shell (`#444444`) with mid-tone cyan accents (`#12b8e8`), not the near-black navy and neon palette specified below. The color values in this section (`#0A0A12`, `#00E5FF`, etc.) are a forward direction — aspirational for future surface refinement passes, not a baseline the current app must be "corrected" toward. Some newer components (MetricCard, Home page) have already adopted values from this palette; that adoption was intentional and additive, not a restoration mandate.
+> **This section is the restoration reference for surface passes.** The current app's dark-gray shell (`#444444`) is a transitional state — the intended end state is the near-black navy and neon palette specified below. The color values here (`#0A0A12`, `#00E5FF`, etc.) are the active targets. Some newer components (MetricCard, Home page) have already adopted values from this palette as intentional restoration progress.
+>
+> **How to use this section:** when restoring a surface, look up what this section specifies for that surface type and apply those values to the specific component being worked on. Do not do broad global token rewrites. Do not change every surface at once. Match each restored surface to its nearest reference surface in this section.
 
 TripWave's visual direction is **neon rainbow accents against near-black backgrounds with pure-white text**. This is the aspirational brand treatment. The whole product should eventually read as fun, premium, and distinctive against a sea of white-and-cyan travel apps.
 
@@ -1080,9 +1086,25 @@ The marketing surfaces (landing page, pricing page) can lean into the full energ
 - notification panel layout -- partially resolved via UX_SPEC § 42.7 (dropdown panel pattern). Remaining: detailed notification row anatomy
 - favorites list placement in the UI
 
-## Current Implemented Style
+## Safe Restoration Workflow
 
-What the app currently is (verified against the codebase 2026-04-23):
+TripWave has two coexisting visual layers right now — the original dark-gray shell and the newer navy-neon components. This creates an inconsistent look, and restoration work is in progress. These rules prevent restoration work from becoming destructive:
+
+**What "restoration" means here:** moving a specific surface from the current transitional dark-gray values toward the navy-neon target palette specified in the Neon-on-Dark Brand Direction section.
+
+**Safe restoration rules:**
+1. **One surface at a time.** Pick a specific page, component, or section. Scope the change to that surface only.
+2. **Use the Neon-on-Dark section as your reference.** For each surface type (shell, nav, card, input, button), look up the target value in that section. Apply that specific value.
+3. **Never change global CSS tokens across the whole app at once.** Global token rewrites affect every component simultaneously and cause visual regressions across tested surfaces.
+4. **Match existing restored components first.** MetricCard, HomeTripList, and the Home page already use the target palette — check those components for precedent before introducing a new value.
+5. **Verify the surface hierarchy holds after your change.** Nav should be darker than the shell; cards should be lighter than the shell; borders should be subtly lighter than cards. If the hierarchy breaks, the restoration is wrong.
+6. **Keep typography untouched during surface passes.** Surface-color restoration and typography changes are separate workstreams.
+
+**Why broad token rewrites are not acceptable:** the current codebase has deliberate differences between older and newer surfaces. A global token change would destroy the intentional values in the newer components (MetricCard, etc.) that are already at the correct target — replacing them with values that may not match their specific layering context.
+
+## Current Transitional State
+
+What the app currently ships (verified 2026-04-23 — transitional, not final):
 
 - **Shell**: dark gray background (`#444444` / `#4a4a4a`), near-black nav (`#171717`), dark gray sidebar (`#202020`)
 - **Card surfaces**: `#2e2e2e`–`#333333` for content cards (Overview, action panels); `#15162A` / `#2A2B45` in newer components (MetricCard, trip list, Home page)
@@ -1095,9 +1117,9 @@ What the app currently is (verified against the codebase 2026-04-23):
 - **Layout**: sidebar + main content on desktop (the bento-grid shell per UX_SPEC § 42 is the structural goal but the sidebar + content model is what's currently shipped); pill bar on mobile
 - **Motion**: basic CSS transitions, no systematic ripple or wave system yet
 
-## Design Direction [ASPIRATIONAL]
+## Restoration Target
 
-Where the style should go over time (not what currently ships):
+Where the style actively needs to go — the intended end state for all surface work:
 
 - deeper surface colors — navy-tinted dark (`#0F1724` shell, `#15162A` cards) replacing the current gray
 - brighter neon accents — `#00E5FF` cyan replacing `#12b8e8`, with full neon rainbow treatment
@@ -1109,5 +1131,5 @@ Where the style should go over time (not what currently ships):
 - **desktop bento-grid full-viewport shell** with six durable named slots -- see UX_SPEC.md § 42
 - **mobile horizontal scrollable phase pill bar** -- no hamburger, no drawer, no bottom tab bar
 
-These are refinement targets for future surface passes. They are not corrections the current app needs urgently before launch.
+These are the active targets for all surface restoration work. Restore incrementally, surface-by-surface, using specific component references and the Safe Restoration Workflow rules above.
 - slogan: "Get everyone on the same wave."

@@ -1,10 +1,10 @@
 import { notFound } from "next/navigation";
-import { eq } from "drizzle-orm";
+import { and, count, eq, isNull } from "drizzle-orm";
 
 import { requireUser } from "@/lib/auth/session";
 import { db } from "@/lib/db";
-import { users } from "@/lib/db/schema";
-import { isTripMember } from "@/lib/invites/permissions";
+import { invites, tripMembers, users } from "@/lib/db/schema";
+import { isTripMember, isTripOrganizer } from "@/lib/invites/permissions";
 import { getTripById } from "@/lib/trips/queries";
 import { listFlights, listLodgings, listTransports } from "@/lib/preplanning/queries";
 
@@ -38,7 +38,8 @@ export default async function PreplanningPage({
   const member = await isTripMember(user.id, tripId);
   if (!member) notFound();
 
-  const [flights, transports, lodgings, notesEditor] = await Promise.all([
+  const [isOrganizer, flights, transports, lodgings, notesEditor, memberRows, inviteCountRows] = await Promise.all([
+    isTripOrganizer(user.id, tripId),
     listFlights(tripId),
     listTransports(tripId),
     listLodgings(tripId),
@@ -49,7 +50,18 @@ export default async function PreplanningPage({
           .where(eq(users.id, trip.preplanNotesUpdatedBy))
           .limit(1)
       : Promise.resolve([]),
+    db
+      .select({ userId: tripMembers.userId, name: users.name, role: tripMembers.role })
+      .from(tripMembers)
+      .innerJoin(users, eq(tripMembers.userId, users.id))
+      .where(and(eq(tripMembers.tripId, tripId), isNull(tripMembers.deletedAt))),
+    db
+      .select({ value: count() })
+      .from(invites)
+      .where(and(eq(invites.tripId, tripId), isNull(invites.revokedAt), isNull(invites.deletedAt))),
   ]);
+
+  const inviteCount = inviteCountRows[0]?.value ?? 0;
 
   const notesMeta = {
     updatedAt: trip.preplanNotesUpdatedAt
@@ -75,6 +87,9 @@ export default async function PreplanningPage({
     <div className="px-0 py-0">
       <PreplanningShell
         tripId={tripId}
+        members={memberRows}
+        isOrganizer={isOrganizer}
+        inviteCount={inviteCount}
         flights={flights}
         transports={transports}
         lodgings={lodgings}

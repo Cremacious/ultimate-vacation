@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useActionState, useMemo, useState, useTransition } from "react";
 import {
   Airplane,
@@ -39,6 +40,9 @@ type NotesMeta = {
 
 export interface PreplanningShellProps {
   tripId: string;
+  members: TripMember[];
+  isOrganizer: boolean;
+  inviteCount: number;
   flights: TripFlight[];
   transports: TripTransport[];
   lodgings: Lodging[];
@@ -57,6 +61,13 @@ export interface PreplanningShellProps {
   initialChecklist: ChecklistItem[];
   updateChecklistAction: (items: ChecklistItem[]) => Promise<ChecklistFormState>;
 }
+
+type TripMember = { userId: string; name: string; role: string };
+
+const MEMBER_COLORS = [
+  "#FF2D8B", "#00E5FF", "#FFD600", "#00C96B",
+  "#A855F7", "#FF9236", "#FF3DA7", "#14BFE8",
+];
 
 const INPUT_CLASS =
   "w-full rounded-xl px-4 py-3 text-base bg-[#1D1E36] border border-[#2A2B45] text-white placeholder:text-white/80 focus:outline-none focus:border-[#00E5FF] focus:ring-1 focus:ring-[#00E5FF]/20 transition-colors";
@@ -444,33 +455,50 @@ function StaysSection({ lodgings, createAction, updateAction, deleteAction }: { 
   );
 }
 
-function GroupSection() {
-  const travelers = [
-    { name: "Chris M.", role: "Organizer", color: "#FF2D8B" },
-    { name: "Sarah M.", role: "Traveler", color: "#FFD600" },
-    { name: "Tom K.", role: "Traveler", color: "#00A8CC" },
-    { name: "Lisa R.", role: "Traveler", color: "#00C96B" },
-  ];
-
+function GroupSection({ members, isOrganizer, inviteCount, tripId }: { members: TripMember[]; isOrganizer: boolean; inviteCount: number; tripId: string }) {
   return (
-    <div className="grid grid-cols-1 gap-[10px] sm:grid-cols-2">
-      {travelers.map((t, i) => (
-        <DarkCard key={i} className="p-4 flex items-center gap-3">
-          <div className="w-10 h-10 rounded-full flex items-center justify-center font-black text-sm flex-shrink-0 text-white" style={{ backgroundColor: t.color }}>
-            {t.name[0]}
+    <div className="space-y-4">
+      <div className="flex items-center gap-3 flex-wrap">
+        <div className="rounded-full bg-[#1D1E36] border border-[#2A2B45] px-4 py-1.5 text-xs font-black uppercase tracking-wide text-[#00E5FF]">
+          {members.length} traveler{members.length !== 1 ? "s" : ""}
+        </div>
+        {isOrganizer && inviteCount > 0 && (
+          <div className="rounded-full bg-[#1D1E36] border border-[#2A2B45] px-4 py-1.5 text-xs font-black uppercase tracking-wide text-[#FFD600]">
+            {inviteCount} active invite link{inviteCount !== 1 ? "s" : ""}
           </div>
-          <div>
-            <div className="text-sm font-bold text-white">{t.name}</div>
-            <div className="text-[11px] font-semibold text-white/80">{t.role}</div>
-          </div>
+        )}
+      </div>
+
+      <div className="grid grid-cols-1 gap-[10px] sm:grid-cols-2">
+        {members.map((m, i) => (
+          <DarkCard key={m.userId} className="p-4 flex items-center gap-3">
+            <div
+              className="w-10 h-10 rounded-full flex items-center justify-center font-black text-sm flex-shrink-0 text-white"
+              style={{ backgroundColor: MEMBER_COLORS[i % MEMBER_COLORS.length] }}
+            >
+              {m.name.trim().charAt(0).toUpperCase()}
+            </div>
+            <div>
+              <div className="text-sm font-bold text-white">{m.name}</div>
+              <div className="text-[11px] font-semibold text-white/80">
+                {m.role === "organizer" ? "Organizer" : m.role === "trusted" ? "Trusted" : "Traveler"}
+              </div>
+            </div>
+          </DarkCard>
+        ))}
+      </div>
+
+      {isOrganizer && (
+        <DarkCard className="p-4">
+          <Link
+            href={`/app/trips/${tripId}/invite`}
+            className="flex items-center gap-2 font-black text-sm transition-opacity hover:opacity-80 mx-auto w-fit text-[#00E5FF]"
+          >
+            <Plus size={18} weight="fill" />
+            Invite a traveler
+          </Link>
         </DarkCard>
-      ))}
-      <DarkCard className="p-4 sm:col-span-2">
-        <button type="button" className="flex items-center gap-2 font-black text-sm transition-opacity hover:opacity-80 mx-auto text-[#00A8CC]">
-          <Plus size={18} weight="fill" />
-          Invite a traveler
-        </button>
-      </DarkCard>
+      )}
     </div>
   );
 }
@@ -725,14 +753,14 @@ function TravelSection(props: Pick<PreplanningShellProps, "flights" | "transport
   );
 }
 
-export default function PreplanningShell({ flights, transports, lodgings, tripNotes, notesMeta, initialChecklist, createFlightAction, updateFlightAction, deleteFlightAction, createTransportAction, updateTransportAction, deleteTransportAction, createStayAction, updateStayAction, deleteStayAction, updateNotesAction, updateChecklistAction }: PreplanningShellProps) {
+export default function PreplanningShell({ tripId, members, isOrganizer, inviteCount, flights, transports, lodgings, tripNotes, notesMeta, initialChecklist, createFlightAction, updateFlightAction, deleteFlightAction, createTransportAction, updateTransportAction, deleteTransportAction, createStayAction, updateStayAction, deleteStayAction, updateNotesAction, updateChecklistAction }: PreplanningShellProps) {
   const [active, setActive] = useState<SectionId>("travel");
   const travelCount = flights.length + transports.length;
   const staysCount = lodgings.length;
   const prepDone = initialChecklist.filter((i) => i.checked).length;
   const prepTotal = initialChecklist.length;
   const sections = useMemo<SectionMeta[]>(() => [
-    { id: "group", label: "Group", subtitle: "4 travelers added", description: "Who is coming, roles, and how the crew is shaping up.", Icon: Users, color: "#14bfe8" },
+    { id: "group", label: "Group", subtitle: `${members.length} traveler${members.length !== 1 ? "s" : ""} added`, description: "Who is coming, roles, and how the crew is shaping up.", Icon: Users, color: "#14bfe8" },
     { id: "travel", label: "Travel", subtitle: travelCount === 0 ? "0 flights entered" : `${travelCount} items entered`, description: "How you are getting there, timing, and all booked transport.", Icon: Airplane, color: "#ff2d8b" },
     { id: "lodging", label: "Lodging", subtitle: staysCount === 0 ? "0 stays added" : `${staysCount} stays added`, description: "Where everyone is staying, dates, confirmation codes, and notes.", Icon: House, color: "#a855f7" },
     { id: "budget", label: "Budget", subtitle: "Budget set · 8 categories", description: "Costs, rough targets, and where the money is likely to disappear.", Icon: CurrencyDollar, color: "#00c96b" },
@@ -740,7 +768,7 @@ export default function PreplanningShell({ flights, transports, lodgings, tripNo
     { id: "documents", label: "Documents", subtitle: "6 of 8 confirmed", description: "Important docs, confirmations, and shared notes for the trip.", Icon: FileText, color: "#00a8cc" },
     { id: "vibe", label: "Trip Vibe", subtitle: "2 vibes · Balanced pace", description: "What kind of trip this is supposed to feel like before reality interferes.", Icon: Sparkle, color: "#ff2d8b" },
     { id: "departure", label: "Pre-Departure", subtitle: prepTotal === 0 ? "0 tasks done" : `${prepDone} of ${prepTotal} tasks done`, description: "Final checks before leaving, so nothing idiotic gets forgotten.", Icon: Checks, color: "#00c96b" },
-  ], [prepDone, prepTotal, staysCount, travelCount]);
+  ], [members.length, prepDone, prepTotal, staysCount, travelCount]);
   const activeSection = sections.find((section) => section.id === active) ?? sections[0];
   const sectionsDone = Number(staysCount > 0) + Number(travelCount > 0);
   const inProgress = Math.max(0, sections.length - sectionsDone);
@@ -752,7 +780,7 @@ export default function PreplanningShell({ flights, transports, lodgings, tripNo
       <div className="border-b border-white/6 bg-[#1f1f1f] px-5 py-5 md:px-8"><h2 className="text-[2rem] font-semibold leading-none text-white" style={{ fontFamily: "var(--font-fredoka)" }}>{activeSection.label}</h2><p className="mt-2 max-w-2xl text-sm text-white/80">{activeSection.description}</p></div>
       <div className="grid grid-cols-1 md:grid-cols-[274px_minmax(0,1fr)]">
         <PreplanningRail sections={sections} active={active} onSelect={setActive} />
-        <div className="min-h-[calc(100vh-68px-92px)] min-w-0 bg-[#4b4b4b]"><div className="space-y-5 px-5 py-5 md:px-8 md:py-6"><div className="grid gap-4 lg:grid-cols-3"><MetricBox label="Sections Done" value={String(sectionsDone)} color="#00d26a" /><MetricBox label="In Progress" value={String(inProgress)} color="#ff980f" /><MetricBox label="Overall" value={`${overall}%`} color="#14bfe8" /></div><div className="min-h-[520px] bg-transparent">{active === "group" && <GroupSection />}{active === "travel" && <TravelSection flights={flights} transports={transports} createFlightAction={createFlightAction} updateFlightAction={updateFlightAction} deleteFlightAction={deleteFlightAction} createTransportAction={createTransportAction} updateTransportAction={updateTransportAction} deleteTransportAction={deleteTransportAction} />}{active === "lodging" && <StaysSection lodgings={lodgings} createAction={createStayAction} updateAction={updateStayAction} deleteAction={deleteStayAction} />}{active === "budget" && <BudgetSection flights={flights} transports={transports} lodgings={lodgings} />}{active === "destinations" && <DestinationsSection />}{active === "documents" && <DocumentsSection initialText={tripNotes} notesMeta={notesMeta} updateNotesAction={updateNotesAction} />}{active === "vibe" && <VibeSection />}{active === "departure" && <DepartureSection initialChecklist={initialChecklist} updateChecklistAction={updateChecklistAction} />}</div></div></div>
+        <div className="min-h-[calc(100vh-68px-92px)] min-w-0 bg-[#4b4b4b]"><div className="space-y-5 px-5 py-5 md:px-8 md:py-6"><div className="grid gap-4 lg:grid-cols-3"><MetricBox label="Sections Done" value={String(sectionsDone)} color="#00d26a" /><MetricBox label="In Progress" value={String(inProgress)} color="#ff980f" /><MetricBox label="Overall" value={`${overall}%`} color="#14bfe8" /></div><div className="min-h-[520px] bg-transparent">{active === "group" && <GroupSection members={members} isOrganizer={isOrganizer} inviteCount={inviteCount} tripId={tripId} />}{active === "travel" && <TravelSection flights={flights} transports={transports} createFlightAction={createFlightAction} updateFlightAction={updateFlightAction} deleteFlightAction={deleteFlightAction} createTransportAction={createTransportAction} updateTransportAction={updateTransportAction} deleteTransportAction={deleteTransportAction} />}{active === "lodging" && <StaysSection lodgings={lodgings} createAction={createStayAction} updateAction={updateStayAction} deleteAction={deleteStayAction} />}{active === "budget" && <BudgetSection flights={flights} transports={transports} lodgings={lodgings} />}{active === "destinations" && <DestinationsSection />}{active === "documents" && <DocumentsSection initialText={tripNotes} notesMeta={notesMeta} updateNotesAction={updateNotesAction} />}{active === "vibe" && <VibeSection />}{active === "departure" && <DepartureSection initialChecklist={initialChecklist} updateChecklistAction={updateChecklistAction} />}</div></div></div>
       </div>
     </div>
   );
