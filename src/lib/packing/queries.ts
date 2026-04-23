@@ -1,7 +1,7 @@
-import { and, asc, eq, isNull } from "drizzle-orm";
+import { and, asc, eq, inArray, isNull } from "drizzle-orm";
 
 import { db } from "@/lib/db";
-import { packingItems } from "@/lib/db/schema";
+import { packingItems, packingLists, tripMembers, users } from "@/lib/db/schema";
 
 const CATEGORY_LABELS: Record<string, string> = {
   clothing: "Clothing",
@@ -11,17 +11,45 @@ const CATEGORY_LABELS: Record<string, string> = {
   other: "Other",
 };
 
+const MEMBER_COLORS = [
+  "#FF2D8B",
+  "#00A8CC",
+  "#FFD600",
+  "#00C96B",
+  "#A855F7",
+  "#FF8C00",
+  "#00E5FF",
+  "#FF3DA7",
+];
+
+type PackingListType = "personal" | "shared";
+type PackingVisibility = "private" | "public";
+
+export type PackingMemberView = {
+  userId: string;
+  name: string;
+  initials: string;
+  color: string;
+};
+
 export type PackingItemView = {
   id: string;
+  listId: string;
+  listName: string;
+  listType: PackingListType;
+  listVisibility: PackingVisibility;
   text: string;
   isPacked: boolean;
   addedById: string;
   ownerUserId: string;
-  scope: "my" | "group";
-  isPrivate: boolean;
   categoryKey: string;
   quantity: number | null;
   assigneeUserId: string | null;
+  assigneeName: string | null;
+  assigneeInitials: string | null;
+  assigneeColor: string | null;
+  visibilityOverride: PackingVisibility | null;
+  effectiveVisibility: PackingVisibility;
 };
 
 export type PackingCategoryView = {
@@ -32,7 +60,19 @@ export type PackingCategoryView = {
   totalCount: number;
 };
 
-export type PackingListView = {
+export type PersonalPackingListView = {
+  id: string;
+  name: string;
+  visibility: PackingVisibility;
+  categories: PackingCategoryView[];
+  packedCount: number;
+  totalCount: number;
+  remainingCount: number;
+};
+
+export type SharedPackingListView = {
+  id: string;
+  name: string;
   categories: PackingCategoryView[];
   packedCount: number;
   totalCount: number;
@@ -40,25 +80,33 @@ export type PackingListView = {
 };
 
 export type PackingPageData = {
-  myList: PackingListView;
-  groupList: PackingListView;
+  members: PackingMemberView[];
+  myLists: PersonalPackingListView[];
+  sharedLists: SharedPackingListView[];
   counts: {
     total: number;
     packed: number;
     remaining: number;
-    myTotal: number;
-    myPacked: number;
-    myPrivate: number;
-    groupTotal: number;
-    groupPacked: number;
+    myListsCount: number;
+    myItems: number;
+    myPrivateItems: number;
+    sharedItems: number;
+    sharedPacked: number;
   };
 };
+
+function getMemberInitials(name: string) {
+  const words = name.trim().split(/\s+/).filter(Boolean);
+  if (words.length === 0) return "?";
+  if (words.length === 1) return words[0].slice(0, 2).toUpperCase();
+  return `${words[0][0] ?? ""}${words[words.length - 1][0] ?? ""}`.toUpperCase();
+}
 
 function getCategoryLabel(categoryKey: string) {
   return CATEGORY_LABELS[categoryKey] ?? categoryKey.replace(/[-_]/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
 }
 
-function buildPackingList(items: PackingItemView[]): PackingListView {
+function emptyCategoriesFromItems(items: PackingItemView[]) {
   const categoryMap = new Map<string, PackingCategoryView>();
 
   for (const item of items) {
@@ -79,12 +127,38 @@ function buildPackingList(items: PackingItemView[]): PackingListView {
     });
   }
 
-  const categories = Array.from(categoryMap.values());
+  return Array.from(categoryMap.values());
+}
+
+function buildPersonalListView(
+  list: { id: string; name: string; visibility: PackingVisibility },
+  items: PackingItemView[],
+): PersonalPackingListView {
   const packedCount = items.filter((item) => item.isPacked).length;
   const totalCount = items.length;
 
   return {
-    categories,
+    id: list.id,
+    name: list.name,
+    visibility: list.visibility,
+    categories: emptyCategoriesFromItems(items),
+    packedCount,
+    totalCount,
+    remainingCount: Math.max(totalCount - packedCount, 0),
+  };
+}
+
+function buildSharedListView(
+  list: { id: string; name: string },
+  items: PackingItemView[],
+): SharedPackingListView {
+  const packedCount = items.filter((item) => item.isPacked).length;
+  const totalCount = items.length;
+
+  return {
+    id: list.id,
+    name: list.name,
+    categories: emptyCategoriesFromItems(items),
     packedCount,
     totalCount,
     remainingCount: Math.max(totalCount - packedCount, 0),
@@ -95,72 +169,180 @@ export async function getPackingPageData(
   tripId: string,
   userId: string,
 ): Promise<PackingPageData> {
-  const rows = await db
-    .select({
-      id: packingItems.id,
-      text: packingItems.text,
-      isPacked: packingItems.isPacked,
-      addedById: packingItems.addedById,
-      ownerUserId: packingItems.ownerUserId,
-      scope: packingItems.scope,
-      isPrivate: packingItems.isPrivate,
-      categoryKey: packingItems.categoryKey,
-      quantity: packingItems.quantity,
-      assigneeUserId: packingItems.assigneeUserId,
-      createdAt: packingItems.createdAt,
-      sortOrder: packingItems.sortOrder,
-    })
-    .from(packingItems)
-    .where(and(eq(packingItems.tripId, tripId), isNull(packingItems.deletedAt)))
-    .orderBy(
-      asc(packingItems.scope),
-      asc(packingItems.categoryKey),
-      asc(packingItems.sortOrder),
-      asc(packingItems.createdAt),
-    );
+  const [memberRows, personalLists, sharedLists] = await Promise.all([
+    db
+      .select({
+        userId: tripMembers.userId,
+        name: users.name,
+      })
+      .from(tripMembers)
+      .innerJoin(users, eq(users.id, tripMembers.userId))
+      .where(and(eq(tripMembers.tripId, tripId), isNull(tripMembers.deletedAt)))
+      .orderBy(users.name),
+    db
+      .select({
+        id: packingLists.id,
+        name: packingLists.name,
+        visibility: packingLists.visibility,
+        sortOrder: packingLists.sortOrder,
+        createdAt: packingLists.createdAt,
+      })
+      .from(packingLists)
+      .where(
+        and(
+          eq(packingLists.tripId, tripId),
+          eq(packingLists.ownerUserId, userId),
+          eq(packingLists.listType, "personal"),
+          isNull(packingLists.deletedAt),
+        ),
+      )
+      .orderBy(asc(packingLists.sortOrder), asc(packingLists.createdAt)),
+    db
+      .select({
+        id: packingLists.id,
+        name: packingLists.name,
+        sortOrder: packingLists.sortOrder,
+        createdAt: packingLists.createdAt,
+      })
+      .from(packingLists)
+      .where(
+        and(
+          eq(packingLists.tripId, tripId),
+          eq(packingLists.listType, "shared"),
+          isNull(packingLists.deletedAt),
+        ),
+      )
+      .orderBy(asc(packingLists.sortOrder), asc(packingLists.createdAt)),
+  ]);
 
-  const myItems: PackingItemView[] = [];
-  const groupItems: PackingItemView[] = [];
+  const members = memberRows.map((member, index) => ({
+    userId: member.userId,
+    name: member.name,
+    initials: getMemberInitials(member.name),
+    color: MEMBER_COLORS[index % MEMBER_COLORS.length],
+  }));
+  const memberById = new Map(members.map((member) => [member.userId, member]));
 
-  for (const row of rows) {
+  const allListIds = [...personalLists.map((list) => list.id), ...sharedLists.map((list) => list.id)];
+  const itemRows =
+    allListIds.length === 0
+      ? []
+      : await db
+          .select({
+            id: packingItems.id,
+            listId: packingItems.listId,
+            text: packingItems.text,
+            isPacked: packingItems.isPacked,
+            addedById: packingItems.addedById,
+            ownerUserId: packingItems.ownerUserId,
+            categoryKey: packingItems.categoryKey,
+            quantity: packingItems.quantity,
+            assigneeUserId: packingItems.assigneeUserId,
+            visibilityOverride: packingItems.visibilityOverride,
+            listName: packingLists.name,
+            listType: packingLists.listType,
+            listVisibility: packingLists.visibility,
+            createdAt: packingItems.createdAt,
+            sortOrder: packingItems.sortOrder,
+          })
+          .from(packingItems)
+          .innerJoin(packingLists, eq(packingItems.listId, packingLists.id))
+          .where(
+            and(
+              eq(packingItems.tripId, tripId),
+              inArray(packingItems.listId, allListIds),
+              isNull(packingItems.deletedAt),
+              isNull(packingLists.deletedAt),
+            ),
+          )
+          .orderBy(
+            asc(packingLists.sortOrder),
+            asc(packingItems.categoryKey),
+            asc(packingItems.sortOrder),
+            asc(packingItems.createdAt),
+          );
+
+  const itemsByListId = new Map<string, PackingItemView[]>();
+
+  for (const row of itemRows) {
+    if (!row.listId) continue;
+    const assignee = row.assigneeUserId ? memberById.get(row.assigneeUserId) ?? null : null;
+
     const item: PackingItemView = {
       id: row.id,
+      listId: row.listId,
+      listName: row.listName,
+      listType: row.listType === "shared" ? "shared" : "personal",
+      listVisibility: row.listVisibility === "public" ? "public" : "private",
       text: row.text,
       isPacked: row.isPacked,
       addedById: row.addedById,
       ownerUserId: row.ownerUserId,
-      scope: row.scope === "group" ? "group" : "my",
-      isPrivate: row.isPrivate,
       categoryKey: row.categoryKey,
       quantity: row.quantity,
       assigneeUserId: row.assigneeUserId,
+      assigneeName: assignee?.name ?? null,
+      assigneeInitials: assignee?.initials ?? null,
+      assigneeColor: assignee?.color ?? null,
+      visibilityOverride:
+        row.visibilityOverride === "public" || row.visibilityOverride === "private"
+          ? row.visibilityOverride
+          : null,
+      effectiveVisibility:
+        row.visibilityOverride === "public" || row.visibilityOverride === "private"
+          ? row.visibilityOverride
+          : row.listVisibility === "public"
+            ? "public"
+            : "private",
     };
 
-    if (item.scope === "group") {
-      groupItems.push(item);
-      continue;
-    }
-
-    if (item.ownerUserId === userId) {
-      myItems.push(item);
+    const existing = itemsByListId.get(row.listId);
+    if (existing) {
+      existing.push(item);
+    } else {
+      itemsByListId.set(row.listId, [item]);
     }
   }
 
-  const myList = buildPackingList(myItems);
-  const groupList = buildPackingList(groupItems);
+  const myLists = personalLists.map((list) =>
+    buildPersonalListView(
+      {
+        id: list.id,
+        name: list.name,
+        visibility: list.visibility === "public" ? "public" : "private",
+      },
+      itemsByListId.get(list.id) ?? [],
+    ),
+  );
+
+  const sharedListViews = sharedLists.map((list) =>
+    buildSharedListView(
+      {
+        id: list.id,
+        name: list.name,
+      },
+      itemsByListId.get(list.id) ?? [],
+    ),
+  );
+
+  const myItems = myLists.flatMap((list) => list.categories.flatMap((category) => category.items));
+  const sharedItems = sharedListViews.flatMap((list) => list.categories.flatMap((category) => category.items));
+  const packed = [...myItems, ...sharedItems].filter((item) => item.isPacked).length;
+  const total = myItems.length + sharedItems.length;
 
   return {
-    myList,
-    groupList,
+    members,
+    myLists,
+    sharedLists: sharedListViews,
     counts: {
-      total: myList.totalCount + groupList.totalCount,
-      packed: myList.packedCount + groupList.packedCount,
-      remaining: myList.remainingCount + groupList.remainingCount,
-      myTotal: myList.totalCount,
-      myPacked: myList.packedCount,
-      myPrivate: myItems.filter((item) => item.isPrivate).length,
-      groupTotal: groupList.totalCount,
-      groupPacked: groupList.packedCount,
+      total,
+      packed,
+      remaining: Math.max(total - packed, 0),
+      myListsCount: myLists.length,
+      myItems: myItems.length,
+      myPrivateItems: myItems.filter((item) => item.effectiveVisibility === "private").length,
+      sharedItems: sharedItems.length,
+      sharedPacked: sharedItems.filter((item) => item.isPacked).length,
     },
   };
 }

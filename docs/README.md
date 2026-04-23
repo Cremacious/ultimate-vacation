@@ -49,6 +49,12 @@ This folder is the operating system for the project. If we keep it current, it w
 - [PACKING_LISTS_SCHEMA_PROPOSAL.md](C:\Code\personal\ultimate-vacation\docs\PACKING_LISTS_SCHEMA_PROPOSAL.md)
   Current recommended Packing schema direction after the named-lists contract update: `packing_lists`, list visibility, item visibility overrides, and migration guidance from the transitional schema.
 
+- [PACKING_NAMED_LISTS_MOCKUP.md](C:\Code\personal\ultimate-vacation\docs\PACKING_NAMED_LISTS_MOCKUP.md)
+  Step 2 mockup for the Packing named-lists UI: page composition, tab behavior, list strip, visibility treatment, and critique prompts.
+
+- [PACKING_LISTS_BRIDGING_MIGRATION_DRAFT.md](C:\Code\personal\ultimate-vacation\docs\PACKING_LISTS_BRIDGING_MIGRATION_DRAFT.md)
+  Draft bridge from the current transitional packing schema to `packing_lists + packing_items.list_id`, including seeding and backfill strategy.
+
 ## How To Use This Folder
 
 - Update `PROJECT_PLAN.md` when the product vision or business assumptions change.

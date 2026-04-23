@@ -452,8 +452,36 @@ export const travelDayTasks = pgTable(
 );
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Packing (personal + group list foundation — migrations 0004, 0011)
+// Packing (named personal lists + shared lists foundation — migrations 0004, 0011, 0012)
 // ─────────────────────────────────────────────────────────────────────────────
+
+export const packingLists = pgTable(
+  "packing_lists",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    tripId: uuid("trip_id")
+      .notNull()
+      .references(() => trips.id, { onDelete: "cascade" }),
+    ownerUserId: uuid("owner_user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "restrict" }),
+    name: text("name").notNull(),
+    listType: text("list_type").notNull(),
+    visibility: text("visibility").notNull(),
+    sortOrder: integer("sort_order"),
+    createdById: uuid("created_by_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "restrict" }),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+    deletedAt: timestamp("deleted_at", { withTimezone: true }),
+  },
+  (t) => [
+    index("packing_lists_trip_owner_deleted_idx").on(t.tripId, t.ownerUserId, t.deletedAt),
+    index("packing_lists_trip_type_deleted_idx").on(t.tripId, t.listType, t.deletedAt),
+    index("packing_lists_trip_sort_deleted_idx").on(t.tripId, t.sortOrder, t.deletedAt),
+  ]
+);
 
 export const packingItems = pgTable(
   "packing_items",
@@ -467,11 +495,13 @@ export const packingItems = pgTable(
     addedById: uuid("added_by_id")
       .notNull()
       .references(() => users.id, { onDelete: "restrict" }),
+    listId: uuid("list_id").references(() => packingLists.id, { onDelete: "restrict" }),
     ownerUserId: uuid("owner_user_id")
       .notNull()
       .references(() => users.id, { onDelete: "restrict" }),
     scope: text("scope").notNull().default("my"),
     isPrivate: boolean("is_private").notNull().default(true),
+    visibilityOverride: text("visibility_override"),
     categoryKey: text("category_key").notNull().default("other"),
     quantity: integer("quantity"),
     assigneeUserId: uuid("assignee_user_id").references(() => users.id, {
@@ -484,6 +514,7 @@ export const packingItems = pgTable(
   },
   (t) => [
     index("packing_items_trip_id_idx").on(t.tripId),
+    index("packing_items_list_id_deleted_idx").on(t.listId, t.deletedAt),
     index("packing_items_trip_owner_scope_deleted_idx").on(
       t.tripId,
       t.ownerUserId,

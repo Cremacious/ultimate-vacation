@@ -23,8 +23,13 @@ This doc keeps both truths visible so future work can proceed cleanly.
 
 ### What is real in code today
 
-- One trip-level packing checklist
-- Real server-backed add item
+- Named personal packing lists now exist in code
+- Real server-backed create list
+- Real server-backed add item to selected list
+- Real server-backed list visibility toggle
+- Real server-backed item visibility toggle
+- Real server-backed move to Shared
+- Real server-backed shared-item claim / unassign
 - Real server-backed toggle packed
 - Real server-backed delete item
 - Real counts and progress
@@ -62,8 +67,6 @@ Current schema still does **not** fully support:
 
 - category ordering independent of items
 - suggestions
-- named personal lists
-- list-level visibility
 - richer Packing behavior without query/action/UI follow-up work
 
 ---
@@ -171,7 +174,7 @@ Current read layer now returns a Packing page view model, but some downstream ri
 - [x] Replace flat Packing query with a Packing page view-model query
 - [x] Return current user’s personal items separately from shared group items
 - [x] Return categories and ordering
-- [ ] Return assignee/bringer display info for shared items
+- [x] Return assignee/bringer display info for shared items
 - [x] Return counts for tab badges
 - [ ] Return suggestion state if Suggestions tab ships
 
@@ -187,14 +190,14 @@ Likely target output shape:
 
 ## 4. Missing server actions
 
-Current actions only support add / toggle packed / delete.
+Current actions now support create list / add item / toggle packed / delete / list visibility / item visibility, but richer packing interactions are still missing.
 
 - [ ] Edit item text
 - [ ] Edit quantity
-- [ ] Make private / unprivate
-- [ ] Move item to group list
-- [ ] Assign / claim group item
-- [ ] Unassign group item
+- [x] Make private / unprivate
+- [x] Move item to group list
+- [x] Assign / claim group item
+- [x] Unassign group item
 - [ ] Create category
 - [ ] Rename category
 - [ ] Delete category
@@ -211,7 +214,7 @@ If Suggestions ships:
 
 ## 5. Missing JSX/UI structure
 
-Current page now has a split `My lists` / `Shared` read layer, but it still lacks most of the richer per-item interactions.
+Current page now has named-list creation, add-to-list, and visibility controls, but it still lacks most of the richer per-item interactions.
 
 ### Missing top-level UI
 
@@ -226,16 +229,16 @@ Current page now has a split `My lists` / `Shared` read layer, but it still lack
 - [ ] Per-category quick-add
 - [ ] Three-dot item menu
 - [ ] Inline edit state
-- [ ] Make private UI
-- [ ] Move to Shared UI
+- [x] Make private UI
+- [x] Move to Shared UI
 - [ ] Packed subsection / staged reveal
 
 ### Missing Shared UI
 
 - [x] Shared items grouped by category
-- [ ] Assigned bringer avatar/state
-- [ ] Claim action for unassigned items
-- [ ] Unassign action
+- [x] Assigned bringer avatar/state
+- [x] Claim action for unassigned items
+- [x] Unassign action
 - [ ] Read-only vs editable check state depending on bringer
 
 ### Missing Suggestions UI
@@ -274,11 +277,12 @@ Do this in order to avoid rework.
 ### Phase 2 - Read layer
 
 - [x] Build Packing page query/view model
-- [ ] Thread permissions and member info into the route
+- [x] Thread member info into the route/read layer
+- [ ] Thread explicit permission flags into the route if shared-row editing rules get stricter
 
 ### Phase 3 - Mutations
 
-- [ ] Add server actions for privacy, move, assign, edit, category management, ordering
+- [ ] Add remaining server actions for edit, category management, and ordering
 
 ### Phase 4 - JSX structure
 
@@ -305,7 +309,12 @@ These are good implementation slices for handoff.
 - [x] Write proposed final Packing data model
 - [x] Decide that named personal lists are included
 - [ ] Decide whether Suggestions is launch-scope or later
-- [ ] Write `packing_lists`-based schema proposal
+- [x] Write `packing_lists`-based schema proposal
+- [x] Draft named-lists Step 2 mockup
+- [x] Draft bridging migration plan
+- [ ] Run `/design-critique` on the named-lists mockup
+- [ ] Run `/design-system` on the named-list and visibility pattern
+- [ ] Run `/design-handoff` before UI implementation
 
 ### Slice B - Personal/shared split
 
@@ -329,8 +338,8 @@ These are good implementation slices for handoff.
 ### Slice E - Group responsibilities
 
 - [x] Add assignee/bringer support
-- [ ] Add Claim / Unassign actions
-- [ ] Add bringer-aware UI
+- [x] Add Claim / Unassign actions
+- [x] Add bringer-aware UI
 
 ### Slice F - Item editing
 
@@ -348,7 +357,7 @@ These are good implementation slices for handoff.
 
 ## What should not be done by accident
 
-- [ ] Do not assume arbitrary named multiple lists are part of the spec
+- [ ] Do not expand beyond the current named-lists contract into nested bags or duplicate shared/personal hybrids without a new decision
 - [ ] Do not keep building on the old single-table packing plan as if named lists were still out of scope
 - [ ] Do not implement mock features just because the old mockup shows them
 - [ ] Do not conflate visual restoration with feature completion
@@ -373,14 +382,22 @@ These are good implementation slices for handoff.
 - [x] Packing page query/view model added
 - [x] Route split into `My lists` and `Shared` data
 - [x] Read-layer tab UI added for current Packing data
+- [x] Named-lists mockup doc created
+- [x] Bridging migration draft created
+- [x] `packing_lists` bridge migration written
+- [x] `packing_lists` schema added
+- [x] Create-list action added
+- [x] Add-item-to-selected-list action added
+- [x] List visibility action added
+- [x] Item visibility action added
+- [x] Move-to-shared action added
+- [x] Shared claim / unassign actions added
+- [x] Shared bringer UI added
 
 ### Not started
 
-- [ ] Member-aware read layer
-- [ ] Privacy logic
 - [ ] Suggestions tab
-- [ ] Categories
-- [ ] Group bringer model
+- [ ] Category management
 - [ ] Inline edit
 - [ ] Suggestions
 
@@ -399,4 +416,4 @@ If a future session picks this up, start here:
    - [docs/UX_SPEC.md](/C:/Code/personal/ultimate-vacation/docs/UX_SPEC.md)
    - [docs/DECISIONS.md](/C:/Code/personal/ultimate-vacation/docs/DECISIONS.md)
 4. Verify the richer Packing contract and current implementation status still match
-5. Then begin the query/view-model slice
+5. Then begin the next remaining mutation or Suggestions slice
