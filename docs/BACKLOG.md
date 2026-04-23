@@ -2,7 +2,38 @@
 
 > **Last audited: 2026-04-22.** Code-verified against `src/` — every item below reflects actual implementation state, not doc assumptions.
 
-This backlog tracks what's built, what's next, and what's deferred. **When a Claude session starts with "lets work on tripwave roadmap," read this file first — the answer is in the Next Up queue.**
+This backlog tracks what's built, what's next, and what's deferred.
+
+### "Lets work on tripwave roadmap" — session protocol
+
+When a session starts with that phrase, follow this protocol exactly:
+
+1. Read this file (`docs/BACKLOG.md`) before doing anything else
+2. Identify the highest-priority item in the **Next Up — Public MVP Launch Queue** below that is still genuinely incomplete
+3. **Verify its current implementation state in the codebase** before making any plan — do not trust doc claims alone
+4. Report in this format:
+   - `Selected backlog item` — which item and its ID (L3, P1, etc.)
+   - `Why this is next` — why higher items were skipped (if any)
+   - `What the code currently does` — based on actual file reads
+   - `Gap to close` — what's missing
+   - `Smallest sensible next implementation slice` — tight, ship-oriented
+   - `Files I expect to inspect/change`
+5. **Wait for approval before coding**
+
+**Hard rules:**
+- Do NOT pick work from memory — the answer comes from this file
+- Do NOT default to redesign work or invent a new priority order
+- Prefer launch blockers over polish
+- Do NOT silently switch into page redesign unless the backlog item explicitly requires it
+- Do NOT reopen broad product strategy unless the backlog item forces a decision
+- Preserve current shipped functionality — do not break what works
+- Keep scope tight and ship-oriented
+
+**Decision rules:**
+- If the top item is already done in code → move to next item, say why
+- If the top item is partially done → prefer finishing/verification over jumping ahead
+- If the top item requires external setup/credentials → identify what's blocked, choose next unblocked item
+- If the top item requires a design pass → keep it tightly scoped to the backlog item only
 
 ---
 
