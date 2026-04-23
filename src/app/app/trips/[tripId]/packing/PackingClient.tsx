@@ -252,6 +252,10 @@ function ChecklistRow({
   const nextVisibility = item.effectiveVisibility === "private" ? "public" : "private";
   const isSharedItem = item.listType === "shared";
   const isClaimedByCurrentUser = item.assigneeUserId === currentUserId;
+  // Shared toggle: unclaimed = anyone; claimed = assignee only.
+  const canTogglePacked = !isSharedItem || !item.assigneeUserId || isClaimedByCurrentUser;
+  // Shared delete: only the item owner.
+  const canDeleteItem = !isSharedItem || item.ownerUserId === currentUserId;
   const canUnassignSharedItem =
     Boolean(unassignSharedItemAction) &&
     Boolean(item.assigneeUserId) &&
@@ -267,7 +271,7 @@ function ChecklistRow({
 
   return (
     <li className="group flex items-start gap-3 rounded-[10px] px-1 py-3 transition-colors hover:bg-white/[0.03]">
-      {readOnly ? (
+      {readOnly || !canTogglePacked ? (
         <span
           aria-hidden="true"
           className="flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full border-2 transition-all"
@@ -411,20 +415,22 @@ function ChecklistRow({
           ) : null}
         </div>
 
-        <form
-          action={deleteAction}
-          className="opacity-0 transition-opacity group-hover:opacity-100 group-focus-within:opacity-100"
-        >
-          <input type="hidden" name="itemId" value={item.id} />
-          <button
-            type="submit"
-            aria-label={`Remove ${item.text}`}
-            className="flex h-8 w-8 items-center justify-center rounded-full transition-colors hover:bg-white/5"
-            style={{ color: "rgba(255,255,255,0.25)" }}
+        {canDeleteItem ? (
+          <form
+            action={deleteAction}
+            className="opacity-0 transition-opacity group-hover:opacity-100 group-focus-within:opacity-100"
           >
-            <Trash size={14} />
-          </button>
-        </form>
+            <input type="hidden" name="itemId" value={item.id} />
+            <button
+              type="submit"
+              aria-label={`Remove ${item.text}`}
+              className="flex h-8 w-8 items-center justify-center rounded-full transition-colors hover:bg-white/5"
+              style={{ color: "rgba(255,255,255,0.25)" }}
+            >
+              <Trash size={14} />
+            </button>
+          </form>
+        ) : null}
         </div>
       ) : (
         <span className="text-[11px] font-black uppercase tracking-[0.16em]" style={{ color: QUIET_TEXT }}>

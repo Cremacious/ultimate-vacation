@@ -209,6 +209,8 @@ export async function togglePackingItemAction(
   const item = await getItemForTrip(itemId, tripId);
   if (!item) return;
   if (item.listType === "personal" && item.listOwnerUserId !== user.id) return;
+  // Shared: unclaimed items are group-editable; claimed items only the assignee can toggle.
+  if (item.listType === "shared" && item.assigneeUserId !== null && item.assigneeUserId !== user.id) return;
 
   await db
     .update(packingItems)
@@ -312,6 +314,8 @@ export async function deletePackingItemAction(
   const item = await getItemForTrip(itemId, tripId);
   if (!item) return;
   if (item.listType === "personal" && item.listOwnerUserId !== user.id) return;
+  // Shared: only the item creator can delete.
+  if (item.listType === "shared" && item.ownerUserId !== user.id) return;
 
   await db
     .update(packingItems)
