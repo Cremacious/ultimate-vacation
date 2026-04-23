@@ -31,7 +31,7 @@ Read before building anything:
 
 3. **Vacation Day / Today is the highest-frequency in-trip surface.** Members open it 3–5 times per day during a trip. Its stub status is invisible during planning-phase development and will be TripWave's most felt gap the moment a real trip starts.
 
-4. **Premium is a one-time thank-you, not a subscription.** This governs all copy and design decisions. "Support TripWave," not "Upgrade." Warm, not urgent. The purchase button is currently dead — highest-urgency revenue gap.
+4. **Premium is a one-time thank-you, not a subscription.** This governs all copy and design decisions. "Support TripWave," not "Upgrade." Warm, not urgent. The purchase flow is wired at $4.99 via Stripe — remaining gap is the ad banner (no ads = no reason to pay to remove them).
 
 5. **The organizer/member permission model is load-bearing.** TripWave is built for group trips with a designated organizer. Every surface that involves editing must respect the organizer / trusted / member gate. It cannot be simplified away in v1 slices.
 
@@ -42,7 +42,7 @@ Read before building anything:
 The five places where building v1 slices could accidentally redefine the product downward:
 
 1. **Preplanning** — All 4 canonical sections are now structurally present (Travel, Stays, Prep, Notes). Risk shifts: Prep is a visible stub but has no content yet. In-page section rail (left nav) has not been implemented — the stacked layout should not be treated as the final shape.
-2. **Premium purchase** — Dead button. The longer this stays unwired, the more the product is implicitly designed as a free-only product. Ad banner also can't be justified without a working purchase flow.
+2. **Premium purchase** — Checkout flow is wired ($4.99, Stripe). Remaining risk: ad banner is missing, so the "remove ads" value prop has no teeth until ads actually appear on Home.
 3. **Overview inline budget field** — Listed in CORE_LOOP launch scope, not yet built. If overlooked, the Overview never fully fulfills its "what's actionable right now" contract.
 4. **Vacation Day / Today** — Total stub for the highest-frequency in-trip surface. Missing it means TripWave is a planning tool, not a trip tool.
 5. **Join landing page** — Mechanically works; has not been through conversion-design review. Every new user arrives here. Quiet leak if left unreviewed before launch traffic.
@@ -69,7 +69,7 @@ The five places where building v1 slices could accidentally redefine the product
 
 ### Account (`/app/account`)
 
-**Now `[V]`** Profile card (avatar initial, name, email). "Support TripWave for $7.99 one-time" link to `/account/premium`. SignOutButton.
+**Now `[V]`** Profile card (avatar initial, name, email). "Support TripWave — $4.99 one-time" link to `/app/account/premium`. Supporter badge ("♥ Supporter") shown if entitled. SignOutButton. Delete account link.
 
 **Contract** User identity and supporter status hub.
 
@@ -77,21 +77,21 @@ The five places where building v1 slices could accidentally redefine the product
 
 **Not owed** Subscription management, billing portal, complex notification preferences.
 
-> **Flag:** Account page says "$7.99." Premium page says "$5." CORE_LOOP says "$2.99 founder's → $4.99 standard." Three different prices — one is authoritative; resolve before launch.
+> **Flag:** All code surfaces show $4.99. CORE_LOOP.md mentions $2.99 founder's pricing — decide if founder's tier is still planned or if $4.99 is universal before launch.
 
 ---
 
 ### Premium (`/app/account/premium`)
 
-**Now `[V]`** Offer page listing 7 perks. "Unlock Premium — $5" button is a **completely inert styled element** — no onClick, no href, no form. No Stripe API calls anywhere in the codebase. Schema has `payments` table and `users.supporterSource` field — unconnected to any checkout flow.
+**Now `[V]`** Offer page with 3 launch perks (badge, ad-free, receipt scanning). `SupporterCheckoutButton.tsx` is **fully wired** — `handleClick` calls `/api/stripe/checkout`, redirects to Stripe, returns to `/app/account/premium?success=1`. Shows $4.99. Post-purchase confirmed state with "You're a TripWave Supporter" message. Stripe checkout route checks for existing supporter status (409 on double-purchase). Webhook handler exists at `/api/webhooks/stripe/route.ts`. Schema has `supporter_entitlements` audit table and `users.supporterEntitledAt` field.
 
 **Contract** One-time purchase that converts a free user to a supporter. Launch features: ad removal + Founder badge + premium ball colors. Month 2+: receipt scanning (OCR). Tone: warm thank-you, not feature paywall.
 
-**Deferred** Stripe Checkout wiring (launch blocker); post-trip prompt (highest-leverage conversion surface — warm copy + trip stats + one-tap purchase); ad-impression prompt at 5th Home ad view; post-settlement prompt.
+**Deferred** Post-trip prompt (highest-leverage conversion surface — warm copy + trip stats + one-tap purchase); ad-impression prompt at 5th Home ad view; post-settlement prompt. **Remaining verification:** confirm Stripe webhook correctly sets `supporterEntitledAt` in production.
 
-**Not owed** Subscriptions. "Upgrade" framing. Scarcity copy. The 7 listed perks include "offline mode" and "smart packing" `[?]` — unconfirmed whether these represent actual planned features or aspirational copy. Do not treat them as commitments until verified.
+**Not owed** Subscriptions. "Upgrade" framing. Scarcity copy.
 
-> **Flag:** Premium purchase is inert. This is the highest-urgency gap in the entire product.
+> **Flag:** Verify Stripe webhook sets `supporterEntitledAt` correctly in production. The checkout flow is wired but end-to-end purchase verification is owed.
 
 ---
 
@@ -340,9 +340,8 @@ The five places where building v1 slices could accidentally redefine the product
 
 | Flag | Severity | Surface |
 |---|---|---|
-| Premium button is inert — no Stripe wiring | Launch blocker | Premium |
+| Stripe webhook end-to-end verification owed | Pre-launch verify | Premium |
 | Ad banner missing from Home | Launch blocker | Home |
-| Three conflicting prices ($5 / $7.99 / $4.99) | Launch blocker | Account / Premium |
 | Overview inline budget field not built (CORE_LOOP launch scope) | Launch gap | Overview |
 | Preplanning: Prep section is a stub with no content | Future build | Preplanning |
 | Preplanning: in-page section rail not yet implemented | Design pass owed | Preplanning |
