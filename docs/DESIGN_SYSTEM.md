@@ -1,5 +1,18 @@
 # Design System Direction
 
+> **2026-04-23 — Visual baseline alignment**
+>
+> This document was written around an aspirational neon-black-first aesthetic that predates the current implemented UI. **The current app's actual visual baseline differs from several sections below.** Sections marked **[ASPIRATIONAL]** describe a future design direction, not what currently ships. Do not use aspirational sections to "correct" the current UI — the current dark gray baseline IS the baseline. Structural guidance (bento grid, typography, icons, component anatomy) remains valid regardless of surface color.
+>
+> **Current implemented baseline (2026-04-23):**
+> - Shell background: `#444444` / `#4a4a4a` — dark gray, not near-black navy
+> - Top nav: `#171717` · Sidebar: `#202020` — very dark, providing clear visual hierarchy against the shell
+> - Content cards (Overview, action panels): `#2e2e2e`–`#333333`
+> - Newer components (MetricCard, HomeTripList, Home page): already use `#15162A` / `#2A2B45` navy-tinted surfaces
+> - Primary accent: `#12b8e8` / `#00b8e6` mid-tone cyan (logo, avatar, links, active states)
+> - Phase nav colors: implemented rainbow (see TripSideNav — cyan, purple, pink, yellow, green, orange variants)
+> - Liquid Motion System: not implemented. Basic transitions via tw-animate-css only.
+
 > **2026-04-20 Naming Audit — see docs/NAMING.md**
 >
 > **"Trip ball" is internal docs vocabulary only.** It does not appear in user-facing copy. Color picker label: simply "Color." First-run poetic framing may reference *"glow"* (*"every trip has its own glow"*) but never *"ball"*. The ball is a visual, not a named thing, from the user's perspective. See NAMING.md for the full rename table.
@@ -28,9 +41,11 @@ These two lines serve different purposes. The headline creates instant recogniti
 
 ## Visual Thesis
 
-Trip planning should feel like stepping into a neon-lit venue on the first night of a trip -- rich, alive, and full of personality. Dark surfaces give every color element room to breathe and pop. Inspired by the Go-Gos song Vacation -- upbeat, confident, a little cheeky, and ready to go. The energy comes from vivid color on depth, not from white space.
+Trip planning should feel upbeat, confident, a little cheeky, and ready to go — inspired by the Go-Gos song Vacation energy applied to a dark-first product. The current app achieves this through a dark-gray shell, a rainbow of accent colors across the phase nav, and warm copy throughout.
 
-This is not a dark mode. It is a rich, layered surface system where dark backgrounds make the brand palette sing. Cyan labels, yellow badges, pink accents, and green expense data all exist simultaneously on dark surfaces without competing -- because the dark base is the neutral, not white.
+The **eventual** visual target (see Neon-on-Dark Brand Direction [ASPIRATIONAL]) is richer: a navy-dark base, brighter neon accents, and a layered depth hierarchy that makes every color element pop. That is the direction, not the current state.
+
+**What is true now and should stay true:** this is a dark-first product. It is not a dark mode. The dark base is the neutral — white is the accent, not the background. Accent colors (cyan, yellow, pink, green, orange) do the personality work against the dark surfaces. That is the current UI and it should remain dark-first as the product evolves.
 
 ## Aesthetic Rules
 
@@ -43,21 +58,34 @@ This is not a dark mode. It is a rich, layered surface system where dark backgro
 
 ## Color Direction
 
-### Surface palette (new)
+### Surface palette [CURRENT]
 
-- **deep base** -- the dominant background of the app shell, nav, and inactive areas. Deep slate-navy, not pure black. Something with warmth and personality. Working value: #0F1724 range.
-- **raised surface** -- cards, panels, and content containers sit one step lighter than the base. Working value: #1A2333 range.
-- **elevated surface** -- modals, popovers, and top-layer panels sit another step lighter. Working value: #243044 range.
-- **subtle border** -- thin dividers and card outlines. Barely lighter than the surface they sit on. Working value: #2E3D52 range.
+The current implemented surface hierarchy:
 
-These are working values. Finalize exact hex values when building the component library.
+- **Shell/page background**: `#444444` / `#4a4a4a` — dark gray. This is the current baseline.
+- **Top nav**: `#171717` — very dark, near-black. Creates clear separation from the page background.
+- **Sidebar**: `#202020` — dark gray, one step lighter than the nav.
+- **Content cards (Overview, action panels)**: `#2e2e2e`–`#333333` — raised above the page background.
+- **Newer nav-adjacent components** (MetricCard, trip list, Home page): `#15162A` / `#1D1E36` — these already use a navy-tinted dark that is closer to the aspirational direction.
+- **Borders (older components)**: `#3a3a3a`–`#404040` — neutral dark.
+- **Borders (newer components)**: `#2A2B45` — subtle, slightly blue-tinted.
 
-### Accent palette (unchanged brand colors, new usage role)
+The surface hierarchy (nav darker than page, sidebar slightly lighter than nav, cards raised above page) is implemented and working. The specific values are dark gray–dominant, not the navy-tinted direction described in the Neon-on-Dark section below.
 
-- **cyan-blue** -- primary action color, active state, links, key labels. (#00AADD range, vivid and clean)
-- **hot yellow** -- energy accent, badges, highlights, celebration moments. (#FFD600 range)
-- **electric pink** -- secondary accent, invitation moments, personality touches. (#FF2D8B range)
-- **green** -- exclusive to financial and expense contexts. (#00C96B range)
+**Forward direction [ASPIRATIONAL]:** future surface passes may move toward a navy-tinted dark (`#0F1724` shell, `#15162A` cards, `#2A2B45` borders) for more visual personality. This is a future refinement target, not a correction mandate.
+
+### Accent palette [CURRENT + FORWARD DIRECTION]
+
+**Currently implemented values:**
+- **cyan-blue**: `#12b8e8` / `#00b8e6` — mid-tone cyan used for the logo wordmark, account avatar, active links. Not neon; designed for legibility on dark gray.
+- **phase colors (nav)**: diverse rainbow implemented in TripSideNav — Overview `#12b8e8`, Setup `#8e7cff`, Preplanning `#00d4ff`, Itinerary `#7eb6ff`, Packing `#ffd400`, Travel Day `#ff4fa3`, Vacation Day `#00c96b`, Expenses `#00d26a`, with orange/purple/pink variants for extra phases.
+- **newer component accents**: MetricCard, HomeTripList, and Home page already use brighter variants (`#00E5FF`, `#FFEB00`, `#FF3DA7`, `#39FF6B`) — these components were built closer to the aspirational neon palette.
+
+**Role rules (apply across both current and forward values):**
+- **cyan-blue** -- primary action color, active state, links, key labels
+- **hot yellow** -- energy accent, badges, highlights, celebration moments (`#FFD600` / `#ffd400`)
+- **electric pink** -- secondary accent, invitation moments, personality touches (`#FF2D8B` / `#ff4fa3`)
+- **green** -- exclusive to financial and expense contexts (`#00C96B` / `#00d26a`). Nowhere else.
 - **orange** -- travel day actions, secondary accents. Not a primary color.
 - **white / near-white** -- primary body text, active item labels, maximum contrast moments. Not a background fill.
 
@@ -77,11 +105,10 @@ These are working values. Finalize exact hex values when building the component 
 ### Avoid
 
 - large expanses of white or near-white in the app UI
-- default purple SaaS dark themes
 - sandy, tropical, or beachy styling
-- flat dark surfaces with no layering or depth hierarchy
-- pure black (#000) -- the base should feel rich and warm, not void
-- going so neon that the palette feels chaotic -- dark base keeps it grounded
+- pure black (#000000) as the only background — pure black flattens the hierarchy; the current `#171717` nav and `#444444`/`#4a4a4a` shell provide the correct depth relationship
+- going so neon that the palette feels chaotic — the dark base is what makes accent colors readable
+- mid-tone or neutral backgrounds that erase the darkness of the product (it must always read as a dark-first app, not a washed-out gray)
 
 ## Action Circle Color Language
 
@@ -432,7 +459,9 @@ TripWave uses **CSS container queries**, not media-query viewport breakpoints, t
 - page-level bento (inside a primary tile) may use its own container queries against the primary tile's width, nested inside the shell queries
 - Travel Day focus mode override from UX_SPEC § 9 / § 42.13 supersedes these rules -- the override collapses the bento on both modes
 
-## Phase Card Component
+## Phase Card Component [SPEC — PARTIALLY ASPIRATIONAL]
+
+> **Current implementation note:** The current TripSideNav uses simpler nav rows (not full phase cards). The `#15162A` elevated dark surface and left-edge accent bar treatment described below is the intended design spec, not yet the shipped state. The active-state visual (colored fill, accent bar) and mini-status chip are goals for when the nav is refined. Use this spec as the implementation target when building or refining the sidebar.
 
 Phase cards are the atomic unit of the desktop nav column's stacked-card layout. Each phase (Overview, Setup, Preplanning, Itinerary, Packing, Travel Day, Vacation Day, Expenses, Polls, Wishlist, Members, plus Memory when lifecycle state warrants) is a card, not a thin sidebar row.
 
@@ -570,9 +599,11 @@ Override transitions use the existing Liquid Motion System wave sweep (600ms) --
 - ball pulse is ocean wave rhythm -- slow, organic, never mechanical
 - motion should help orientation, not distract from tasks
 
-## Neon-on-Dark Brand Direction
+## Neon-on-Dark Brand Direction [ASPIRATIONAL]
 
-TripWave's visual direction is **neon rainbow accents against near-black backgrounds with pure-white text**. This is the primary brand treatment, not a dark-mode toggle or marketing-only variant. The whole product reads as fun, premium, and distinctive against a sea of white-and-cyan travel apps.
+> **This section describes a design target, not the current implementation.** The current app uses a dark gray shell (`#444444`) with mid-tone cyan accents (`#12b8e8`), not the near-black navy and neon palette specified below. The color values in this section (`#0A0A12`, `#00E5FF`, etc.) are a forward direction — aspirational for future surface refinement passes, not a baseline the current app must be "corrected" toward. Some newer components (MetricCard, Home page) have already adopted values from this palette; that adoption was intentional and additive, not a restoration mandate.
+
+TripWave's visual direction is **neon rainbow accents against near-black backgrounds with pure-white text**. This is the aspirational brand treatment. The whole product should eventually read as fun, premium, and distinctive against a sea of white-and-cyan travel apps.
 
 ### Why neon on dark
 
@@ -684,9 +715,11 @@ Dark backgrounds save OLED battery on modern phones. Neon colors may appear slig
 
 ---
 
-## Liquid Motion System -- Wet Neon, Oil Flow, Water Waves
+## Liquid Motion System -- Wet Neon, Oil Flow, Water Waves [ASPIRATIONAL — NOT IMPLEMENTED]
 
-The neon in TripWave should feel like **wet paint** -- rich, glossy, capable of dripping. Motion is **oil-slick fluid** -- slippery, never mechanical. Interactions ripple like **water surfaces**. This motion system is foundational: every animation, transition, and state change honors these rules. The name is "TripWave" -- the whole product should move like a wave.
+> **This section describes a motion system that has not been built.** The current app uses basic CSS transitions (tw-animate-css) with no systematic ripple, wave, or oil-flow treatment. The easing curves, ripple effects, wave sweeps, and shimmer animations described below are a future design goal. Implement individual pieces incrementally as surfaces are built — do not treat this section as a description of the current app's behavior.
+
+The neon in TripWave should feel like **wet paint** -- rich, glossy, capable of dripping. Motion is **oil-slick fluid** -- slippery, never mechanical. Interactions ripple like **water surfaces**. This motion system is a design aspiration: every animation, transition, and state change should eventually honor these rules. The name is "TripWave" -- the whole product should move like a wave.
 
 ### Core motion principles
 
@@ -1047,22 +1080,34 @@ The marketing surfaces (landing page, pricing page) can lean into the full energ
 - notification panel layout -- partially resolved via UX_SPEC § 42.7 (dropdown panel pattern). Remaining: detailed notification row anatomy
 - favorites list placement in the UI
 
-## Approved Reference Direction
+## Current Implemented Style
 
-The current reference style is:
+What the app currently is (verified against the codebase 2026-04-23):
 
-- deep rich dark surfaces (slate-navy base, not pure black) with vibrant multi-color elements as the foreground energy
-- 1980s Go-Gos Vacation aesthetic -- upbeat, electric, a little cheeky -- now with the lights turned down and the neon turned up
-- circles and pill forms as the dominant shape language
-- cyan-blue primary CTA and active states, hot yellow highlights, electric pink accents, green for finance, white for primary body text
-- brand accent colors used freely as text, labels, borders, and icon colors against the dark base
-- sassy copy everywhere in the product
+- **Shell**: dark gray background (`#444444` / `#4a4a4a`), near-black nav (`#171717`), dark gray sidebar (`#202020`)
+- **Card surfaces**: `#2e2e2e`–`#333333` for content cards (Overview, action panels); `#15162A` / `#2A2B45` in newer components (MetricCard, trip list, Home page)
+- **Primary accent**: mid-tone cyan (`#12b8e8` / `#00b8e6`) for logo, avatar, active links
+- **Phase colors**: implemented rainbow across the nav (cyan, purple, bright cyan, blue, yellow, pink, green — see TripSideNav)
+- **Typography**: **Fredoka 600** for large display and trip names, **Fredoka 400** for section headings, **Nunito** across all UI, labels, and body copy
+- **Icons**: Phosphor Icons (fill) in colored circle containers in the nav; regular weight for inline content
+- **Shapes**: rounded-xl cards, pill buttons, circular avatars and icon containers
+- **Copy tone**: sassy, warm, honest — see Copy Direction section
+- **Layout**: sidebar + main content on desktop (the bento-grid shell per UX_SPEC § 42 is the structural goal but the sidebar + content model is what's currently shipped); pill bar on mobile
+- **Motion**: basic CSS transitions, no systematic ripple or wave system yet
+
+## Design Direction [ASPIRATIONAL]
+
+Where the style should go over time (not what currently ships):
+
+- deeper surface colors — navy-tinted dark (`#0F1724` shell, `#15162A` cards) replacing the current gray
+- brighter neon accents — `#00E5FF` cyan replacing `#12b8e8`, with full neon rainbow treatment
+- circles and pill forms as the dominant shape language (already directionally correct)
 - ledged 3D buttons and card bottoms (ledge color darkened to match button hue)
-- layered dark surfaces (base, raised, elevated) creating clear depth hierarchy
-- **Fredoka 600** for large display, **Fredoka 400** for section headings
-- **Nunito** across all UI, labels, and body copy
-- Phosphor Icons (fill) in colored circle containers
+- layered dark surfaces (base, raised, elevated) with clear depth hierarchy (partially implemented; outer shell needs deepening)
 - action circles animated into the trip ball on meaningful user actions
-- **desktop uses a bento-grid full-viewport shell** with six durable named slots (no traditional sidebar + content) -- see UX_SPEC.md § 42 for the canonical shell spec
-- **mobile uses a horizontal scrollable phase pill bar** pinned below the top bar -- no hamburger, no drawer, no bottom tab bar
+- Liquid Motion System (see that section) as the eventual motion language
+- **desktop bento-grid full-viewport shell** with six durable named slots -- see UX_SPEC.md § 42
+- **mobile horizontal scrollable phase pill bar** -- no hamburger, no drawer, no bottom tab bar
+
+These are refinement targets for future surface passes. They are not corrections the current app needs urgently before launch.
 - slogan: "Get everyone on the same wave."
