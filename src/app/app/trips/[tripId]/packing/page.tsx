@@ -56,29 +56,12 @@ export default async function PackingPage({
   const boundDelete = deletePackingItemAction.bind(null, trip.id);
 
   return (
-    <div className="max-w-2xl mx-auto px-4 py-10">
-      <div className="mb-6">
-        <Link
-          href="/app"
-          className="text-sm font-semibold text-gray-400 hover:text-white transition-colors"
-        >
-          Back to trips
-        </Link>
-      </div>
-      <h1
-        className="text-3xl font-semibold text-white mb-1"
-        style={{ fontFamily: "var(--font-fredoka)" }}
-      >
-        Packing
-      </h1>
-      <p className="text-sm text-gray-400 mb-8">Trip: {trip.name}</p>
-
-      <PackingClient
-        items={items}
-        addAction={boundAdd}
-        toggleAction={boundToggle}
-        deleteAction={boundDelete}
-      />
-    </div>
+    <PackingClient
+      tripName={trip.name}
+      items={items}
+      addAction={boundAdd}
+      toggleAction={boundToggle}
+      deleteAction={boundDelete}
+    />
   );
 }
