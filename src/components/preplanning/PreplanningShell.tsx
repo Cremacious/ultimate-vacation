@@ -62,7 +62,7 @@ export interface PreplanningShellProps {
   updateChecklistAction: (items: ChecklistItem[]) => Promise<ChecklistFormState>;
 }
 
-type TripMember = { userId: string; name: string; role: string };
+type TripMember = { userId: string; name: string; role: string; joinedAt: string | null };
 
 const MEMBER_COLORS = [
   "#FF2D8B", "#00E5FF", "#FFD600", "#00C96B",
@@ -456,49 +456,117 @@ function StaysSection({ lodgings, createAction, updateAction, deleteAction }: { 
 }
 
 function GroupSection({ members, isOrganizer, inviteCount, tripId }: { members: TripMember[]; isOrganizer: boolean; inviteCount: number; tripId: string }) {
+  const colorMap = useMemo(
+    () => Object.fromEntries(members.map((m, i) => [m.userId, MEMBER_COLORS[i % MEMBER_COLORS.length]])),
+    [members],
+  );
+  const sorted = useMemo(
+    () => [
+      ...members.filter((m) => m.role === "organizer"),
+      ...members.filter((m) => m.role === "trusted"),
+      ...members.filter((m) => m.role === "member"),
+    ],
+    [members],
+  );
+  const organizer = members.find((m) => m.role === "organizer");
+
   return (
     <div className="space-y-4">
-      <div className="flex items-center gap-3 flex-wrap">
-        <div className="rounded-full bg-[#1D1E36] border border-[#2A2B45] px-4 py-1.5 text-xs font-black uppercase tracking-wide text-[#00E5FF]">
-          {members.length} traveler{members.length !== 1 ? "s" : ""}
+
+      {/* Stats row */}
+      <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
+        <div className="rounded-[20px] border border-white/[0.06] bg-[#2d2d2d] px-5 py-5 text-center">
+          <p className="text-xs font-black uppercase tracking-[0.24em] text-white/60">Travelers</p>
+          <p className="mt-2 text-[3rem] font-black leading-none text-[#00E5FF]">{members.length}</p>
         </div>
-        {isOrganizer && inviteCount > 0 && (
-          <div className="rounded-full bg-[#1D1E36] border border-[#2A2B45] px-4 py-1.5 text-xs font-black uppercase tracking-wide text-[#FFD600]">
-            {inviteCount} active invite link{inviteCount !== 1 ? "s" : ""}
-          </div>
-        )}
+        <div className="rounded-[20px] border border-white/[0.06] bg-[#2d2d2d] px-5 py-5 text-center">
+          <p className="text-xs font-black uppercase tracking-[0.24em] text-white/60">Organizer</p>
+          <p className="mt-2 text-[1.5rem] font-black leading-tight text-[#FF2D8B] truncate">
+            {organizer ? organizer.name.split(" ")[0] : "—"}
+          </p>
+        </div>
+        <div className="col-span-2 rounded-[20px] border border-white/[0.06] bg-[#2d2d2d] px-5 py-5 text-center sm:col-span-1">
+          <p className="text-xs font-black uppercase tracking-[0.24em] text-white/60">
+            {isOrganizer ? "Invite Links" : "Roles"}
+          </p>
+          <p className="mt-2 text-[3rem] font-black leading-none text-[#FFD600]">
+            {isOrganizer ? inviteCount : members.filter((m) => m.role !== "member").length}
+          </p>
+        </div>
       </div>
 
-      <div className="grid grid-cols-1 gap-[10px] sm:grid-cols-2">
-        {members.map((m, i) => (
-          <DarkCard key={m.userId} className="p-4 flex items-center gap-3">
-            <div
-              className="w-10 h-10 rounded-full flex items-center justify-center font-black text-sm flex-shrink-0 text-white"
-              style={{ backgroundColor: MEMBER_COLORS[i % MEMBER_COLORS.length] }}
-            >
-              {m.name.trim().charAt(0).toUpperCase()}
-            </div>
-            <div>
-              <div className="text-sm font-bold text-white">{m.name}</div>
-              <div className="text-[11px] font-semibold text-white/80">
-                {m.role === "organizer" ? "Organizer" : m.role === "trusted" ? "Trusted" : "Traveler"}
+      {/* Crew roster */}
+      <DarkCard className="p-5 md:p-7">
+        <CardLabel>The Crew</CardLabel>
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+          {sorted.map((m) => {
+            const color = colorMap[m.userId];
+            return (
+              <div
+                key={m.userId}
+                className="flex items-center gap-4 rounded-2xl p-4"
+                style={{ backgroundColor: `${color}12` }}
+              >
+                <div
+                  className="h-14 w-14 flex-shrink-0 rounded-full flex items-center justify-center text-xl font-black text-white"
+                  style={{ backgroundColor: color }}
+                >
+                  {m.name.trim().charAt(0).toUpperCase()}
+                </div>
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <p className="text-base font-black text-white leading-tight">{m.name}</p>
+                    {m.role === "organizer" && (
+                      <span className="rounded-full border border-[#FFD600]/40 bg-[#FFD600]/10 px-2.5 py-0.5 text-[11px] font-black uppercase tracking-wide text-[#FFD600]">
+                        Organizer
+                      </span>
+                    )}
+                    {m.role === "trusted" && (
+                      <span className="rounded-full border border-[#00E5FF]/30 bg-[#00E5FF]/10 px-2.5 py-0.5 text-[11px] font-black uppercase tracking-wide text-[#00E5FF]">
+                        Trusted
+                      </span>
+                    )}
+                  </div>
+                  {m.joinedAt && (
+                    <p className="mt-0.5 text-[11px] font-semibold text-white/40">
+                      Joined{" "}
+                      {new Date(m.joinedAt).toLocaleDateString("en-US", {
+                        month: "short",
+                        day: "numeric",
+                        year: "numeric",
+                      })}
+                    </p>
+                  )}
+                </div>
               </div>
-            </div>
-          </DarkCard>
-        ))}
-      </div>
+            );
+          })}
+        </div>
+      </DarkCard>
 
+      {/* Invite card — organizer only */}
       {isOrganizer && (
-        <DarkCard className="p-4">
-          <Link
-            href={`/app/trips/${tripId}/invite`}
-            className="flex items-center gap-2 font-black text-sm transition-opacity hover:opacity-80 mx-auto w-fit text-[#00E5FF]"
-          >
-            <Plus size={18} weight="fill" />
-            Invite a traveler
-          </Link>
+        <DarkCard className="p-5 md:p-7">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <CardLabel>Invite the crew</CardLabel>
+              <p className="mt-1 text-sm font-semibold text-white/50">
+                {inviteCount > 0
+                  ? `${inviteCount} active invite link${inviteCount !== 1 ? "s" : ""} · anyone with a link can join`
+                  : "Create a shareable link anyone can use to join this trip."}
+              </p>
+            </div>
+            <Link
+              href={`/app/trips/${tripId}/invite`}
+              className="inline-flex flex-shrink-0 items-center gap-2 rounded-full bg-[#00E5FF] px-6 py-2.5 text-sm font-black text-[#0A0A12] transition-opacity hover:opacity-85"
+            >
+              <Plus size={16} weight="fill" />
+              {inviteCount > 0 ? "Manage invites" : "Invite travelers"}
+            </Link>
+          </div>
         </DarkCard>
       )}
+
     </div>
   );
 }

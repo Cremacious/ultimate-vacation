@@ -51,7 +51,7 @@ export default async function PreplanningPage({
           .limit(1)
       : Promise.resolve([]),
     db
-      .select({ userId: tripMembers.userId, name: users.name, role: tripMembers.role })
+      .select({ userId: tripMembers.userId, name: users.name, role: tripMembers.role, joinedAt: tripMembers.joinedAt })
       .from(tripMembers)
       .innerJoin(users, eq(tripMembers.userId, users.id))
       .where(and(eq(tripMembers.tripId, tripId), isNull(tripMembers.deletedAt))),
@@ -62,6 +62,12 @@ export default async function PreplanningPage({
   ]);
 
   const inviteCount = inviteCountRows[0]?.value ?? 0;
+  const members = memberRows.map((m) => ({
+    userId: m.userId,
+    name: m.name,
+    role: m.role,
+    joinedAt: m.joinedAt ? m.joinedAt.toISOString() : null,
+  }));
 
   const notesMeta = {
     updatedAt: trip.preplanNotesUpdatedAt
@@ -87,7 +93,7 @@ export default async function PreplanningPage({
     <div className="px-0 py-0">
       <PreplanningShell
         tripId={tripId}
-        members={memberRows}
+        members={members}
         isOrganizer={isOrganizer}
         inviteCount={inviteCount}
         flights={flights}
