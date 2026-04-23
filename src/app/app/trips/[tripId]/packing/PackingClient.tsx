@@ -45,15 +45,16 @@ const CARD_SURFACE = "#2e2e2e";
 const BORDER = "#3a3a3a";
 const MUTED_TEXT = "rgba(255,255,255,0.62)";
 
-// Full class strings required for Tailwind JIT to include hover variants
+// Resting text is white/85 for contrast compliance — color identity comes from border + background tint.
+// Hover/focus: full color fill with dark text. Full class strings required for Tailwind JIT.
 const PILL = {
-  cyan: "text-[#00A8CC] border-[rgba(0,168,204,0.3)] bg-[rgba(0,168,204,0.07)] hover:bg-[#00A8CC] hover:border-[#00A8CC] hover:text-[#0e1117] focus-visible:bg-[#00A8CC] focus-visible:border-[#00A8CC] focus-visible:text-[#0e1117]",
-  pink: "text-[#FF2D8B] border-[rgba(255,45,139,0.3)] bg-[rgba(255,45,139,0.07)] hover:bg-[#FF2D8B] hover:border-[#FF2D8B] hover:text-white focus-visible:bg-[#FF2D8B] focus-visible:border-[#FF2D8B] focus-visible:text-white",
-  green: "text-[#00C96B] border-[rgba(0,201,107,0.3)] bg-[rgba(0,201,107,0.07)] hover:bg-[#00C96B] hover:border-[#00C96B] hover:text-[#0e1117] focus-visible:bg-[#00C96B] focus-visible:border-[#00C96B] focus-visible:text-[#0e1117]",
-  yellow: "text-[#FFD600] border-[rgba(255,214,0,0.3)] bg-[rgba(255,214,0,0.07)] hover:bg-[#FFD600] hover:border-[#FFD600] hover:text-[#0e1117] focus-visible:bg-[#FFD600] focus-visible:border-[#FFD600] focus-visible:text-[#0e1117]",
+  cyan: "text-white/[0.85] border-[rgba(0,168,204,0.4)] bg-[rgba(0,168,204,0.12)] hover:bg-[#00A8CC] hover:border-[#00A8CC] hover:text-[#0e1117] focus-visible:bg-[#00A8CC] focus-visible:border-[#00A8CC] focus-visible:text-[#0e1117]",
+  pink: "text-white/[0.85] border-[rgba(255,45,139,0.4)] bg-[rgba(255,45,139,0.12)] hover:bg-[#FF2D8B] hover:border-[#FF2D8B] hover:text-white focus-visible:bg-[#FF2D8B] focus-visible:border-[#FF2D8B] focus-visible:text-white",
+  green: "text-white/[0.85] border-[rgba(0,201,107,0.4)] bg-[rgba(0,201,107,0.12)] hover:bg-[#00C96B] hover:border-[#00C96B] hover:text-[#0e1117] focus-visible:bg-[#00C96B] focus-visible:border-[#00C96B] focus-visible:text-[#0e1117]",
+  yellow: "text-[#FFD600] border-[rgba(255,214,0,0.4)] bg-[rgba(255,214,0,0.12)] hover:bg-[#FFD600] hover:border-[#FFD600] hover:text-[#0e1117] focus-visible:bg-[#FFD600] focus-visible:border-[#FFD600] focus-visible:text-[#0e1117]",
 } as const;
 
-const PILL_BASE = "rounded-full border px-2 py-0.5 text-[10px] font-black uppercase tracking-[0.14em] transition-all duration-150 outline-none";
+const PILL_BASE = "rounded-full border px-2 py-0.5 text-[10px] font-black uppercase tracking-[0.14em] transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50";
 
 function DarkCard({
   children,
@@ -105,7 +106,7 @@ function StatCard({
         {value}
         {suffix ? <span style={{ fontSize: "1rem", color: "#555" }}>{suffix}</span> : null}
       </p>
-      <p className="mt-1 text-[10px] font-black uppercase tracking-[0.22em]" style={{ color: "rgba(255,255,255,0.5)" }}>
+      <p className="mt-1 text-[10px] font-black uppercase tracking-[0.22em]" style={{ color: "rgba(255,255,255,0.65)" }}>
         {label}
       </p>
     </div>
@@ -314,7 +315,11 @@ function ChecklistRow({
               <form action={setItemVisibilityAction}>
                 <input type="hidden" name="itemId" value={item.id} />
                 <input type="hidden" name="visibility" value={nextVisibility} />
-                <button type="submit" className={`${PILL_BASE} ${visibilityPillClass}`}>
+                <button
+                  type="submit"
+                  aria-label={`Make ${item.text} ${nextVisibility}`}
+                  className={`${PILL_BASE} ${visibilityPillClass}`}
+                >
                   {item.effectiveVisibility}
                 </button>
               </form>
@@ -323,7 +328,11 @@ function ChecklistRow({
             {moveToSharedAction ? (
               <form action={moveToSharedAction}>
                 <input type="hidden" name="itemId" value={item.id} />
-                <button type="submit" className={`${PILL_BASE} ${PILL.cyan}`}>
+                <button
+                  type="submit"
+                  aria-label={`Move ${item.text} to shared`}
+                  className={`${PILL_BASE} ${PILL.cyan}`}
+                >
                   Share
                 </button>
               </form>
@@ -332,7 +341,11 @@ function ChecklistRow({
             {canClaimSharedItem ? (
               <form action={claimSharedItemAction!}>
                 <input type="hidden" name="itemId" value={item.id} />
-                <button type="submit" className={`${PILL_BASE} ${PILL.green}`}>
+                <button
+                  type="submit"
+                  aria-label={`Claim ${item.text}`}
+                  className={`${PILL_BASE} ${PILL.green}`}
+                >
                   Claim
                 </button>
               </form>
@@ -341,7 +354,11 @@ function ChecklistRow({
             {canUnassignSharedItem ? (
               <form action={unassignSharedItemAction!}>
                 <input type="hidden" name="itemId" value={item.id} />
-                <button type="submit" className={`${PILL_BASE} ${PILL.yellow}`}>
+                <button
+                  type="submit"
+                  aria-label={`Unassign ${item.text}`}
+                  className={`${PILL_BASE} ${PILL.yellow}`}
+                >
                   Unassign
                 </button>
               </form>
@@ -357,7 +374,7 @@ function ChecklistRow({
               <button
                 type="submit"
                 aria-label={`Remove ${item.text}`}
-                className="flex h-8 w-8 items-center justify-center rounded-full transition-colors hover:bg-white/5"
+                className="flex h-11 w-11 items-center justify-center rounded-full transition-colors hover:bg-white/5"
                 style={{ color: "rgba(255,255,255,0.25)" }}
               >
                 <Trash size={14} />
@@ -366,7 +383,7 @@ function ChecklistRow({
           ) : null}
         </div>
       ) : (
-        <span className="text-[11px] font-black uppercase tracking-[0.16em]" style={{ color: "rgba(255,255,255,0.45)" }}>
+        <span className="text-[11px] font-black uppercase tracking-[0.16em]" style={{ color: MUTED_TEXT }}>
           {item.isPacked ? "Packed" : "Visible"}
         </span>
       )}
@@ -408,7 +425,7 @@ function CategorySection({
         >
           {category.label}
         </span>
-        <span className="ml-auto text-[11px] font-black" style={{ color: "rgba(255,255,255,0.35)" }}>
+        <span className="ml-auto text-[11px] font-black" style={{ color: "rgba(255,255,255,0.55)" }}>
           {category.packedCount}/{category.totalCount}
         </span>
       </div>
@@ -633,7 +650,7 @@ export default function PackingClient({
                   aria-selected={activeTab === "my"}
                   aria-controls="packing-panel-my"
                   onClick={() => setActiveTab("my")}
-                  className="relative z-10 flex items-center justify-center gap-2 rounded-full px-4 py-2 text-sm font-black text-white"
+                  className="relative z-10 flex min-h-[44px] items-center justify-center gap-2 rounded-full px-4 py-2 text-sm font-black text-white"
                 >
                   <Backpack size={13} weight="fill" />
                   <span>My lists</span>
@@ -654,7 +671,7 @@ export default function PackingClient({
                   aria-selected={activeTab === "shared"}
                   aria-controls="packing-panel-shared"
                   onClick={() => setActiveTab("shared")}
-                  className="relative z-10 flex items-center justify-center gap-2 rounded-full px-4 py-2 text-sm font-black text-white"
+                  className="relative z-10 flex min-h-[44px] items-center justify-center gap-2 rounded-full px-4 py-2 text-sm font-black text-white"
                 >
                   <UsersThree size={13} weight="fill" />
                   <span>Shared</span>
