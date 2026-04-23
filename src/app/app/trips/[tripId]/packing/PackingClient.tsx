@@ -18,6 +18,7 @@ import type {
   PackingItemView,
   PackingPageData,
   PersonalPackingListView,
+  PublicPackingListView,
   SharedPackingListView,
 } from "@/lib/packing/queries";
 import type { PackingFormState } from "./actions";
@@ -43,6 +44,8 @@ const SURFACE = "#404040";
 const HEADER_SURFACE = "#282828";
 const CARD_SURFACE = "#2e2e2e";
 const BORDER = "#3a3a3a";
+const MUTED_TEXT = "rgba(255,255,255,0.62)";
+const QUIET_TEXT = "rgba(255,255,255,0.72)";
 
 function DarkCard({
   children,
@@ -98,21 +101,29 @@ function StatCard({
 
 function PackingTabButton({
   active,
+  controls,
   count,
   icon,
+  id,
   label,
   onClick,
 }: {
   active: boolean;
+  controls: string;
   count: number;
   icon: ReactNode;
+  id: string;
   label: string;
   onClick: () => void;
 }) {
   return (
     <button
+      id={id}
       type="button"
       onClick={onClick}
+      role="tab"
+      aria-selected={active}
+      aria-controls={controls}
       className="flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-black transition-colors"
       style={{
         backgroundColor: active ? "#00A8CC" : "rgba(255,255,255,0.04)",
@@ -173,6 +184,8 @@ function PersonalListChip({
     <button
       type="button"
       onClick={onClick}
+      aria-pressed={active}
+      aria-label={`${list.name}, ${list.visibility}, ${list.remainingCount} items left`}
       className="flex min-w-[170px] flex-col items-start gap-1 rounded-2xl border px-4 py-3 text-left transition-colors"
       style={{
         backgroundColor: active ? "rgba(255,255,255,0.07)" : "rgba(255,255,255,0.03)",
@@ -207,7 +220,7 @@ function EmptyState({
   return (
     <DarkCard className="px-6 py-14 text-center">
       <p className="text-sm font-black text-white">{title}</p>
-      <p className="mt-2 text-sm font-semibold" style={{ color: "rgba(255,255,255,0.3)" }}>
+      <p className="mt-2 text-sm font-semibold" style={{ color: MUTED_TEXT }}>
         {body}
       </p>
     </DarkCard>
@@ -220,6 +233,7 @@ function ChecklistRow({
   claimSharedItemAction,
   deleteAction,
   moveToSharedAction,
+  readOnly = false,
   setItemVisibilityAction,
   toggleAction,
   unassignSharedItemAction,
@@ -229,6 +243,7 @@ function ChecklistRow({
   claimSharedItemAction?: (formData: FormData) => Promise<void>;
   deleteAction: (formData: FormData) => Promise<void>;
   moveToSharedAction?: (formData: FormData) => Promise<void>;
+  readOnly?: boolean;
   setItemVisibilityAction?: (formData: FormData) => Promise<void>;
   toggleAction: (formData: FormData) => Promise<void>;
   unassignSharedItemAction?: (formData: FormData) => Promise<void>;
@@ -248,14 +263,13 @@ function ChecklistRow({
     : isClaimedByCurrentUser
       ? "You"
       : item.assigneeName ?? "Assigned";
+  const showActionRail = !readOnly;
 
   return (
     <li className="group flex items-start gap-3 rounded-[10px] px-1 py-3 transition-colors hover:bg-white/[0.03]">
-      <form action={toggleAction}>
-        <input type="hidden" name="itemId" value={item.id} />
-        <button
-          type="submit"
-          aria-label={item.isPacked ? `Unpack ${item.text}` : `Pack ${item.text}`}
+      {readOnly ? (
+        <span
+          aria-hidden="true"
           className="flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full border-2 transition-all"
           style={{
             backgroundColor: item.isPacked ? "#00C96B" : "transparent",
@@ -263,8 +277,23 @@ function ChecklistRow({
           }}
         >
           {item.isPacked ? <Check size={9} weight="bold" color="#fff" /> : null}
-        </button>
-      </form>
+        </span>
+      ) : (
+        <form action={toggleAction}>
+          <input type="hidden" name="itemId" value={item.id} />
+          <button
+            type="submit"
+            aria-label={item.isPacked ? `Unpack ${item.text}` : `Pack ${item.text}`}
+            className="flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full border-2 transition-all"
+            style={{
+              backgroundColor: item.isPacked ? "#00C96B" : "transparent",
+              borderColor: item.isPacked ? "#00C96B" : "rgba(255,255,255,0.25)",
+            }}
+          >
+            {item.isPacked ? <Check size={9} weight="bold" color="#fff" /> : null}
+          </button>
+        </form>
+      )}
 
       <div className="min-w-0 flex-1">
         <span
@@ -309,7 +338,8 @@ function ChecklistRow({
         </div>
       </div>
 
-      <div className="flex flex-col items-end gap-2">
+      {showActionRail ? (
+        <div className="flex flex-col items-end gap-2">
         <div className="flex flex-wrap justify-end gap-2">
           {setItemVisibilityAction ? (
             <form action={setItemVisibilityAction}>
@@ -381,7 +411,10 @@ function ChecklistRow({
           ) : null}
         </div>
 
-        <form action={deleteAction} className="opacity-0 transition-opacity group-hover:opacity-100">
+        <form
+          action={deleteAction}
+          className="opacity-0 transition-opacity group-hover:opacity-100 group-focus-within:opacity-100"
+        >
           <input type="hidden" name="itemId" value={item.id} />
           <button
             type="submit"
@@ -392,7 +425,12 @@ function ChecklistRow({
             <Trash size={14} />
           </button>
         </form>
-      </div>
+        </div>
+      ) : (
+        <span className="text-[11px] font-black uppercase tracking-[0.16em]" style={{ color: QUIET_TEXT }}>
+          {item.isPacked ? "Packed" : "Visible to group"}
+        </span>
+      )}
     </li>
   );
 }
@@ -404,6 +442,7 @@ function CategoryCard({
   deleteAction,
   moveToSharedAction,
   progressAccent,
+  readOnly = false,
   setItemVisibilityAction,
   toggleAction,
   unassignSharedItemAction,
@@ -414,6 +453,7 @@ function CategoryCard({
   deleteAction: (formData: FormData) => Promise<void>;
   moveToSharedAction?: (formData: FormData) => Promise<void>;
   progressAccent: string;
+  readOnly?: boolean;
   setItemVisibilityAction?: (formData: FormData) => Promise<void>;
   toggleAction: (formData: FormData) => Promise<void>;
   unassignSharedItemAction?: (formData: FormData) => Promise<void>;
@@ -435,15 +475,23 @@ function CategoryCard({
         </div>
         <div className="min-w-0 flex-1">
           <p className="text-[13px] font-black text-white">{category.label}</p>
-          <p className="text-[11px] font-bold" style={{ color: "rgba(255,255,255,0.35)" }}>
+          <p className="text-[11px] font-bold" style={{ color: MUTED_TEXT }}>
             {category.totalCount} item{category.totalCount === 1 ? "" : "s"}
           </p>
         </div>
         <div className="hidden items-center gap-3 md:flex">
-          <span className="text-[11px] font-black" style={{ color: "rgba(255,255,255,0.3)" }}>
+          <span className="text-[11px] font-black" style={{ color: MUTED_TEXT }}>
             {category.packedCount}/{category.totalCount}
           </span>
-          <div className="h-1.5 w-16 overflow-hidden rounded-full" style={{ backgroundColor: BORDER }}>
+          <div
+            className="h-1.5 w-16 overflow-hidden rounded-full"
+            role="progressbar"
+            aria-label={`${category.label} packing progress`}
+            aria-valuemin={0}
+            aria-valuemax={category.totalCount}
+            aria-valuenow={category.packedCount}
+            style={{ backgroundColor: BORDER }}
+          >
             <div
               className="h-full rounded-full transition-all duration-500"
               style={{ width: `${completionPct}%`, backgroundColor: progressAccent }}
@@ -453,7 +501,7 @@ function CategoryCard({
       </div>
 
       {category.totalCount === 0 ? (
-        <div className="px-4 py-6 text-sm font-semibold" style={{ color: "rgba(255,255,255,0.3)" }}>
+        <div className="px-4 py-6 text-sm font-semibold" style={{ color: MUTED_TEXT }}>
           No items in this category yet.
         </div>
       ) : (
@@ -466,12 +514,91 @@ function CategoryCard({
               claimSharedItemAction={claimSharedItemAction}
               deleteAction={deleteAction}
               moveToSharedAction={moveToSharedAction}
+              readOnly={readOnly}
               setItemVisibilityAction={setItemVisibilityAction}
               toggleAction={toggleAction}
               unassignSharedItemAction={unassignSharedItemAction}
             />
           ))}
         </ul>
+      )}
+    </DarkCard>
+  );
+}
+
+function MemberBadge({
+  color,
+  initials,
+  name,
+}: {
+  color: string;
+  initials: string;
+  name: string;
+}) {
+  return (
+    <div className="inline-flex items-center gap-2 rounded-full border px-2.5 py-1" style={{ borderColor: `${color}40`, backgroundColor: `${color}14` }}>
+      <span
+        className="flex h-5 w-5 items-center justify-center rounded-full text-[10px] font-black"
+        style={{ backgroundColor: `${color}33`, color }}
+      >
+        {initials}
+      </span>
+      <span className="text-[11px] font-black uppercase tracking-[0.14em]" style={{ color: "#fff" }}>
+        {name}
+      </span>
+    </div>
+  );
+}
+
+function PublicListCard({
+  currentUserId,
+  list,
+  toggleAction,
+}: {
+  currentUserId: string;
+  list: PublicPackingListView;
+  toggleAction: (formData: FormData) => Promise<void>;
+}) {
+  return (
+    <DarkCard className="overflow-hidden">
+      <div className="flex flex-col gap-3 px-4 py-4" style={{ borderBottom: `1px solid ${BORDER}` }}>
+        <div className="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
+          <div>
+            <p className="text-lg font-black text-white">{list.name}</p>
+            <p className="text-[11px] font-bold" style={{ color: MUTED_TEXT }}>
+              Public items from {list.owner.name}'s personal list. Private items stay hidden from the group.
+            </p>
+          </div>
+          <MemberBadge color={list.owner.color} initials={list.owner.initials} name={list.owner.name} />
+        </div>
+        <div className="flex items-center gap-3">
+          <span className="text-[11px] font-black uppercase tracking-[0.16em]" style={{ color: "#00A8CC" }}>
+            {list.packedCount}/{list.totalCount} packed
+          </span>
+          <span className="text-[11px] font-black uppercase tracking-[0.16em]" style={{ color: QUIET_TEXT }}>
+            {list.remainingCount} left
+          </span>
+        </div>
+      </div>
+
+      {list.totalCount === 0 ? (
+        <div className="px-4 py-6 text-sm font-semibold" style={{ color: MUTED_TEXT }}>
+          No public items in this list right now.
+        </div>
+      ) : (
+        <div className="space-y-4 p-4">
+          {list.categories.map((category) => (
+            <CategoryCard
+              key={`${list.id}-${category.key}`}
+              currentUserId={currentUserId}
+              category={category}
+              deleteAction={async () => {}}
+              progressAccent={list.owner.color}
+              readOnly
+              toggleAction={toggleAction}
+            />
+          ))}
+        </div>
       )}
     </DarkCard>
   );
@@ -558,7 +685,15 @@ export default function PackingClient({
               <span style={{ fontSize: "1rem", color: "#555" }}>/{packingData.counts.total}</span>
             </p>
             <div className="flex items-center gap-2">
-              <div className="h-1.5 w-28 overflow-hidden rounded-full" style={{ backgroundColor: BORDER }}>
+              <div
+                className="h-1.5 w-28 overflow-hidden rounded-full"
+                role="progressbar"
+                aria-label="Overall packing progress"
+                aria-valuemin={0}
+                aria-valuemax={packingData.counts.total}
+                aria-valuenow={packingData.counts.packed}
+                style={{ backgroundColor: BORDER }}
+              >
                 <div
                   className="h-full rounded-full transition-all duration-500"
                   style={{ width: `${completionPct}%`, backgroundColor: progressAccent }}
@@ -587,37 +722,45 @@ export default function PackingClient({
 
           <div className="grid items-start gap-5 lg:grid-cols-[minmax(0,2fr)_minmax(300px,1fr)]">
             <div className="space-y-4">
-              <div className="flex flex-wrap items-center gap-2">
+              <div className="flex flex-wrap items-center gap-2" role="tablist" aria-label="Packing sections">
                 <PackingTabButton
                   active={activeTab === "my"}
+                  controls="packing-panel-my"
                   count={packingData.counts.myItems}
                   icon={<Backpack size={13} weight="fill" />}
+                  id="packing-tab-my"
                   label="My lists"
                   onClick={() => setActiveTab("my")}
                 />
                 <PackingTabButton
                   active={activeTab === "shared"}
+                  controls="packing-panel-shared"
                   count={packingData.counts.sharedItems}
                   icon={<UsersThree size={13} weight="fill" />}
+                  id="packing-tab-shared"
                   label="Shared"
                   onClick={() => setActiveTab("shared")}
                 />
               </div>
 
               {activeTab === "my" ? (
-                <>
+                <div role="tabpanel" id="packing-panel-my" aria-labelledby="packing-tab-my" className="space-y-4">
                   <DarkCard className="p-4">
                     <div className="flex flex-col gap-4">
                       <div className="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
                         <div>
                           <p className="text-sm font-black text-white">Your lists</p>
-                          <p className="text-[11px] font-bold" style={{ color: "rgba(255,255,255,0.35)" }}>
+                          <p className="text-[11px] font-bold" style={{ color: MUTED_TEXT }}>
                             Create bags, kits, and one-off lists here. New lists start private by default.
                           </p>
                         </div>
 
                         <form action={createListFormAction} className="flex flex-col gap-2 sm:flex-row">
+                          <label htmlFor="new-packing-list-name" className="sr-only">
+                            New packing list name
+                          </label>
                           <input
+                            id="new-packing-list-name"
                             type="text"
                             name="name"
                             placeholder="New list name"
@@ -626,7 +769,11 @@ export default function PackingClient({
                             className="min-w-0 rounded-full border px-4 py-2.5 text-sm font-bold text-white outline-none placeholder:text-white/20 focus:border-[#FF2D8B]"
                             style={{ backgroundColor: "#262626", borderColor: BORDER }}
                           />
+                          <label htmlFor="new-packing-list-visibility" className="sr-only">
+                            New list visibility
+                          </label>
                           <select
+                            id="new-packing-list-visibility"
                             name="visibility"
                             defaultValue="private"
                             className="rounded-full border px-4 py-2.5 text-sm font-black text-white outline-none"
@@ -685,7 +832,7 @@ export default function PackingClient({
                           <div className="flex flex-col gap-3 xl:flex-row xl:items-start xl:justify-between">
                             <div>
                               <p className="text-lg font-black text-white">{selectedList.name}</p>
-                              <p className="text-[11px] font-bold" style={{ color: "rgba(255,255,255,0.35)" }}>
+                              <p className="text-[11px] font-bold" style={{ color: MUTED_TEXT }}>
                                 {selectedList.visibility === "private"
                                   ? "Only you can see this list unless you make an item public."
                                   : "Trip members can see this list. Private items stay hidden."}
@@ -718,7 +865,11 @@ export default function PackingClient({
 
                           <form action={addFormAction} className="flex flex-col gap-2 sm:flex-row">
                             <input type="hidden" name="listId" value={selectedList.id} />
+                            <label htmlFor={`packing-add-item-${selectedList.id}`} className="sr-only">
+                              Add item to {selectedList.name}
+                            </label>
                             <input
+                              id={`packing-add-item-${selectedList.id}`}
                               type="text"
                               name="text"
                               placeholder={`Add an item to ${selectedList.name}...`}
@@ -783,9 +934,9 @@ export default function PackingClient({
                       body="Create your first list to start packing for this trip."
                     />
                   )}
-                </>
+                </div>
               ) : (
-                <>
+                <div role="tabpanel" id="packing-panel-shared" aria-labelledby="packing-tab-shared" className="space-y-4">
                   {sharedList ? (
                     <>
                       <DarkCard className="overflow-hidden">
@@ -795,14 +946,18 @@ export default function PackingClient({
                         >
                           <div>
                             <p className="text-lg font-black text-white">{sharedList.name}</p>
-                            <p className="text-[11px] font-bold" style={{ color: "rgba(255,255,255,0.35)" }}>
+                            <p className="text-[11px] font-bold" style={{ color: MUTED_TEXT }}>
                               Shared items stay visible to the group. Claim one when you are the bringer, or move it here from a personal list.
                             </p>
                           </div>
 
                           <form action={addFormAction} className="flex flex-col gap-2 sm:flex-row">
                             <input type="hidden" name="listId" value={sharedList.id} />
+                            <label htmlFor={`packing-add-shared-${sharedList.id}`} className="sr-only">
+                              Add shared packing item
+                            </label>
                             <input
+                              id={`packing-add-shared-${sharedList.id}`}
                               type="text"
                               name="text"
                               placeholder="Add a shared item..."
@@ -860,6 +1015,34 @@ export default function PackingClient({
                           ))}
                         </div>
                       )}
+
+                      <DarkCard className="overflow-hidden">
+                        <div className="flex flex-col gap-2 px-4 py-4" style={{ borderBottom: `1px solid ${BORDER}` }}>
+                          <p className="text-lg font-black text-white">Public personal lists</p>
+                          <p className="text-[11px] font-bold" style={{ color: MUTED_TEXT }}>
+                            These are the items other trip members chose to keep visible without moving them into Shared.
+                          </p>
+                        </div>
+
+                        <div className="p-4">
+                          {packingData.publicLists.length === 0 ? (
+                            <div className="rounded-2xl border px-4 py-6 text-sm font-semibold" style={{ borderColor: "rgba(255,255,255,0.08)", color: MUTED_TEXT }}>
+                              No other public personal lists are visible yet.
+                            </div>
+                          ) : (
+                            <div className="space-y-4">
+                              {packingData.publicLists.map((list) => (
+                                <PublicListCard
+                                  key={list.id}
+                                  currentUserId={currentUserId}
+                                  list={list}
+                                  toggleAction={toggleAction}
+                                />
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      </DarkCard>
                     </>
                   ) : (
                     <EmptyState
@@ -867,7 +1050,7 @@ export default function PackingClient({
                       body="The shared coordination list will appear here once this trip has one."
                     />
                   )}
-                </>
+                </div>
               )}
             </div>
 
@@ -881,7 +1064,7 @@ export default function PackingClient({
                 <div className="space-y-4 p-4">
                   <div>
                     <p className="text-sm font-bold text-white">{tripName}</p>
-                    <p className="mt-1 text-[11px] font-bold" style={{ color: "rgba(255,255,255,0.28)" }}>
+                    <p className="mt-1 text-[11px] font-bold" style={{ color: MUTED_TEXT }}>
                       Personal lists let you organize by bag or context. Shared keeps the group-facing items in one place.
                     </p>
                   </div>
@@ -895,7 +1078,15 @@ export default function PackingClient({
                         {packingData.counts.packed}/{packingData.counts.total}
                       </span>
                     </div>
-                    <div className="h-2 w-full overflow-hidden rounded-full" style={{ backgroundColor: BORDER }}>
+                    <div
+                      className="h-2 w-full overflow-hidden rounded-full"
+                      role="progressbar"
+                      aria-label="Overall progress summary"
+                      aria-valuemin={0}
+                      aria-valuemax={packingData.counts.total}
+                      aria-valuenow={packingData.counts.packed}
+                      style={{ backgroundColor: BORDER }}
+                    >
                       <div
                         className="h-full rounded-full transition-all duration-500"
                         style={{ width: `${completionPct}%`, backgroundColor: progressAccent }}

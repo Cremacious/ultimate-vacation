@@ -70,6 +70,16 @@ export type PersonalPackingListView = {
   remainingCount: number;
 };
 
+export type PublicPackingListView = {
+  id: string;
+  name: string;
+  owner: PackingMemberView;
+  categories: PackingCategoryView[];
+  packedCount: number;
+  totalCount: number;
+  remainingCount: number;
+};
+
 export type SharedPackingListView = {
   id: string;
   name: string;
@@ -82,6 +92,7 @@ export type SharedPackingListView = {
 export type PackingPageData = {
   members: PackingMemberView[];
   myLists: PersonalPackingListView[];
+  publicLists: PublicPackingListView[];
   sharedLists: SharedPackingListView[];
   counts: {
     total: number;
@@ -148,6 +159,24 @@ function buildPersonalListView(
   };
 }
 
+function buildPublicListView(
+  list: { id: string; name: string; owner: PackingMemberView },
+  items: PackingItemView[],
+): PublicPackingListView {
+  const packedCount = items.filter((item) => item.isPacked).length;
+  const totalCount = items.length;
+
+  return {
+    id: list.id,
+    name: list.name,
+    owner: list.owner,
+    categories: emptyCategoriesFromItems(items),
+    packedCount,
+    totalCount,
+    remainingCount: Math.max(totalCount - packedCount, 0),
+  };
+}
+
 function buildSharedListView(
   list: { id: string; name: string },
   items: PackingItemView[],
@@ -169,7 +198,7 @@ export async function getPackingPageData(
   tripId: string,
   userId: string,
 ): Promise<PackingPageData> {
-  const [memberRows, personalLists, sharedLists] = await Promise.all([
+  const [memberRows, personalLists, publicLists, sharedLists] = await Promise.all([
     db
       .select({
         userId: tripMembers.userId,
@@ -201,6 +230,24 @@ export async function getPackingPageData(
       .select({
         id: packingLists.id,
         name: packingLists.name,
+        ownerUserId: packingLists.ownerUserId,
+        sortOrder: packingLists.sortOrder,
+        createdAt: packingLists.createdAt,
+      })
+      .from(packingLists)
+      .where(
+        and(
+          eq(packingLists.tripId, tripId),
+          eq(packingLists.listType, "personal"),
+          eq(packingLists.visibility, "public"),
+          isNull(packingLists.deletedAt),
+        ),
+      )
+      .orderBy(asc(packingLists.sortOrder), asc(packingLists.createdAt)),
+    db
+      .select({
+        id: packingLists.id,
+        name: packingLists.name,
         sortOrder: packingLists.sortOrder,
         createdAt: packingLists.createdAt,
       })
@@ -223,7 +270,12 @@ export async function getPackingPageData(
   }));
   const memberById = new Map(members.map((member) => [member.userId, member]));
 
-  const allListIds = [...personalLists.map((list) => list.id), ...sharedLists.map((list) => list.id)];
+  const publicListsForOthers = publicLists.filter((list) => list.ownerUserId !== userId);
+  const allListIds = [
+    ...personalLists.map((list) => list.id),
+    ...publicListsForOthers.map((list) => list.id),
+    ...sharedLists.map((list) => list.id),
+  ];
   const itemRows =
     allListIds.length === 0
       ? []
@@ -315,6 +367,26 @@ export async function getPackingPageData(
     ),
   );
 
+  const publicListViews = publicListsForOthers
+    .map((list) => {
+      const owner = memberById.get(list.ownerUserId);
+      if (!owner) return null;
+
+      const visibleItems = (itemsByListId.get(list.id) ?? []).filter(
+        (item) => item.effectiveVisibility === "public",
+      );
+
+      return buildPublicListView(
+        {
+          id: list.id,
+          name: list.name,
+          owner,
+        },
+        visibleItems,
+      );
+    })
+    .filter((list): list is PublicPackingListView => Boolean(list));
+
   const sharedListViews = sharedLists.map((list) =>
     buildSharedListView(
       {
@@ -326,13 +398,17 @@ export async function getPackingPageData(
   );
 
   const myItems = myLists.flatMap((list) => list.categories.flatMap((category) => category.items));
+  const publicItems = publicListViews.flatMap((list) =>
+    list.categories.flatMap((category) => category.items),
+  );
   const sharedItems = sharedListViews.flatMap((list) => list.categories.flatMap((category) => category.items));
-  const packed = [...myItems, ...sharedItems].filter((item) => item.isPacked).length;
-  const total = myItems.length + sharedItems.length;
+  const packed = [...myItems, ...publicItems, ...sharedItems].filter((item) => item.isPacked).length;
+  const total = myItems.length + publicItems.length + sharedItems.length;
 
   return {
     members,
     myLists,
+    publicLists: publicListViews,
     sharedLists: sharedListViews,
     counts: {
       total,

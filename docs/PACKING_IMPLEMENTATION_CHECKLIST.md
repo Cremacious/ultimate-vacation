@@ -30,6 +30,7 @@ This doc keeps both truths visible so future work can proceed cleanly.
 - Real server-backed item visibility toggle
 - Real server-backed move to Shared
 - Real server-backed shared-item claim / unassign
+- Real read-only visibility of other members' public personal lists inside Shared
 - Real server-backed toggle packed
 - Real server-backed delete item
 - Real counts and progress
@@ -173,6 +174,7 @@ Current read layer now returns a Packing page view model, but some downstream ri
 
 - [x] Replace flat Packing query with a Packing page view-model query
 - [x] Return current user’s personal items separately from shared group items
+- [x] Return other members' public personal lists with private-item filtering
 - [x] Return categories and ordering
 - [x] Return assignee/bringer display info for shared items
 - [x] Return counts for tab badges
@@ -239,6 +241,7 @@ Current page now has named-list creation, add-to-list, and visibility controls, 
 - [x] Assigned bringer avatar/state
 - [x] Claim action for unassigned items
 - [x] Unassign action
+- [x] Public personal lists from trip members
 - [ ] Read-only vs editable check state depending on bringer
 
 ### Missing Suggestions UI
@@ -293,7 +296,7 @@ Do this in order to avoid rework.
 
 ### Phase 5 - polish and verification
 
-- [ ] Accessibility review
+- [x] Accessibility review pass completed directly in-session
 - [ ] Mobile behavior audit
 - [ ] Packing-specific empty/error states
 - [ ] Regression test current add/toggle/delete behavior
@@ -319,9 +322,10 @@ These are good implementation slices for handoff.
 ### Slice B - Personal/shared split
 
 - [x] Add personal vs group scope in schema
-- [ ] Update query layer
-- [ ] Add tab strip UI
-- [ ] Render My lists and Shared separately
+- [x] Update query layer
+- [x] Add tab strip UI
+- [x] Render My lists and Shared separately
+- [x] Surface other members' public personal lists in Shared
 
 ### Slice C - Privacy
 
@@ -393,6 +397,8 @@ These are good implementation slices for handoff.
 - [x] Move-to-shared action added
 - [x] Shared claim / unassign actions added
 - [x] Shared bringer UI added
+- [x] Public personal-list visibility added in Shared
+- [x] Accessibility semantics and labeling pass landed
 
 ### Not started
 

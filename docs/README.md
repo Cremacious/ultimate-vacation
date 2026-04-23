@@ -55,6 +55,9 @@ This folder is the operating system for the project. If we keep it current, it w
 - [PACKING_LISTS_BRIDGING_MIGRATION_DRAFT.md](C:\Code\personal\ultimate-vacation\docs\PACKING_LISTS_BRIDGING_MIGRATION_DRAFT.md)
   Draft bridge from the current transitional packing schema to `packing_lists + packing_items.list_id`, including seeding and backfill strategy.
 
+- [PACKING_CLAUDE_HANDOFF_2026-04-23.md](C:\Code\personal\ultimate-vacation\docs\PACKING_CLAUDE_HANDOFF_2026-04-23.md)
+  Claude takeover document for the current Packing implementation state: what is already real, what changed in the latest slice, remaining gaps, assumptions, and recommended next order.
+
 ## How To Use This Folder
 
 - Update `PROJECT_PLAN.md` when the product vision or business assumptions change.
