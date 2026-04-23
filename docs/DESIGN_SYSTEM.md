@@ -1020,6 +1020,49 @@ The app has a lightweight social layer throughout: comments, likes, and favorite
 - action circle animations should never block the user from continuing their task
 - notification badge should update in real time without a full page refresh
 
+## Established Interaction Patterns
+
+Patterns locked through design critique and handoff on the Packing page redesign (2026-04-23). Apply these consistently across all surfaces.
+
+### Glow-ring scale convention
+
+Two distinct glow-ring sizes serve different semantic roles. Never swap them.
+
+| Ring width | Role | CSS | Example |
+|---|---|---|---|
+| `1px` | Interactive selection state — "this thing is selected or active" | `box-shadow: 0 0 0 1px [color]` | Active list selector chip |
+| `3px` | Completion / success state — "this action is done" | `box-shadow: 0 0 0 3px [color]AA` (use ~67% opacity) | Packed toggle on a packing item |
+
+Use `transition-shadow duration-150` on elements that transition between these states.
+
+### Touch-padding for small visual pills
+
+Small action pills (10px text, `py-0.5 px-2`) are visually compact by design but must meet the 44px touch-target minimum. Do not increase the visual pill size — wrap the pill's containing element instead.
+
+**Pattern:** give the containing rail or wrapper `min-h-[44px] flex items-center` so the invisible tap area extends above and below the visible pill.
+
+```html
+<!-- Correct: small visual pill inside a tall invisible touch area -->
+<div class="flex min-h-[44px] items-center gap-1.5">
+  <button class="rounded-full border px-2 py-0.5 text-[10px] ...">Label</button>
+</div>
+
+<!-- Wrong: pill is the only tap target -->
+<button class="rounded-full border px-2 py-0.5 text-[10px] ...">Label</button>
+```
+
+This applies to all action pill rails in the product — packing item actions, inline controls, and any sub-row utility buttons.
+
+### Pill resting-state affordance
+
+Action pills must be visually discoverable without hover, because hover does not exist on touch. Pills must always render with a faint fill in resting state, not just a border.
+
+**Resting state:** `background: rgba(color, 0.07)` + `border: 1px solid rgba(color, 0.3)` + colored text  
+**Hover/focus state:** full `background: color` + white or dark-on-neon text  
+**Never:** outline-only pills with no fill in resting state (invisible on touch)
+
+---
+
 ## Accessibility Principles
 
 - maintain strong contrast even with translucent surfaces
