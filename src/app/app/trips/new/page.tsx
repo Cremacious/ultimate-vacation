@@ -3,7 +3,10 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useActionState } from "react";
+import { ArrowLeft } from "@phosphor-icons/react";
 
+import TripBall from "@/components/TripBall";
+import DatePicker from "@/components/DatePicker";
 import { createTripAction, type CreateTripFormState } from "./actions";
 
 const BALL_COLORS = [
@@ -13,6 +16,10 @@ const BALL_COLORS = [
   { hex: "#00C96B", label: "Green" },
   { hex: "#A855F7", label: "Purple" },
   { hex: "#FF8C00", label: "Orange" },
+  { hex: "#EF4444", label: "Red" },
+  { hex: "#3B82F6", label: "Blue" },
+  { hex: "#14B8A6", label: "Teal" },
+  { hex: "#84CC16", label: "Lime" },
 ];
 
 const initialState: CreateTripFormState = {};
@@ -22,114 +29,168 @@ export default function NewTripPage() {
   const [ballColor, setBallColor] = useState("#00A8CC");
 
   return (
-    <div className="min-h-screen px-4 py-10" style={{ backgroundColor: "#404040" }}>
-      <div className="max-w-lg mx-auto">
-        <div className="mb-8">
+    <div className="min-h-screen px-4 py-8 sm:px-6" style={{ backgroundColor: "#404040" }}>
+      <div className="max-w-4xl mx-auto">
+
+        {/* Back button */}
+        <div className="mb-6">
           <Link
             href="/app"
-            className="text-sm font-semibold text-white/80 hover:text-white transition-colors"
+            className="inline-flex items-center gap-2 rounded-full border border-[#3A3A3A] bg-[#252525] px-4 py-2 transition-colors hover:bg-[#2E2E2E]"
+            style={{ color: "#00C96B", boxShadow: "0 3px 0 rgba(0,0,0,0.5)" }}
           >
-            ← Back to trips
+            <ArrowLeft size={13} weight="bold" />
+            <span style={{ fontFamily: "var(--font-fredoka)", fontSize: "0.95rem", fontWeight: 700 }}>
+              Your trips
+            </span>
           </Link>
         </div>
 
-        <h1
-          className="text-4xl font-semibold text-white mb-2"
-          style={{ fontFamily: "var(--font-fredoka)" }}
-        >
-          New trip.
-        </h1>
-        <p className="text-white/90 font-medium text-sm mb-8">
-          Give it a name and we&apos;ll handle the rest.
-        </p>
+        {/* Page title */}
+        <div className="mb-5">
+          <h1
+            className="text-5xl font-semibold mb-1"
+            style={{ fontFamily: "var(--font-fredoka)", color: "#00A8CC" }}
+          >
+            New trip.
+          </h1>
+          <p className="text-white/80 text-sm font-medium">
+            Give it a name and we&apos;ll handle the rest.
+          </p>
+        </div>
 
-        <form action={formAction} className="space-y-5">
-          <div>
-            <label htmlFor="name" className="block text-sm font-bold text-white mb-1.5">
-              Trip name
-            </label>
-            <input
-              id="name"
-              name="name"
-              type="text"
-              required
-              minLength={2}
-              maxLength={80}
-              placeholder="e.g. Japan Spring 2025"
-              className="w-full rounded-xl border border-[#3A3A3A] bg-[#1E1E1E] px-4 py-3 text-white placeholder:text-white/30 focus:border-[#00A8CC] focus:outline-none transition-colors text-sm font-medium"
-            />
-          </div>
+        {/* Bento grid */}
+        <form action={formAction}>
+          <input type="hidden" name="ballColor" value={ballColor} />
 
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label htmlFor="startDate" className="block text-sm font-bold text-white mb-1.5">
+          <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
+
+            {/* ── Trip name ── col-span-2, big Fredoka input */}
+            <div
+              className="lg:col-span-2 rounded-2xl border border-[#3A3A3A] p-6 flex flex-col gap-4 min-h-[180px] justify-center relative"
+              style={{ backgroundColor: "#2E2E2E" }}
+            >
+              <label
+                htmlFor="name"
+                className="absolute top-5 left-6 text-xs font-black uppercase tracking-widest"
+                style={{ color: "#FF2D8B", fontFamily: "var(--font-fredoka)" }}
+              >
+                Trip name
+              </label>
+              <div
+                className="w-full border-b-2 transition-colors"
+                style={{ borderBottomColor: "rgba(255,255,255,0.15)" }}
+                onFocusCapture={e => (e.currentTarget.style.borderBottomColor = "#FF2D8B")}
+                onBlurCapture={e => (e.currentTarget.style.borderBottomColor = "rgba(255,255,255,0.15)")}
+              >
+                <input
+                  id="name"
+                  name="name"
+                  type="text"
+                  required
+                  minLength={2}
+                  maxLength={80}
+                  placeholder="e.g. Japan Spring 2025"
+                  className="w-full bg-transparent outline-none text-white placeholder:text-white/40 font-semibold"
+                  style={{
+                    fontFamily: "var(--font-fredoka)",
+                    fontSize: "clamp(1.75rem, 3.5vw, 2.5rem)",
+                    lineHeight: 1.2,
+                    paddingBottom: "2px",
+                  }}
+                />
+              </div>
+              {state.error && (
+                <p
+                  role="alert"
+                  className="rounded-xl border border-[#FF2D8B]/30 bg-[#FF2D8B]/10 px-3 py-2 text-xs font-semibold text-[#FF2D8B]"
+                >
+                  {state.error}
+                </p>
+              )}
+            </div>
+
+            {/* ── Color picker ── live ball preview + swatches */}
+            <div
+              className="rounded-2xl border border-[#3A3A3A] p-6 flex flex-col items-center gap-4"
+              style={{ backgroundColor: "#2E2E2E" }}
+            >
+              <p className="text-xs font-black uppercase tracking-widest self-start" style={{ fontFamily: "var(--font-fredoka)", color: "#A855F7" }}>
+                Trip color
+              </p>
+              <TripBall color={ballColor} fillPct={0} size={72} glow />
+              <div className="flex flex-wrap justify-center gap-3">
+                {BALL_COLORS.map(({ hex, label }) => (
+                  <button
+                    key={hex}
+                    type="button"
+                    aria-label={label}
+                    onClick={() => setBallColor(hex)}
+                    className="w-8 h-8 rounded-full flex items-center justify-center transition-all flex-shrink-0"
+                    style={{
+                      backgroundColor: hex,
+                      outline: ballColor === hex ? `3px solid ${hex}` : "3px solid transparent",
+                      outlineOffset: "3px",
+                    }}
+                  >
+                    {ballColor === hex && (
+                      <span className="text-[10px] font-black" style={{ color: "rgba(0,0,0,0.5)" }}>✓</span>
+                    )}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* ── Start date ── */}
+            <div
+              className="rounded-2xl border border-[#3A3A3A] p-5 flex flex-col gap-3"
+              style={{ backgroundColor: "#2E2E2E" }}
+            >
+              <label
+                className="text-xs font-black uppercase tracking-widest"
+                style={{ color: "#00C96B", fontFamily: "var(--font-fredoka)" }}
+              >
                 Start date
               </label>
-              <input
-                id="startDate"
-                name="startDate"
-                type="date"
-                className="w-full rounded-xl border border-[#3A3A3A] bg-[#1E1E1E] px-4 py-3 text-white focus:border-[#00A8CC] focus:outline-none transition-colors text-sm font-medium"
-              />
+              <DatePicker name="startDate" accentColor="#00C96B" placeholder="Departure date" />
             </div>
-            <div>
-              <label htmlFor="endDate" className="block text-sm font-bold text-white mb-1.5">
+
+            {/* ── End date ── */}
+            <div
+              className="rounded-2xl border border-[#3A3A3A] p-5 flex flex-col gap-3"
+              style={{ backgroundColor: "#2E2E2E" }}
+            >
+              <label
+                className="text-xs font-black uppercase tracking-widest"
+                style={{ color: "#FF8C00", fontFamily: "var(--font-fredoka)" }}
+              >
                 End date
               </label>
-              <input
-                id="endDate"
-                name="endDate"
-                type="date"
-                className="w-full rounded-xl border border-[#3A3A3A] bg-[#1E1E1E] px-4 py-3 text-white focus:border-[#00A8CC] focus:outline-none transition-colors text-sm font-medium"
-              />
+              <DatePicker name="endDate" accentColor="#FF8C00" placeholder="Return date" />
             </div>
-          </div>
 
-          {/* Trip color picker */}
-          <div>
-            <label className="block text-sm font-bold text-white mb-3">
-              Trip color
-            </label>
-            <input type="hidden" name="ballColor" value={ballColor} />
-            <div className="flex gap-3 flex-wrap">
-              {BALL_COLORS.map(({ hex, label }) => (
-                <button
-                  key={hex}
-                  type="button"
-                  aria-label={label}
-                  onClick={() => setBallColor(hex)}
-                  className="w-10 h-10 rounded-full flex items-center justify-center transition-all flex-shrink-0"
-                  style={{
-                    backgroundColor: hex,
-                    outline: ballColor === hex ? `3px solid ${hex}` : "3px solid transparent",
-                    outlineOffset: "3px",
-                  }}
-                >
-                  {ballColor === hex && (
-                    <span className="text-xs font-black" style={{ color: "rgba(0,0,0,0.5)" }}>✓</span>
-                  )}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {state.error && (
-            <p
-              role="alert"
-              className="rounded-xl border border-[#FF2D8B]/30 bg-[#FF2D8B]/10 px-4 py-3 text-sm font-semibold text-[#FF2D8B]"
+            {/* ── Submit ── */}
+            <div
+              className="rounded-2xl border border-[#3A3A3A] p-5 flex flex-col justify-end"
+              style={{ backgroundColor: "#2E2E2E" }}
             >
-              {state.error}
-            </p>
-          )}
+              <button
+                type="submit"
+                disabled={pending}
+                className="w-full rounded-full py-3.5 font-bold hover:brightness-110 transition disabled:opacity-60 disabled:cursor-not-allowed"
+                style={{
+                  backgroundColor: ballColor,
+                  color: "#171717",
+                  fontFamily: "var(--font-fredoka)",
+                  boxShadow: "0 3px 0 rgba(0,0,0,0.35)",
+                  fontSize: "1.1rem",
+                }}
+              >
+                {pending ? "Creating…" : "Create trip →"}
+              </button>
+            </div>
 
-          <button
-            type="submit"
-            disabled={pending}
-            className="w-full rounded-full py-3.5 font-bold hover:brightness-110 transition mt-2 disabled:opacity-60 disabled:cursor-not-allowed"
-            style={{ backgroundColor: ballColor, color: "#171717", boxShadow: "0 3px 0 rgba(0,0,0,0.35)" }}
-          >
-            {pending ? "Creating…" : "Create trip"}
-          </button>
+          </div>
         </form>
       </div>
     </div>

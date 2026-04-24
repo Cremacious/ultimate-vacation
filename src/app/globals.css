@@ -24,8 +24,8 @@
 @layer base {
   html {
     font-family: var(--font-nunito), system-ui, sans-serif;
-    color: #1A1A1A;
-    background: #ffffff;
+    color: #ffffff;
+    background: #404040;
     -webkit-font-smoothing: antialiased;
     @apply font-sans;
   }
@@ -33,11 +33,12 @@
     @apply border-border outline-ring/50;
   }
   body {
-    @apply bg-background text-foreground;
+    background: #404040;
+    color: #ffffff;
   }
 
   body.tripwave-shell {
-    background: #4a4a4a;
+    background: #404040;
     color: #ffffff;
   }
 }

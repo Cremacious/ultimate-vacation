@@ -124,7 +124,7 @@ Outline/ghost buttons and dark-background buttons keep `text-white` as normal.
 ```tsx
 <button
   className="rounded-full px-6 py-3.5 font-bold hover:brightness-110 transition disabled:opacity-60 disabled:cursor-not-allowed"
-  style={{ backgroundColor: "#00A8CC", color: "#171717", boxShadow: "0 3px 0 #007a99" }}
+  style={{ backgroundColor: "#00A8CC", color: "#171717", fontFamily: "var(--font-fredoka)", boxShadow: "0 3px 0 #007a99" }}
 >
   Do the thing
 </button>
@@ -167,12 +167,28 @@ Outline/ghost buttons and dark-background buttons keep `text-white` as normal.
 />
 ```
 
-### Back / muted link
+### Back button (pill — permanent standard)
+
+All back buttons use a pill shape containing the arrow icon and label together. Color is `#00C96B`. No external text outside the pill.
+
 ```tsx
-<Link href="/app" className="text-sm font-semibold text-white/80 hover:text-white transition-colors">
-  ← Back
+<Link
+  href="/app"
+  className="inline-flex items-center gap-2 rounded-full border border-[#3A3A3A] bg-[#252525] px-4 py-2 transition-colors hover:bg-[#2E2E2E]"
+  style={{ color: "#00C96B", boxShadow: "0 3px 0 rgba(0,0,0,0.5)" }}
+>
+  <ArrowLeft size={13} weight="bold" />
+  <span style={{ fontFamily: "var(--font-fredoka)", fontSize: "0.95rem", fontWeight: 700 }}>
+    Your trips
+  </span>
 </Link>
 ```
+
+Rules:
+- Always a pill (`rounded-full`), never a bare circle with external text
+- Arrow + label both in `#00C96B`
+- Label always uses Fredoka
+- 3D shadow: `0 3px 0 rgba(0,0,0,0.5)` (dark neutral button rule)
 
 ### Section label (ALL CAPS header inside a card)
 ```tsx
@@ -193,8 +209,12 @@ Outline/ghost buttons and dark-background buttons keep `text-white` as normal.
 
 ## Typography
 
-- **Fredoka** (`var(--font-fredoka)`) — display moments, headlines, trip names, phase nav labels. Weight 600 for big moments, 400 for subheadings.
-- **Nunito** — all body copy, labels, form fields, button text. Default; no `style` needed.
+- **Fredoka** (`var(--font-fredoka)`) — display moments, headlines, trip names, phase nav labels, **all form labels**, **all button text**. Weight 600 for big moments, 400–700 for labels and buttons.
+- **Nunito** — body copy, input values, placeholder text, timestamps, fine print. Default; no `style` needed.
+
+**Form label font rule:** Every `<label>` uses Fredoka. Labels are uppercase, tracked wide, small size — Fredoka gives them personality without competing with the input values below.
+
+**Button font rule:** Every button text uses Fredoka. This applies to primary CTAs, outline buttons, pill selectors, and nav buttons alike.
 
 ```tsx
 // Large headline
@@ -203,10 +223,13 @@ Outline/ghost buttons and dark-background buttons keep `text-white` as normal.
 // Section header inside card
 <h2 className="text-xl font-semibold text-white" style={{ fontFamily: "var(--font-fredoka)" }} />
 
-// ALL CAPS card label
-<p className="text-xs font-black uppercase tracking-widest text-white/40" />
+// Form label (always Fredoka, always uppercase)
+<label className="text-xs font-black uppercase tracking-widest" style={{ fontFamily: "var(--font-fredoka)", color: "#00A8CC" }} />
 
-// Primary body
+// ALL CAPS card section label (always Fredoka)
+<p className="text-xs font-black uppercase tracking-widest text-white/80" style={{ fontFamily: "var(--font-fredoka)" }} />
+
+// Primary body (Nunito — no style needed)
 <p className="text-sm text-white" />
 
 // Secondary / muted body

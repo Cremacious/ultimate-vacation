@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useActionState } from "react";
 import Link from "next/link";
+import DatePicker from "@/components/DatePicker";
 
 const BALL_COLORS = [
   { hex: "#00A8CC", label: "Cyan" },
@@ -11,6 +12,10 @@ const BALL_COLORS = [
   { hex: "#00C96B", label: "Green" },
   { hex: "#A855F7", label: "Purple" },
   { hex: "#FF8C00", label: "Orange" },
+  { hex: "#EF4444", label: "Red" },
+  { hex: "#3B82F6", label: "Blue" },
+  { hex: "#14B8A6", label: "Teal" },
+  { hex: "#84CC16", label: "Lime" },
 ];
 
 function CellLabel({ children }: { children: React.ReactNode }) {
@@ -92,24 +97,16 @@ export default function SetupForm({ tripId, action, initialData }: SetupFormProp
           <CellLabel>Dates</CellLabel>
           <div className="w-full grid grid-cols-2 gap-2.5">
             <div>
-              <p className="text-xs font-black uppercase tracking-widest text-white/80 text-center mb-2">
+              <p className="text-xs font-black uppercase tracking-widest text-white/80 text-center mb-2" style={{ fontFamily: "var(--font-fredoka)" }}>
                 Depart
               </p>
-              <InpBase
-                type="date"
-                name="startDate"
-                defaultValue={initialData.startDate ?? ""}
-              />
+              <DatePicker name="startDate" defaultValue={initialData.startDate} accentColor="#00C96B" placeholder="Departure" />
             </div>
             <div>
-              <p className="text-xs font-black uppercase tracking-widest text-white/80 text-center mb-2">
+              <p className="text-xs font-black uppercase tracking-widest text-white/80 text-center mb-2" style={{ fontFamily: "var(--font-fredoka)" }}>
                 Return
               </p>
-              <InpBase
-                type="date"
-                name="endDate"
-                defaultValue={initialData.endDate ?? ""}
-              />
+              <DatePicker name="endDate" defaultValue={initialData.endDate} accentColor="#FF8C00" placeholder="Return" />
             </div>
           </div>
         </Cell>
