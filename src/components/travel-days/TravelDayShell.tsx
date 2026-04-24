@@ -338,53 +338,96 @@ export default function TravelDayShell({
   const totalDone = days.reduce((s, d) => s + d.tasks.filter((t) => t.done).length, 0);
 
   return (
-    <div className="max-w-2xl mx-auto px-4 py-8">
-      {/* ── Page header ── */}
-      <div className="flex items-start justify-between mb-6 gap-4">
-        <div>
-          <h1
-            className="text-2xl font-semibold text-white"
-            style={{ fontFamily: "var(--font-fredoka)" }}
-          >
-            Travel Days
-          </h1>
-          {days.length > 0 && totalTasks > 0 && (
-            <p className="text-sm mt-0.5" style={{ color: "rgba(255,255,255,0.5)" }}>
-              {totalDone} / {totalTasks} tasks done across {days.length} day
-              {days.length !== 1 ? "s" : ""}
+    <div className="min-h-screen flex flex-col" style={{ backgroundColor: "#404040" }}>
+      {/* ── Sticky dark header ── */}
+      <div
+        className="sticky top-0 z-30 border-b border-[#333333]"
+        style={{ backgroundColor: "#282828" }}
+      >
+        <div className="flex items-center justify-between px-6 py-4">
+          <div>
+            <h1
+              style={{
+                fontFamily: "var(--font-fredoka)",
+                fontSize: "2rem",
+                color: "white",
+                lineHeight: 1.1,
+                margin: 0,
+              }}
+            >
+              Travel Days
+            </h1>
+            <p className="text-sm font-medium mt-0.5" style={{ color: "#9CA3AF" }}>
+              Pre-departure checklists
             </p>
+          </div>
+          {canEdit && (
+            <div className="flex items-center gap-2">
+              {days.length > 0 && (
+                <form action={generateFormAction}>
+                  <input type="hidden" name="tripId" value={tripId} />
+                  <button
+                    type="submit"
+                    disabled={generatePending || !hasItineraryTransportEvents}
+                    title={
+                      !hasItineraryTransportEvents
+                        ? "No flight or transport events in itinerary"
+                        : undefined
+                    }
+                    className="border font-bold rounded-xl px-3 py-2.5 text-sm transition-opacity disabled:opacity-40 disabled:cursor-not-allowed"
+                    style={{ borderColor: "#FFD600", color: "#FFD600" }}
+                  >
+                    {generatePending ? "Generating…" : "Generate"}
+                  </button>
+                </form>
+              )}
+              <button
+                type="button"
+                onClick={() => setAddDayOpen((v) => !v)}
+                className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold transition-all"
+                style={{ backgroundColor: "#FF2D8B", color: "white", boxShadow: "0 4px 0 #991b5c" }}
+              >
+                <Plus size={14} weight="bold" />
+                Add travel day
+              </button>
+            </div>
           )}
         </div>
 
-        {canEdit && days.length > 0 && (
-          <div className="flex items-center gap-2 flex-shrink-0">
-            <form action={generateFormAction}>
-              <input type="hidden" name="tripId" value={tripId} />
-              <button
-                type="submit"
-                disabled={generatePending || !hasItineraryTransportEvents}
-                title={
-                  !hasItineraryTransportEvents
-                    ? "No flight or transport events in itinerary"
-                    : "Generate travel days from itinerary"
-                }
-                className="border font-bold rounded-full px-3 py-1.5 text-sm transition-opacity disabled:opacity-40 disabled:cursor-not-allowed"
-                style={{ borderColor: "#FFEB00", color: "#FFEB00" }}
-              >
-                {generatePending ? "Generating…" : "Generate"}
-              </button>
-            </form>
-            <button
-              type="button"
-              onClick={() => setAddDayOpen((v) => !v)}
-              className="border border-[#2A2B45] font-semibold rounded-full px-3 py-1.5 text-sm transition-colors hover:text-white"
-              style={{ color: "rgba(255,255,255,0.7)" }}
+        {/* Stats row */}
+        <div className="grid grid-cols-3 gap-3 px-6 pb-4">
+          {[
+            { value: days.length,  label: "Travel days",  color: "#00A8CC" },
+            { value: totalTasks,   label: "Total tasks",  color: "#FF2D8B" },
+            { value: totalDone,    label: "Tasks done",   color: "#00C96B" },
+          ].map((s) => (
+            <div
+              key={s.label}
+              className="rounded-2xl px-4 py-3"
+              style={{ backgroundColor: "#2e2e2e", border: "1px solid #3a3a3a" }}
             >
-              + Add day
-            </button>
-          </div>
-        )}
+              <p
+                style={{
+                  fontFamily: "var(--font-fredoka)",
+                  fontSize: "1.75rem",
+                  color: s.color,
+                  lineHeight: 1,
+                }}
+              >
+                {s.value}
+              </p>
+              <p
+                className="text-xs font-bold uppercase tracking-widest mt-1"
+                style={{ color: "#9CA3AF" }}
+              >
+                {s.label}
+              </p>
+            </div>
+          ))}
+        </div>
       </div>
+
+      <div className="flex-1 max-w-2xl mx-auto w-full px-4 py-8">
 
       {/* ── Generate result banner ── */}
       {generateMessage && (
@@ -765,6 +808,7 @@ export default function TravelDayShell({
             </section>
           );
         })}
+      </div>
       </div>
     </div>
   );

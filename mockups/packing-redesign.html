@@ -1,0 +1,955 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Packing – Redesign Mockup</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  @import url('https://fonts.googleapis.com/css2?family=Fredoka+One&display=swap');
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    background: #404040;
+    color: white;
+    min-height: 100vh;
+  }
+
+  /* ── HEADER ── */
+  .page-header {
+    background: #282828;
+    border-bottom: 1px solid #3a3a3a;
+    padding: 20px 24px;
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 16px;
+  }
+  .page-header h1 {
+    font-family: 'Fredoka One', sans-serif;
+    font-size: 2rem;
+    line-height: 1;
+    color: white;
+  }
+  .page-header p {
+    margin-top: 4px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #9CA3AF;
+  }
+  .header-progress {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 6px;
+    flex-shrink: 0;
+  }
+  .header-progress-num {
+    font-family: 'Fredoka One', sans-serif;
+    font-size: 1.5rem;
+    color: #00A8CC;
+    line-height: 1;
+  }
+  .header-progress-num .denom { font-size: 1rem; color: #555; }
+  .header-bar-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .header-bar {
+    width: 112px;
+    height: 6px;
+    background: #3a3a3a;
+    border-radius: 99px;
+    overflow: hidden;
+  }
+  .header-bar-fill {
+    height: 100%;
+    background: #00A8CC;
+    border-radius: 99px;
+  }
+  .header-pct {
+    font-size: 12px;
+    font-weight: 900;
+    color: #00A8CC;
+  }
+
+  /* ── BODY ── */
+  .body { max-width: 1100px; margin: 0 auto; padding: 24px; }
+
+  /* ── STATS ── */
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+  .stat-card {
+    background: rgba(255,255,255,0.03);
+    border-radius: 16px;
+    padding: 16px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .stat-card::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 16px; right: 16px;
+    height: 1px;
+  }
+  .stat-card.cyan::after  { background: #00A8CC; }
+  .stat-card.pink::after  { background: #FF2D8B; }
+  .stat-card.green::after { background: #00C96B; }
+  .stat-val {
+    font-family: 'Fredoka One', sans-serif;
+    font-size: 1.75rem;
+    font-weight: 900;
+    line-height: 1;
+  }
+  .stat-val .denom { font-size: 1rem; color: #555; }
+  .stat-label {
+    margin-top: 4px;
+    font-size: 10px;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.22em;
+    color: rgba(255,255,255,0.65);
+  }
+
+  /* ── GRID ── */
+  .main-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 2fr) 300px;
+    gap: 20px;
+    align-items: start;
+  }
+
+  /* ── LIST SELECTOR ── */
+  .list-tabs {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 16px;
+  }
+  .list-tab {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    border-radius: 99px;
+    border: 1px solid;
+    padding: 6px 14px;
+    font-size: 13px;
+    font-weight: 900;
+    cursor: pointer;
+    transition: all 0.15s;
+    background: rgba(255,255,255,0.05);
+    border-color: rgba(255,255,255,0.12);
+    color: #9CA3AF;
+  }
+  .list-tab.active {
+    background: #00A8CC;
+    border-color: #00A8CC;
+    color: white;
+  }
+  .list-tab.active .lock-icon { color: rgba(255,255,255,0.6); }
+  .list-tab .lock-icon { color: #FF2D8B; font-size: 10px; }
+  .list-tab-new {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    border-radius: 99px;
+    border: 1px dashed rgba(0,168,204,0.4);
+    padding: 6px 14px;
+    font-size: 13px;
+    font-weight: 900;
+    cursor: pointer;
+    color: #00A8CC;
+    background: transparent;
+  }
+  .list-tab-shared {
+    background: rgba(0,201,107,0.1);
+    border-color: rgba(0,201,107,0.35);
+    color: #00C96B;
+  }
+
+  /* ── PRIVATE WARNING BANNER ── */
+  .private-banner {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(255,45,139,0.08);
+    border: 1px solid rgba(255,45,139,0.2);
+    border-radius: 12px;
+    padding: 10px 12px;
+    margin-bottom: 16px;
+    font-size: 11px;
+    font-weight: 900;
+    color: #FF2D8B;
+  }
+
+  /* ── DARK CARD ── */
+  .dark-card {
+    background: #2e2e2e;
+    border: 1px solid #3a3a3a;
+    border-radius: 18px;
+    overflow: hidden;
+  }
+
+  /* ── CATEGORY CARD ── */
+  .category-cards { display: flex; flex-direction: column; gap: 12px; }
+  .category-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  .category-header:hover { background: rgba(255,255,255,0.03); }
+  .cat-icon {
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    font-size: 13px;
+  }
+  .cat-label {
+    font-size: 13px;
+    font-weight: 900;
+    color: white;
+    flex: 1;
+    text-align: left;
+  }
+  .cat-count {
+    font-size: 11px;
+    font-weight: 900;
+    color: rgba(255,255,255,0.3);
+    flex-shrink: 0;
+  }
+  .cat-count.done { color: #00C96B; }
+  .cat-minibar {
+    width: 64px; height: 6px;
+    background: #3a3a3a;
+    border-radius: 99px;
+    overflow: hidden;
+    flex-shrink: 0;
+  }
+  .cat-minibar-fill {
+    height: 100%;
+    border-radius: 99px;
+    transition: width 0.5s;
+  }
+  .cat-caret { color: rgba(255,255,255,0.25); flex-shrink: 0; font-size: 12px; }
+
+  .category-body {
+    padding: 0 12px 12px;
+    border-top: 1px solid rgba(255,255,255,0.06);
+  }
+
+  /* ── ITEM ROWS ── */
+  .item-list { display: flex; flex-direction: column; padding-top: 4px; }
+  .item-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 6px 4px;
+    border-radius: 10px;
+    transition: background 0.12s;
+  }
+  .item-row:hover { background: rgba(255,255,255,0.03); }
+  .item-row:hover .item-actions { opacity: 1; }
+  .check-btn {
+    width: 20px; height: 20px;
+    border-radius: 50%;
+    border: 2px solid rgba(255,255,255,0.25);
+    background: transparent;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .check-btn.packed {
+    background: #00C96B;
+    border-color: #00C96B;
+    box-shadow: 0 0 0 3px rgba(0,201,107,0.25);
+  }
+  .check-btn.packed::after {
+    content: '✓';
+    font-size: 9px;
+    font-weight: 900;
+    color: white;
+  }
+  .item-text {
+    flex: 1;
+    font-size: 13px;
+    font-weight: 600;
+    color: rgba(255,255,255,0.85);
+    line-height: 1.3;
+  }
+  .item-text.packed {
+    color: rgba(255,255,255,0.25);
+    text-decoration: line-through;
+  }
+  .item-qty {
+    font-size: 11px;
+    font-weight: 900;
+    color: rgba(255,255,255,0.3);
+    margin-left: 6px;
+  }
+  .private-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    background: rgba(255,45,139,0.15);
+    border: 1px solid rgba(255,45,139,0.3);
+    border-radius: 99px;
+    padding: 2px 8px;
+    font-size: 10px;
+    font-weight: 900;
+    color: #FF2D8B;
+    flex-shrink: 0;
+  }
+  .item-actions {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    opacity: 0;
+    transition: opacity 0.15s;
+    flex-shrink: 0;
+  }
+  .item-action-btn {
+    width: 28px; height: 28px;
+    border-radius: 8px;
+    border: none;
+    background: transparent;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+    color: rgba(255,255,255,0.3);
+    font-size: 13px;
+    transition: background 0.12s, color 0.12s;
+  }
+  .item-action-btn:hover { background: rgba(255,255,255,0.1); }
+  .item-action-btn.lock:hover { color: #FF2D8B; }
+  .item-action-btn.remove:hover { color: #FF2D8B; }
+
+  /* Claim / Unassign pills — stay visible */
+  .action-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    border-radius: 99px;
+    border: 1px solid;
+    padding: 2px 8px;
+    font-size: 10px;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+  .pill-cyan  { color: #00A8CC; border-color: rgba(0,168,204,0.4); background: rgba(0,168,204,0.12); }
+  .pill-green { color: #00C96B; border-color: rgba(0,201,107,0.4); background: rgba(0,201,107,0.12); }
+
+  /* ── ADD ITEM ROW ── */
+  .add-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 8px;
+    padding-top: 8px;
+    border-top: 1px solid rgba(255,255,255,0.06);
+  }
+  .add-circle {
+    width: 20px; height: 20px;
+    border-radius: 50%;
+    border: 1px solid;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    font-size: 10px;
+    color: rgba(255,255,255,0.3);
+    cursor: pointer;
+  }
+  .add-input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid transparent;
+    color: white;
+    font-size: 13px;
+    font-weight: 600;
+    outline: none;
+    padding-bottom: 2px;
+  }
+  .add-input::placeholder { color: rgba(255,255,255,0.2); }
+  .add-input:focus { border-bottom-color: rgba(255,255,255,0.2); }
+
+  /* ── SIDEBAR CARDS ── */
+  .sidebar { display: flex; flex-direction: column; gap: 16px; }
+  .card-header {
+    padding: 12px 16px;
+    border-bottom: 1px solid #3a3a3a;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .card-header-label {
+    font-size: 11px;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.22em;
+    color: #9CA3AF;
+  }
+  .card-body { padding: 16px; }
+
+  /* Active list card */
+  .list-visibility-toggle {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .vis-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    border-radius: 99px;
+    border: 1px solid;
+    padding: 4px 10px;
+    font-size: 11px;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.16em;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .vis-btn.private-active {
+    color: white;
+    border-color: #FF2D8B;
+    background: #FF2D8B;
+  }
+  .vis-btn.private-inactive {
+    color: #FF2D8B;
+    border-color: rgba(255,255,255,0.12);
+    background: rgba(255,255,255,0.03);
+  }
+  .vis-btn.public-active {
+    color: white;
+    border-color: #00A8CC;
+    background: #00A8CC;
+  }
+  .vis-btn.public-inactive {
+    color: #00A8CC;
+    border-color: rgba(255,255,255,0.12);
+    background: rgba(255,255,255,0.03);
+  }
+
+  .list-progress-label {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 6px;
+    margin-top: 12px;
+  }
+  .list-progress-label span { font-size: 11px; font-weight: 700; color: #9CA3AF; }
+  .list-progress-label .prog-val { font-weight: 900; color: #00A8CC; }
+  .progress-bar {
+    width: 100%;
+    height: 8px;
+    background: #3a3a3a;
+    border-radius: 99px;
+    overflow: hidden;
+  }
+  .progress-bar-fill {
+    height: 100%;
+    border-radius: 99px;
+    background: #00A8CC;
+    transition: width 0.5s;
+  }
+  .list-card-copy {
+    margin-top: 8px;
+    font-size: 10px;
+    font-weight: 700;
+    color: rgba(255,255,255,0.25);
+  }
+
+  /* Group packing card */
+  .group-member-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    border-bottom: 1px solid #333;
+  }
+  .group-member-row:last-child { border-bottom: none; }
+  .member-avatar {
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px;
+    font-weight: 900;
+    color: white;
+    flex-shrink: 0;
+  }
+  .member-name { font-size: 13px; font-weight: 700; color: white; }
+  .member-status { font-size: 11px; font-weight: 700; margin-top: 1px; }
+  .member-progress {
+    margin-left: auto;
+    width: 48px; height: 6px;
+    background: #3a3a3a;
+    border-radius: 99px;
+    overflow: hidden;
+    flex-shrink: 0;
+  }
+  .member-progress-fill {
+    height: 100%;
+    border-radius: 99px;
+    background: #00A8CC;
+  }
+  .count-badge {
+    display: inline-flex;
+    align-items: center;
+    border-radius: 99px;
+    padding: 1px 6px;
+    font-size: 10px;
+    font-weight: 700;
+    background: #3a3a3a;
+    color: #9CA3AF;
+  }
+
+  /* ── SCROLLBAR ── */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: #555; border-radius: 3px; }
+</style>
+</head>
+<body>
+
+<!-- FAKE NAV for context -->
+<div style="background:#1a1a1a;border-bottom:1px solid #2a2a2a;padding:0 24px;height:56px;display:flex;align-items:center;gap:16px;">
+  <span style="font-family:'Fredoka One',sans-serif;font-size:1.3rem;background:linear-gradient(90deg,#00A8CC,#FF2D8B);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">TripWave</span>
+</div>
+
+<!-- PAGE HEADER -->
+<div class="page-header">
+  <div>
+    <h1>Packing</h1>
+    <p>Personal by default · Share when you're ready</p>
+  </div>
+  <div class="header-progress">
+    <span class="header-progress-num">17<span class="denom">/35</span></span>
+    <div class="header-bar-row">
+      <div class="header-bar"><div class="header-bar-fill" style="width:49%"></div></div>
+      <span class="header-pct">49%</span>
+    </div>
+  </div>
+</div>
+
+<!-- BODY -->
+<div class="body">
+
+  <!-- STATS -->
+  <div class="stats">
+    <div class="stat-card cyan">
+      <div class="stat-val" style="color:#00A8CC">17<span class="denom">/35</span></div>
+      <div class="stat-label">Items Packed</div>
+    </div>
+    <div class="stat-card pink">
+      <div class="stat-val" style="color:#FF2D8B">0</div>
+      <div class="stat-label">Categories Done</div>
+    </div>
+    <div class="stat-card green" style="--accent:#FF2D8B">
+      <div class="stat-val" style="color:#FF2D8B">3</div>
+      <div class="stat-label">Private Items</div>
+    </div>
+  </div>
+
+  <!-- MAIN GRID -->
+  <div class="main-grid">
+
+    <!-- ── LEFT COLUMN ── -->
+    <div>
+
+      <!-- LIST TABS -->
+      <div class="list-tabs">
+        <!-- Personal list tabs — one per list -->
+        <div class="list-tab active">
+          🎒 Main Bag
+          <!-- no lock = public; would show lock if private -->
+        </div>
+        <div class="list-tab">
+          ✈️ Carry-On
+          <span class="lock-icon">🔒</span><!-- private list -->
+        </div>
+        <!-- Shared list tab -->
+        <div class="list-tab list-tab-shared">
+          👥 Shared
+        </div>
+        <!-- Add new list -->
+        <div class="list-tab-new">
+          + New list
+        </div>
+      </div>
+
+      <!-- PRIVATE ITEMS BANNER (shown when the active list is public but has private items) -->
+      <div class="private-banner">
+        🔒 3 items marked private — hidden from the group
+      </div>
+
+      <!-- CATEGORY CARDS -->
+      <div class="category-cards">
+
+        <!-- Clothing -->
+        <div class="dark-card">
+          <div class="category-header">
+            <div class="cat-icon" style="background:rgba(255,45,139,0.13)">👕</div>
+            <span class="cat-label">Clothing</span>
+            <span class="cat-count">5/9</span>
+            <div class="cat-minibar">
+              <div class="cat-minibar-fill" style="width:56%;background:#FF2D8B"></div>
+            </div>
+            <span class="cat-caret">▲</span>
+          </div>
+          <div class="category-body">
+            <div class="item-list">
+              <div class="item-row">
+                <div class="check-btn packed"></div>
+                <span class="item-text packed">T-shirts <span class="item-qty">×7</span></span>
+                <div class="item-actions">
+                  <button class="item-action-btn lock" title="Toggle private">🔓</button>
+                  <button class="item-action-btn remove" title="Remove">✕</button>
+                </div>
+              </div>
+              <div class="item-row">
+                <div class="check-btn packed"></div>
+                <span class="item-text packed">Jeans / pants <span class="item-qty">×2</span></span>
+                <div class="item-actions">
+                  <button class="item-action-btn lock">🔓</button>
+                  <button class="item-action-btn remove">✕</button>
+                </div>
+              </div>
+              <div class="item-row">
+                <div class="check-btn packed"></div>
+                <span class="item-text packed">Rain jacket (lightweight)</span>
+                <div class="item-actions">
+                  <button class="item-action-btn lock">🔓</button>
+                  <button class="item-action-btn remove">✕</button>
+                </div>
+              </div>
+              <div class="item-row">
+                <div class="check-btn"></div>
+                <span class="item-text">Light hoodie / sweater</span>
+                <div class="item-actions">
+                  <button class="item-action-btn lock">🔓</button>
+                  <button class="item-action-btn remove">✕</button>
+                </div>
+              </div>
+              <div class="item-row">
+                <div class="check-btn"></div>
+                <span class="item-text">Nice button-down (dinners)</span>
+                <span class="private-badge">🔒 Private</span>
+                <div class="item-actions">
+                  <button class="item-action-btn lock" style="color:#FF2D8B">🔒</button>
+                  <button class="item-action-btn remove">✕</button>
+                </div>
+              </div>
+              <div class="item-row">
+                <div class="check-btn"></div>
+                <span class="item-text">Comfortable walking shoes</span>
+                <div class="item-actions">
+                  <button class="item-action-btn lock">🔓</button>
+                  <button class="item-action-btn remove">✕</button>
+                </div>
+              </div>
+              <div class="item-row">
+                <div class="check-btn"></div>
+                <span class="item-text">Slip-on shoes (temples)</span>
+                <div class="item-actions">
+                  <button class="item-action-btn lock">🔓</button>
+                  <button class="item-action-btn remove">✕</button>
+                </div>
+              </div>
+              <div class="item-row">
+                <div class="check-btn packed"></div>
+                <span class="item-text packed">Compression socks (flight) <span class="item-qty">×2</span></span>
+                <div class="item-actions">
+                  <button class="item-action-btn lock">🔓</button>
+                  <button class="item-action-btn remove">✕</button>
+                </div>
+              </div>
+              <div class="item-row">
+                <div class="check-btn packed"></div>
+                <span class="item-text packed">Underwear <span class="item-qty">×7</span></span>
+                <div class="item-actions">
+                  <button class="item-action-btn lock">🔓</button>
+                  <button class="item-action-btn remove">✕</button>
+                </div>
+              </div>
+            </div>
+            <div class="add-row">
+              <div class="add-circle" style="border-color:rgba(255,45,139,0.5);color:rgba(255,45,139,0.6)">+</div>
+              <input class="add-input" placeholder="Add item… press Enter" />
+            </div>
+          </div>
+        </div>
+
+        <!-- Toiletries -->
+        <div class="dark-card">
+          <div class="category-header">
+            <div class="cat-icon" style="background:rgba(0,168,204,0.13)">💧</div>
+            <span class="cat-label">Toiletries</span>
+            <span class="cat-count">3/7</span>
+            <div class="cat-minibar">
+              <div class="cat-minibar-fill" style="width:43%;background:#00A8CC"></div>
+            </div>
+            <span class="cat-caret">▲</span>
+          </div>
+          <div class="category-body">
+            <div class="item-list">
+              <div class="item-row">
+                <div class="check-btn packed"></div>
+                <span class="item-text packed">Toothbrush + toothpaste</span>
+                <div class="item-actions">
+                  <button class="item-action-btn lock">🔓</button>
+                  <button class="item-action-btn remove">✕</button>
+                </div>
+              </div>
+              <div class="item-row">
+                <div class="check-btn packed"></div>
+                <span class="item-text packed">Deodorant</span>
+                <div class="item-actions">
+                  <button class="item-action-btn lock">🔓</button>
+                  <button class="item-action-btn remove">✕</button>
+                </div>
+              </div>
+              <div class="item-row">
+                <div class="check-btn"></div>
+                <span class="item-text">Shampoo + conditioner (travel-size)</span>
+                <div class="item-actions">
+                  <button class="item-action-btn lock">🔓</button>
+                  <button class="item-action-btn remove">✕</button>
+                </div>
+              </div>
+              <div class="item-row">
+                <div class="check-btn"></div>
+                <span class="item-text">Face wash</span>
+                <div class="item-actions">
+                  <button class="item-action-btn lock">🔓</button>
+                  <button class="item-action-btn remove">✕</button>
+                </div>
+              </div>
+              <div class="item-row">
+                <div class="check-btn packed"></div>
+                <span class="item-text packed">Sunscreen SPF 50</span>
+                <div class="item-actions">
+                  <button class="item-action-btn lock">🔓</button>
+                  <button class="item-action-btn remove">✕</button>
+                </div>
+              </div>
+              <div class="item-row">
+                <div class="check-btn"></div>
+                <span class="item-text">Lip balm</span>
+                <div class="item-actions">
+                  <button class="item-action-btn lock">🔓</button>
+                  <button class="item-action-btn remove">✕</button>
+                </div>
+              </div>
+              <div class="item-row">
+                <div class="check-btn"></div>
+                <span class="item-text">Prescription skincare</span>
+                <span class="private-badge">🔒 Private</span>
+                <div class="item-actions">
+                  <button class="item-action-btn lock" style="color:#FF2D8B">🔒</button>
+                  <button class="item-action-btn remove">✕</button>
+                </div>
+              </div>
+            </div>
+            <div class="add-row">
+              <div class="add-circle" style="border-color:rgba(0,168,204,0.5);color:rgba(0,168,204,0.6)">+</div>
+              <input class="add-input" placeholder="Add item… press Enter" />
+            </div>
+          </div>
+        </div>
+
+        <!-- Electronics (Tech) — collapsed example -->
+        <div class="dark-card">
+          <div class="category-header">
+            <div class="cat-icon" style="background:rgba(255,214,0,0.13)">📱</div>
+            <span class="cat-label">Electronics</span>
+            <span class="cat-count">4/6</span>
+            <div class="cat-minibar">
+              <div class="cat-minibar-fill" style="width:67%;background:#FFD600"></div>
+            </div>
+            <span class="cat-caret">▼</span>
+            <!-- collapsed — no body shown -->
+          </div>
+          <!-- body hidden when collapsed -->
+        </div>
+
+        <!-- Documents — all done example -->
+        <div class="dark-card">
+          <div class="category-header">
+            <div class="cat-icon" style="background:rgba(168,85,247,0.13)">📄</div>
+            <span class="cat-label">Documents</span>
+            <span class="cat-count done">3/3</span>
+            <div class="cat-minibar">
+              <div class="cat-minibar-fill" style="width:100%;background:#00C96B"></div>
+            </div>
+            <span class="cat-caret">▼</span>
+          </div>
+        </div>
+
+        <!-- Other/Misc -->
+        <div class="dark-card">
+          <div class="category-header">
+            <div class="cat-icon" style="background:rgba(156,163,175,0.13)">🎒</div>
+            <span class="cat-label">Other</span>
+            <span class="cat-count">1/5</span>
+            <div class="cat-minibar">
+              <div class="cat-minibar-fill" style="width:20%;background:#9CA3AF"></div>
+            </div>
+            <span class="cat-caret">▲</span>
+          </div>
+          <div class="category-body">
+            <div class="item-list">
+              <div class="item-row">
+                <div class="check-btn packed"></div>
+                <span class="item-text packed">Luggage lock</span>
+                <div class="item-actions">
+                  <button class="item-action-btn lock">🔓</button>
+                  <button class="item-action-btn remove">✕</button>
+                </div>
+              </div>
+              <div class="item-row">
+                <div class="check-btn"></div>
+                <span class="item-text">Reusable shopping bags</span>
+                <div class="item-actions">
+                  <button class="item-action-btn lock">🔓</button>
+                  <button class="item-action-btn remove">✕</button>
+                </div>
+              </div>
+              <div class="item-row">
+                <div class="check-btn"></div>
+                <span class="item-text">Small day pack</span>
+                <!-- Share action stays visible (move to shared) -->
+                <button class="action-pill pill-cyan" style="margin-left:auto">Share</button>
+                <div class="item-actions" style="opacity:1">
+                  <button class="item-action-btn remove">✕</button>
+                </div>
+              </div>
+            </div>
+            <div class="add-row">
+              <div class="add-circle" style="border-color:rgba(156,163,175,0.5);color:rgba(156,163,175,0.6)">+</div>
+              <input class="add-input" placeholder="Add item… press Enter" />
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div><!-- /left -->
+
+    <!-- ── SIDEBAR ── -->
+    <div class="sidebar">
+
+      <!-- Active list card -->
+      <div class="dark-card">
+        <div class="card-header">
+          <span class="card-header-label">Main Bag</span>
+          <div class="list-visibility-toggle">
+            <!-- Two explicit buttons like the old design — active one is filled -->
+            <button class="vis-btn private-inactive">🔒 Private</button>
+            <button class="vis-btn public-active">🌐 Public</button>
+          </div>
+        </div>
+        <div class="card-body">
+          <p style="font-size:11px;font-weight:700;color:rgba(255,255,255,0.35)">
+            Trip members can see this list. Private items stay hidden.
+          </p>
+          <div class="list-progress-label">
+            <span>Progress</span>
+            <span class="prog-val">17/35</span>
+          </div>
+          <div class="progress-bar">
+            <div class="progress-bar-fill" style="width:49%"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Group packing card -->
+      <div class="dark-card">
+        <div class="card-header">
+          <span class="card-header-label">Group Packing</span>
+          <span class="count-badge">4 people</span>
+        </div>
+
+        <!-- You (current user) -->
+        <div class="group-member-row">
+          <div class="member-avatar" style="background:rgba(255,45,139,0.2);border:2px solid rgba(255,45,139,0.35)">CM</div>
+          <div style="flex:1;min-width:0">
+            <div class="member-name">You</div>
+            <div class="member-status" style="color:#00C96B">17/35 packed · shared</div>
+          </div>
+          <div class="member-progress">
+            <div class="member-progress-fill" style="width:49%"></div>
+          </div>
+        </div>
+
+        <!-- Sarah -->
+        <div class="group-member-row">
+          <div class="member-avatar" style="background:rgba(0,168,204,0.2);border:2px solid rgba(0,168,204,0.35)">SM</div>
+          <div style="flex:1;min-width:0">
+            <div class="member-name">Sarah M.</div>
+            <div class="member-status" style="color:#00C96B">4/10 · shared</div>
+          </div>
+          <div class="member-progress">
+            <div class="member-progress-fill" style="width:40%"></div>
+          </div>
+        </div>
+
+        <!-- Tom — private list -->
+        <div class="group-member-row">
+          <div class="member-avatar" style="background:rgba(255,140,0,0.2);border:2px solid rgba(255,140,0,0.35)">TK</div>
+          <div style="flex:1;min-width:0">
+            <div class="member-name">Tom K.</div>
+            <div class="member-status" style="color:#9CA3AF;display:flex;align-items:center;gap:4px">🔒 Private</div>
+          </div>
+        </div>
+
+        <!-- Emma -->
+        <div class="group-member-row">
+          <div class="member-avatar" style="background:rgba(0,201,107,0.2);border:2px solid rgba(0,201,107,0.35)">ER</div>
+          <div style="flex:1;min-width:0">
+            <div class="member-name">Emma R.</div>
+            <div class="member-status" style="color:#00C96B">6/12 · shared</div>
+          </div>
+          <div class="member-progress">
+            <div class="member-progress-fill" style="width:50%"></div>
+          </div>
+        </div>
+
+      </div>
+
+    </div><!-- /sidebar -->
+  </div><!-- /main-grid -->
+</div><!-- /body -->
+
+<!-- ANNOTATION NOTES -->
+<div style="background:#1a1a1a;border-top:2px solid #FFD600;margin-top:40px;padding:24px;font-size:13px;color:#9CA3AF;line-height:1.8">
+  <p style="color:#FFD600;font-weight:900;font-size:14px;margin-bottom:12px">⚡ Redesign notes for review</p>
+  <ol style="padding-left:20px;display:flex;flex-direction:column;gap:8px">
+    <li><strong style="color:white">Subtitle</strong>: "Personal by default · Share when you're ready" — matches old design, replaces current long copy</li>
+    <li><strong style="color:white">Stats</strong>: Items packed stays; "My lists" → "Categories done"; "Shared items" → "Private items"</li>
+    <li><strong style="color:white">List selector</strong>: Pill tabs (one per personal list) + "Shared" pill + dashed "+ New list". Replaces segmented tab control.</li>
+    <li><strong style="color:white">Category cards</strong>: DarkCard per category with icon, color, progress bar, collapsible. Replaces flat border-left headers.</li>
+    <li><strong style="color:white">Item rows</strong>: Hover-only lock + × actions (matching old UX). Private badge always visible. "Share" pill stays visible per item for move-to-shared.</li>
+    <li><strong style="color:white">Add item</strong>: Inline "Add item… press Enter" row inside each category card. Server action still fires on Enter.</li>
+    <li><strong style="color:white">Sidebar — Active list card</strong>: List name header + Private/Public toggle buttons + per-list progress bar + contextual copy.</li>
+    <li><strong style="color:white">Sidebar — Group packing</strong>: Member rows with colored avatars + shared-list progress. Replaces "Packing summary" card. Uses packingData.members + publicLists.</li>
+    <li><strong style="color:white">Shared tab</strong>: Still accessible via "Shared" pill in list selector. Content (claim/unassign flows) unchanged, just category cards style applied.</li>
+    <li><strong style="color:white">All server actions</strong>: Unchanged — add, create, toggle, delete, setVisibility, moveToShared, claim, unassign all stay wired the same way.</li>
+  </ol>
+</div>
+
+</body>
+</html>

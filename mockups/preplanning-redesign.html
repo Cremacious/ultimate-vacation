@@ -1,0 +1,1363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>TripWave — Preplanning Mockup (1:1)</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  background: #1e1e1e;
+  color: #fff;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-size: 14px;
+  line-height: 1.5;
+}
+/* ─── FREDOKA SUBSTITUTE ─── */
+.fredoka { font-family: "Georgia", serif; font-weight: 900; letter-spacing: -0.5px; }
+
+/* ─── DARK CARD ─── */
+.dark-card {
+  background: #2e2e2e;
+  border: 1px solid #3a3a3a;
+  border-radius: 18px;
+  overflow: hidden;
+}
+
+/* ─── CARD LABEL ─── */
+.card-label {
+  font-size: 10px;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: rgba(255,255,255,0.35);
+  text-align: center;
+  margin-bottom: 8px;
+}
+
+/* ─── FIELD INPUT ─── */
+.field-input {
+  width: 100%;
+  background: #1e1e1e;
+  border: 1px solid #3a3a3a;
+  border-radius: 10px;
+  padding: 9px 12px;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 700;
+  outline: none;
+  transition: border-color 0.15s;
+}
+.field-input:focus { border-color: #00A8CC; }
+.field-input::placeholder { color: rgba(255,255,255,0.2); }
+.field-input.text-center { text-align: center; }
+.field-input.mono { font-family: monospace; letter-spacing: 1px; }
+textarea.field-input { resize: vertical; }
+select.field-input { cursor: pointer; }
+select.field-input option { background: #2e2e2e; }
+
+/* ─── HEADER ─── */
+.page-header {
+  background: #282828;
+  border-bottom: 1px solid #333;
+  padding: 16px 28px 14px;
+  flex-shrink: 0;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+.page-header h1 { font-size: 2rem; font-weight: 900; line-height: 1; margin-bottom: 2px; }
+.page-header .sub { font-size: 11px; font-weight: 700; color: rgba(255,255,255,0.5); text-transform: uppercase; letter-spacing: 0.1em; }
+.progress-row { display: flex; align-items: center; gap: 12px; margin-top: 10px; }
+.progress-track { flex: 1; height: 6px; border-radius: 999px; background: #3a3a3a; overflow: hidden; }
+.progress-fill { height: 100%; border-radius: 999px; background: linear-gradient(90deg, #FF2D8B, #00A8CC); }
+.progress-pct { font-size: 11px; font-weight: 900; color: #00A8CC; white-space: nowrap; }
+
+/* ─── STATS ROW ─── */
+.stats-row {
+  background: #1e1e1e;
+  border-bottom: 1px solid #333;
+  padding: 12px 28px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  flex-shrink: 0;
+}
+.stat-card {
+  background: #2e2e2e;
+  border: 1px solid #3a3a3a;
+  border-radius: 14px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.stat-card .s-label { font-size: 10px; font-weight: 900; text-transform: uppercase; letter-spacing: 1.5px; color: rgba(255,255,255,0.35); margin-bottom: 4px; text-align: center; }
+.stat-card .s-value { font-size: 1.75rem; font-weight: 900; line-height: 1; }
+
+/* ─── BODY ─── */
+.body-wrap { display: flex; min-height: calc(100vh - 56px); }
+
+/* ─── SIDE NAV ─── */
+.sidenav {
+  width: 220px;
+  background: #252525;
+  border-right: 1px solid #333;
+  flex-shrink: 0;
+  padding: 12px;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.nav-item {
+  display: flex; align-items: center; gap: 10px;
+  width: 100%; padding: 10px 12px; border-radius: 12px;
+  cursor: pointer; background: transparent; border: 1px solid transparent;
+  transition: all 0.15s; text-align: left;
+}
+.nav-item:hover { background: rgba(255,255,255,0.05); }
+.nav-item.active {
+  background: rgba(0,168,204,0.1);
+  border-color: rgba(0,168,204,0.25);
+}
+.nav-icon {
+  width: 34px; height: 34px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0; font-size: 14px; color: #fff;
+}
+.nav-label { font-size: 13px; font-weight: 900; color: rgba(255,255,255,0.75); line-height: 1; }
+.nav-item.active .nav-label { color: #fff; }
+.nav-sub { font-size: 10px; font-weight: 700; color: rgba(255,255,255,0.35); margin-top: 2px; }
+.nav-item.active .nav-sub { color: #00A8CC; }
+
+/* ─── CONTENT COLUMN ─── */
+.content-col { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+
+/* ─── SECTION CONTENT AREA ─── */
+.section-area { padding: 20px 24px; display: flex; flex-direction: column; gap: 12px; }
+.section { display: none; }
+.section.active { display: contents; }
+
+/* ─── SECTION INTRO BAR ─── */
+.section-intro {
+  background: #282828;
+  border: 1px solid #333;
+  border-radius: 20px;
+  padding: 16px 20px;
+  flex-shrink: 0;
+}
+.section-intro-top { display: flex; align-items: center; gap: 12px; }
+.section-intro-icon {
+  width: 44px; height: 44px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0; font-size: 18px; color: #fff;
+}
+.section-intro h2 { font-size: 1.5rem; font-weight: 900; line-height: 1; }
+.section-intro .status-text { font-size: 11px; font-weight: 700; margin-top: 2px; }
+.subnav { margin-top: 14px; padding-top: 14px; border-top: 1px solid rgba(255,255,255,0.08); display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+
+/* ─── PILL BUTTON ─── */
+.pill {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 6px 14px; border-radius: 999px; font-size: 13px; font-weight: 900;
+  cursor: pointer; border: 1px solid rgba(255,255,255,0.12); color: #9CA3AF;
+  background: rgba(255,255,255,0.05); transition: all 0.15s; white-space: nowrap;
+}
+.pill:hover { color: #fff; }
+.pill.active { color: #fff; }
+.pill.sm { padding: 5px 11px; font-size: 11px; }
+.pill.dashed { border-style: dashed; background: transparent; }
+
+/* ─── BENTO GRIDS ─── */
+.bento { display: grid; gap: 10px; }
+.g2 { grid-template-columns: 1fr 1fr; }
+.g3 { grid-template-columns: 1fr 1fr 1fr; }
+.g4 { grid-template-columns: repeat(4, 1fr); }
+.span2 { grid-column: span 2; }
+.span3 { grid-column: span 3; }
+.bento-cell { padding: 16px 20px; }
+
+/* ─── INLINE GRID helpers ─── */
+.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.grid3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+.flex-center { display: flex; align-items: center; justify-content: center; }
+.flex-col { display: flex; flex-direction: column; }
+.gap4 { gap: 4px; }
+.gap6 { gap: 6px; }
+.gap8 { gap: 8px; }
+.gap10 { gap: 10px; }
+.gap12 { gap: 12px; }
+.gap16 { gap: 16px; }
+
+/* ─── BIG DISPLAY TEXT ─── */
+.big38 { font-size: 38px; font-weight: 900; line-height: 1; }
+.big30 { font-size: 30px; font-weight: 900; line-height: 1; }
+.big24 { font-size: 24px; font-weight: 900; line-height: 1; }
+.big20 { font-size: 20px; font-weight: 900; line-height: 1; }
+.muted { color: rgba(255,255,255,0.35); }
+.muted2 { color: rgba(255,255,255,0.55); }
+
+/* ─── PROGRESS BAR (inline) ─── */
+.bar-track { height: 8px; background: #3a3a3a; border-radius: 999px; overflow: hidden; }
+.bar-fill { height: 100%; border-radius: 999px; transition: width 0.4s; }
+.bar-sm .bar-track { height: 6px; }
+.bar-xs .bar-track { height: 4px; }
+
+/* ─── STATUS BADGE ─── */
+.status-badge { display: inline-block; padding: 3px 9px; border-radius: 999px; font-size: 10px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.06em; }
+
+/* ─── ADD BUTTON ─── */
+.add-dashed {
+  display: flex; align-items: center; justify-content: center; gap: 6px;
+  padding: 10px 16px; border: 1px dashed; border-radius: 12px;
+  font-size: 13px; font-weight: 900; cursor: pointer;
+  background: transparent; transition: all 0.15s; width: 100%;
+}
+
+/* ─── CHECKBOX CIRCLE ─── */
+.check-circle {
+  width: 20px; height: 20px; border-radius: 50%; border: 2px solid rgba(255,255,255,0.2);
+  flex-shrink: 0; display: flex; align-items: center; justify-content: center; cursor: pointer;
+}
+.check-circle.done { border-color: transparent; }
+.check-circle.done::after { content: "✓"; font-size: 10px; font-weight: 900; color: #fff; }
+
+/* ─── DOC CARD ─── */
+.doc-card-header { padding: 12px 14px; display: flex; flex-direction: column; gap: 6px; }
+.doc-type-badge { display: inline-flex; align-items: center; gap: 5px; padding: 2px 8px; border-radius: 999px; font-size: 10px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.06em; }
+.doc-expand-form { padding: 12px 14px; border-top: 1px solid rgba(255,255,255,0.07); display: flex; flex-direction: column; gap: 10px; }
+.sub-label { font-size: 10px; font-weight: 900; text-transform: uppercase; letter-spacing: 1.5px; color: rgba(255,255,255,0.25); margin-bottom: 5px; }
+
+/* ─── NIGHTS PILL ─── */
+.nights-pill { display: inline-block; padding: 4px 14px; border-radius: 999px; font-size: 13px; font-weight: 900; text-align: center; min-width: 60px; }
+
+/* ─── SEGMENT BAR ─── */
+.seg-bar { height: 12px; border-radius: 999px; overflow: hidden; display: flex; background: #1a1a1a; }
+.seg-green { background: #00C96B; }
+.seg-blue  { background: #00A8CC; }
+
+/* ─── BUDGET CAT CARD ─── */
+.cat-card { background: #252525; border: 1px solid #333; border-radius: 14px; padding: 12px; display: flex; flex-direction: column; gap: 8px; }
+
+/* ─── VIBE OPTION ROW ─── */
+.vibe-option {
+  display: flex; align-items: center; gap: 12px;
+  padding: 9px 12px; border-radius: 12px; cursor: pointer;
+  border: 1px solid rgba(255,255,255,0.07);
+  background: rgba(255,255,255,0.03);
+  transition: all 0.15s;
+}
+.vibe-dot { width: 8px; height: 8px; border-radius: 50%; background: rgba(255,255,255,0.2); flex-shrink: 0; }
+
+/* ─── CATEGORY HEADER ─── */
+.cat-header { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+.cat-icon { width: 20px; height: 20px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 10px; }
+
+/* ─── TASK ROW ─── */
+.task-row { display: flex; align-items: center; gap: 10px; padding: 2px 0; }
+.task-text { flex: 1; font-size: 14px; font-weight: 600; color: rgba(255,255,255,0.8); }
+.task-text.done { text-decoration: line-through; color: rgba(255,255,255,0.3); }
+
+/* ─── UTIL ─── */
+.w-full { width: 100%; }
+.text-right { text-align: right; }
+.text-center { text-align: center; }
+.relative { position: relative; }
+.dollar-prefix { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); font-size: 13px; font-weight: 900; color: rgba(255,255,255,0.3); pointer-events: none; }
+.pl-prefix { padding-left: 22px !important; }
+.mt2 { margin-top: 2px; } .mt4 { margin-top: 4px; } .mt8 { margin-top: 8px; }
+.mt10 { margin-top: 10px; } .mt12 { margin-top: 12px; } .mt16 { margin-top: 16px; }
+.mb4 { margin-bottom: 4px; } .mb8 { margin-bottom: 8px; }
+.divider { height: 1px; background: rgba(255,255,255,0.07); margin: 12px 0; }
+.truncate { overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.color-dot { width: 22px; height: 22px; border-radius: 50%; cursor: pointer; border: 2px solid transparent; transition: transform 0.1s; display: inline-block; }
+.color-dot.sel { outline: 2px solid #fff; outline-offset: 2px; transform: scale(1.2); }
+.inline-add { display: flex; align-items: center; gap: 10px; margin-top: 12px; padding-top: 12px; border-top: 1px solid rgba(255,255,255,0.07); }
+.add-circle { width: 20px; height: 20px; border-radius: 50%; border: 2px solid rgba(255,255,255,0.2); display: flex; align-items: center; justify-content: center; flex-shrink: 0; cursor: pointer; font-size: 11px; color: rgba(255,255,255,0.4); }
+.add-inline-input { flex: 1; background: transparent; border: none; border-bottom: 1px solid transparent; color: rgba(255,255,255,0.9); font-size: 14px; font-weight: 600; outline: none; padding-bottom: 2px; }
+.add-inline-input:focus { border-bottom-color: rgba(255,255,255,0.2); }
+.add-inline-input::placeholder { color: rgba(255,255,255,0.2); }
+.glow-pink { box-shadow: 0 0 14px rgba(255,45,139,0.3); }
+.mantra-radial { position: absolute; inset: 0; border-radius: 18px; background: radial-gradient(ellipse at 50% 0%, rgba(255,45,139,0.09) 0%, transparent 65%); pointer-events: none; }
+.note-banner { background: rgba(0,168,204,0.08); border: 1px solid rgba(0,168,204,0.2); border-radius: 10px; padding: 10px 14px; font-size: 12px; color: #00A8CC; font-weight: 700; margin-bottom: 12px; }
+</style>
+</head>
+<body>
+
+<!-- ══════════════ PAGE HEADER ══════════════ -->
+<div class="page-header">
+  <div style="display:flex;justify-content:space-between;align-items:flex-end;">
+    <div>
+      <h1 class="fredoka">Preplanning</h1>
+      <div class="sub">Fill in the details · Everything is optional</div>
+    </div>
+    <div style="font-size:12px;color:rgba(0,168,204,0.7);font-style:italic;">Mockup — 1:1 of tripwave-ba87c90</div>
+  </div>
+  <div class="progress-row">
+    <div class="progress-track"><div class="progress-fill" style="width:44%;"></div></div>
+    <span class="progress-pct">44% filled in</span>
+  </div>
+</div>
+
+<!-- ══════════════ STATS ROW ══════════════ -->
+<div class="stats-row">
+  <div class="stat-card"><div class="s-label">Sections done</div><div class="s-value fredoka" style="color:#00C96B;">1</div></div>
+  <div class="stat-card"><div class="s-label">In progress</div><div class="s-value fredoka" style="color:#FF8C00;">7</div></div>
+  <div class="stat-card"><div class="s-label">Overall</div><div class="s-value fredoka" style="color:#00A8CC;">44%</div></div>
+</div>
+
+<!-- ══════════════ BODY ══════════════ -->
+<div class="body-wrap">
+
+<!-- ── SIDE NAV ── -->
+<nav class="sidenav">
+  <button class="nav-item active" onclick="showSection('group')">
+    <div class="nav-icon" style="background:#00A8CC;">&#128101;</div>
+    <div><div class="nav-label">Group</div><div class="nav-sub">4 travelers added</div></div>
+  </button>
+  <button class="nav-item" onclick="showSection('travel')">
+    <div class="nav-icon" style="background:#FF8C00;">&#9992;</div>
+    <div><div class="nav-label">Travel</div><div class="nav-sub">2 flights entered</div></div>
+  </button>
+  <button class="nav-item" onclick="showSection('lodging')">
+    <div class="nav-icon" style="background:#FF8C00;">&#127968;</div>
+    <div><div class="nav-label">Lodging</div><div class="nav-sub">1 of 2 stays confirmed</div></div>
+  </button>
+  <button class="nav-item" onclick="showSection('budget')">
+    <div class="nav-icon" style="background:#FF8C00;">&#128180;</div>
+    <div><div class="nav-label">Budget</div><div class="nav-sub">Budget set · 8 categories</div></div>
+  </button>
+  <button class="nav-item" onclick="showSection('destinations')">
+    <div class="nav-icon" style="background:#FF8C00;">&#128205;</div>
+    <div><div class="nav-label">Destinations</div><div class="nav-sub">3 stops · 12 days planned</div></div>
+  </button>
+  <button class="nav-item" onclick="showSection('documents')">
+    <div class="nav-icon" style="background:#FF8C00;">&#128196;</div>
+    <div><div class="nav-label">Documents</div><div class="nav-sub">6 of 8 confirmed</div></div>
+  </button>
+  <button class="nav-item" onclick="showSection('vibe')">
+    <div class="nav-icon" style="background:#FF8C00;">&#10024;</div>
+    <div><div class="nav-label">Trip Vibe</div><div class="nav-sub">2 vibes · Balanced pace</div></div>
+  </button>
+  <button class="nav-item" onclick="showSection('predeparture')">
+    <div class="nav-icon" style="background:#FF8C00;">&#9989;</div>
+    <div><div class="nav-label">Pre-Departure</div><div class="nav-sub">0 of 18 tasks done</div></div>
+  </button>
+</nav>
+
+<!-- ── CONTENT COLUMN ── -->
+<div class="content-col">
+<div class="section-area">
+
+<!-- ════════════════════════════════ GROUP ════════════════════════════════ -->
+<div class="section active" id="section-group">
+  <div class="section-intro">
+    <div class="section-intro-top">
+      <div class="section-intro-icon" style="background:#00A8CC;">&#128101;</div>
+      <div>
+        <h2 class="fredoka">Group</h2>
+        <div class="status-text" style="color:#00C96B;">4 travelers added</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="bento g2" style="gap:10px;">
+    <div class="dark-card flex-col" style="padding:16px;gap:12px;display:flex;flex-direction:row;align-items:center;">
+      <div style="width:40px;height:40px;border-radius:50%;background:#FF2D8B;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:14px;flex-shrink:0;">C</div>
+      <div><div style="font-size:14px;font-weight:900;">Chris M.</div><div style="font-size:11px;font-weight:700;color:rgba(255,255,255,0.4);">Organizer</div></div>
+    </div>
+    <div class="dark-card" style="padding:16px;display:flex;align-items:center;gap:12px;">
+      <div style="width:40px;height:40px;border-radius:50%;background:#FFD600;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:14px;flex-shrink:0;color:#09090f;">S</div>
+      <div><div style="font-size:14px;font-weight:900;">Sarah M.</div><div style="font-size:11px;font-weight:700;color:rgba(255,255,255,0.4);">Traveler</div></div>
+    </div>
+    <div class="dark-card" style="padding:16px;display:flex;align-items:center;gap:12px;">
+      <div style="width:40px;height:40px;border-radius:50%;background:#00A8CC;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:14px;flex-shrink:0;">T</div>
+      <div><div style="font-size:14px;font-weight:900;">Tom K.</div><div style="font-size:11px;font-weight:700;color:rgba(255,255,255,0.4);">Traveler</div></div>
+    </div>
+    <div class="dark-card" style="padding:16px;display:flex;align-items:center;gap:12px;">
+      <div style="width:40px;height:40px;border-radius:50%;background:#00C96B;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:14px;flex-shrink:0;">L</div>
+      <div><div style="font-size:14px;font-weight:900;">Lisa R.</div><div style="font-size:11px;font-weight:700;color:rgba(255,255,255,0.4);">Traveler</div></div>
+    </div>
+  </div>
+  <div class="dark-card" style="padding:16px;text-align:center;">
+    <button style="background:none;border:none;color:#00A8CC;font-weight:900;font-size:14px;cursor:pointer;display:inline-flex;align-items:center;gap:6px;">+ Invite a traveler</button>
+  </div>
+</div>
+
+<!-- ════════════════════════════════ TRAVEL ════════════════════════════════ -->
+<div class="section" id="section-travel">
+  <div class="section-intro">
+    <div class="section-intro-top">
+      <div class="section-intro-icon" style="background:#FF2D8B;">&#9992;</div>
+      <div>
+        <h2 class="fredoka">Travel</h2>
+        <div class="status-text" style="color:#FF8C00;">2 flights entered</div>
+      </div>
+    </div>
+    <div class="subnav">
+      <!-- Transport mode tabs -->
+      <button class="pill active" style="background:#FF2D8B;border-color:#FF2D8B;">&#9992; Flights</button>
+      <button class="pill" style="color:#9CA3AF;">&#128663; Driving</button>
+      <!-- Leg tabs -->
+      <div style="width:1px;height:20px;background:rgba(255,255,255,0.1);margin:0 4px;"></div>
+      <button class="pill active" style="background:#FF2D8B;border-color:#FF2D8B;">&#9679; Leg 1</button>
+      <button class="pill" style="color:#9CA3AF;">&#9679; Leg 2</button>
+      <button class="pill dashed" style="border-color:rgba(255,45,139,0.4);color:#FF2D8B;">+ Add leg</button>
+    </div>
+  </div>
+
+  <!-- FlightsBento -->
+  <!-- Row 1: Route (span2) + Flight# -->
+  <div class="bento g3" style="gap:10px;">
+    <!-- Route -->
+    <div class="dark-card span2 bento-cell">
+      <div class="card-label">Route</div>
+      <div style="display:flex;align-items:center;gap:20px;">
+        <div style="flex:1;">
+          <div class="big38 fredoka" style="margin-bottom:4px;">SRQ</div>
+          <div style="font-size:11px;font-weight:700;color:rgba(255,255,255,0.35);margin-bottom:12px;">Sarasota, FL</div>
+          <input class="field-input text-center" style="letter-spacing:3px;font-size:15px;margin-bottom:6px;" value="SRQ" maxlength="3" />
+          <input class="field-input" placeholder="City, Country" value="Sarasota, FL" />
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:6px;color:rgba(255,255,255,0.15);flex-shrink:0;">
+          <span style="font-size:20px;">&#9992;</span>
+          <span style="font-size:18px;font-weight:900;">&#8594;</span>
+        </div>
+        <div style="flex:1;text-align:right;">
+          <div class="big38 fredoka" style="margin-bottom:4px;">JFK</div>
+          <div style="font-size:11px;font-weight:700;color:rgba(255,255,255,0.35);margin-bottom:12px;">New York, NY</div>
+          <input class="field-input text-center" style="letter-spacing:3px;font-size:15px;margin-bottom:6px;" value="JFK" maxlength="3" />
+          <input class="field-input" placeholder="City, Country" value="New York, NY" />
+        </div>
+      </div>
+    </div>
+    <!-- Flight # -->
+    <div class="dark-card bento-cell flex-col flex-center" style="gap:10px;">
+      <div class="card-label">Flight #</div>
+      <div class="big30 fredoka" style="color:#00A8CC;letter-spacing:1px;">AA2847</div>
+      <input class="field-input text-center" style="letter-spacing:2px;font-size:15px;" value="AA2847" />
+    </div>
+  </div>
+
+  <!-- Times -->
+  <div class="dark-card bento-cell">
+    <div class="card-label">Depart → Arrive</div>
+    <div style="display:grid;grid-template-columns:1fr auto 1fr;gap:16px;align-items:start;">
+      <div>
+        <div style="font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:0.1em;color:rgba(255,255,255,0.3);text-align:center;margin-bottom:8px;">Depart</div>
+        <div class="grid2"><input class="field-input" type="date" value="2025-04-01" /><input class="field-input" type="time" value="07:15" /></div>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;padding:0 8px;margin-top:24px;">
+        <span style="color:rgba(255,255,255,0.15);font-size:14px;">&#9992;</span>
+        <span style="font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:0.1em;color:rgba(255,255,255,0.15);">direct</span>
+      </div>
+      <div>
+        <div style="font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:0.1em;color:rgba(255,255,255,0.3);text-align:center;margin-bottom:8px;">Arrive</div>
+        <div class="grid2"><input class="field-input" type="date" value="2025-04-01" /><input class="field-input" type="time" value="10:30" /></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Seat + Confirm + Notes -->
+  <div class="bento g3" style="gap:10px;">
+    <div class="dark-card bento-cell flex-col flex-center" style="gap:10px;">
+      <div class="card-label">Seat Class</div>
+      <div style="display:flex;flex-wrap:wrap;justify-content:center;gap:6px;">
+        <button class="pill sm" style="background:#FF2D8B;border-color:#FF2D8B;">Economy</button>
+        <button class="pill sm">Premium</button>
+        <button class="pill sm">Business</button>
+        <button class="pill sm">First</button>
+      </div>
+    </div>
+    <div class="dark-card bento-cell flex-col flex-center" style="gap:10px;">
+      <div class="card-label">Confirmation</div>
+      <div class="big24 fredoka" style="color:#FFD600;letter-spacing:3px;">XK92MN</div>
+      <input class="field-input text-center" style="letter-spacing:3px;font-size:15px;" value="XK92MN" />
+    </div>
+    <div class="dark-card bento-cell flex-col" style="gap:8px;">
+      <div class="card-label">Notes</div>
+      <textarea class="field-input" style="flex:1;min-height:88px;" placeholder="Seat preferences, meal requests, layover notes…"></textarea>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════ LODGING ════════════════════════════════ -->
+<div class="section" id="section-lodging">
+  <div class="section-intro">
+    <div class="section-intro-top">
+      <div class="section-intro-icon" style="background:#A855F7;">&#127968;</div>
+      <div>
+        <h2 class="fredoka">Lodging</h2>
+        <div class="status-text" style="color:#FF8C00;">1 of 2 stays confirmed</div>
+      </div>
+    </div>
+    <div class="subnav">
+      <button class="pill active" style="background:#A855F7;border-color:#A855F7;">&#9679; Park Hyatt</button>
+      <button class="pill" style="color:#9CA3AF;">&#9679; Kyoto Machiya</button>
+      <button class="pill dashed" style="border-color:rgba(168,85,247,0.4);color:#A855F7;">+ Add stay</button>
+    </div>
+  </div>
+
+  <!-- LodgingBento Row 1: Property (span2) + Confirmation -->
+  <div class="bento g3" style="gap:10px;">
+    <!-- Property -->
+    <div class="dark-card span2 bento-cell">
+      <div class="card-label">Property</div>
+      <div class="big30 fredoka truncate" style="margin-bottom:2px;">Park Hyatt Tokyo</div>
+      <div style="font-size:11px;font-weight:700;color:rgba(255,255,255,0.3);margin-bottom:12px;">Tokyo, Japan</div>
+      <input class="field-input" placeholder="Hotel / Airbnb name" value="Park Hyatt Tokyo" style="margin-bottom:6px;" />
+      <div class="grid2" style="margin-bottom:12px;">
+        <input class="field-input" placeholder="Address" value="3-7-1-2 Nishi Shinjuku" />
+        <input class="field-input" placeholder="City, Country" value="Tokyo, Japan" />
+      </div>
+      <!-- Accommodation type pills -->
+      <div style="display:flex;flex-wrap:wrap;gap:6px;">
+        <button class="pill sm active" style="background:#A855F7;border-color:#A855F7;">Hotel</button>
+        <button class="pill sm">Airbnb</button>
+        <button class="pill sm">Resort</button>
+        <button class="pill sm">Hostel</button>
+        <button class="pill sm">Motel</button>
+        <button class="pill sm">Vacation Rental</button>
+        <button class="pill sm">Other</button>
+      </div>
+    </div>
+    <!-- Confirmation -->
+    <div class="dark-card bento-cell flex-col flex-center" style="gap:10px;">
+      <div class="card-label">Confirmation</div>
+      <div class="big24 fredoka" style="color:#FFD600;letter-spacing:3px;">PH8823X</div>
+      <input class="field-input text-center" style="letter-spacing:3px;font-size:15px;" value="PH8823X" />
+      <div class="divider"></div>
+      <div class="sub-label">Room Type</div>
+      <input class="field-input text-center" placeholder="Deluxe King, Suite…" value="Deluxe King" />
+    </div>
+  </div>
+
+  <!-- LodgingBento Row 2: Check-in / Check-out (span3) -->
+  <div class="dark-card bento-cell">
+    <div class="card-label">Check-in → Check-out</div>
+    <div style="display:grid;grid-template-columns:1fr auto 1fr;gap:16px;align-items:start;">
+      <div>
+        <div style="font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:0.1em;color:rgba(255,255,255,0.3);text-align:center;margin-bottom:8px;">Check-in</div>
+        <div class="grid2"><input class="field-input" type="date" value="2025-04-02" /><input class="field-input" type="time" value="15:00" /></div>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;padding:0 8px;margin-top:24px;">
+        <div class="nights-pill" style="background:rgba(168,85,247,0.13);color:#A855F7;border:1px solid rgba(168,85,247,0.33);">5n</div>
+        <div style="font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:0.1em;color:rgba(255,255,255,0.2);">nights</div>
+      </div>
+      <div>
+        <div style="font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:0.1em;color:rgba(255,255,255,0.3);text-align:center;margin-bottom:8px;">Check-out</div>
+        <div class="grid2"><input class="field-input" type="date" value="2025-04-07" /><input class="field-input" type="time" value="11:00" /></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Cost + Notes -->
+  <div class="bento g3" style="gap:10px;">
+    <!-- Cost (span2) -->
+    <div class="dark-card span2 bento-cell">
+      <div class="card-label">Cost</div>
+      <div class="grid2">
+        <div>
+          <div class="sub-label">Per Night</div>
+          <div class="relative"><span class="dollar-prefix">$</span><input class="field-input pl-prefix text-right" type="number" value="280" /></div>
+        </div>
+        <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:12px;padding:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;">
+          <div style="font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:0.1em;color:rgba(255,255,255,0.25);">5 nights × $280</div>
+          <div class="big30 fredoka" style="color:#A855F7;">$1,400</div>
+          <div style="font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:0.1em;color:rgba(255,255,255,0.2);">total</div>
+        </div>
+      </div>
+      <div style="margin-top:12px;display:flex;align-items:center;justify-content:center;padding:6px 12px;border-radius:10px;background:rgba(168,85,247,0.1);border:1px solid rgba(168,85,247,0.2);">
+        <span style="font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:0.1em;color:#A855F7;">+$1,400 to trip cost</span>
+      </div>
+    </div>
+    <!-- Notes -->
+    <div class="dark-card bento-cell flex-col">
+      <div class="card-label">Notes</div>
+      <textarea class="field-input" style="flex:1;min-height:100px;" placeholder="Special requests, amenities, parking…">Requested high floor with city view.</textarea>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════ BUDGET ════════════════════════════════ -->
+<div class="section" id="section-budget">
+  <div class="section-intro">
+    <div class="section-intro-top">
+      <div class="section-intro-icon" style="background:#00C96B;">&#128180;</div>
+      <div>
+        <h2 class="fredoka">Budget</h2>
+        <div class="status-text" style="color:#FF8C00;">Budget set · 8 categories</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="bento g3" style="gap:10px;">
+    <!-- Hero: target + bar (span2) -->
+    <div class="dark-card span2 bento-cell">
+      <div class="card-label">Total Trip Budget</div>
+      <div style="display:flex;align-items:flex-end;gap:12px;margin-bottom:16px;">
+        <div class="fredoka" style="font-size:54px;color:#00C96B;line-height:1;">$5,000</div>
+        <div style="font-size:13px;font-weight:900;color:#9CA3AF;margin-bottom:8px;">$620 remaining</div>
+      </div>
+      <div class="relative" style="margin-bottom:20px;">
+        <span class="dollar-prefix">$</span>
+        <input class="field-input pl-prefix" type="number" value="5000" placeholder="Set your total budget" />
+      </div>
+      <div class="seg-bar" style="height:12px;margin-bottom:8px;">
+        <div style="width:32%;background:#00C96B;border-radius:999px 0 0 999px;"></div>
+        <div style="width:56%;background:#00A8CC;"></div>
+      </div>
+      <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;">
+        <div style="display:flex;align-items:center;gap:6px;"><div style="width:8px;height:8px;border-radius:50%;background:#00C96B;"></div><span style="font-size:10px;font-weight:900;color:rgba(255,255,255,0.35);">Auto-linked  $1,580</span></div>
+        <div style="display:flex;align-items:center;gap:6px;"><div style="width:8px;height:8px;border-radius:50%;background:#00A8CC;"></div><span style="font-size:10px;font-weight:900;color:rgba(255,255,255,0.35);">Manual est.  $2,800</span></div>
+        <div style="display:flex;align-items:center;gap:6px;"><div style="width:8px;height:8px;border-radius:50%;background:#3a3a3a;"></div><span style="font-size:10px;font-weight:900;color:rgba(255,255,255,0.35);">Unallocated  $620</span></div>
+      </div>
+    </div>
+    <!-- Stats sidebar -->
+    <div class="dark-card bento-cell">
+      <div class="card-label">Summary</div>
+      <div style="display:flex;flex-direction:column;gap:0;">
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid rgba(255,255,255,0.06);">
+          <span style="font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:0.1em;color:rgba(255,255,255,0.35);">Auto-linked</span>
+          <span class="fredoka" style="font-size:22px;color:#00C96B;">$1,580</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid rgba(255,255,255,0.06);">
+          <span style="font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:0.1em;color:rgba(255,255,255,0.35);">Manual est.</span>
+          <span class="fredoka" style="font-size:22px;color:#00A8CC;">$2,800</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid rgba(255,255,255,0.06);">
+          <span style="font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:0.1em;color:rgba(255,255,255,0.35);">Grand total</span>
+          <span class="fredoka" style="font-size:22px;color:#fff;">$4,380</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 0;">
+          <span style="font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:0.1em;color:rgba(255,255,255,0.35);">Remaining</span>
+          <span class="fredoka" style="font-size:22px;color:#9CA3AF;">$620</span>
+        </div>
+        <div style="border-top:1px solid rgba(255,255,255,0.06);padding-top:12px;">
+          <div style="display:flex;justify-content:space-between;margin-bottom:6px;"><span style="font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:0.1em;color:rgba(255,255,255,0.3);">Budget used</span><span style="font-size:14px;font-weight:900;color:#00C96B;">88%</span></div>
+          <div class="bar-track" style="height:6px;"><div class="bar-fill" style="width:88%;background:#00C96B;"></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Categories grid (4-col) -->
+  <div class="dark-card bento-cell">
+    <div class="card-label">By Category</div>
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;">
+      <!-- each category -->
+      <div class="cat-card">
+        <div style="display:flex;align-items:center;gap:8px;">
+          <div class="cat-icon" style="background:rgba(255,45,139,0.13);color:#FF2D8B;">&#9992;</div>
+          <span style="font-size:11px;font-weight:900;color:rgba(255,255,255,0.65);">Flights</span>
+        </div>
+        <div class="relative"><span class="dollar-prefix">$</span><input class="field-input pl-prefix text-right" type="number" value="1200" style="font-size:13px;" /></div>
+        <div class="bar-track" style="height:4px;"><div class="bar-fill" style="width:27%;background:#FF2D8B;"></div></div>
+        <div style="font-size:9px;font-weight:900;text-align:right;color:rgba(255,45,139,0.6);">27%</div>
+      </div>
+      <div class="cat-card">
+        <div style="display:flex;align-items:center;gap:8px;">
+          <div class="cat-icon" style="background:rgba(168,85,247,0.13);color:#A855F7;">&#127968;</div>
+          <div><span style="font-size:11px;font-weight:900;color:rgba(255,255,255,0.65);">Lodging</span><div style="font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:0.08em;color:#A855F7;">↑ from lodging</div></div>
+        </div>
+        <div class="relative"><span class="dollar-prefix">$</span><input class="field-input pl-prefix text-right" type="number" value="1400" style="font-size:13px;border-color:rgba(168,85,247,0.33);" /></div>
+        <div class="bar-track" style="height:4px;"><div class="bar-fill" style="width:32%;background:#A855F7;"></div></div>
+        <div style="font-size:9px;font-weight:900;text-align:right;color:rgba(168,85,247,0.6);">32%</div>
+      </div>
+      <div class="cat-card">
+        <div style="display:flex;align-items:center;gap:8px;">
+          <div class="cat-icon" style="background:rgba(255,140,0,0.13);color:#FF8C00;">&#128663;</div>
+          <div><span style="font-size:11px;font-weight:900;color:rgba(255,255,255,0.65);">Car Rental</span><div style="font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:0.08em;color:#FF8C00;">↑ from driving</div></div>
+        </div>
+        <div class="relative"><span class="dollar-prefix">$</span><input class="field-input pl-prefix text-right" type="number" value="180" style="font-size:13px;border-color:rgba(255,140,0,0.33);" /></div>
+        <div class="bar-track" style="height:4px;"><div class="bar-fill" style="width:4%;background:#FF8C00;"></div></div>
+        <div style="font-size:9px;font-weight:900;text-align:right;color:rgba(255,140,0,0.6);">4%</div>
+      </div>
+      <div class="cat-card">
+        <div style="display:flex;align-items:center;gap:8px;">
+          <div class="cat-icon" style="background:rgba(255,214,0,0.13);color:#FFD600;">&#127860;</div>
+          <span style="font-size:11px;font-weight:900;color:rgba(255,255,255,0.65);">Food &amp; Dining</span>
+        </div>
+        <div class="relative"><span class="dollar-prefix">$</span><input class="field-input pl-prefix text-right" type="number" value="600" style="font-size:13px;" /></div>
+        <div class="bar-track" style="height:4px;"><div class="bar-fill" style="width:14%;background:#FFD600;"></div></div>
+        <div style="font-size:9px;font-weight:900;text-align:right;color:rgba(255,214,0,0.6);">14%</div>
+      </div>
+      <div class="cat-card">
+        <div style="display:flex;align-items:center;gap:8px;">
+          <div class="cat-icon" style="background:rgba(0,168,204,0.13);color:#00A8CC;">&#127981;</div>
+          <span style="font-size:11px;font-weight:900;color:rgba(255,255,255,0.65);">Activities</span>
+        </div>
+        <div class="relative"><span class="dollar-prefix">$</span><input class="field-input pl-prefix text-right" type="number" value="400" style="font-size:13px;" /></div>
+        <div class="bar-track" style="height:4px;"><div class="bar-fill" style="width:9%;background:#00A8CC;"></div></div>
+        <div style="font-size:9px;font-weight:900;text-align:right;color:rgba(0,168,204,0.6);">9%</div>
+      </div>
+      <div class="cat-card">
+        <div style="display:flex;align-items:center;gap:8px;">
+          <div class="cat-icon" style="background:rgba(255,45,139,0.13);color:#FF2D8B;">&#128717;</div>
+          <span style="font-size:11px;font-weight:900;color:rgba(255,255,255,0.65);">Shopping</span>
+        </div>
+        <div class="relative"><span class="dollar-prefix">$</span><input class="field-input pl-prefix text-right" type="number" value="300" style="font-size:13px;" /></div>
+        <div class="bar-track" style="height:4px;"><div class="bar-fill" style="width:7%;background:#FF2D8B;"></div></div>
+      </div>
+      <div class="cat-card">
+        <div style="display:flex;align-items:center;gap:8px;">
+          <div class="cat-icon" style="background:rgba(0,201,107,0.13);color:#00C96B;">&#128652;</div>
+          <span style="font-size:11px;font-weight:900;color:rgba(255,255,255,0.65);">Local Transit</span>
+        </div>
+        <div class="relative"><span class="dollar-prefix">$</span><input class="field-input pl-prefix text-right" type="number" value="150" style="font-size:13px;" /></div>
+        <div class="bar-track" style="height:4px;"><div class="bar-fill" style="width:3%;background:#00C96B;"></div></div>
+      </div>
+      <div class="cat-card">
+        <div style="display:flex;align-items:center;gap:8px;">
+          <div class="cat-icon" style="background:rgba(156,163,175,0.13);color:#9CA3AF;">&#127991;</div>
+          <span style="font-size:11px;font-weight:900;color:rgba(255,255,255,0.65);">Misc / Other</span>
+        </div>
+        <div class="relative"><span class="dollar-prefix">$</span><input class="field-input pl-prefix text-right" type="number" value="200" style="font-size:13px;" /></div>
+        <div class="bar-track" style="height:4px;"><div class="bar-fill" style="width:5%;background:#9CA3AF;"></div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════ DESTINATIONS ════════════════════════════════ -->
+<div class="section" id="section-destinations">
+  <div class="section-intro">
+    <div class="section-intro-top">
+      <div class="section-intro-icon" style="background:#FFD600;">&#128205;</div>
+      <div>
+        <h2 class="fredoka">Destinations</h2>
+        <div class="status-text" style="color:#FF8C00;">3 stops · 12 days planned</div>
+      </div>
+    </div>
+    <div class="subnav">
+      <button class="pill active" style="background:#FF2D8B;border-color:#FF2D8B;">&#9679; Tokyo</button>
+      <button class="pill" style="color:#9CA3AF;">&#9679; Kyoto</button>
+      <button class="pill" style="color:#9CA3AF;">&#9679; Osaka</button>
+      <button class="pill dashed" style="border-color:rgba(255,214,0,0.4);color:#FFD600;">+ Add stop</button>
+    </div>
+  </div>
+
+  <!-- DestinationsBento: Info (span2) + Dates -->
+  <div class="bento g3" style="gap:10px;">
+    <div class="dark-card span2 bento-cell">
+      <div class="card-label">Destination</div>
+      <div class="fredoka" style="font-size:36px;color:#FF2D8B;line-height:1;margin-bottom:2px;">Tokyo</div>
+      <div style="font-size:11px;font-weight:700;color:rgba(255,255,255,0.3);margin-bottom:16px;">Japan</div>
+      <div class="grid2" style="margin-bottom:12px;">
+        <input class="field-input" placeholder="City / Place name" value="Tokyo" />
+        <input class="field-input" placeholder="Country" value="Japan" />
+      </div>
+      <!-- Type pills -->
+      <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:16px;">
+        <button class="pill sm active" style="background:#FF2D8B;border-color:#FF2D8B;">City</button>
+        <button class="pill sm">Beach</button>
+        <button class="pill sm">Mountain</button>
+        <button class="pill sm">Countryside</button>
+        <button class="pill sm">Island</button>
+        <button class="pill sm">National Park</button>
+        <button class="pill sm">Ski Resort</button>
+        <button class="pill sm">Other</button>
+      </div>
+      <!-- Color picker -->
+      <div>
+        <div class="sub-label">Color</div>
+        <div style="display:flex;gap:8px;margin-top:6px;">
+          <div class="color-dot sel" style="background:#FF2D8B;"></div>
+          <div class="color-dot" style="background:#00A8CC;opacity:0.4;"></div>
+          <div class="color-dot" style="background:#FFD600;opacity:0.4;"></div>
+          <div class="color-dot" style="background:#00C96B;opacity:0.4;"></div>
+          <div class="color-dot" style="background:#FF8C00;opacity:0.4;"></div>
+          <div class="color-dot" style="background:#A855F7;opacity:0.4;"></div>
+        </div>
+      </div>
+    </div>
+    <!-- Dates -->
+    <div class="dark-card bento-cell flex-col" style="gap:12px;">
+      <div class="card-label">Dates</div>
+      <div>
+        <div class="sub-label">Arrival</div>
+        <input class="field-input" type="date" value="2025-04-02" />
+      </div>
+      <div style="display:flex;justify-content:center;">
+        <div class="nights-pill" style="background:rgba(255,45,139,0.13);color:#FF2D8B;border:1px solid rgba(255,45,139,0.33);">5 days</div>
+      </div>
+      <div>
+        <div class="sub-label">Departure</div>
+        <input class="field-input" type="date" value="2025-04-07" />
+      </div>
+    </div>
+  </div>
+
+  <!-- Must-Do (span3) -->
+  <div class="dark-card bento-cell">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
+      <div class="card-label" style="margin-bottom:0;">Must-Do</div>
+      <span style="font-size:11px;font-weight:900;color:#FF2D8B;">1 / 5 done</span>
+    </div>
+    <div class="bar-track" style="height:6px;margin-top:8px;margin-bottom:16px;"><div class="bar-fill" style="width:20%;background:#FF2D8B;"></div></div>
+    <div style="display:flex;flex-direction:column;gap:10px;">
+      <div class="task-row">
+        <div class="check-circle done" style="background:#FF2D8B;border-color:#FF2D8B;"></div>
+        <input class="add-inline-input task-text done" value="Shibuya Crossing at night" />
+        <span style="font-size:12px;color:rgba(255,255,255,0.15);cursor:pointer;">✕</span>
+      </div>
+      <div class="task-row">
+        <div class="check-circle"></div>
+        <input class="add-inline-input task-text" value="teamLab Planets" />
+        <span style="font-size:12px;color:rgba(255,255,255,0.15);cursor:pointer;opacity:0;">✕</span>
+      </div>
+      <div class="task-row">
+        <div class="check-circle"></div>
+        <input class="add-inline-input task-text" value="Shinjuku Gyoen cherry blossoms" />
+        <span style="font-size:12px;color:rgba(255,255,255,0.15);cursor:pointer;opacity:0;">✕</span>
+      </div>
+      <div class="task-row">
+        <div class="check-circle"></div>
+        <input class="add-inline-input task-text" value="Tsukiji Outer Market breakfast" />
+        <span style="font-size:12px;color:rgba(255,255,255,0.15);cursor:pointer;opacity:0;">✕</span>
+      </div>
+      <div class="task-row">
+        <div class="check-circle"></div>
+        <input class="add-inline-input task-text" value="Senso-ji Temple at sunrise" />
+        <span style="font-size:12px;color:rgba(255,255,255,0.15);cursor:pointer;opacity:0;">✕</span>
+      </div>
+    </div>
+    <div class="inline-add">
+      <div class="add-circle" style="border-color:rgba(255,45,139,0.4);color:rgba(255,45,139,0.6);">+</div>
+      <input class="add-inline-input" placeholder="Add item… press Enter" />
+    </div>
+  </div>
+
+  <!-- Notes (span3) -->
+  <div class="dark-card bento-cell">
+    <div class="card-label">Notes</div>
+    <textarea class="field-input" style="min-height:72px;">Book teamLab tickets well in advance. Check cherry blossom forecast.</textarea>
+  </div>
+</div>
+
+<!-- ════════════════════════════════ DOCUMENTS ════════════════════════════════ -->
+<div class="section" id="section-documents">
+  <div class="section-intro">
+    <div class="section-intro-top">
+      <div class="section-intro-icon" style="background:#00A8CC;">&#128196;</div>
+      <div>
+        <h2 class="fredoka">Documents</h2>
+        <div class="status-text" style="color:#FF8C00;">6 of 8 confirmed</div>
+      </div>
+    </div>
+    <div class="subnav" style="justify-content:space-between;">
+      <span style="font-size:11px;font-weight:900;color:rgba(255,255,255,0.3);">6 of 8 in order</span>
+      <button class="pill dashed" style="border-color:rgba(0,168,204,0.4);color:#00A8CC;">+ Add document</button>
+    </div>
+  </div>
+
+  <!-- Progress bar card -->
+  <div class="dark-card" style="padding:16px;display:flex;align-items:center;gap:16px;">
+    <div style="flex:1;">
+      <div class="sub-label" style="margin-bottom:6px;">Document Status</div>
+      <div class="bar-track" style="height:8px;"><div class="bar-fill" style="width:75%;background:#FF8C00;"></div></div>
+    </div>
+    <div style="text-align:right;flex-shrink:0;">
+      <div class="fredoka" style="font-size:22px;color:#FF8C00;line-height:1;">6<span style="font-size:16px;color:rgba(255,255,255,0.25);">/8</span></div>
+      <div style="font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:0.1em;color:rgba(255,255,255,0.25);margin-top:2px;">in order</div>
+    </div>
+  </div>
+
+  <!-- Document cards grid -->
+  <div class="bento g2" style="gap:10px;">
+
+    <!-- Doc 1: Passport confirmed -->
+    <div class="dark-card">
+      <div class="doc-card-header">
+        <div style="display:flex;align-items:center;justify-content:space-between;">
+          <div style="display:flex;align-items:center;gap:6px;">
+            <div class="doc-type-badge" style="background:rgba(0,168,204,0.15);color:#00A8CC;">&#128100; Passport</div>
+            <div class="status-badge" style="background:rgba(0,201,107,0.15);color:#00C96B;">Confirmed</div>
+          </div>
+          <button style="background:none;border:none;color:rgba(255,255,255,0.3);cursor:pointer;font-size:13px;display:flex;align-items:center;" onclick="toggleDoc(this)">&#9660;</button>
+        </div>
+        <div style="font-size:13px;font-weight:900;">Chris M.</div>
+        <div style="font-size:11px;font-weight:700;color:rgba(255,255,255,0.5);">US Passport</div>
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+          <span style="font-size:11px;font-weight:900;color:rgba(255,255,255,0.3);font-family:monospace;letter-spacing:2px;">···5678</span>
+          <span style="font-size:10px;font-weight:900;color:rgba(255,255,255,0.35);">Exp Mar 2028</span>
+        </div>
+      </div>
+      <div class="doc-expand-form" style="display:none;">
+        <div class="sub-label">Type</div>
+        <div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:6px;">
+          <button class="pill sm active" style="background:#00A8CC;border-color:#00A8CC;font-size:11px;">&#128100; Passport</button>
+          <button class="pill sm" style="font-size:11px;">Visa</button>
+          <button class="pill sm" style="font-size:11px;">Insurance</button>
+          <button class="pill sm" style="font-size:11px;">Flight</button>
+          <button class="pill sm" style="font-size:11px;">Hotel</button>
+          <button class="pill sm" style="font-size:11px;">Driver's License</button>
+          <button class="pill sm" style="font-size:11px;">ESTA</button>
+          <button class="pill sm" style="font-size:11px;">Vaccination</button>
+          <button class="pill sm" style="font-size:11px;">Other</button>
+        </div>
+        <div class="grid2">
+          <div><div class="sub-label">Holder</div><input class="field-input" value="Chris M." /></div>
+          <div><div class="sub-label">Title</div><input class="field-input" value="US Passport" /></div>
+        </div>
+        <div class="grid2">
+          <div><div class="sub-label">Number</div><input class="field-input mono" value="B12345678" /></div>
+          <div><div class="sub-label">Expiry</div><input class="field-input" type="date" value="2028-03-15" /></div>
+        </div>
+        <div>
+          <div class="sub-label">Status</div>
+          <div style="display:flex;flex-wrap:wrap;gap:4px;">
+            <button class="pill sm active" style="background:#00C96B;border-color:#00C96B;">Confirmed</button>
+            <button class="pill sm">Expiring</button>
+            <button class="pill sm">Expired</button>
+            <button class="pill sm">Missing</button>
+            <button class="pill sm">Not Needed</button>
+          </div>
+        </div>
+        <div><div class="sub-label">Notes</div><textarea class="field-input" style="min-height:56px;" placeholder="Visa requirements, renewal info…"></textarea></div>
+        <button style="background:none;border:none;color:rgba(255,255,255,0.25);font-size:11px;font-weight:900;cursor:pointer;display:flex;align-items:center;gap:4px;">✕ Remove document</button>
+      </div>
+    </div>
+
+    <!-- Doc 2: Passport confirmed (Sarah) -->
+    <div class="dark-card">
+      <div class="doc-card-header">
+        <div style="display:flex;align-items:center;justify-content:space-between;">
+          <div style="display:flex;align-items:center;gap:6px;">
+            <div class="doc-type-badge" style="background:rgba(0,168,204,0.15);color:#00A8CC;">&#128100; Passport</div>
+            <div class="status-badge" style="background:rgba(0,201,107,0.15);color:#00C96B;">Confirmed</div>
+          </div>
+          <button style="background:none;border:none;color:rgba(255,255,255,0.3);cursor:pointer;font-size:13px;" onclick="toggleDoc(this)">&#9660;</button>
+        </div>
+        <div style="font-size:13px;font-weight:900;">Sarah M.</div>
+        <div style="font-size:11px;font-weight:700;color:rgba(255,255,255,0.5);">US Passport</div>
+        <div style="display:flex;justify-content:space-between;">
+          <span style="font-size:11px;font-weight:900;color:rgba(255,255,255,0.3);font-family:monospace;letter-spacing:2px;">···4321</span>
+          <span style="font-size:10px;font-weight:900;color:#FF8C00;">Exp Nov 2026</span>
+        </div>
+      </div>
+      <div class="doc-expand-form" style="display:none;"></div>
+    </div>
+
+    <!-- Doc 3: Visa waived -->
+    <div class="dark-card">
+      <div class="doc-card-header">
+        <div style="display:flex;align-items:center;justify-content:space-between;">
+          <div style="display:flex;align-items:center;gap:6px;">
+            <div class="doc-type-badge" style="background:rgba(168,85,247,0.15);color:#A855F7;">Visa</div>
+            <div class="status-badge" style="background:rgba(255,255,255,0.07);color:rgba(255,255,255,0.4);">Not Needed</div>
+          </div>
+          <button style="background:none;border:none;color:rgba(255,255,255,0.3);cursor:pointer;font-size:13px;" onclick="toggleDoc(this)">&#9660;</button>
+        </div>
+        <div style="font-size:13px;font-weight:900;">All travelers</div>
+        <div style="font-size:11px;font-weight:700;color:rgba(255,255,255,0.5);">Japan — No Visa Required</div>
+        <div><span style="font-size:11px;font-weight:900;color:rgba(255,255,255,0.3);font-family:monospace;">—</span></div>
+      </div>
+      <div class="doc-expand-form" style="display:none;"></div>
+    </div>
+
+    <!-- Doc 4: Insurance confirmed -->
+    <div class="dark-card">
+      <div class="doc-card-header">
+        <div style="display:flex;align-items:center;justify-content:space-between;">
+          <div style="display:flex;align-items:center;gap:6px;">
+            <div class="doc-type-badge" style="background:rgba(0,201,107,0.15);color:#00C96B;">Insurance</div>
+            <div class="status-badge" style="background:rgba(0,201,107,0.15);color:#00C96B;">Confirmed</div>
+          </div>
+          <button style="background:none;border:none;color:rgba(255,255,255,0.3);cursor:pointer;font-size:13px;" onclick="toggleDoc(this)">&#9660;</button>
+        </div>
+        <div style="font-size:13px;font-weight:900;">All travelers</div>
+        <div style="font-size:11px;font-weight:700;color:rgba(255,255,255,0.5);">World Nomads — Japan</div>
+        <div style="display:flex;justify-content:space-between;">
+          <span style="font-size:11px;font-weight:900;color:rgba(255,255,255,0.3);font-family:monospace;letter-spacing:2px;">···JP</span>
+          <span style="font-size:10px;font-weight:900;color:rgba(255,255,255,0.35);">Exp Apr 2025</span>
+        </div>
+      </div>
+      <div class="doc-expand-form" style="display:none;"></div>
+    </div>
+
+    <!-- Doc 5: Flight confirmed -->
+    <div class="dark-card">
+      <div class="doc-card-header">
+        <div style="display:flex;align-items:center;justify-content:space-between;">
+          <div style="display:flex;align-items:center;gap:6px;">
+            <div class="doc-type-badge" style="background:rgba(255,45,139,0.15);color:#FF2D8B;">&#9992; Flight</div>
+            <div class="status-badge" style="background:rgba(0,201,107,0.15);color:#00C96B;">Confirmed</div>
+          </div>
+          <button style="background:none;border:none;color:rgba(255,255,255,0.3);cursor:pointer;font-size:13px;" onclick="toggleDoc(this)">&#9660;</button>
+        </div>
+        <div style="font-size:13px;font-weight:900;">All travelers</div>
+        <div style="font-size:11px;font-weight:700;color:rgba(255,255,255,0.5);">Outbound: SRQ → JFK → NRT</div>
+        <div style="display:flex;justify-content:space-between;">
+          <span style="font-size:11px;font-weight:900;color:rgba(255,255,255,0.3);font-family:monospace;letter-spacing:2px;">···MN</span>
+          <span style="font-size:10px;font-weight:900;color:rgba(255,255,255,0.35);">Apr 1</span>
+        </div>
+      </div>
+      <div class="doc-expand-form" style="display:none;"></div>
+    </div>
+
+    <!-- Doc 6: Vaccination -->
+    <div class="dark-card">
+      <div class="doc-card-header">
+        <div style="display:flex;align-items:center;justify-content:space-between;">
+          <div style="display:flex;align-items:center;gap:6px;">
+            <div class="doc-type-badge" style="background:rgba(0,201,107,0.15);color:#00C96B;">Vaccination</div>
+            <div class="status-badge" style="background:rgba(0,201,107,0.15);color:#00C96B;">Confirmed</div>
+          </div>
+          <button style="background:none;border:none;color:rgba(255,255,255,0.3);cursor:pointer;font-size:13px;" onclick="toggleDoc(this)">&#9660;</button>
+        </div>
+        <div style="font-size:13px;font-weight:900;">Chris M.</div>
+        <div style="font-size:11px;font-weight:700;color:rgba(255,255,255,0.5);">COVID Vaccination</div>
+        <div><span style="font-size:11px;font-weight:900;color:rgba(255,255,255,0.3);font-family:monospace;">—</span></div>
+      </div>
+      <div class="doc-expand-form" style="display:none;"></div>
+    </div>
+
+    <!-- Doc 7: ESTA waived -->
+    <div class="dark-card">
+      <div class="doc-card-header">
+        <div style="display:flex;align-items:center;justify-content:space-between;">
+          <div style="display:flex;align-items:center;gap:6px;">
+            <div class="doc-type-badge" style="background:rgba(0,168,204,0.15);color:#00A8CC;">ESTA / Auth</div>
+            <div class="status-badge" style="background:rgba(255,255,255,0.07);color:rgba(255,255,255,0.4);">Not Needed</div>
+          </div>
+          <button style="background:none;border:none;color:rgba(255,255,255,0.3);cursor:pointer;font-size:13px;" onclick="toggleDoc(this)">&#9660;</button>
+        </div>
+        <div style="font-size:13px;font-weight:900;">All travelers</div>
+        <div style="font-size:11px;font-weight:700;color:rgba(255,255,255,0.5);">ESTA — Not required</div>
+        <div><span style="font-size:11px;font-weight:900;color:rgba(255,255,255,0.3);font-family:monospace;">—</span></div>
+      </div>
+      <div class="doc-expand-form" style="display:none;"></div>
+    </div>
+
+    <!-- Doc 8: Tom passport -->
+    <div class="dark-card">
+      <div class="doc-card-header">
+        <div style="display:flex;align-items:center;justify-content:space-between;">
+          <div style="display:flex;align-items:center;gap:6px;">
+            <div class="doc-type-badge" style="background:rgba(0,168,204,0.15);color:#00A8CC;">&#128100; Passport</div>
+            <div class="status-badge" style="background:rgba(0,201,107,0.15);color:#00C96B;">Confirmed</div>
+          </div>
+          <button style="background:none;border:none;color:rgba(255,255,255,0.3);cursor:pointer;font-size:13px;" onclick="toggleDoc(this)">&#9660;</button>
+        </div>
+        <div style="font-size:13px;font-weight:900;">Tom K.</div>
+        <div style="font-size:11px;font-weight:700;color:rgba(255,255,255,0.5);">US Passport</div>
+        <div style="display:flex;justify-content:space-between;">
+          <span style="font-size:11px;font-weight:900;color:rgba(255,255,255,0.3);font-family:monospace;letter-spacing:2px;">···2300</span>
+          <span style="font-size:10px;font-weight:900;color:rgba(255,255,255,0.35);">Exp Jul 2027</span>
+        </div>
+      </div>
+      <div class="doc-expand-form" style="display:none;"></div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ════════════════════════════════ VIBE ════════════════════════════════ -->
+<div class="section" id="section-vibe">
+  <div class="section-intro">
+    <div class="section-intro-top">
+      <div class="section-intro-icon" style="background:#FF2D8B;">&#10024;</div>
+      <div>
+        <h2 class="fredoka">Trip Vibe</h2>
+        <div class="status-text" style="color:#FF8C00;">2 vibes · Balanced pace</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tags (span3) -->
+  <div class="dark-card bento-cell">
+    <div class="card-label">Trip Vibes</div>
+    <div style="display:flex;flex-wrap:wrap;gap:8px;">
+      <button class="pill active glow-pink" style="background:#FF8C00;border-color:#FF8C00;">Adventure</button>
+      <button class="pill">Relaxation</button>
+      <button class="pill">Cultural</button>
+      <button class="pill active glow-pink" style="background:#FFD600;border-color:#FFD600;color:#09090f;">Foodie</button>
+      <button class="pill">Nature</button>
+      <button class="pill">Nightlife</button>
+      <button class="pill">Shopping</button>
+      <button class="pill">Romance</button>
+      <button class="pill">Wellness</button>
+      <button class="pill">Photography</button>
+      <button class="pill">Off the Grid</button>
+      <button class="pill">Family Fun</button>
+      <button class="pill">Sun &amp; Beach</button>
+      <button class="pill">Luxury</button>
+    </div>
+    <div style="margin-top:10px;font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:0.1em;color:rgba(255,255,255,0.25);">2 vibes selected</div>
+  </div>
+
+  <!-- Pace + Style + Energy -->
+  <div class="bento g3" style="gap:10px;">
+    <!-- Pace -->
+    <div class="dark-card bento-cell">
+      <div class="card-label">Trip Pace</div>
+      <div style="display:flex;flex-direction:column;gap:6px;">
+        <div class="vibe-option" style="color:#9CA3AF;"><div class="vibe-dot"></div><div><div style="font-size:12px;font-weight:900;">Mellow</div><div style="font-size:10px;font-weight:700;color:rgba(255,255,255,0.2);">Max relaxation</div></div></div>
+        <div class="vibe-option" style="background:rgba(0,201,107,0.1);border-color:rgba(0,201,107,0.33);"><div class="vibe-dot" style="background:#00C96B;"></div><div><div style="font-size:12px;font-weight:900;color:#fff;">Balanced</div><div style="font-size:10px;font-weight:700;color:#00C96B;">Rest meets activity</div></div></div>
+        <div class="vibe-option" style="color:#9CA3AF;"><div class="vibe-dot"></div><div><div style="font-size:12px;font-weight:900;">Active</div><div style="font-size:10px;font-weight:700;color:rgba(255,255,255,0.2);">Full days, light nights</div></div></div>
+        <div class="vibe-option" style="color:#9CA3AF;"><div class="vibe-dot"></div><div><div style="font-size:12px;font-weight:900;">Packed</div><div style="font-size:10px;font-weight:700;color:rgba(255,255,255,0.2);">Something every day</div></div></div>
+        <div class="vibe-option" style="color:#9CA3AF;"><div class="vibe-dot"></div><div><div style="font-size:12px;font-weight:900;">Non-Stop</div><div style="font-size:10px;font-weight:700;color:rgba(255,255,255,0.2);">We'll sleep when home</div></div></div>
+      </div>
+    </div>
+    <!-- Style -->
+    <div class="dark-card bento-cell">
+      <div class="card-label">Travel Style</div>
+      <div style="display:flex;flex-direction:column;gap:6px;">
+        <div class="vibe-option" style="color:#9CA3AF;"><div class="vibe-dot"></div><div><div style="font-size:12px;font-weight:900;">Budget</div><div style="font-size:10px;font-weight:700;color:rgba(255,255,255,0.2);">Stretching every dollar</div></div></div>
+        <div class="vibe-option" style="background:rgba(0,168,204,0.1);border-color:rgba(0,168,204,0.33);"><div class="vibe-dot" style="background:#00A8CC;"></div><div><div style="font-size:12px;font-weight:900;color:#fff;">Mid-Range</div><div style="font-size:10px;font-weight:700;color:#00A8CC;">Comfort without splurging</div></div></div>
+        <div class="vibe-option" style="color:#9CA3AF;"><div class="vibe-dot"></div><div><div style="font-size:12px;font-weight:900;">Upscale</div><div style="font-size:10px;font-weight:700;color:rgba(255,255,255,0.2);">Treating ourselves well</div></div></div>
+        <div class="vibe-option" style="color:#9CA3AF;"><div class="vibe-dot"></div><div><div style="font-size:12px;font-weight:900;">Luxury</div><div style="font-size:10px;font-weight:700;color:rgba(255,255,255,0.2);">Only the finest things</div></div></div>
+      </div>
+    </div>
+    <!-- Energy -->
+    <div class="dark-card bento-cell">
+      <div class="card-label">Group Energy</div>
+      <div style="display:flex;flex-direction:column;gap:6px;">
+        <div class="vibe-option" style="color:#9CA3AF;"><div class="vibe-dot"></div><div><div style="font-size:12px;font-weight:900;">Low-Key</div><div style="font-size:10px;font-weight:700;color:rgba(255,255,255,0.2);">Slow mornings, easy pace</div></div></div>
+        <div class="vibe-option" style="background:rgba(0,201,107,0.1);border-color:rgba(0,201,107,0.33);"><div class="vibe-dot" style="background:#00C96B;"></div><div><div style="font-size:12px;font-weight:900;color:#fff;">Chill</div><div style="font-size:10px;font-weight:700;color:#00C96B;">Flexible &amp; spontaneous</div></div></div>
+        <div class="vibe-option" style="color:#9CA3AF;"><div class="vibe-dot"></div><div><div style="font-size:12px;font-weight:900;">Social</div><div style="font-size:10px;font-weight:700;color:rgba(255,255,255,0.2);">Group fun &amp; togetherness</div></div></div>
+        <div class="vibe-option" style="color:#9CA3AF;"><div class="vibe-dot"></div><div><div style="font-size:12px;font-weight:900;">Full Send</div><div style="font-size:10px;font-weight:700;color:rgba(255,255,255,0.2);">Max energy, all in</div></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Mantra (span2) + Notes -->
+  <div class="bento g3" style="gap:10px;">
+    <div class="dark-card span2 bento-cell" style="position:relative;">
+      <div class="mantra-radial"></div>
+      <div class="card-label">Trip Mantra</div>
+      <div style="min-height:56px;display:flex;align-items:center;justify-content:center;margin-bottom:14px;">
+        <div class="fredoka" style="font-size:28px;color:#FF2D8B;text-align:center;">"No bad days in Japan ✌"</div>
+      </div>
+      <input class="field-input text-center" placeholder="e.g. No bad days in Japan ✌" value="No bad days in Japan ✌" maxlength="80" />
+      <div style="font-size:10px;font-weight:900;color:rgba(255,255,255,0.2);text-align:right;margin-top:4px;">24/80</div>
+    </div>
+    <div class="dark-card bento-cell flex-col">
+      <div class="card-label">Group Notes</div>
+      <textarea class="field-input" style="flex:1;min-height:150px;" placeholder="Expectations, must-haves, group agreements…">At least one relaxed morning per city. Everyone keeps a food journal.</textarea>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════ PRE-DEPARTURE ════════════════════════════════ -->
+<div class="section" id="section-predeparture">
+  <div class="section-intro">
+    <div class="section-intro-top">
+      <div class="section-intro-icon" style="background:#00C96B;">&#9989;</div>
+      <div>
+        <h2 class="fredoka">Pre-Departure</h2>
+        <div class="status-text" style="color:#FF8C00;">0 of 18 tasks done</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Progress summary (span3) -->
+  <div class="dark-card bento-cell">
+    <div style="display:flex;flex-direction:column;gap:8px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;">
+        <span style="font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:0.1em;color:rgba(255,255,255,0.3);">Pre-Departure Checklist</span>
+        <div class="fredoka" style="font-size:20px;color:#FF8C00;">0<span style="font-size:14px;color:rgba(255,255,255,0.25);">/18</span></div>
+      </div>
+      <div class="bar-track" style="height:8px;"><div class="bar-fill" style="width:0%;background:#FF8C00;"></div></div>
+      <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;">
+        <span style="font-size:10px;font-weight:900;color:rgba(255,255,255,0.25);">0% complete · 18 tasks remaining</span>
+        <div style="display:flex;gap:4px;flex-wrap:wrap;">
+          <span class="status-badge" style="background:rgba(255,45,139,0.1);color:rgba(255,255,255,0.25);border:1px solid rgba(255,255,255,0.08);font-size:9px;">Travel 0/4</span>
+          <span class="status-badge" style="background:rgba(0,201,107,0.1);color:rgba(255,255,255,0.25);border:1px solid rgba(255,255,255,0.08);font-size:9px;">Finance 0/3</span>
+          <span class="status-badge" style="background:rgba(168,85,247,0.1);color:rgba(255,255,255,0.25);border:1px solid rgba(255,255,255,0.08);font-size:9px;">Home 0/4</span>
+          <span class="status-badge" style="background:rgba(0,168,204,0.1);color:rgba(255,255,255,0.25);border:1px solid rgba(255,255,255,0.08);font-size:9px;">Health 0/2</span>
+          <span class="status-badge" style="background:rgba(255,214,0,0.1);color:rgba(255,255,255,0.25);border:1px solid rgba(255,255,255,0.08);font-size:9px;">Tech 0/3</span>
+          <span class="status-badge" style="background:rgba(156,163,175,0.1);color:rgba(255,255,255,0.25);border:1px solid rgba(255,255,255,0.08);font-size:9px;">Work 0/2</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tasks (span2) + Departure Day -->
+  <div class="bento g3" style="gap:10px;">
+    <div class="dark-card span2 bento-cell">
+      <div class="card-label">Tasks</div>
+      <div style="display:flex;flex-direction:column;gap:20px;">
+
+        <!-- Travel -->
+        <div>
+          <div class="cat-header">
+            <div class="cat-icon" style="background:rgba(255,45,139,0.15);color:#FF2D8B;">&#9992;</div>
+            <span style="font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:0.1em;color:rgba(255,255,255,0.4);">Travel</span>
+            <span style="margin-left:auto;font-size:10px;font-weight:900;color:rgba(255,255,255,0.2);">0/4</span>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:8px;">
+            <div class="task-row"><div class="check-circle"></div><span class="task-text">Check in for all flights</span><span style="font-size:11px;color:rgba(255,255,255,0.15);opacity:0;">✕</span></div>
+            <div class="task-row"><div class="check-circle"></div><span class="task-text">Download boarding passes</span></div>
+            <div class="task-row"><div class="check-circle"></div><span class="task-text">Confirm hotel &amp; lodging bookings</span></div>
+            <div class="task-row"><div class="check-circle"></div><span class="task-text">Save all confirmation codes offline</span></div>
+          </div>
+          <div class="inline-add" style="margin-top:8px;padding-top:8px;border-top:1px solid rgba(255,255,255,0.07);">
+            <div class="add-circle" style="border-color:rgba(255,45,139,0.4);">+</div>
+            <input class="add-inline-input" style="font-size:12px;" placeholder="Add task…" />
+          </div>
+        </div>
+
+        <!-- Finance -->
+        <div>
+          <div class="cat-header">
+            <div class="cat-icon" style="background:rgba(0,201,107,0.15);color:#00C96B;">$</div>
+            <span style="font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:0.1em;color:rgba(255,255,255,0.4);">Finance</span>
+            <span style="margin-left:auto;font-size:10px;font-weight:900;color:rgba(255,255,255,0.2);">0/3</span>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:8px;">
+            <div class="task-row"><div class="check-circle"></div><span class="task-text">Notify bank of travel dates</span></div>
+            <div class="task-row"><div class="check-circle"></div><span class="task-text">Exchange currency if needed</span></div>
+            <div class="task-row"><div class="check-circle"></div><span class="task-text">Enable international card use</span></div>
+          </div>
+          <div class="inline-add" style="margin-top:8px;padding-top:8px;border-top:1px solid rgba(255,255,255,0.07);">
+            <div class="add-circle" style="border-color:rgba(0,201,107,0.4);">+</div>
+            <input class="add-inline-input" style="font-size:12px;" placeholder="Add task…" />
+          </div>
+        </div>
+
+        <!-- Home -->
+        <div>
+          <div class="cat-header">
+            <div class="cat-icon" style="background:rgba(168,85,247,0.15);color:#A855F7;">&#127968;</div>
+            <span style="font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:0.1em;color:rgba(255,255,255,0.4);">Home</span>
+            <span style="margin-left:auto;font-size:10px;font-weight:900;color:rgba(255,255,255,0.2);">0/4</span>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:8px;">
+            <div class="task-row"><div class="check-circle"></div><span class="task-text">Hold mail or ask a neighbor</span></div>
+            <div class="task-row"><div class="check-circle"></div><span class="task-text">Arrange pet / plant sitter</span></div>
+            <div class="task-row"><div class="check-circle"></div><span class="task-text">Lock all windows and doors</span></div>
+            <div class="task-row"><div class="check-circle"></div><span class="task-text">Take out trash before leaving</span></div>
+          </div>
+          <div class="inline-add" style="margin-top:8px;padding-top:8px;border-top:1px solid rgba(255,255,255,0.07);">
+            <div class="add-circle" style="border-color:rgba(168,85,247,0.4);">+</div>
+            <input class="add-inline-input" style="font-size:12px;" placeholder="Add task…" />
+          </div>
+        </div>
+
+        <!-- Health -->
+        <div>
+          <div class="cat-header">
+            <div class="cat-icon" style="background:rgba(0,168,204,0.15);color:#00A8CC;">&#9873;</div>
+            <span style="font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:0.1em;color:rgba(255,255,255,0.4);">Health</span>
+            <span style="margin-left:auto;font-size:10px;font-weight:900;color:rgba(255,255,255,0.2);">0/2</span>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:8px;">
+            <div class="task-row"><div class="check-circle"></div><span class="task-text">Pack all medications</span></div>
+            <div class="task-row"><div class="check-circle"></div><span class="task-text">Travel insurance card in wallet</span></div>
+          </div>
+          <div class="inline-add" style="margin-top:8px;padding-top:8px;border-top:1px solid rgba(255,255,255,0.07);">
+            <div class="add-circle" style="border-color:rgba(0,168,204,0.4);">+</div>
+            <input class="add-inline-input" style="font-size:12px;" placeholder="Add task…" />
+          </div>
+        </div>
+
+        <!-- Tech -->
+        <div>
+          <div class="cat-header">
+            <div class="cat-icon" style="background:rgba(255,214,0,0.15);color:#FFD600;">&#128241;</div>
+            <span style="font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:0.1em;color:rgba(255,255,255,0.4);">Tech</span>
+            <span style="margin-left:auto;font-size:10px;font-weight:900;color:rgba(255,255,255,0.2);">0/3</span>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:8px;">
+            <div class="task-row"><div class="check-circle"></div><span class="task-text">Charge all devices + power bank</span></div>
+            <div class="task-row"><div class="check-circle"></div><span class="task-text">Download offline maps for each city</span></div>
+            <div class="task-row"><div class="check-circle"></div><span class="task-text">Back up phone photos to cloud</span></div>
+          </div>
+          <div class="inline-add" style="margin-top:8px;padding-top:8px;border-top:1px solid rgba(255,255,255,0.07);">
+            <div class="add-circle" style="border-color:rgba(255,214,0,0.4);">+</div>
+            <input class="add-inline-input" style="font-size:12px;" placeholder="Add task…" />
+          </div>
+        </div>
+
+        <!-- Work -->
+        <div>
+          <div class="cat-header">
+            <div class="cat-icon" style="background:rgba(156,163,175,0.15);color:#9CA3AF;">&#128188;</div>
+            <span style="font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:0.1em;color:rgba(255,255,255,0.4);">Work</span>
+            <span style="margin-left:auto;font-size:10px;font-weight:900;color:rgba(255,255,255,0.2);">0/2</span>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:8px;">
+            <div class="task-row"><div class="check-circle"></div><span class="task-text">Set out-of-office reply</span></div>
+            <div class="task-row"><div class="check-circle"></div><span class="task-text">Delegate or clear urgent tasks</span></div>
+          </div>
+          <div class="inline-add" style="margin-top:8px;padding-top:8px;border-top:1px solid rgba(255,255,255,0.07);">
+            <div class="add-circle" style="border-color:rgba(156,163,175,0.4);">+</div>
+            <input class="add-inline-input" style="font-size:12px;" placeholder="Add task…" />
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Departure Day -->
+    <div class="dark-card bento-cell flex-col" style="gap:16px;">
+      <div>
+        <div class="card-label">Departure Day</div>
+        <div style="display:flex;flex-direction:column;gap:12px;">
+          <div>
+            <div class="sub-label">Date</div>
+            <input class="field-input" type="date" />
+          </div>
+          <div>
+            <div class="sub-label">Departure Time</div>
+            <input class="field-input" type="time" />
+          </div>
+          <div>
+            <div class="sub-label">Leaving From</div>
+            <input class="field-input" placeholder="Home address or city" />
+          </div>
+        </div>
+      </div>
+      <div style="border-top:1px solid rgba(255,255,255,0.07);padding-top:14px;">
+        <div class="sub-label" style="margin-bottom:8px;">Getting to Airport</div>
+        <div style="display:flex;flex-wrap:wrap;gap:6px;">
+          <button class="pill sm">Drive</button>
+          <button class="pill sm">Taxi</button>
+          <button class="pill sm active" style="background:#00C96B;border-color:#00C96B;">Rideshare</button>
+          <button class="pill sm">Transit</button>
+          <button class="pill sm">Shuttle</button>
+        </div>
+        <div style="margin-top:12px;">
+          <div class="sub-label">Pickup / Leave Time</div>
+          <input class="field-input" type="time" value="05:30" />
+        </div>
+      </div>
+      <div style="border-top:1px solid rgba(255,255,255,0.07);padding-top:14px;">
+        <div class="sub-label" style="margin-bottom:6px;">Notes</div>
+        <textarea class="field-input" style="min-height:90px;" placeholder="Who's driving, where to park, early check-in tips…"></textarea>
+      </div>
+    </div>
+  </div>
+</div>
+
+</div><!-- /section-area -->
+</div><!-- /content-col -->
+</div><!-- /body-wrap -->
+
+<script>
+function showSection(id) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+  document.getElementById('section-' + id).classList.add('active');
+
+  const keys = ['group','travel','lodging','budget','destinations','documents','vibe','predeparture'];
+  const idx = keys.indexOf(id);
+  document.querySelectorAll('.nav-item')[idx].classList.add('active');
+}
+function toggleDoc(btn) {
+  const card = btn.closest('.dark-card');
+  const form = card.querySelector('.doc-expand-form');
+  if (!form) return;
+  const open = form.style.display !== 'none';
+  form.style.display = open ? 'none' : 'flex';
+  btn.innerHTML = open ? '&#9660;' : '&#9650;';
+}
+</script>
+</body>
+</html>

@@ -20,6 +20,7 @@ export async function createExpenseAction(
   const amountDollars = Number(formData.get("amount"));
   const payerId = String(formData.get("payerId") ?? "");
   const participantIds = formData.getAll("participantIds").map(String).filter(Boolean);
+  const category = String(formData.get("category") ?? "general");
 
   if (!tripId) return { error: "Missing trip." };
   if (!Number.isFinite(amountDollars) || amountDollars <= 0) {
@@ -35,6 +36,7 @@ export async function createExpenseAction(
       description,
       payerId,
       participantIds,
+      category,
     });
   } catch (err) {
     return { error: err instanceof Error ? err.message : "Could not add expense." };

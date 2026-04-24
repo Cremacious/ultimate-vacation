@@ -8,49 +8,26 @@ import { trips, tripMembers } from "@/lib/db/schema";
 import { listEventsForDate } from "@/lib/itinerary/queries";
 import { TodayViewContent } from "@/components/vacation-days/TodayView";
 
-type DayInfo = {
-  dayNumber: number;
-  totalDays: number;
-  todayStr: string;
-  tomorrowStr: string;
-  isLastDay: boolean;
-  daysUntilStart: number;
-  tripStatus: "not_started" | "active" | "ended";
-};
+function parseUTC(s: string) {
+  const [y, m, d] = s.split("-").map(Number);
+  return Date.UTC(y, m - 1, d);
+}
 
-function computeDayInfo(startDate: string | null, endDate: string | null): DayInfo | null {
-  if (!startDate || !endDate) return null;
-  const todayStr = new Date().toISOString().slice(0, 10);
-  const parseUTC = (s: string) => {
-    const [y, m, d] = s.split("-").map(Number);
-    return Date.UTC(y, m - 1, d);
-  };
-  const startMs = parseUTC(startDate);
-  const endMs = parseUTC(endDate);
-  const todayMs = parseUTC(todayStr);
-  const dayNumber = Math.floor((todayMs - startMs) / 86_400_000) + 1;
-  const totalDays = Math.floor((endMs - startMs) / 86_400_000) + 1;
-  const daysUntilStart = Math.ceil((startMs - todayMs) / 86_400_000);
-  const tomorrowStr = new Date(todayMs + 86_400_000).toISOString().slice(0, 10);
-  const tripStatus: DayInfo["tripStatus"] =
-    todayMs < startMs ? "not_started" : todayMs > endMs ? "ended" : "active";
-  return {
-    dayNumber,
-    totalDays,
-    todayStr,
-    tomorrowStr,
-    isLastDay: dayNumber === totalDays,
-    daysUntilStart,
-    tripStatus,
-  };
+function clampDate(date: string, start: string, end: string): string {
+  const ms = parseUTC(date);
+  if (ms < parseUTC(start)) return start;
+  if (ms > parseUTC(end)) return end;
+  return date;
 }
 
 export default async function VacationDaysPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ tripId: string }>;
+  searchParams: Promise<{ date?: string }>;
 }) {
-  const { tripId } = await params;
+  const [{ tripId }, { date: dateParam }] = await Promise.all([params, searchParams]);
   const user = await requireUser();
 
   const [[trip], [member]] = await Promise.all([
@@ -80,17 +57,13 @@ export default async function VacationDaysPage({
   if (!trip) notFound();
   if (!member) notFound();
 
-  const dayInfo = computeDayInfo(trip.startDate, trip.endDate);
+  const { startDate, endDate } = trip;
 
-  // No dates → prompt to set up
-  if (!dayInfo) {
+  // No trip dates yet → prompt
+  if (!startDate || !endDate) {
     return (
       <div className="px-6 py-8 max-w-xl">
-        <p
-          className="text-[11px] font-black uppercase tracking-widest text-white/30 mb-1"
-        >
-          Today
-        </p>
+        <p className="text-[11px] font-black uppercase tracking-widest text-white/30 mb-1">Today</p>
         <h1
           className="text-3xl font-semibold text-white mb-4"
           style={{ fontFamily: "var(--font-fredoka)" }}
@@ -101,9 +74,7 @@ export default async function VacationDaysPage({
           className="rounded-2xl border border-[#2A2B45] px-6 py-10 text-center"
           style={{ backgroundColor: "#15162A" }}
         >
-          <p className="text-sm text-white/50 mb-3">
-            Add trip dates to see your daily view.
-          </p>
+          <p className="text-sm text-white/50 mb-3">Add trip dates to see your daily view.</p>
           <Link
             href={`/app/trips/${tripId}/setup`}
             className="text-sm font-semibold text-[#00E5FF] hover:opacity-80 transition-opacity"
@@ -115,46 +86,22 @@ export default async function VacationDaysPage({
     );
   }
 
-  // Trip hasn't started yet
-  if (dayInfo.tripStatus === "not_started") {
-    return (
-      <div className="px-6 py-8 max-w-xl">
-        <p className="text-[11px] font-black uppercase tracking-widest text-white/30 mb-1">
-          Today
-        </p>
-        <h1
-          className="text-3xl font-semibold text-white mb-4"
-          style={{ fontFamily: "var(--font-fredoka)" }}
-        >
-          {trip.name}
-        </h1>
-        <div
-          className="rounded-2xl border border-[#2A2B45] px-6 py-10 text-center"
-          style={{ backgroundColor: "#15162A" }}
-        >
-          <p className="text-2xl font-semibold text-white mb-1" style={{ fontFamily: "var(--font-fredoka)" }}>
-            {dayInfo.daysUntilStart === 1
-              ? "Tomorrow!"
-              : `${dayInfo.daysUntilStart} days to go`}
-          </p>
-          <p className="text-sm text-white/50">
-            Your trip starts on {trip.startDate}.
-          </p>
-          <p className="text-xs text-white/30 mt-2">
-            Come back on the day you depart to see your daily view.
-          </p>
-        </div>
-      </div>
-    );
-  }
+  const todayStr = new Date().toISOString().slice(0, 10);
+  const startMs = parseUTC(startDate);
+  const endMs = parseUTC(endDate);
+  const todayMs = parseUTC(todayStr);
 
-  // Trip has ended
-  if (dayInfo.tripStatus === "ended") {
+  const tripStatus: "not_started" | "active" | "ended" =
+    todayMs < startMs ? "not_started" : todayMs > endMs ? "ended" : "active";
+
+  const daysUntilStart = Math.ceil((startMs - todayMs) / 86_400_000);
+  const totalDays = Math.floor((endMs - startMs) / 86_400_000) + 1;
+
+  // Trip hasn't started yet → countdown + day list preview
+  if (tripStatus === "not_started") {
     return (
       <div className="px-6 py-8 max-w-xl">
-        <p className="text-[11px] font-black uppercase tracking-widest text-white/30 mb-1">
-          Today
-        </p>
+        <p className="text-[11px] font-black uppercase tracking-widest text-white/30 mb-1">Today</p>
         <h1
           className="text-3xl font-semibold text-white mb-4"
           style={{ fontFamily: "var(--font-fredoka)" }}
@@ -165,34 +112,42 @@ export default async function VacationDaysPage({
           className="rounded-2xl border border-[#2A2B45] px-6 py-10 text-center"
           style={{ backgroundColor: "#15162A" }}
         >
-          <p className="text-sm font-semibold text-white mb-1">Trip complete</p>
-          <p className="text-sm text-white/50 mb-3">
-            This trip ended on {trip.endDate}.
-          </p>
-          <Link
-            href={`/app/trips/${tripId}/expenses`}
-            className="text-sm font-semibold text-[#00C96B] hover:opacity-80 transition-opacity"
+          <p
+            className="text-2xl font-semibold text-white mb-1"
+            style={{ fontFamily: "var(--font-fredoka)" }}
           >
-            Settle up expenses →
-          </Link>
+            {daysUntilStart === 1 ? "Tomorrow!" : `${daysUntilStart} days to go`}
+          </p>
+          <p className="text-sm text-white/50">Your trip starts on {startDate}.</p>
+          <p className="text-xs text-white/30 mt-2">
+            {totalDays} day{totalDays !== 1 ? "s" : ""} planned.
+          </p>
         </div>
       </div>
     );
   }
 
-  // Active trip — parallel fetch today + tomorrow events
-  const [todayEvents, tomorrowEvents] = await Promise.all([
-    listEventsForDate(tripId, dayInfo.todayStr),
-    dayInfo.isLastDay ? Promise.resolve([]) : listEventsForDate(tripId, dayInfo.tomorrowStr),
-  ]);
+  // Active or ended → two-panel day browser
+  const defaultDate = tripStatus === "active" ? todayStr : endDate;
+  const selectedDate = dateParam ? clampDate(dateParam, startDate, endDate) : defaultDate;
+
+  const dayNumber = Math.floor((parseUTC(selectedDate) - startMs) / 86_400_000) + 1;
+  const isToday = selectedDate === todayStr;
+
+  const events = await listEventsForDate(tripId, selectedDate);
 
   return (
     <TodayViewContent
       tripId={tripId}
       tripName={trip.name}
-      dayInfo={dayInfo}
-      todayEvents={todayEvents}
-      tomorrowEvents={tomorrowEvents}
+      startDate={startDate}
+      endDate={endDate}
+      selectedDate={selectedDate}
+      dayNumber={dayNumber}
+      totalDays={totalDays}
+      isToday={isToday}
+      tripStatus={tripStatus}
+      events={events}
     />
   );
 }

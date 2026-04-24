@@ -89,37 +89,20 @@ export default async function ExpensesPage({
   }));
 
   return (
-    <div className="max-w-2xl mx-auto px-4 py-10">
-      <div className="mb-6">
-        <Link
-          href="/app"
-          className="text-sm font-semibold text-gray-400 hover:text-white transition-colors"
-        >
-          Back to trips
-        </Link>
-      </div>
-      <h1
-        className="text-3xl font-semibold text-white mb-1"
-        style={{ fontFamily: "var(--font-fredoka)" }}
-      >
-        Expenses
-      </h1>
-      <p className="text-sm text-gray-400 mb-8">Trip: {trip.name}</p>
-
-      <ExpensesClient
-        tripId={trip.id}
-        currentUserId={user.id}
-        members={members.map((m) => ({ userId: m.userId, name: m.name }))}
-        expenses={expenseRows.map((e) => ({
-          ...e,
-          receipt: receiptByExpense.get(e.id) ?? null,
-        }))}
-        balances={balances}
-        transfers={transfers}
-        pastSettlements={pastSettlementsView}
-        allSettled={allSettled}
-        hasExpenses={hasExpenses}
-      />
-    </div>
+    <ExpensesClient
+      tripId={trip.id}
+      tripName={trip.name}
+      currentUserId={user.id}
+      members={members.map((m) => ({ userId: m.userId, name: m.name }))}
+      expenses={expenseRows.map((e) => ({
+        ...e,
+        receipt: receiptByExpense.get(e.id) ?? null,
+      }))}
+      balances={balances}
+      transfers={transfers}
+      pastSettlements={pastSettlementsView}
+      allSettled={allSettled}
+      hasExpenses={hasExpenses}
+    />
   );
 }
