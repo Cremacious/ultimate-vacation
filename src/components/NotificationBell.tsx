@@ -371,6 +371,7 @@ export default function NotificationBell() {
         aria-expanded={open}
         aria-label={unreadCount ? `Notifications, ${unreadCount} unread` : "Notifications"}
         className="relative w-9 h-9 rounded-full bg-[#2a2a2a] hover:bg-[#333333] flex items-center justify-center transition-colors"
+        style={{ boxShadow: "0 3px 0 rgba(0,0,0,0.5)" }}
       >
         <Bell size={18} weight="bold" className="text-white" />
         {hasUnread && (

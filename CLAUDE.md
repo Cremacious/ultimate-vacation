@@ -101,6 +101,8 @@ Skipping these is allowed ONLY for tiny tweaks / bug fixes. New pages and signif
 
 - Before grilling on UI: route through GRILL_PROTOCOL.md, actively prompt design skill invocations
 - Before writing ANY JSX/HTML/CSS: re-read docs/UI_COLOR_REFERENCE.md and use only the exact values listed there. Never use gray backgrounds, white backgrounds, light-mode text, or deprecated cyan values
+- **Every interactive button gets a 3D bottom shadow** (`boxShadow: "0 3px 0 ..."`) — colored buttons use a darkened accent shade, dark/neutral buttons use `rgba(0,0,0,0.5)`, outline buttons are exempt
+- **Colored buttons always use dark text `#171717`**, never `text-white` — white on neon is unreadable. Only outline/ghost buttons and dark-surface buttons use white text
 - Before writing JSX/HTML: confirm Step 1 detail inventory and Step 2 mockup exist for that page
 - Before shipping any new page: remind the user to run `/accessibility-review`
 - When a new pattern emerges: remind the user to run `/design-system`

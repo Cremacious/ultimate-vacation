@@ -125,8 +125,8 @@ export default function NewTripPage() {
           <button
             type="submit"
             disabled={pending}
-            className="w-full rounded-full py-3.5 font-bold text-white hover:brightness-110 transition mt-2 disabled:opacity-60 disabled:cursor-not-allowed"
-            style={{ backgroundColor: ballColor, boxShadow: "0 3px 0 rgba(0,0,0,0.35)" }}
+            className="w-full rounded-full py-3.5 font-bold hover:brightness-110 transition mt-2 disabled:opacity-60 disabled:cursor-not-allowed"
+            style={{ backgroundColor: ballColor, color: "#171717", boxShadow: "0 3px 0 rgba(0,0,0,0.35)" }}
           >
             {pending ? "Creating…" : "Create trip"}
           </button>

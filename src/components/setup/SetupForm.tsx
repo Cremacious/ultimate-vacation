@@ -201,8 +201,8 @@ export default function SetupForm({ tripId, action, initialData }: SetupFormProp
           <button
             type="submit"
             disabled={pending}
-            className="px-8 py-3 rounded-full text-sm font-bold text-white transition hover:brightness-110 disabled:opacity-60"
-            style={{ backgroundColor: "#00A8CC", boxShadow: "0 3px 0 #007a99" }}
+            className="px-8 py-3 rounded-full text-sm font-bold transition hover:brightness-110 disabled:opacity-60"
+            style={{ backgroundColor: "#00A8CC", color: "#171717", boxShadow: "0 3px 0 #007a99" }}
           >
             {pending ? "Saving…" : "Save changes"}
           </button>

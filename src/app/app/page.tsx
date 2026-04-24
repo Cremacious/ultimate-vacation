@@ -107,8 +107,8 @@ function PlanNextPromptSection() {
         </p>
         <Link
           href="/app/trips/new"
-          className="self-start rounded-full px-5 py-2.5 text-sm font-bold text-white transition hover:bg-[#0096b8]"
-          style={{ backgroundColor: "#00A8CC", boxShadow: "0 3px 0 #007a99" }}
+          className="self-start rounded-full px-5 py-2.5 text-sm font-bold transition hover:brightness-110"
+          style={{ backgroundColor: "#00A8CC", color: "#171717", boxShadow: "0 3px 0 #007a99" }}
         >
           Start new trip
         </Link>
@@ -129,17 +129,21 @@ function DaysAwayTile({ hero, nextDays }: { hero: TripListItem; nextDays: number
 
   return (
     <div
-      className="flex flex-1 flex-col rounded-2xl border border-[#3A3A3A] p-5"
+      className="flex flex-1 flex-col items-center justify-center rounded-2xl border border-[#3A3A3A] px-3 py-2 text-center"
       style={{ backgroundColor: "#2E2E2E" }}
     >
-      <p className="mb-3 text-xs font-black uppercase tracking-widest text-white/80">Days away</p>
+      <p className="mb-2 text-xs font-black uppercase tracking-widest text-white/80">Days away</p>
       <p
-        className="text-6xl font-semibold leading-none"
-        style={{ fontFamily: "var(--font-fredoka)", color: hero.ballColor }}
+        className="font-semibold leading-none"
+        style={{
+          fontFamily: "var(--font-fredoka)",
+          color: hero.ballColor,
+          fontSize: "clamp(1.75rem, 3.5vw, 3.5rem)",
+        }}
       >
         {display}
       </p>
-      <p className="mt-2 text-base text-white/80">{sub}</p>
+      <p className="mt-2 text-sm text-white/80">{sub}</p>
     </div>
   );
 }
@@ -147,25 +151,28 @@ function DaysAwayTile({ hero, nextDays }: { hero: TripListItem; nextDays: number
 function TripStatTile({ count }: { count: number }) {
   return (
     <div
-      className="flex flex-1 flex-col justify-between rounded-2xl border border-[#3A3A3A] p-5"
+      className="flex flex-1 flex-col items-center justify-between rounded-2xl border border-[#3A3A3A] px-3 py-2 text-center"
       style={{ backgroundColor: "#2E2E2E" }}
     >
-      <div>
-        <p className="mb-3 text-xs font-black uppercase tracking-widest text-white/80">Your trips</p>
+      <div className="flex flex-1 flex-col items-center justify-center">
+        <p className="mb-2 text-xs font-black uppercase tracking-widest text-white/80">Your trips</p>
         <p
-          className="text-6xl font-semibold leading-none text-[#00A8CC]"
-          style={{ fontFamily: "var(--font-fredoka)" }}
+          className="font-semibold leading-none text-[#00A8CC]"
+          style={{
+            fontFamily: "var(--font-fredoka)",
+            fontSize: "clamp(1.75rem, 3.5vw, 3.5rem)",
+          }}
         >
           {count}
         </p>
-        <p className="mt-2 text-base text-white/80">
+        <p className="mt-2 text-sm text-white/80">
           {count === 1 ? "trip planned" : "trips planned"}
         </p>
       </div>
       <Link
         href="/app/trips/new"
-        className="mt-4 flex items-center justify-center rounded-full py-3 text-sm font-bold text-white transition hover:bg-[#0096b8]"
-        style={{ backgroundColor: "#00A8CC", boxShadow: "0 3px 0 #007a99" }}
+        className="w-full flex items-center justify-center rounded-full py-2.5 text-sm font-bold transition hover:brightness-110 mb-2"
+        style={{ backgroundColor: "#00A8CC", color: "#171717", boxShadow: "0 3px 0 #007a99" }}
       >
         + New trip
       </Link>
@@ -199,8 +206,8 @@ export default async function HomePage() {
       <TimeGreeting firstName={firstName} tripCount={userTrips.length} nextDays={nextDays} />
 
       {/* Bento grid: left card (hero + trip list) + right column (2 stat tiles) */}
-      <div className="mt-2 grid grid-cols-1 items-stretch gap-4 lg:grid-cols-3">
-        {/* Left card */}
+      <div className="mt-2 grid grid-cols-1 items-start gap-4 lg:grid-cols-3">
+        {/* Left card — grows with content */}
         <div
           className="lg:col-span-2 flex flex-col rounded-2xl border border-[#3A3A3A]"
           style={{ backgroundColor: "#2E2E2E" }}
@@ -212,8 +219,8 @@ export default async function HomePage() {
           </div>
         </div>
 
-        {/* Right column: 2 tiles */}
-        <div className="flex flex-col gap-4">
+        {/* Right column — sticky, fixed viewport height, tiles split it equally */}
+        <div className="flex flex-col gap-4 lg:sticky lg:top-[4.5rem] lg:h-[calc(100vh-32rem)]">
           {hero && <DaysAwayTile hero={hero} nextDays={nextDays} />}
           <TripStatTile count={userTrips.length} />
         </div>

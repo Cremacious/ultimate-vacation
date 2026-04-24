@@ -97,11 +97,34 @@ style={{ background: "linear-gradient(90deg, #00A8CC 0%, #A855F7 25%, #FF2D8B 50
 />
 ```
 
+### Button 3D shadow rule — MANDATORY for all interactive buttons
+
+Every clickable button gets a bottom shadow that creates a pressed/3D effect. Shadow color is a darkened version of the button's background:
+
+| Button type | Shadow |
+|---|---|
+| Colored (any accent) | `0 3px 0 <darkened-accent>` e.g. `0 3px 0 #007a99` for cyan |
+| Dark / neutral (`#2a2a2a`, `#252525`) | `0 3px 0 rgba(0,0,0,0.5)` |
+| Outline / ghost | No shadow (these are on dark surfaces, shadow wouldn't read) |
+
+### Colored button text rule — MANDATORY
+
+**Colored buttons always use dark text `#171717`, never white.** White text on bright neon colors is hard to read and loses contrast. This applies to ALL buttons with an accent color background (cyan, pink, yellow, green, purple, orange).
+
+```
+✅ style={{ backgroundColor: "#00A8CC", color: "#171717", boxShadow: "0 3px 0 #007a99" }}
+❌ className="bg-[#00A8CC] text-white"
+```
+
+Outline/ghost buttons and dark-background buttons keep `text-white` as normal.
+
+---
+
 ### Primary CTA button (cyan)
 ```tsx
 <button
-  className="rounded-full bg-[#00A8CC] px-6 py-3.5 font-bold text-white hover:bg-[#0096b8] transition disabled:opacity-60 disabled:cursor-not-allowed"
-  style={{ boxShadow: "0 3px 0 #007a99" }}
+  className="rounded-full px-6 py-3.5 font-bold hover:brightness-110 transition disabled:opacity-60 disabled:cursor-not-allowed"
+  style={{ backgroundColor: "#00A8CC", color: "#171717", boxShadow: "0 3px 0 #007a99" }}
 >
   Do the thing
 </button>
@@ -109,17 +132,31 @@ style={{ background: "linear-gradient(90deg, #00A8CC 0%, #A855F7 25%, #FF2D8B 50
 
 ### Active / selected pill (pink — e.g. selected transport, seat class)
 ```tsx
-<button className="rounded-full bg-[#FF2D8B] px-4 py-2 text-sm font-bold text-white" />
+<button
+  className="rounded-full px-4 py-2 text-sm font-bold"
+  style={{ backgroundColor: "#FF2D8B", color: "#171717", boxShadow: "0 3px 0 #99003d" }}
+/>
 ```
 
 ### Inactive pill (unselected option)
 ```tsx
-<button className="rounded-full border border-[#3A3A3A] bg-[#252525] px-4 py-2 text-sm font-bold text-white hover:bg-[#333333] transition" />
+<button
+  className="rounded-full border border-[#3A3A3A] bg-[#252525] px-4 py-2 text-sm font-bold text-white hover:bg-[#333333] transition"
+  style={{ boxShadow: "0 3px 0 rgba(0,0,0,0.5)" }}
+/>
 ```
 
 ### Secondary (outline) button
 ```tsx
 <button className="rounded-full border border-[#3A3A3A] px-6 py-3 font-bold text-white hover:bg-white/5 transition" />
+```
+
+### Dark icon button (nav, toolbar)
+```tsx
+<button
+  className="flex h-10 w-10 items-center justify-center rounded-full bg-[#2a2a2a] text-white hover:bg-[#333333] transition-colors"
+  style={{ boxShadow: "0 3px 0 rgba(0,0,0,0.5)" }}
+/>
 ```
 
 ### Error / alert message

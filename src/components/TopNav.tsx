@@ -19,6 +19,7 @@ export default function TopNav() {
           <button
             onClick={toggleSidebar}
             className="flex h-10 w-10 items-center justify-center rounded-full border border-white/8 bg-[#2a2a2a] text-white transition-colors hover:bg-[#333333] md:hidden"
+            style={{ boxShadow: "0 3px 0 rgba(0,0,0,0.5)" }}
             aria-label={sidebarOpen ? "Close navigation" : "Open navigation"}
           >
             {sidebarOpen ? <X size={18} weight="bold" /> : <List size={18} weight="bold" />}
@@ -46,14 +47,18 @@ export default function TopNav() {
             type="button"
             aria-label="Quick alerts"
             className="flex h-10 w-10 items-center justify-center rounded-full border border-white/8 bg-[#2a2a2a] text-white transition-colors hover:bg-[#333333] sm:hidden"
+            style={{ boxShadow: "0 3px 0 rgba(0,0,0,0.5)" }}
           >
             <BellSimple size={18} weight="bold" />
             <span className="absolute mt-[-18px] ml-[18px] h-2.5 w-2.5 rounded-full bg-[#ff2d8b]" />
           </button>
 
           <Link href="/app/account" aria-label="Account">
-            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#12b8e8] text-white transition-colors hover:bg-[#0ea8d4]">
-              <User size={17} weight="fill" aria-hidden="true" />
+            <div
+              className="flex h-10 w-10 items-center justify-center rounded-full bg-[#12b8e8] transition-colors hover:bg-[#0ea8d4]"
+              style={{ boxShadow: "0 3px 0 #007a99" }}
+            >
+              <User size={17} weight="fill" style={{ color: "#171717" }} aria-hidden="true" />
             </div>
           </Link>
         </div>
