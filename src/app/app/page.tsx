@@ -199,6 +199,7 @@ export default async function HomePage() {
     endDate: t.endDate,
     ballColor: t.ballColor,
     lifecycle: t.lifecycle,
+    role: t.role,
   }));
 
   return (

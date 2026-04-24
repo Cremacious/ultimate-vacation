@@ -142,6 +142,20 @@ export async function duplicateTripAction(
   return { ok: true, newTripId: newTrip.id };
 }
 
+export type DeleteTripResult = { ok: true } | { ok: false; error: string };
+
+export async function deleteTripAction(tripId: string): Promise<DeleteTripResult> {
+  const user = await requireUser();
+
+  const canDelete = await isTripOrganizer(user.id, tripId);
+  if (!canDelete) return { ok: false, error: "Only organizers can delete a trip." };
+
+  await db.delete(trips).where(eq(trips.id, tripId));
+
+  revalidatePath("/app");
+  return { ok: true };
+}
+
 export async function updateTripAction(
   tripId: string,
   _prev: { error?: string },

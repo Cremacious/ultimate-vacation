@@ -2756,36 +2756,6 @@ export default function PreplanningShell({ transportModes }: PreplanningShellPro
         </div>
       </header>
 
-      {/* ── STATS ROW ────────────────────────────────────────────── */}
-      <div className="flex-shrink-0 border-b px-4 py-3 md:px-7"
-           style={{ backgroundColor: "#1e1e1e", borderColor: "#333333" }}>
-        <div className="grid grid-cols-3 gap-3">
-          <div className="rounded-[14px] border p-3 flex flex-col items-center"
-               style={{ backgroundColor: "#2e2e2e", borderColor: "#3a3a3a" }}>
-            <div className="text-[10px] font-black uppercase tracking-[1.5px] text-white/35 mb-1 text-center">Sections done</div>
-            <div className="font-semibold leading-none"
-                 style={{ fontFamily: "var(--font-fredoka)", fontSize: "1.75rem", color: "#00C96B" }}>
-              {doneCount}
-            </div>
-          </div>
-          <div className="rounded-[14px] border p-3 flex flex-col items-center"
-               style={{ backgroundColor: "#2e2e2e", borderColor: "#3a3a3a" }}>
-            <div className="text-[10px] font-black uppercase tracking-[1.5px] text-white/35 mb-1 text-center">In progress</div>
-            <div className="font-semibold leading-none"
-                 style={{ fontFamily: "var(--font-fredoka)", fontSize: "1.75rem", color: "#FF8C00" }}>
-              {partialCount}
-            </div>
-          </div>
-          <div className="rounded-[14px] border p-3 flex flex-col items-center"
-               style={{ backgroundColor: "#2e2e2e", borderColor: "#3a3a3a" }}>
-            <div className="text-[10px] font-black uppercase tracking-[1.5px] text-white/35 mb-1 text-center">Overall</div>
-            <div className="font-semibold leading-none"
-                 style={{ fontFamily: "var(--font-fredoka)", fontSize: "1.75rem", color: "#00A8CC" }}>
-              {progressPct}%
-            </div>
-          </div>
-        </div>
-      </div>
 
       {/* ── BODY ─────────────────────────────────────────────────── */}
       <div className="flex">

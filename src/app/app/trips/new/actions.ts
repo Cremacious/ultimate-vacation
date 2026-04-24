@@ -21,12 +21,13 @@ export async function createTripAction(
   const endDate = String(formData.get("endDate") ?? "") || null;
   const ballColor = String(formData.get("ballColor") ?? "") || "#00A8CC";
 
+  let trip;
   try {
-    await createTripForUser(user.id, { name, startDate, endDate, ballColor });
+    trip = await createTripForUser(user.id, { name, startDate, endDate, ballColor });
   } catch (err) {
     return { error: err instanceof Error ? err.message : "Could not create trip." };
   }
 
   revalidatePath("/app");
-  redirect("/app");
+  redirect(`/app/trips/${trip.id}`);
 }
