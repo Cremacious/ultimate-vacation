@@ -191,16 +191,81 @@ Rules:
 - 3D shadow: `0 3px 0 rgba(0,0,0,0.5)` (dark neutral button rule)
 
 ### Section label (ALL CAPS header inside a card)
+
+Section labels use a **unique accent color from the neon rainbow, not `text-white/80`.** Each label in a layout gets its own color to give the UI energy and variety. Pick any of the six accents — the rule is no two adjacent labels should share the same color.
+
 ```tsx
-<p className="text-xs font-black uppercase tracking-widest text-white/80 mb-2">
-  Section title
+<p
+  className="text-xs font-black uppercase tracking-widest"
+  style={{ color: "#FF8C00", fontFamily: "var(--font-fredoka)" }}
+>
+  Next up
 </p>
+```
+
+Common assignments used on `/app` and `/trips/new` (treat as anchors, not hard rules):
+| Label | Color |
+|---|---|
+| Next up | `#FF8C00` Orange |
+| Your trips | `#FFD600` Yellow |
+| Trip name | `#FF2D8B` Pink |
+| Trip color | `#A855F7` Purple |
+| Start date | `#00C96B` Green |
+| End date | `#FF8C00` Orange |
+| Budget | `#00C96B` Green |
+| Days away | trip's own `ballColor` |
+
+### Clickable list card (no border, 3D shadow)
+
+Cards that are clickable links use a bottom shadow instead of an all-around border. This signals interactivity without adding visual noise.
+
+```tsx
+<Link
+  href="..."
+  className="block rounded-2xl px-5 py-5 hover:brightness-110 transition"
+  style={{ backgroundColor: "#252525", boxShadow: "0 3px 0 rgba(0,0,0,0.5)" }}
+/>
+```
+
+Never put `border border-[#3A3A3A]` on a clickable card. The 3D shadow does that job.
+
+### Bento grid layout (canonical page structure)
+
+```tsx
+<div className="grid grid-cols-1 items-start gap-4 lg:grid-cols-3">
+  {/* Left — main content, spans 2 columns */}
+  <div className="lg:col-span-2 rounded-2xl border border-[#3A3A3A]" style={{ backgroundColor: "#2E2E2E" }}>
+    ...
+  </div>
+  {/* Right — sticky stat tiles */}
+  <div className="flex flex-col gap-4 lg:sticky lg:top-[4.5rem] lg:h-[calc(100vh-32rem)]">
+    ...
+  </div>
+</div>
+```
+
+### Form input with underline affordance (large Fredoka inputs)
+
+For big headline-style inputs where there is no visible border box, use a bottom-border underline on a wrapper div to signal the field is typeable. The underline lights up on focus.
+
+```tsx
+<div
+  className="w-full border-b-2 transition-colors"
+  style={{ borderBottomColor: "rgba(255,255,255,0.15)" }}
+  onFocusCapture={e => (e.currentTarget.style.borderBottomColor = "#FF2D8B")}
+  onBlurCapture={e => (e.currentTarget.style.borderBottomColor = "rgba(255,255,255,0.15)")}
+>
+  <input
+    className="w-full bg-transparent outline-none text-white placeholder:text-white/40 font-semibold"
+    style={{ fontFamily: "var(--font-fredoka)", fontSize: "clamp(1.75rem, 3.5vw, 2.5rem)", paddingBottom: "2px" }}
+  />
+</div>
 ```
 
 ### Stat cell (large number display)
 ```tsx
 <div className="rounded-xl border border-[#3A3A3A] p-4" style={{ backgroundColor: "#252525" }}>
-  <p className="text-xs font-black uppercase tracking-widest text-white/80 mb-1">Label</p>
+  <p className="text-xs font-black uppercase tracking-widest mb-1" style={{ color: "#00A8CC", fontFamily: "var(--font-fredoka)" }}>Label</p>
   <p className="text-4xl font-semibold text-[#00A8CC]" style={{ fontFamily: "var(--font-fredoka)" }}>42</p>
 </div>
 ```

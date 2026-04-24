@@ -25,24 +25,27 @@ export default function TimeGreeting({ firstName, tripCount, nextDays }: TimeGre
     const h = new Date().getHours();
     let variants: string[];
     if (h >= 5 && h < 11) {
-      variants = [`Good morning, ${firstName}.`, `Rise and plan, ${firstName}.`];
+      variants = [`Morning, ${firstName}.`, `Rise and wave, ${firstName}.`, `Good morning, ${firstName}.`];
     } else if (h >= 11 && h < 17) {
-      variants = [`Good afternoon, ${firstName}.`, `Lunch-hour scroll, ${firstName}?`];
+      variants = [`Hey ${firstName}.`, `What's good, ${firstName}.`, `Afternoon, ${firstName}.`];
     } else if (h >= 17 && h < 23) {
-      variants = [`Evening, ${firstName}.`, `Planning tonight?`];
+      variants = [`Evening, ${firstName}.`, `End of day, ${firstName}. Let's plan something.`];
     } else {
-      variants = [`Still up, ${firstName}?`, `Night owl planning. Respect.`];
+      variants = [`Still up, ${firstName}?`, `Night owl energy. Respect.`];
     }
     setGreeting(variants[Math.floor(Math.random() * variants.length)]);
     setColor(greetingColor(h));
 
     if (tripCount === 0) {
-      setSubtitle("No trips planned yet.");
-    } else if (nextDays !== null && nextDays >= 0) {
-      const label = nextDays === 0 ? "today" : `${nextDays} days away`;
-      setSubtitle(`Your next adventure: ${label}`);
+      setSubtitle("Nowhere to be yet. That's about to change.");
+    } else if (nextDays !== null && nextDays === 0) {
+      setSubtitle("Today's the day. Go have the best time.");
+    } else if (nextDays !== null && nextDays === 1) {
+      setSubtitle("Tomorrow. You're basically already there.");
+    } else if (nextDays !== null && nextDays > 0) {
+      setSubtitle(`${nextDays} days and counting. It'll be here before you know it.`);
     } else {
-      setSubtitle(`${tripCount} trip${tripCount === 1 ? "" : "s"} in the works`);
+      setSubtitle(`${tripCount} trip${tripCount === 1 ? "" : "s"} in the books. Keep going.`);
     }
   }, [firstName, tripCount, nextDays]);
 

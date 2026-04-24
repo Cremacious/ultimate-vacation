@@ -64,7 +64,7 @@ function HeroSection({ trip }: { trip: TripListItem }) {
       aria-label={`${trip.name}, ${label}`}
       className="flex flex-col gap-5 rounded-t-2xl p-6 transition hover:brightness-110"
     >
-      <p className="text-xs font-black uppercase tracking-widest text-white/80">Next up</p>
+      <p className="text-xs font-black uppercase tracking-widest" style={{ color: "#FF8C00" }}>Next up</p>
 
       <div className="flex items-center gap-6">
         <TripBall color={trip.ballColor} fillPct={0} size={88} glow />
@@ -94,23 +94,23 @@ function HeroSection({ trip }: { trip: TripListItem }) {
 function PlanNextPromptSection() {
   return (
     <div className="flex flex-col gap-4 rounded-t-2xl p-6">
-      <p className="text-xs font-black uppercase tracking-widest text-white/80">Next up</p>
+      <p className="text-xs font-black uppercase tracking-widest" style={{ color: "#FF8C00" }}>Next up</p>
       <div className="flex flex-col justify-center py-4">
         <h2
           className="mb-2 text-2xl font-semibold text-white"
           style={{ fontFamily: "var(--font-fredoka)" }}
         >
-          Ready for another one?
+          Where to next?
         </h2>
         <p className="mb-5 text-sm text-white/80">
-          Your past trips are wrapped. Start planning your next wave.
+          All caught up on past trips. Time to start something new.
         </p>
         <Link
           href="/app/trips/new"
           className="self-start rounded-full px-5 py-2.5 text-sm font-bold transition hover:brightness-110"
-          style={{ backgroundColor: "#00A8CC", color: "#171717", boxShadow: "0 3px 0 #007a99" }}
+          style={{ backgroundColor: "#00A8CC", color: "#171717", boxShadow: "0 3px 0 #007a99", fontFamily: "var(--font-fredoka)" }}
         >
-          Start new trip
+          Plan a trip
         </Link>
       </div>
     </div>
@@ -166,7 +166,7 @@ function TripStatTile({ count }: { count: number }) {
           {count}
         </p>
         <p className="mt-2 text-sm text-white/80">
-          {count === 1 ? "trip planned" : "trips planned"}
+          {count === 1 ? "trip so far" : "trips so far"}
         </p>
       </div>
       <Link

@@ -1,19 +1,18 @@
 # Design System Direction
 
-> **2026-04-23 — Transitional visual state**
+> **2026-04-24 — Charcoal palette is the final state**
 >
-> TripWave is in a **transitional visual state.** The codebase has two coexisting looks: a dark-gray shell that shipped first, and a navy-tinted neon direction that newer components already use. Both are intentional — the dark gray is where the product started, not where it is headed. The neon-black-navy direction is the restoration target TripWave is still actively moving toward.
+> The charcoal dark palette is the shipped, canonical look for TripWave. It is not transitional. `/app` and `/app/trips/new` are the reference pages. All future pages follow this palette and layout system exactly.
 >
-> Structural guidance (bento grid, typography, icons, component anatomy) is fully valid now. For surface colors and motion, use the **[Current Transitional State]** section to understand what is live today, and use the **[Restoration Target]** section and the Neon-on-Dark Brand Direction as the forward reference. Restore one surface at a time — never via broad global token rewrites.
+> **Canonical surface values (what ships today and going forward):**
+> - Page background: `#404040`
+> - Primary cards: `#2E2E2E`
+> - Nested panels: `#252525`
+> - Inputs: `#1E1E1E`
+> - Borders: `#3A3A3A`
+> - Accent palette: cyan, pink, yellow, green, purple, orange (all six, used freely — see UI_COLOR_REFERENCE.md)
 >
-> **Current transitional state (2026-04-23) — what ships today:**
-> - Shell background: `#444444` / `#4a4a4a` — dark gray. Transitional, not the intended end state.
-> - Top nav: `#171717` · Sidebar: `#202020` — very dark, near-black. Hierarchy is working.
-> - Content cards (Overview, action panels): `#2e2e2e`–`#333333`
-> - Newer components (MetricCard, HomeTripList, Home page): already at `#15162A` / `#2A2B45` — the navy-tinted target palette. This is intentional progress.
-> - Primary accent: `#12b8e8` / `#00b8e6` mid-tone cyan on older components; `#00E5FF` neon cyan on newer ones
-> - Phase nav colors: implemented rainbow (see TripSideNav — cyan, purple, pink, yellow, green, orange variants)
-> - Liquid Motion System: not implemented. Basic transitions via tw-animate-css only.
+> Any references to a navy-tinted neon direction, `#15162A`, `#2A2B45`, or "restoration target" in this doc are **superseded**. Disregard them. The charcoal palette is the product.
 
 > **2026-04-20 Naming Audit — see docs/NAMING.md**
 >
@@ -40,6 +39,39 @@ The primary marketing headline (used in the hero section) is separate from the s
 **"Plan the trip. Not the group chat."**
 
 These two lines serve different purposes. The headline creates instant recognition of the pain. The slogan anchors the brand identity.
+
+## Voice & Tone
+
+TripWave's copy voice is a **chill surfer who's genuinely hyped for you.** Not a productivity app. Not a hype machine. That friend in the group chat who gets everyone excited, keeps it light when logistics get stressful, and never makes you feel behind or guilty.
+
+### Core rules
+
+- **Encouraging, never pushy.** Frame everything as possibility, not obligation. "Go somewhere" not "you haven't booked yet."
+- **Short and punchy.** One or two lines max for empty states and helper text. Surfers don't ramble.
+- **Casual grammar is fine.** Fragments, ellipses, starting with "and" or "but" — all good.
+- **Enthusiasm through word choice, not punctuation.** Exclamation points sparingly. Let the words do the work.
+- **Zero guilt framing.** Never "you haven't added anything yet." Just a nudge and good vibes.
+- **No em dashes in copy.** Never use "--" or "—" in any user-facing text. Use a period, a comma, or restructure the sentence.
+
+### Voice samples by surface
+
+| Surface | Copy |
+|---|---|
+| No trips yet | "Nowhere to be yet. That's about to change." |
+| Empty expense list | "No spending tracked. Either you're being real disciplined or the trip hasn't started yet. Either way, nice." |
+| Empty packing list | "Nothing packed. Totally fine, you've got time." |
+| Date not set | "Dates TBD. The best trips start with a vibe, not a calendar." |
+| Trip just created | "Trip's live. Now let's fill it in." |
+| Settled up / vaulted | "All settled. That one's in the books forever." |
+
+### What this voice is NOT
+
+- Not snarky or passive-aggressive (no Duolingo guilt trips)
+- Not corporate ("Your dashboard is currently empty")
+- Not over-the-top ("OMG you haven't added a trip yet!!!")
+- Not using em dashes anywhere
+
+---
 
 ## Visual Thesis
 

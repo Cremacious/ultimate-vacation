@@ -29,10 +29,10 @@ function countdownLabel(trip: HomeTripItem): string {
   const end = daysUntil(trip.endDate);
   if (start === null && end === null) return "Dates TBD";
   if (start !== null && start > 1) return `${start} days away`;
-  if (start === 1) return "Tomorrow";
-  if (start === 0) return "Today";
-  if (end !== null && end >= 0) return "In progress";
-  return "Completed";
+  if (start === 1) return "Tomorrow. So close.";
+  if (start === 0) return "Today. Go.";
+  if (end !== null && end >= 0) return "Happening now";
+  return "All done";
 }
 
 function tripStatusSignal(trip: HomeTripItem): { label: string; color: string } | null {
@@ -66,8 +66,8 @@ function TripCard({
     <div className="relative">
       <Link
         href={`/app/trips/${trip.id}`}
-        className="block relative overflow-hidden rounded-2xl border border-[#3A3A3A] px-5 py-5 hover:brightness-110 transition"
-        style={{ backgroundColor: "#252525" }}
+        className="block relative overflow-hidden rounded-2xl px-5 py-5 hover:brightness-110 transition"
+        style={{ backgroundColor: "#252525", boxShadow: "0 3px 0 rgba(0,0,0,0.5)" }}
       >
         <div
           className="absolute left-0 top-0 bottom-0 w-1 rounded-l-2xl"
@@ -120,7 +120,8 @@ export default function HomeTripList({ trips }: HomeTripListProps) {
     <>
       <div className="mb-4">
         <h2
-          className="text-lg font-black uppercase tracking-widest text-white/80"
+          className="text-lg font-black uppercase tracking-widest"
+          style={{ color: "#FFD600" }}
         >
           Your trips
         </h2>

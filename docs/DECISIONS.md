@@ -16,6 +16,22 @@ Use this format for new entries:
 
 ## Entries
 
+### 2026-04-24 - Charcoal palette and bento layout locked as canonical design
+
+- Status: **accepted**
+- Context: `/app` and `/app/trips/new` reached a state that feels right visually and tonally. The charcoal dark palette, bento grid layout, neon rainbow section labels, 3D shadow on clickable cards, pill back button, bottom-border underline on big inputs, and chill surfer copy voice are all implemented and intentional. The earlier "navy-tinted neon restoration target" direction documented in DESIGN_SYSTEM.md is superseded.
+- Decision:
+  - The charcoal palette (`#404040` / `#2E2E2E` / `#252525` / `#1E1E1E` / `#3A3A3A`) is the final shipped look, not a transitional state.
+  - `/app` and `/app/trips/new` are the reference pages. All future pages follow the same palette, layout, and component patterns.
+  - Section labels (ALL CAPS, Fredoka, tracked wide) use unique neon accent colors, not `text-white/80`. No two adjacent labels share the same color.
+  - Clickable list cards use `boxShadow: "0 3px 0 rgba(0,0,0,0.5)"` with no all-around border.
+  - Large Fredoka form inputs use a bottom-border underline affordance (muted at rest, accent on focus) instead of a visible input box.
+  - All back buttons are green pills (`#00C96B`, arrow + label inside, `rounded-full`).
+  - Copy voice is the chill surfer standard documented in DESIGN_SYSTEM.md — Voice & Tone.
+- Why: The app looks and feels cohesive, energetic, and on-brand. Locking this prevents drift as more pages are built.
+- Follow-up: Apply these patterns to all remaining unbuilt or partially-built pages. Any page that still uses navy colors, `text-white/80` section labels, or bordered clickable cards should be updated.
+- Design skills: `/design-critique` run informally across both pages. `/design-system` — patterns documented in UI_COLOR_REFERENCE.md. `/accessibility-review` owed before shipping to production.
+
 ### 2026-04-23 - Packing contract expanded: named lists are in scope under My lists
 
 - Status: **accepted** (UX_SPEC.md, SURFACE_BLUEPRINT.md, and packing handoff docs owed/updated)

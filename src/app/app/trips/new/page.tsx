@@ -55,7 +55,7 @@ export default function NewTripPage() {
             New trip.
           </h1>
           <p className="text-white/80 text-sm font-medium">
-            Give it a name and we&apos;ll handle the rest.
+            Name it, pick a vibe, set the dates. Easy.
           </p>
         </div>
 
@@ -152,7 +152,7 @@ export default function NewTripPage() {
               >
                 Start date
               </label>
-              <DatePicker name="startDate" accentColor="#00C96B" placeholder="Departure date" />
+              <DatePicker name="startDate" accentColor="#00C96B" placeholder="When do you leave?" />
             </div>
 
             {/* ── End date ── */}
@@ -166,7 +166,7 @@ export default function NewTripPage() {
               >
                 End date
               </label>
-              <DatePicker name="endDate" accentColor="#FF8C00" placeholder="Return date" />
+              <DatePicker name="endDate" accentColor="#FF8C00" placeholder="When are you back?" />
             </div>
 
             {/* ── Submit ── */}
@@ -186,7 +186,7 @@ export default function NewTripPage() {
                   fontSize: "1.1rem",
                 }}
               >
-                {pending ? "Creating…" : "Create trip →"}
+                {pending ? "Let's go…" : "Let's go →"}
               </button>
             </div>
 

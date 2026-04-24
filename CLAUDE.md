@@ -59,6 +59,14 @@ Skipping these is allowed ONLY for tiny tweaks / bug fixes. New pages and signif
 - Feature specs live in UX_SPEC.md (feature-level) and MONETIZATION.md (money-level)
 - Visual / brand decisions live in DESIGN_SYSTEM.md
 
+### Voice & tone
+
+- All user-facing copy follows the **chill surfer who's genuinely hyped for you** voice documented in docs/DESIGN_SYSTEM.md — Voice & Tone section
+- Short, punchy, casual. One or two lines for empty states and helper text. No rambling
+- Encouraging, never pushy. Zero guilt framing. Enthusiasm through word choice, not exclamation points
+- **Never use em dashes ("--" or "—") in any user-facing copy.** Use a period, a comma, or restructure the sentence
+- When writing any empty state, placeholder, confirmation, or error message, apply this voice automatically
+
 ### Premium framing
 
 - Premium is a supporter thank-you, not a feature unlock. Tone rules in docs/MONETIZATION.md section 5
