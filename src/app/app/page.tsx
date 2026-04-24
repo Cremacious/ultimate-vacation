@@ -28,12 +28,21 @@ function countdownLabel(trip: TripListItem): string {
   return "Completed";
 }
 
+function formatDateRange(start: string | null, end: string | null): string | null {
+  if (!start) return null;
+  const s = new Date(`${start}T00:00:00Z`);
+  const e = end ? new Date(`${end}T00:00:00Z`) : null;
+  const opts: Intl.DateTimeFormatOptions = { month: "short", day: "numeric" };
+  const startStr = s.toLocaleDateString("en-US", opts);
+  const endStr = e ? e.toLocaleDateString("en-US", opts) : null;
+  return endStr ? `${startStr} → ${endStr}` : startStr;
+}
+
 function nextUpTrip(trips: TripListItem[]): TripListItem | null {
   const upcoming = trips
     .filter((t) => { const d = daysUntil(t.startDate); return d !== null && d >= 0; })
     .sort((a, b) => (daysUntil(a.startDate) ?? 0) - (daysUntil(b.startDate) ?? 0));
   if (upcoming.length > 0) return upcoming[0];
-
   return (
     trips.find((t) => {
       const s = daysUntil(t.startDate);
@@ -43,83 +52,122 @@ function nextUpTrip(trips: TripListItem[]): TripListItem | null {
   );
 }
 
-// ─── Sub-components (server-renderable) ───────────────────────────────────────
+// ─── Sub-components ───────────────────────────────────────────────────────────
 
-function NextUpHero({ trip }: { trip: TripListItem }) {
+function HeroSection({ trip }: { trip: TripListItem }) {
   const label = countdownLabel(trip);
+  const dateRange = formatDateRange(trip.startDate, trip.endDate);
+
   return (
     <Link
       href={`/app/trips/${trip.id}`}
       aria-label={`${trip.name}, ${label}`}
-      className="block mx-4 sm:mx-6 rounded-2xl border border-[#2A2B45] px-6 py-8 hover:brightness-110 transition"
-      style={{ backgroundColor: "#15162A", boxShadow: `0 0 32px ${trip.ballColor}30` }}
+      className="flex flex-col gap-5 rounded-t-2xl p-6 transition hover:brightness-110"
     >
+      <p className="text-xs font-black uppercase tracking-widest text-white/80">Next up</p>
+
       <div className="flex items-center gap-6">
-        <TripBall color={trip.ballColor} fillPct={0} size={72} glow />
+        <TripBall color={trip.ballColor} fillPct={0} size={88} glow />
         <div className="min-w-0">
-          <p className="text-xs font-bold uppercase tracking-widest text-white/50 mb-0.5">
-            Next up
-          </p>
           <h2
-            className="text-3xl font-semibold text-white leading-tight line-clamp-2"
+            className="line-clamp-2 text-4xl font-semibold leading-tight text-white"
             style={{ fontFamily: "var(--font-fredoka)" }}
           >
             {trip.name}
           </h2>
-          <p className="text-sm font-semibold mt-1" style={{ color: trip.ballColor }}>
-            {label}
-          </p>
+          {dateRange && (
+            <p className="mt-2 text-base text-white/80">{dateRange}</p>
+          )}
         </div>
+      </div>
+
+      <div
+        className="self-start rounded-full px-5 py-2 text-sm font-bold text-white"
+        style={{ backgroundColor: trip.ballColor }}
+      >
+        {label}
       </div>
     </Link>
   );
 }
 
-function PlanNextPrompt() {
+function PlanNextPromptSection() {
   return (
-    <div
-      className="mx-4 sm:mx-6 rounded-2xl border border-[#2A2B45] px-6 py-8"
-      style={{ backgroundColor: "#15162A" }}
-    >
-      <h2
-        className="text-2xl font-semibold text-white mb-2"
-        style={{ fontFamily: "var(--font-fredoka)" }}
-      >
-        Ready for another one?
-      </h2>
-      <p className="text-sm text-white/60 mb-4">
-        Your past trips are wrapped. Start planning your next one.
-      </p>
-      <Link
-        href="/app/trips/new"
-        className="inline-block font-bold rounded-full px-5 py-2.5 text-sm hover:brightness-110 transition"
-        style={{ backgroundColor: "#00E5FF", color: "#0A0A12" }}
-      >
-        Start new trip
-      </Link>
+    <div className="flex flex-col gap-4 rounded-t-2xl p-6">
+      <p className="text-xs font-black uppercase tracking-widest text-white/80">Next up</p>
+      <div className="flex flex-col justify-center py-4">
+        <h2
+          className="mb-2 text-2xl font-semibold text-white"
+          style={{ fontFamily: "var(--font-fredoka)" }}
+        >
+          Ready for another one?
+        </h2>
+        <p className="mb-5 text-sm text-white/80">
+          Your past trips are wrapped. Start planning your next wave.
+        </p>
+        <Link
+          href="/app/trips/new"
+          className="self-start rounded-full px-5 py-2.5 text-sm font-bold text-white transition hover:bg-[#0096b8]"
+          style={{ backgroundColor: "#00A8CC", boxShadow: "0 3px 0 #007a99" }}
+        >
+          Start new trip
+        </Link>
+      </div>
     </div>
   );
 }
 
-function EmptyState() {
+// ─── Right-column stat tiles ───────────────────────────────────────────────────
+
+function DaysAwayTile({ hero, nextDays }: { hero: TripListItem; nextDays: number | null }) {
+  const display =
+    nextDays === null ? "—" :
+    nextDays === 0 ? "Today" :
+    nextDays < 0 ? "Now" :
+    nextDays;
+  const sub = formatDateRange(hero.startDate, hero.endDate) ?? "Dates TBD";
+
   return (
-    <div className="flex flex-col items-center py-20 px-6 text-center gap-4">
-      <div className="w-20 h-20 rounded-full border-2 border-dashed border-[#00E5FF]/40" />
+    <div
+      className="flex flex-1 flex-col rounded-2xl border border-[#3A3A3A] p-5"
+      style={{ backgroundColor: "#2E2E2E" }}
+    >
+      <p className="mb-3 text-xs font-black uppercase tracking-widest text-white/80">Days away</p>
+      <p
+        className="text-6xl font-semibold leading-none"
+        style={{ fontFamily: "var(--font-fredoka)", color: hero.ballColor }}
+      >
+        {display}
+      </p>
+      <p className="mt-2 text-base text-white/80">{sub}</p>
+    </div>
+  );
+}
+
+function TripStatTile({ count }: { count: number }) {
+  return (
+    <div
+      className="flex flex-1 flex-col justify-between rounded-2xl border border-[#3A3A3A] p-5"
+      style={{ backgroundColor: "#2E2E2E" }}
+    >
       <div>
-        <h2
-          className="text-xl font-semibold text-white mb-1"
+        <p className="mb-3 text-xs font-black uppercase tracking-widest text-white/80">Your trips</p>
+        <p
+          className="text-6xl font-semibold leading-none text-[#00A8CC]"
           style={{ fontFamily: "var(--font-fredoka)" }}
         >
-          Every great trip starts with a name.
-        </h2>
-        <p className="text-sm text-white/50">Start planning your first adventure.</p>
+          {count}
+        </p>
+        <p className="mt-2 text-base text-white/80">
+          {count === 1 ? "trip planned" : "trips planned"}
+        </p>
       </div>
       <Link
         href="/app/trips/new"
-        className="font-bold rounded-full px-6 py-3 text-sm hover:brightness-110 transition"
-        style={{ backgroundColor: "#00E5FF", color: "#0A0A12" }}
+        className="mt-4 flex items-center justify-center rounded-full py-3 text-sm font-bold text-white transition hover:bg-[#0096b8]"
+        style={{ backgroundColor: "#00A8CC", boxShadow: "0 3px 0 #007a99" }}
       >
-        Create a trip
+        + New trip
       </Link>
     </div>
   );
@@ -137,32 +185,39 @@ export default async function HomePage() {
   const hero = nextUpTrip(userTrips);
   const nextDays = hero ? daysUntil(hero.startDate) : null;
 
+  const tripItems = userTrips.map((t) => ({
+    id: t.id,
+    name: t.name,
+    startDate: t.startDate,
+    endDate: t.endDate,
+    ballColor: t.ballColor,
+    lifecycle: t.lifecycle,
+  }));
+
   return (
-    <div style={{ backgroundColor: "#0A0A12", minHeight: "100vh" }}>
+    <div style={{ backgroundColor: "#404040", minHeight: "100vh" }} className="px-4 pb-10 sm:px-6">
       <TimeGreeting firstName={firstName} tripCount={userTrips.length} nextDays={nextDays} />
 
-      {userTrips.length === 0 ? (
-        <EmptyState />
-      ) : (
-        <>
-          <div className="mb-6">
-            {hero ? <NextUpHero trip={hero} /> : <PlanNextPrompt />}
+      {/* Bento grid: left card (hero + trip list) + right column (2 stat tiles) */}
+      <div className="mt-2 grid grid-cols-1 items-stretch gap-4 lg:grid-cols-3">
+        {/* Left card */}
+        <div
+          className="lg:col-span-2 flex flex-col rounded-2xl border border-[#3A3A3A]"
+          style={{ backgroundColor: "#2E2E2E" }}
+        >
+          {hero ? <HeroSection trip={hero} /> : <PlanNextPromptSection />}
+          <div className="mx-6 border-t border-[#3A3A3A]" />
+          <div className="flex-1 p-6">
+            <HomeTripList trips={tripItems} />
           </div>
+        </div>
 
-          <div className="px-4 sm:px-6 pb-10">
-            <HomeTripList
-              trips={userTrips.map((t) => ({
-                id: t.id,
-                name: t.name,
-                startDate: t.startDate,
-                endDate: t.endDate,
-                ballColor: t.ballColor,
-                lifecycle: t.lifecycle,
-              }))}
-            />
-          </div>
-        </>
-      )}
+        {/* Right column: 2 tiles */}
+        <div className="flex flex-col gap-4">
+          {hero && <DaysAwayTile hero={hero} nextDays={nextDays} />}
+          <TripStatTile count={userTrips.length} />
+        </div>
+      </div>
     </div>
   );
 }

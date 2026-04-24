@@ -10,8 +10,9 @@ Any Claude Code session working on this repo MUST follow the rules in this file 
 2. **docs/CORE_LOOP.md** -- the must-prove spine and the Build Workflow (Details → Mockups → Code)
 3. **docs/GRILL_PROTOCOL.md** -- the canonical rulebook for every grill-me session about UI or product
 4. **docs/DECISIONS.md** -- the decision log, top entries are most recent
+5. **docs/UI_COLOR_REFERENCE.md** -- the exact color values, button/input patterns, and never-use list. Read this before writing any JSX or CSS, no exceptions.
 
-Only after these four are read should the agent engage with UX_SPEC, MONETIZATION, DESIGN_SYSTEM, ARCHITECTURE, or other detail docs.
+Only after these five are read should the agent engage with UX_SPEC, MONETIZATION, DESIGN_SYSTEM, ARCHITECTURE, or other detail docs.
 
 ---
 
@@ -67,8 +68,12 @@ Skipping these is allowed ONLY for tiny tweaks / bug fixes. New pages and signif
 
 ### Brand direction
 
-- Neon-on-dark is the primary brand treatment -- see docs/DESIGN_SYSTEM.md → Neon-on-Dark Brand Direction
-- Pure white body text on dark backgrounds, never gray-muted
+- The shipped UI uses a charcoal dark palette -- see docs/UI_COLOR_REFERENCE.md for every exact value
+- Surfaces: #404040 page background, #2E2E2E cards, #252525 nested panels, #1E1E1E inputs, #3A3A3A borders
+- **Accent palette is a neon rainbow -- use all six colors freely, not just blue and purple.** Cyan #00A8CC, Pink #FF2D8B, Yellow #FFD600, Green #00C96B, Purple #A855F7, Orange #FF8C00. All six should appear regularly across the UI. Decorative uses (gradients, stripe accents, icon fills) are encouraged; semantic roles in UI_COLOR_REFERENCE.md are primary anchors, not hard limits.
+- Rainbow gradient stripe pattern (banners, dividers, top borders): `linear-gradient(90deg, #00A8CC 0%, #A855F7 25%, #FF2D8B 50%, #FFD600 75%, #FF8C00 100%)`
+- Primary text is #FFFFFF (`text-white`). Secondary text is `text-white/90`. Muted text is `text-white/80`. These are the ONLY three white text values permitted. Never use `text-white/50`, `text-white/40`, `text-white/30`, `text-[#9CA3AF]`, or any gray text value
+- The Neon-on-Dark Brand Direction in DESIGN_SYSTEM.md describes an aspirational future state -- UI_COLOR_REFERENCE.md is the current implementation authority
 - Motion follows the Liquid Motion System (wet-neon, oil-flow easing, water-wave ripples) -- DESIGN_SYSTEM.md
 - Logo is ocean-ripple, not electronic/sonar
 
@@ -95,6 +100,7 @@ Skipping these is allowed ONLY for tiny tweaks / bug fixes. New pages and signif
 ## Always-on reminders for the agent
 
 - Before grilling on UI: route through GRILL_PROTOCOL.md, actively prompt design skill invocations
+- Before writing ANY JSX/HTML/CSS: re-read docs/UI_COLOR_REFERENCE.md and use only the exact values listed there. Never use gray backgrounds, white backgrounds, light-mode text, or deprecated cyan values
 - Before writing JSX/HTML: confirm Step 1 detail inventory and Step 2 mockup exist for that page
 - Before shipping any new page: remind the user to run `/accessibility-review`
 - When a new pattern emerges: remind the user to run `/design-system`

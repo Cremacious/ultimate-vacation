@@ -19,9 +19,10 @@ export async function createTripAction(
   const name = String(formData.get("name") ?? "");
   const startDate = String(formData.get("startDate") ?? "") || null;
   const endDate = String(formData.get("endDate") ?? "") || null;
+  const ballColor = String(formData.get("ballColor") ?? "") || "#00A8CC";
 
   try {
-    await createTripForUser(user.id, { name, startDate, endDate });
+    await createTripForUser(user.id, { name, startDate, endDate, ballColor });
   } catch (err) {
     return { error: err instanceof Error ? err.message : "Could not create trip." };
   }

@@ -66,20 +66,20 @@ function TripCard({
     <div className="relative">
       <Link
         href={`/app/trips/${trip.id}`}
-        className="block relative overflow-hidden rounded-2xl border border-[#2A2B45] px-5 py-4 hover:brightness-110 transition"
-        style={{ backgroundColor: "#15162A" }}
+        className="block relative overflow-hidden rounded-2xl border border-[#3A3A3A] px-5 py-5 hover:brightness-110 transition"
+        style={{ backgroundColor: "#252525" }}
       >
         <div
           className="absolute left-0 top-0 bottom-0 w-1 rounded-l-2xl"
           style={{ backgroundColor: trip.ballColor }}
         />
         <div className="flex items-center gap-4">
-          <TripBall color={trip.ballColor} fillPct={0} size={52} className="ml-2" />
+          <TripBall color={trip.ballColor} fillPct={0} size={62} className="ml-2" />
           <div className="flex-1 min-w-0">
-            <p className="font-bold text-white truncate">{trip.name}</p>
+            <p className="text-base font-bold text-white truncate">{trip.name}</p>
             <p
-              className="text-xs font-semibold mt-0.5"
-              style={{ color: urgency ? trip.ballColor : "rgba(255,255,255,0.6)" }}
+              className={`text-sm font-semibold mt-0.5 ${urgency ? "" : "text-white/80"}`}
+              style={urgency ? { color: trip.ballColor } : undefined}
             >
               {countdownLabel(trip)}
             </p>
@@ -100,12 +100,7 @@ function TripCard({
         <button
           onClick={() => onDuplicate(trip)}
           aria-label={`Duplicate ${trip.name}`}
-          className="absolute right-3 top-1/2 -translate-y-1/2 w-11 h-11 rounded-full flex items-center justify-center transition-colors hover:bg-white/5"
-          style={{ color: "rgba(255,255,255,0.4)" }}
-          onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.color = "white")}
-          onMouseLeave={(e) =>
-            ((e.currentTarget as HTMLElement).style.color = "rgba(255,255,255,0.4)")
-          }
+          className="absolute right-3 top-1/2 -translate-y-1/2 w-11 h-11 rounded-full flex items-center justify-center transition-colors hover:bg-white/5 text-white/80 hover:text-white"
         >
           <CopySimple size={16} />
         </button>
@@ -123,20 +118,12 @@ export default function HomeTripList({ trips }: HomeTripListProps) {
 
   return (
     <>
-      <div className="flex items-center justify-between mb-4">
+      <div className="mb-4">
         <h2
-          className="text-xl font-semibold text-white"
-          style={{ fontFamily: "var(--font-fredoka)" }}
+          className="text-lg font-black uppercase tracking-widest text-white/80"
         >
           Your trips
         </h2>
-        <Link
-          href="/app/trips/new"
-          className="font-bold rounded-full px-5 py-2.5 text-sm hover:brightness-110 transition flex-shrink-0"
-          style={{ backgroundColor: "#00E5FF", color: "#0A0A12" }}
-        >
-          New trip
-        </Link>
       </div>
 
       <div className="space-y-3">

@@ -10,6 +10,7 @@ export type CreateTripInput = {
   name: string;
   startDate?: string | null; // YYYY-MM-DD
   endDate?: string | null;
+  ballColor?: string;
 };
 
 export type CreatedTrip = {
@@ -49,6 +50,7 @@ export async function createTripForUser(
       slug,
       startDate: input.startDate || null,
       endDate: input.endDate || null,
+      ballColor: input.ballColor || "#00A8CC",
     })
     .returning({ id: trips.id, slug: trips.slug, name: trips.name });
 

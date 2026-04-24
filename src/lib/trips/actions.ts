@@ -159,7 +159,7 @@ export async function updateTripAction(
   const endDate = (formData.get("endDate") as string | null)?.trim() || null;
   const budgetRaw = (formData.get("budget") as string | null)?.trim() ?? "";
   const budgetNotes = (formData.get("budgetNotes") as string | null)?.trim() || null;
-  const ballColor = (formData.get("ballColor") as string | null)?.trim() || "#7C5CFF";
+  const ballColor = (formData.get("ballColor") as string | null)?.trim() || "#00A8CC";
 
   let budgetCents: number | null = null;
   if (budgetRaw) {

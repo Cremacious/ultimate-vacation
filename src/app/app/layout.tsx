@@ -13,9 +13,11 @@ export default async function AppLayout({
 
   return (
     <AppShellProvider>
-      <div className="min-h-screen bg-[#444444] text-white">
+      <div className="min-h-screen bg-[#404040] text-white">
         <TopNav />
-        <main className="pt-17">{children}</main>
+        <main className="pt-17">
+          <div className="mx-auto max-w-[1440px]">{children}</div>
+        </main>
       </div>
     </AppShellProvider>
   );

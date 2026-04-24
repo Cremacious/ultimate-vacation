@@ -32,13 +32,13 @@ export default async function SetupEditPage({
     <div>
       {/* Page header */}
       <div
-        className="border-b px-4 py-4 md:px-7 md:py-6 flex items-center gap-3 md:gap-4 flex-shrink-0"
-        style={{ backgroundColor: "#15162A", borderColor: "#2A2B45" }}
+        className="border-b border-[#3A3A3A] px-4 py-4 md:px-7 md:py-6 flex items-center gap-3 md:gap-4 flex-shrink-0"
+        style={{ backgroundColor: "#2E2E2E" }}
       >
         <Link
           href={`/app/trips/${tripId}/setup`}
-          className="w-9 h-9 rounded-full border flex items-center justify-center text-white transition-colors hover:border-[#00A8CC] hover:text-[#00A8CC] flex-shrink-0"
-          style={{ borderColor: "#2A2B45", backgroundColor: "#15162A" }}
+          className="w-9 h-9 rounded-full border border-[#3A3A3A] flex items-center justify-center text-white transition-colors hover:border-[#00A8CC] hover:text-[#00A8CC] flex-shrink-0"
+          style={{ backgroundColor: "#252525" }}
         >
           <ArrowLeft size={16} weight="bold" />
         </Link>
@@ -49,7 +49,7 @@ export default async function SetupEditPage({
           >
             Edit Setup
           </h1>
-          <p className="text-xs font-semibold text-white/50 uppercase tracking-widest">
+          <p className="text-xs font-semibold text-white/80 uppercase tracking-widest">
             {trip.name} · Changes saved on submit
           </p>
         </div>
@@ -72,10 +72,10 @@ export default async function SetupEditPage({
           />
         ) : (
           <div
-            className="rounded-2xl border p-6 text-center"
-            style={{ backgroundColor: "#15162A", borderColor: "#2A2B45" }}
+            className="rounded-2xl border border-[#3A3A3A] p-6 text-center"
+            style={{ backgroundColor: "#252525" }}
           >
-            <p className="text-sm font-semibold text-white/50">
+            <p className="text-sm font-semibold text-white/80">
               Only trip organizers can edit setup details.
             </p>
           </div>

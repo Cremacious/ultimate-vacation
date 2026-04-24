@@ -8,9 +8,18 @@ interface TimeGreetingProps {
   nextDays: number | null;
 }
 
+// Greeting color shifts with time of day — cyan morning, yellow afternoon, pink evening, purple night
+function greetingColor(hour: number): string {
+  if (hour >= 5 && hour < 11) return "#00A8CC";   // morning — cyan
+  if (hour >= 11 && hour < 17) return "#FFD600";  // afternoon — yellow
+  if (hour >= 17 && hour < 23) return "#FF2D8B";  // evening — pink
+  return "#A855F7";                                 // night — purple
+}
+
 export default function TimeGreeting({ firstName, tripCount, nextDays }: TimeGreetingProps) {
   const [greeting, setGreeting] = useState("");
   const [subtitle, setSubtitle] = useState("");
+  const [color, setColor] = useState("#00A8CC");
 
   useEffect(() => {
     const h = new Date().getHours();
@@ -25,6 +34,7 @@ export default function TimeGreeting({ firstName, tripCount, nextDays }: TimeGre
       variants = [`Still up, ${firstName}?`, `Night owl planning. Respect.`];
     }
     setGreeting(variants[Math.floor(Math.random() * variants.length)]);
+    setColor(greetingColor(h));
 
     if (tripCount === 0) {
       setSubtitle("No trips planned yet.");
@@ -37,16 +47,19 @@ export default function TimeGreeting({ firstName, tripCount, nextDays }: TimeGre
   }, [firstName, tripCount, nextDays]);
 
   return (
-    <div className="px-4 sm:px-6 pt-6 pb-4 min-h-[56px]">
+    <div
+      className="mt-6 mb-4 rounded-2xl border border-[#3A3A3A] px-6 py-5"
+      style={{ backgroundColor: "#2E2E2E" }}
+    >
       {greeting && (
         <>
           <p
-            className="text-lg"
-            style={{ fontFamily: "var(--font-fredoka)", color: "#00E5FF" }}
+            className="text-2xl font-semibold"
+            style={{ fontFamily: "var(--font-fredoka)", color }}
           >
             {greeting}
           </p>
-          <p className="text-sm text-white mt-0.5">{subtitle}</p>
+          <p className="mt-1 text-base text-white/90">{subtitle}</p>
         </>
       )}
     </div>
