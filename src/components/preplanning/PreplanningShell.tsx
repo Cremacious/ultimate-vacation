@@ -123,10 +123,10 @@ const ALL_SECTIONS: SectionDef[] = [
   { key: "travel",       label: "Travel",        Icon: Airplane,       color: "#FF2D8B" },
   { key: "lodging",      label: "Lodging",       Icon: House,          color: "#A855F7" },
   { key: "budget",       label: "Budget",        Icon: CurrencyDollar, color: "#00C96B" },
-  { key: "destinations", label: "Destinations",  Icon: MapPin,         color: "#FFD600" },
-  { key: "documents",    label: "Documents",     Icon: Files,          color: "#00A8CC" },
-  { key: "vibe",         label: "Trip Vibe",     Icon: Sparkle,        color: "#FF2D8B" },
-  { key: "predeparture", label: "Pre-Departure", Icon: CheckSquare,    color: "#00C96B" },
+  { key: "destinations", label: "Destinations",  Icon: MapPin,         color: "#84CC16" },
+  { key: "documents",    label: "Documents",     Icon: Files,          color: "#FF8C00" },
+  { key: "vibe",         label: "Trip Vibe",     Icon: Sparkle,        color: "#14B8A6" },
+  { key: "predeparture", label: "Pre-Departure", Icon: CheckSquare,    color: "#EF4444" },
 ];
 
 // ─── mock state ───────────────────────────────────────────────────────────────
@@ -348,11 +348,9 @@ const INITIAL_DESTINATIONS: Destination[] = [
 
 // ─── helpers ──────────────────────────────────────────────────────────────────
 
-function iconBgColor(status: SectionStatus, isActive: boolean): string {
-  if (isActive)             return "#00A8CC";
-  if (status === "done")    return "#00C96B";
-  if (status === "partial") return "#FF8C00";
-  return "#3a3a3a";
+function iconBgColor(status: SectionStatus, isActive: boolean, sectionColor: string): string {
+  if (status === "empty" && !isActive) return "#3a3a3a";
+  return sectionColor;
 }
 
 function calcNights(checkIn: string, checkOut: string): number | null {
@@ -2771,11 +2769,11 @@ export default function PreplanningShell({ transportModes }: PreplanningShellPro
                 <button key={s.key} type="button" onClick={() => setActiveSection(s.key)}
                   className="flex items-center gap-2.5 w-full rounded-xl px-3 py-2.5 transition-all text-left"
                   style={{
-                    backgroundColor: isActive ? "rgba(0,168,204,0.1)" : "transparent",
-                    border: isActive ? "1px solid rgba(0,168,204,0.25)" : "1px solid transparent",
+                    backgroundColor: isActive ? `${s.color}1a` : "transparent",
+                    border: isActive ? `1px solid ${s.color}40` : "1px solid transparent",
                   }}>
                   <div className="w-[34px] h-[34px] rounded-full flex items-center justify-center flex-shrink-0 transition-colors"
-                       style={{ backgroundColor: iconBgColor(status, isActive) }}>
+                       style={{ backgroundColor: iconBgColor(status, isActive, s.color) }}>
                     <s.Icon size={15} weight="fill" color={isActive || status !== "empty" ? "#fff" : "#9CA3AF"} />
                   </div>
                   <div className="flex-1 min-w-0">
@@ -2784,7 +2782,7 @@ export default function PreplanningShell({ transportModes }: PreplanningShellPro
                       {s.label}
                     </div>
                     <div className="text-[10px] font-bold mt-0.5 truncate"
-                         style={{ color: isActive ? "#00A8CC" : statusTextColor(status) }}>
+                         style={{ color: isActive ? s.color : statusTextColor(status) }}>
                       {MOCK_STATUS_TEXT[s.key]}
                     </div>
                   </div>
@@ -2814,15 +2812,15 @@ export default function PreplanningShell({ transportModes }: PreplanningShellPro
                   className="flex flex-col items-center gap-1 rounded-xl flex-shrink-0 transition-all"
                   style={{
                     minWidth: "58px", padding: "8px 8px",
-                    backgroundColor: isActive ? "rgba(0,168,204,0.12)" : "transparent",
-                    border: isActive ? "1px solid rgba(0,168,204,0.3)" : "1px solid transparent",
+                    backgroundColor: isActive ? `${s.color}1a` : "transparent",
+                    border: isActive ? `1px solid ${s.color}40` : "1px solid transparent",
                   }}>
                   <div className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0"
-                       style={{ backgroundColor: iconBgColor(status, isActive) }}>
+                       style={{ backgroundColor: iconBgColor(status, isActive, s.color) }}>
                     <s.Icon size={13} weight="fill" color={isActive || status !== "empty" ? "#fff" : "#9CA3AF"} />
                   </div>
                   <span className="text-[9px] font-black uppercase tracking-wide text-center leading-tight"
-                        style={{ color: isActive ? "#00A8CC" : "#9CA3AF" }}>
+                        style={{ color: isActive ? s.color : "#9CA3AF" }}>
                     {s.label.replace(" ", "\n")}
                   </span>
                 </button>
