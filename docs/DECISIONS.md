@@ -16,6 +16,38 @@ Use this format for new entries:
 
 ## Entries
 
+### 2026-04-24 - Trip role system: Admin, Organizer, Member
+
+- Status: **accepted**
+- Context: The app needed a clear, documented permission model for trip membership. The DB schema already has `tripMembers.role` with values `organizer | trusted | member` and `trips.ownerId`. The "trusted" role is unused and deferred. The distinction between Admin and Organizer is display-only — both map to `role: "organizer"` in the DB, with Admin being the member whose `userId === trips.ownerId`.
+- Decision:
+  - **Admin** = the user who created the trip (`trips.ownerId`). Displayed with a gold "Admin" badge. Only one per trip. Can invite, remove members, and change roles. Cannot be removed.
+  - **Organizer** = a member promoted from "member" to `role: "organizer"` by the Admin. Displayed with a cyan "Org" badge. Can invite other users. Cannot change roles or remove members.
+  - **Member** = default role for all invited users. Cannot invite or manage. Can see the group list.
+  - **Role changes** are Admin-only. The Admin can promote members to Organizer or demote Organizers back to Member. Implemented in the Group section of Preplanning.
+  - **Inviting** is available to Admin and Organizers. Non-organizer members see a message to ask an organizer instead.
+  - The "trusted" role in the DB schema is reserved for future use and not surfaced in the UI.
+- Implementation notes:
+  - Admin is derived at runtime: `member.userId === trip.ownerId`, not stored as a separate role value.
+  - `isTripOrganizer(userId, tripId)` returns true for both Admin and Organizer (any `role: "organizer"` member). Use `userId === trip.ownerId` specifically for Admin-only gating.
+  - `createTripForUser` inserts the creator into `tripMembers` with `role: "organizer"` — correct.
+  - `acceptInviteByCode` inserts new members with `role: "member"` — correct.
+  - Role change UI (promote/demote) is planned for Group section but not yet implemented. The permission model is documented here so it can be built without re-litigating these decisions.
+- User-facing copy (chill surfer voice, no em dashes):
+  - Admin badge tooltip: "You created this trip. You're in charge."
+  - Organizer badge tooltip: "Can send invite links and help manage the trip."
+  - Member badge: no tooltip needed.
+  - Invite tile (non-organizer): "Only admins and organizers can send invite links. Ask [name] and they'll get you sorted."
+  - Invite tile hint (organizer): "Anyone with the link can join. Revoke it below if you need to lock it down."
+  - Member list admin hint: "You run this trip. Remove anyone, anytime."
+  - Remove confirm: "[Name] will lose access to this trip. That's it, they're out."
+- Why:
+  - Simple three-level model covers all real trip scenarios without over-engineering.
+  - Keeping Admin as a runtime derivation (ownerId) avoids a DB migration while still surfacing the distinction clearly in the UI.
+  - Organizers as invite-capable helpers scales to larger groups without requiring the one Admin to handle everything.
+- Follow-up: Implement role change UI in Group section (promote/demote buttons, Admin-gated). Add `removeGroupMemberAction` guard to check Admin not just Organizer for member removal.
+- Design skills: `/design-critique` reviewed informally. `/accessibility-review` owed before shipping role change UI.
+
 ### 2026-04-24 - Charcoal palette and bento layout locked as canonical design
 
 - Status: **accepted**

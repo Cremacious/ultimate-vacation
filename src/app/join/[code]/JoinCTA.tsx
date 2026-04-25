@@ -28,12 +28,15 @@ function AcceptForm({ code }: { code: string }) {
         disabled={pending}
         aria-busy={pending}
         className="w-full font-bold rounded-full py-3 text-sm hover:brightness-110 transition disabled:opacity-50"
-        style={{ backgroundColor: "#00E5FF", color: "#0A0A12" }}
+        style={{ backgroundColor: "#00A8CC", color: "#171717", fontFamily: "var(--font-fredoka)", boxShadow: "0 3px 0 #007a99" }}
       >
-        {pending ? "Joining…" : "Accept and join"}
+        {pending ? "Joining…" : "Count me in"}
       </button>
       {state.error && (
-        <p role="alert" className="text-red-400 text-sm text-center mt-2">
+        <p
+          role="alert"
+          className="rounded-xl border border-[#FF2D8B]/30 bg-[#FF2D8B]/10 px-4 py-3 text-sm font-semibold text-[#FF2D8B] text-center mt-3"
+        >
           {state.error}
         </p>
       )}
@@ -48,17 +51,17 @@ function UnauthLinks({ code, tripName }: { code: string; tripName: string }) {
       <Link
         href={`/signup?redirectTo=${redirectTo}`}
         className="block w-full text-center font-bold rounded-full py-3 text-sm hover:brightness-110 transition"
-        style={{ backgroundColor: "#00E5FF", color: "#0A0A12" }}
+        style={{ backgroundColor: "#00A8CC", color: "#171717", fontFamily: "var(--font-fredoka)", boxShadow: "0 3px 0 #007a99" }}
       >
         Create a free account
       </Link>
       <a
         href={`/login?redirectTo=${redirectTo}`}
         aria-label={`Sign in to join ${tripName}`}
-        className="block w-full text-center py-3 mt-1 text-sm underline hover:text-white transition-colors"
-        style={{ color: "rgba(255,255,255,0.5)", minHeight: "44px" }}
+        className="block w-full text-center py-3 mt-1 text-sm text-white/80 underline hover:text-white transition-colors"
+        style={{ minHeight: "44px" }}
       >
-        I already have an account
+        Already have an account? Sign in
       </a>
     </div>
   );
@@ -69,9 +72,9 @@ function AlreadyMember({ tripId }: { tripId: string }) {
     <Link
       href={`/app/trips/${tripId}`}
       className="block w-full text-center py-3 text-sm font-semibold hover:brightness-110 transition"
-      style={{ color: "#00E5FF" }}
+      style={{ color: "#00A8CC", fontFamily: "var(--font-fredoka)" }}
     >
-      You&apos;re already in — head to the trip →
+      You&apos;re already in. Head to the trip.
     </Link>
   );
 }

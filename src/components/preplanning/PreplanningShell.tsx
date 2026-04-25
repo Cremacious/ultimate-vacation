@@ -1,6 +1,13 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
+
+import {
+  createGroupInviteAction,
+  revokeGroupInviteAction,
+  removeGroupMemberAction,
+} from "@/lib/group/actions";
 import {
   Users, Airplane, Car, Train, Boat, House,
   CurrencyDollar, MapPin, Files, Sparkle, CheckSquare,
@@ -138,7 +145,7 @@ const MOCK_STATUSES: Record<string, SectionStatus> = {
 };
 
 const MOCK_STATUS_TEXT: Record<string, string> = {
-  group:        "4 travelers added",
+  group:        "", // overridden dynamically from groupData
   travel:       "2 flights entered",
   lodging:      "1 of 2 stays confirmed",
   budget:       "Budget set · 8 categories",
@@ -404,39 +411,386 @@ function FieldInput({ className = "", style, ...props }: React.InputHTMLAttribut
 
 // ─── GROUP section ────────────────────────────────────────────────────────────
 
-function GroupSection() {
-  const travelers = [
-    { name: "Chris M.", role: "Organizer", color: "#FF2D8B" },
-    { name: "Sarah M.", role: "Traveler",  color: "#FFD600" },
-    { name: "Tom K.",   role: "Traveler",  color: "#00A8CC" },
-    { name: "Lisa R.",  role: "Traveler",  color: "#00C96B" },
-  ];
+interface GroupMember {
+  userId: string;
+  name: string;
+  role: string;
+  color: string;
+}
+
+interface GroupInvite {
+  id: string;
+  code: string;
+  usedCount: number;
+  maxUses: number | null;
+  expiresAt: string | null;
+  createdAt: string;
+}
+
+interface GroupData {
+  members: GroupMember[];
+  invites: GroupInvite[];
+  tripId: string;
+  currentUserId: string;
+  isOrganizer: boolean;
+  ownerId: string;
+}
+
+function GroupSection({ groupData }: { groupData: GroupData }) {
+  const router = useRouter();
+  const { members, invites: initialInvites, tripId, currentUserId, isOrganizer, ownerId } = groupData;
+
+  const [search, setSearch]               = useState("");
+  const [filter, setFilter]               = useState<"all" | "organizer" | "member">("all");
+  const [activeInvites, setActiveInvites] = useState(initialInvites);
+  const [creatingInvite, setCreatingInvite] = useState(false);
+  const [newInviteCode, setNewInviteCode] = useState<string | null>(null);
+  const [copiedCode, setCopiedCode]       = useState<string | null>(null);
+  const [removingUserId, setRemovingUserId] = useState<string | null>(null);
+  const [revokingId, setRevokingId]       = useState<string | null>(null);
+  const [actionError, setActionError]     = useState<string | null>(null);
+
+  const organizer = members.find((m) => m.role === "organizer");
+  const displayCode = newInviteCode ?? (activeInvites.length > 0 ? activeInvites[0].code : null);
+
+  const filteredMembers = members.filter((m) => {
+    const matchesSearch = m.name.toLowerCase().includes(search.toLowerCase());
+    const matchesFilter =
+      filter === "all" ||
+      (filter === "organizer" && m.role === "organizer") ||
+      (filter === "member" && m.role !== "organizer");
+    return matchesSearch && matchesFilter;
+  });
+
+  async function handleCreateInvite() {
+    setCreatingInvite(true);
+    setActionError(null);
+    const result = await createGroupInviteAction(tripId);
+    setCreatingInvite(false);
+    if (result.code) {
+      setNewInviteCode(result.code);
+      router.refresh();
+    } else {
+      setActionError(result.error ?? "Something went wrong.");
+    }
+  }
+
+  async function handleRevokeInvite(inviteId: string) {
+    setRevokingId(inviteId);
+    const result = await revokeGroupInviteAction(inviteId, tripId);
+    setRevokingId(null);
+    if (!result.ok) setActionError(result.error ?? "Could not revoke.");
+    else {
+      setActiveInvites((prev) => prev.filter((i) => i.id !== inviteId));
+      if (newInviteCode && activeInvites.find((i) => i.id === inviteId)?.code === newInviteCode) {
+        setNewInviteCode(null);
+      }
+      router.refresh();
+    }
+  }
+
+  async function handleRemoveMember(userId: string) {
+    setRemovingUserId(userId);
+    setActionError(null);
+    const result = await removeGroupMemberAction(userId, tripId);
+    setRemovingUserId(null);
+    if (!result.ok) setActionError(result.error ?? "Could not remove member.");
+    else router.refresh();
+  }
+
+  function copyLink(code: string) {
+    navigator.clipboard.writeText(`${window.location.origin}/join/${code}`);
+    setCopiedCode(code);
+    setTimeout(() => setCopiedCode(null), 2000);
+  }
+
   return (
-    <div className="grid grid-cols-1 gap-[10px] sm:grid-cols-2">
-      {travelers.map((t, i) => (
-        <DarkCard key={i} className="p-4 flex items-center gap-3">
-          <div
-            className="w-10 h-10 rounded-full flex items-center justify-center font-black text-sm flex-shrink-0 text-white"
-            style={{ backgroundColor: t.color }}
+    <div className="flex flex-col gap-3">
+
+      {/* ── Top row: stat + invite ── */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 items-start">
+
+        {/* Member count tile */}
+        <DarkCard className="p-5 flex flex-col items-center text-center gap-1">
+          <p
+            className="text-[10px] font-black uppercase tracking-widest mb-1"
+            style={{ color: "#00A8CC", fontFamily: "var(--font-fredoka)" }}
           >
-            {t.name[0]}
+            Members
+          </p>
+          <p
+            className="font-semibold leading-none"
+            style={{
+              fontFamily: "var(--font-fredoka)",
+              fontSize: "clamp(2rem, 4vw, 3rem)",
+              color: "#00A8CC",
+            }}
+          >
+            {members.length}
+          </p>
+
+          {/* Admin + organizer list */}
+          {(() => {
+            const adminsAndOrgs = members.filter((m) => m.role === "organizer");
+            if (adminsAndOrgs.length === 0) return null;
+            return (
+              <div className="mt-3 w-full flex flex-col gap-1.5 pt-3" style={{ borderTop: "1px solid rgba(255,255,255,0.07)" }}>
+                {adminsAndOrgs.map((m) => {
+                  const isAdmin = m.userId === ownerId;
+                  return (
+                    <div key={m.userId} className="flex items-center gap-2 justify-center">
+                      <div
+                        className="w-5 h-5 rounded-full flex items-center justify-center font-black text-[10px] flex-shrink-0"
+                        style={{ backgroundColor: m.color, color: "#171717" }}
+                      >
+                        {m.name.charAt(0).toUpperCase()}
+                      </div>
+                      <span className="text-xs font-semibold text-white/70 truncate max-w-[100px]">{m.name}</span>
+                      <span
+                        className="text-[9px] font-black uppercase tracking-wide px-1.5 py-0.5 rounded-full flex-shrink-0"
+                        style={{
+                          backgroundColor: isAdmin ? "rgba(255,214,0,0.15)" : "rgba(0,168,204,0.12)",
+                          color: isAdmin ? "#FFD600" : "#00A8CC",
+                        }}
+                      >
+                        {isAdmin ? "Admin" : "Org"}
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
+            );
+          })()}
+        </DarkCard>
+
+        {/* Invite tile */}
+        <DarkCard className="p-5 flex flex-col gap-3">
+          <p
+            className="text-[10px] font-black uppercase tracking-widest"
+            style={{ color: "#00A8CC", fontFamily: "var(--font-fredoka)" }}
+          >
+            Invite someone
+          </p>
+          {isOrganizer ? (
+            displayCode ? (
+              <div className="flex flex-col gap-2">
+                <div
+                  className="flex items-center gap-2 rounded-xl px-3 py-2 border"
+                  style={{ backgroundColor: "rgba(0,0,0,0.2)", borderColor: "#3A3A3A" }}
+                >
+                  <span className="flex-1 text-xs font-mono text-white/50 truncate">
+                    /join/{displayCode}
+                  </span>
+                  <button
+                    onClick={() => copyLink(displayCode)}
+                    className="text-xs font-black flex-shrink-0 transition-colors"
+                    style={{ color: copiedCode === displayCode ? "#00C96B" : "#00A8CC", fontFamily: "var(--font-fredoka)" }}
+                  >
+                    {copiedCode === displayCode ? "Copied!" : "Copy"}
+                  </button>
+                </div>
+                <button
+                  onClick={handleCreateInvite}
+                  disabled={creatingInvite}
+                  className="text-[11px] font-bold text-white/40 hover:text-white/70 transition-colors text-left disabled:opacity-40"
+                >
+                  {creatingInvite ? "Generating..." : "+ New link"}
+                </button>
+              </div>
+            ) : (
+              <button
+                onClick={handleCreateInvite}
+                disabled={creatingInvite}
+                className="w-full rounded-full py-2.5 text-sm font-bold transition hover:brightness-110 disabled:opacity-60"
+                style={{
+                  backgroundColor: "#00A8CC",
+                  color: "#171717",
+                  fontFamily: "var(--font-fredoka)",
+                  boxShadow: "0 3px 0 #007a99",
+                }}
+              >
+                {creatingInvite ? "Generating..." : "Get invite link"}
+              </button>
+            )
+          ) : (
+            <p className="text-sm text-white/50 font-medium">
+              Only admins and organizers can send invite links. Ask {organizer?.name ?? "the organizer"} and they&apos;ll get you sorted.
+            </p>
+          )}
+          {isOrganizer && (
+            <p className="text-[10px] text-white/25 font-medium leading-snug">
+              Anyone with the link can join. Revoke it below if you need to lock it down.
+            </p>
+          )}
+        </DarkCard>
+      </div>
+
+      {/* ── Member list ── */}
+      <DarkCard className="p-4 flex flex-col gap-3">
+        <div className="flex items-center justify-between gap-2">
+          <p
+            className="text-[10px] font-black uppercase tracking-widest"
+            style={{ color: "#00A8CC", fontFamily: "var(--font-fredoka)" }}
+          >
+            The crew
+          </p>
+          {currentUserId === ownerId && (
+            <p className="text-[10px] text-white/30 font-medium">
+              You run this trip. Remove anyone, anytime.
+            </p>
+          )}
+        </div>
+        {/* Search + filter row */}
+        <div className="flex flex-col sm:flex-row gap-2">
+          <input
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Search members..."
+            className="flex-1 rounded-xl border px-4 py-2 text-sm font-medium text-white placeholder:text-white/30 outline-none transition-colors"
+            style={{
+              backgroundColor: "rgba(0,0,0,0.2)",
+              borderColor: "#3A3A3A",
+            }}
+            onFocus={(e) => (e.currentTarget.style.borderColor = "#00A8CC")}
+            onBlur={(e) => (e.currentTarget.style.borderColor = "#3A3A3A")}
+          />
+          <div className="flex gap-1.5 flex-shrink-0">
+            {(["all", "organizer", "member"] as const).map((f) => (
+              <button
+                key={f}
+                onClick={() => setFilter(f)}
+                className="rounded-full px-3 py-1.5 text-[11px] font-black uppercase tracking-wide transition-all"
+                style={{
+                  backgroundColor: filter === f ? "#00A8CC" : "rgba(255,255,255,0.05)",
+                  color: filter === f ? "#171717" : "rgba(255,255,255,0.45)",
+                  fontFamily: "var(--font-fredoka)",
+                  boxShadow: filter === f ? "0 2px 0 #007a99" : "none",
+                }}
+              >
+                {f === "all" ? "All" : f === "organizer" ? "Organizers" : "Members"}
+              </button>
+            ))}
           </div>
-          <div>
-            <div className="text-sm font-bold text-white">{t.name}</div>
-            <div className="text-[11px] font-semibold text-white/40">{t.role}</div>
+        </div>
+
+        {/* Member rows */}
+        <div className="flex flex-col">
+          {filteredMembers.length === 0 ? (
+            <p className="text-sm text-white/30 text-center py-6 font-medium">
+              Nobody matches that search.
+            </p>
+          ) : (
+            filteredMembers.map((member, idx) => {
+              const isYou      = member.userId === currentUserId;
+              const canRemove  = isOrganizer && !isYou && member.role !== "organizer";
+              const isRemoving = removingUserId === member.userId;
+
+              return (
+                <div
+                  key={member.userId}
+                  className="flex items-center gap-3 py-3"
+                  style={{
+                    borderTop: idx > 0 ? "1px solid rgba(255,255,255,0.06)" : "none",
+                  }}
+                >
+                  <div
+                    className="w-9 h-9 rounded-full flex items-center justify-center font-black text-sm flex-shrink-0"
+                    style={{ backgroundColor: member.color, color: "#171717" }}
+                  >
+                    {member.name.charAt(0).toUpperCase()}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-bold text-white truncate">
+                      {member.name}
+                      {isYou && (
+                        <span className="ml-2 text-[10px] font-black text-white/35 uppercase tracking-wide">
+                          you
+                        </span>
+                      )}
+                    </p>
+                  </div>
+                  <span
+                    className="text-[10px] font-black uppercase tracking-wide px-2.5 py-1 rounded-full flex-shrink-0"
+                    style={{
+                      backgroundColor:
+                        member.role === "organizer" ? "rgba(0,168,204,0.15)" : "rgba(255,255,255,0.06)",
+                      color:
+                        member.role === "organizer" ? "#00A8CC" : "rgba(255,255,255,0.35)",
+                    }}
+                  >
+                    {member.role === "organizer" ? "Organizer" : "Member"}
+                  </span>
+                  {canRemove && (
+                    <button
+                      onClick={() => handleRemoveMember(member.userId)}
+                      disabled={isRemoving}
+                      className="text-[11px] font-bold text-white/25 hover:text-[#FF2D8B] transition-colors flex-shrink-0 disabled:opacity-40"
+                    >
+                      {isRemoving ? "Removing..." : "Remove"}
+                    </button>
+                  )}
+                </div>
+              );
+            })
+          )}
+        </div>
+      </DarkCard>
+
+      {/* ── Active invite links (organizer only) ── */}
+      {isOrganizer && activeInvites.length > 0 && (
+        <DarkCard className="p-4 flex flex-col gap-3">
+          <p
+            className="text-[10px] font-black uppercase tracking-widest"
+            style={{ color: "#FF8C00", fontFamily: "var(--font-fredoka)" }}
+          >
+            Active links
+          </p>
+          <div className="flex flex-col gap-2">
+            {activeInvites.map((inv) => (
+              <div
+                key={inv.id}
+                className="flex items-center gap-3 rounded-xl px-3 py-2.5 border"
+                style={{ backgroundColor: "rgba(0,0,0,0.15)", borderColor: "#3A3A3A" }}
+              >
+                <span className="flex-1 text-xs font-mono text-white/45 truncate">
+                  /join/{inv.code}
+                </span>
+                <span className="text-[10px] text-white/30 font-medium flex-shrink-0">
+                  {inv.usedCount} use{inv.usedCount !== 1 ? "s" : ""}
+                </span>
+                <button
+                  onClick={() => copyLink(inv.code)}
+                  className="text-[11px] font-bold flex-shrink-0 transition-colors"
+                  style={{
+                    color: copiedCode === inv.code ? "#00C96B" : "#00A8CC",
+                    fontFamily: "var(--font-fredoka)",
+                  }}
+                >
+                  {copiedCode === inv.code ? "Copied" : "Copy"}
+                </button>
+                <button
+                  onClick={() => handleRevokeInvite(inv.id)}
+                  disabled={revokingId === inv.id}
+                  className="flex-shrink-0 text-white/25 hover:text-[#FF2D8B] transition-colors disabled:opacity-40"
+                  aria-label="Revoke invite"
+                >
+                  <X size={13} />
+                </button>
+              </div>
+            ))}
           </div>
         </DarkCard>
-      ))}
-      <DarkCard className="p-4 sm:col-span-2">
-        <button
-          type="button"
-          className="flex items-center gap-2 font-black text-sm transition-opacity hover:opacity-80 mx-auto"
-          style={{ color: "#00A8CC" }}
+      )}
+
+      {/* ── Error ── */}
+      {actionError && (
+        <p
+          role="alert"
+          className="rounded-xl border border-[#FF2D8B]/30 bg-[#FF2D8B]/10 px-4 py-3 text-sm font-semibold text-[#FF2D8B]"
         >
-          <PlusCircle size={18} weight="fill" />
-          Invite a traveler
-        </button>
-      </DarkCard>
+          {actionError}
+        </p>
+      )}
     </div>
   );
 }
@@ -2294,9 +2648,10 @@ function PlaceholderSection({ section }: { section: SectionDef }) {
 
 interface PreplanningShellProps {
   transportModes: string[];
+  groupData: GroupData;
 }
 
-export default function PreplanningShell({ transportModes }: PreplanningShellProps) {
+export default function PreplanningShell({ transportModes, groupData }: PreplanningShellProps) {
   const [activeSection,    setActiveSection]    = useState("group");
   const [activeTravelMode, setActiveTravelMode] = useState(transportModes[0] ?? "");
 
@@ -2687,7 +3042,7 @@ export default function PreplanningShell({ transportModes }: PreplanningShellPro
         return <PlaceholderSection section={{ ...currentSection, label: TRANSPORT_META[activeTravelMode]?.label ?? "Travel" }} />;
       }
       case "group":
-        return <GroupSection />;
+        return <GroupSection groupData={groupData} />;
       case "budget":
         return <BudgetSection linkedLodging={linkedLodging} linkedCarRental={linkedCarRental} />;
       case "documents":
@@ -2782,8 +3137,10 @@ export default function PreplanningShell({ transportModes }: PreplanningShellPro
                       {s.label}
                     </div>
                     <div className="text-[10px] font-bold mt-0.5 truncate"
-                         style={{ color: isActive ? s.color : statusTextColor(status) }}>
-                      {MOCK_STATUS_TEXT[s.key]}
+                         style={{ color: status !== "empty" ? s.color : "rgba(255,255,255,0.25)" }}>
+                      {s.key === "group"
+                        ? `${groupData.members.length} traveler${groupData.members.length !== 1 ? "s" : ""}`
+                        : MOCK_STATUS_TEXT[s.key]}
                     </div>
                   </div>
                 </button>

@@ -39,24 +39,24 @@ function formatDateRange(start: string | null, end: string | null): string {
 
 const ERROR_COPY: Record<string, { heading: string; body: string }> = {
   not_found: {
-    heading: "This link isn't valid.",
-    body: "The invite code wasn't found. Double-check the link or ask for a new one.",
+    heading: "That link doesn't exist.",
+    body: "We couldn't find that invite code. Double-check the link or ask for a fresh one.",
   },
   revoked: {
-    heading: "This invite was revoked.",
-    body: "The organizer has disabled this link. Ask them to send a new one.",
+    heading: "This invite got pulled.",
+    body: "The organizer disabled this link. Hit them up for a new one.",
   },
   expired: {
     heading: "This invite has expired.",
-    body: "The link is no longer active. Ask the organizer for a fresh one.",
+    body: "The link timed out. Ask the organizer to send a fresh one.",
   },
   exhausted: {
     heading: "This invite is full.",
-    body: "The link has reached its limit. Ask the organizer for a new one.",
+    body: "No spots left on this link. Ask the organizer for a new one.",
   },
   trip_deleted: {
-    heading: "This trip is no longer available.",
-    body: "The trip may have been removed by the organizer.",
+    heading: "This trip is gone.",
+    body: "Looks like it was removed. Check with whoever invited you.",
   },
 };
 
@@ -66,21 +66,21 @@ function ErrorCard({ kind }: { kind: string }) {
     <div
       role="alert"
       className="w-full max-w-sm mx-auto rounded-3xl p-8 flex flex-col items-center"
-      style={{ backgroundColor: "#15162A", border: "1px solid #2A2B45" }}
+      style={{ backgroundColor: "#2E2E2E", border: "1px solid #3A3A3A" }}
     >
-      <WarningCircle size={40} color="#FFEB00" className="mb-4" aria-hidden="true" />
+      <WarningCircle size={40} color="#FFD600" className="mb-4" aria-hidden="true" />
       <h2
         className="text-xl font-semibold text-white text-center mb-2"
         style={{ fontFamily: "var(--font-fredoka)" }}
       >
         {copy.heading}
       </h2>
-      <p className="text-sm text-white/60 text-center mb-6">{copy.body}</p>
+      <p className="text-sm text-white/80 text-center mb-6">{copy.body}</p>
       <Link
         href="/"
-        className="text-sm text-white/50 hover:text-white text-center block underline transition-colors"
+        className="text-sm text-white/80 hover:text-white text-center block underline transition-colors"
       >
-        Go to TripWave →
+        Go to TripWave
       </Link>
     </div>
   );
@@ -141,7 +141,7 @@ export default async function JoinPage({
     <PageShell>
       <div
         className="w-full max-w-sm mx-auto rounded-3xl p-8 flex flex-col gap-5"
-        style={{ backgroundColor: "#15162A", border: "1px solid #2A2B45" }}
+        style={{ backgroundColor: "#2E2E2E", border: "1px solid #3A3A3A" }}
       >
         {/* Section 1 — Trip identity */}
         <div className="flex items-center gap-4">
@@ -160,35 +160,38 @@ export default async function JoinPage({
             >
               {validInvite.tripName}
             </h1>
-            <p className="text-sm text-white/50">a group trip</p>
+            <p className="text-sm text-white/80">group trip</p>
           </div>
         </div>
 
         {/* Section 2 — Inviter (BEFORE dates — locked decision 1) */}
         <div>
-          <p className="text-sm text-white/60">
+          <p className="text-sm text-white/80">
             invited by <span className="font-semibold text-white">{inviterName}</span>
           </p>
-          <p className="text-xs text-white/40 mt-0.5">{socialProof}</p>
+          <p className="text-xs text-white/80 mt-0.5">{socialProof}</p>
         </div>
 
         {/* Section 3 — Dates */}
-        <p className="text-sm text-white/60 flex items-center gap-1.5">
-          <CalendarBlank size={14} className="flex-shrink-0" style={{ color: "rgba(255,255,255,0.4)" }} aria-hidden="true" />
+        <p className="text-sm text-white/80 flex items-center gap-1.5">
+          <CalendarBlank size={14} className="flex-shrink-0 text-white/80" aria-hidden="true" />
           {formatDateRange(validInvite.tripStartDate, validInvite.tripEndDate)}
         </p>
 
         {/* Section 4 — Permissions preview (ABOVE CTA — locked decision 2) */}
         <div>
-          <p className="text-xs text-white/40 uppercase tracking-wide mb-2">
-            What you can do on this trip
+          <p
+            className="text-xs font-black uppercase tracking-widest mb-2"
+            style={{ color: "#00A8CC", fontFamily: "var(--font-fredoka)" }}
+          >
+            What you can do
           </p>
           <div className="flex flex-wrap gap-2">
             {["Log expenses", "Check packing"].map((label) => (
               <span
                 key={label}
-                className="text-xs px-3 py-1.5 rounded-full"
-                style={{ backgroundColor: "rgba(255,255,255,0.05)", color: "rgba(255,255,255,0.5)" }}
+                className="text-xs font-semibold px-3 py-1.5 rounded-full text-white/80"
+                style={{ backgroundColor: "rgba(255,255,255,0.08)", border: "1px solid #3A3A3A" }}
               >
                 {label}
               </span>
@@ -207,7 +210,7 @@ function PageShell({ children }: { children: React.ReactNode }) {
   return (
     <div
       className="min-h-screen flex flex-col px-4 py-10"
-      style={{ backgroundColor: "#0A0A12" }}
+      style={{ backgroundColor: "#404040" }}
     >
       <div className="mb-8">
         <Link href="/">

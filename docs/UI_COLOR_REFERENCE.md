@@ -215,6 +215,18 @@ Common assignments used on `/app` and `/trips/new` (treat as anchors, not hard r
 | Budget | `#00C96B` Green |
 | Days away | trip's own `ballColor` |
 
+### Trip role badges
+
+Role badges are small pill-shaped labels shown inline on member rows in the Group section.
+
+| Role | Badge color | Background | When |
+|---|---|---|---|
+| Admin | `#FFD600` Yellow | `rgba(255,214,0,0.15)` | `userId === trip.ownerId` |
+| Org | `#00A8CC` Cyan | `rgba(0,168,204,0.12)` | `role === "organizer"` and not owner |
+| Member | `rgba(255,255,255,0.35)` | `rgba(255,255,255,0.06)` | `role === "member"` |
+
+Admin is never stored as a separate DB value — it is always derived at runtime by comparing `userId` to `trips.ownerId`.
+
 ### Clickable list card (no border, 3D shadow)
 
 Cards that are clickable links use a bottom shadow instead of an all-around border. This signals interactivity without adding visual noise.
